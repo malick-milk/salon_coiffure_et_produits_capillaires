@@ -1,0 +1,270 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Réserver une prestation</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#0F0F0F}
+a{color:#F8F8F8;text-decoration:none}a:hover{color:#D4AF37}
+</style>
+</helmet>
+<div style="font-family: Inter, system-ui, sans-serif; color: #F8F8F8; background: #0F0F0F; min-height: 100vh;">
+
+<header style="border-bottom: 1px solid #262626; padding: 0 24px;">
+<div style="max-width: 1280px; margin: 0 auto; min-height: 72px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px;">
+<a href="Accueil.dc.html" aria-label="Accueil" style="display: flex; align-items: center; justify-content: center; width: 160px; height: 44px; border: 1px dashed #D4AF37; border-radius: 8px; color: #D4AF37; font-size: 12px; letter-spacing: 0.14em;">[LOGO]</a>
+<a href="Accueil.dc.html" style="font-size: 14px; color: #BDBDBD; min-height: 44px; display: flex; align-items: center;">Quitter la réservation</a>
+</div>
+</header>
+
+<main style="padding: 40px 24px 80px;">
+<div style="max-width: 1280px; margin: 0 auto; display: flex; flex-direction: column; gap: 32px;">
+
+<div style="display: flex; flex-direction: column; gap: 8px;">
+<h1 style="margin: 0; font-family: 'Playfair Display', Georgia, serif; font-size: 44px; font-weight: 600;">Réserver une prestation</h1>
+<p style="margin: 0; color: #BDBDBD; font-size: 16px;">Sans création de compte. Confirmation par le salon sous 2 h ouvrées.</p>
+</div>
+
+<ol aria-label="Étapes de la réservation" style="list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 10px;">
+<sc-for list="{{steps}}" as="st" hint-placeholder-count="5">
+<li aria-current="{{st.current}}" style="display: flex; align-items: center; gap: 10px; padding: 8px 16px 8px 8px; border-radius: 999px; border: 1px solid {{st.border}}; background: {{st.bg}}; color: {{st.fg}}; font-size: 14px; font-weight: 500;">
+<span style="width: 28px; height: 28px; border-radius: 999px; background: {{st.dotBg}}; color: {{st.dotFg}}; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700;">{{st.num}}</span>{{st.label}}
+</li>
+</sc-for>
+</ol>
+
+<div style="display: flex; flex-wrap: wrap; gap: 32px; align-items: flex-start;">
+<section style="flex: 999 1 560px; min-width: 0; background: #1A1A1A; border: 1px solid #262626; border-radius: 20px; padding: 32px; box-sizing: border-box; display: flex; flex-direction: column; gap: 28px;">
+
+<sc-if value="{{isStep1}}" hint-placeholder-val="{{true}}">
+<div style="display: flex; flex-direction: column; gap: 20px;">
+<h2 style="margin: 0; font-family: 'Playfair Display', Georgia, serif; font-size: 28px; font-weight: 600;">1. Choisissez votre prestation</h2>
+<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px;">
+<sc-for list="{{services}}" as="s" hint-placeholder-count="3">
+<button type="button" aria-pressed="{{s.selected}}" onClick="{{s.pick}}" style="text-align: left; min-height: 150px; padding: 20px; border-radius: 16px; border: 2px solid {{s.border}}; background: {{s.bg}}; color: #F8F8F8; font-family: Inter, sans-serif; display: flex; flex-direction: column; gap: 8px; cursor: pointer;">
+<span style="font-size: 13px; color: #BDBDBD;">{{s.category}}</span>
+<span style="font-family: 'Playfair Display', Georgia, serif; font-size: 21px;">{{s.name}}</span>
+<span style="font-size: 15px; color: #D9D9D9; margin-top: auto;">{{s.durationLabel}} · <strong style="color: #F8F8F8;">{{s.priceLabel}}</strong></span>
+</button>
+</sc-for>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{isStep2}}" hint-placeholder-val="{{false}}">
+<div style="display: flex; flex-direction: column; gap: 20px;">
+<h2 style="margin: 0; font-family: 'Playfair Display', Georgia, serif; font-size: 28px; font-weight: 600;">2. Avec qui ?</h2>
+<p style="margin: 0; font-size: 15px; color: #BDBDBD;">Seuls les coiffeurs qui réalisent cette prestation sont proposés.</p>
+<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px;">
+<sc-for list="{{stylists}}" as="p" hint-placeholder-count="3">
+<button type="button" aria-pressed="{{p.selected}}" onClick="{{p.pick}}" style="min-height: 120px; padding: 20px; border-radius: 16px; border: 2px solid {{p.border}}; background: {{p.bg}}; color: #F8F8F8; font-family: Inter, sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; cursor: pointer;">
+<span style="width: 52px; height: 52px; border-radius: 999px; background: #262626; color: #D4AF37; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 18px;">{{p.initial}}</span>
+<span style="font-size: 16px; font-weight: 600;">{{p.name}}</span>
+<span style="font-size: 13px; color: #BDBDBD;">{{p.hint}}</span>
+</button>
+</sc-for>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{isStep3}}" hint-placeholder-val="{{false}}">
+<div style="display: flex; flex-direction: column; gap: 20px;">
+<h2 style="margin: 0; font-family: 'Playfair Display', Georgia, serif; font-size: 28px; font-weight: 600;">3. Date et heure</h2>
+<div style="display: flex; flex-wrap: wrap; gap: 28px; align-items: flex-start;">
+<div style="flex: 1 1 320px; display: flex; flex-direction: column; gap: 14px;">
+<div style="display: flex; justify-content: space-between; align-items: center;">
+<button type="button" aria-label="Mois précédent" disabled style="width: 44px; height: 44px; border-radius: 999px; border: 1px solid #2A2A2A; background: transparent; color: #4A4A4A; display: flex; align-items: center; justify-content: center;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"></path></svg></button>
+<strong style="font-size: 17px;">Novembre 2026</strong>
+<button type="button" aria-label="Mois suivant" style="width: 44px; height: 44px; border-radius: 999px; border: 1px solid #3A3A3A; background: transparent; color: #F8F8F8; display: flex; align-items: center; justify-content: center;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"></path></svg></button>
+</div>
+<div style="display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; font-size: 12px; color: #A3A3A3; text-align: center;">
+<span>Lun</span><span>Mar</span><span>Mer</span><span>Jeu</span><span>Ven</span><span>Sam</span><span>Dim</span>
+</div>
+<div style="display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px;">
+<sc-for list="{{days}}" as="d" hint-placeholder-count="35">
+<button type="button" disabled="{{d.disabled}}" aria-pressed="{{d.selected}}" aria-label="{{d.aria}}" onClick="{{d.pick}}" style="height: 44px; border-radius: 10px; border: 1px solid {{d.border}}; background: {{d.bg}}; color: {{d.fg}}; font: 500 15px Inter, sans-serif; visibility: {{d.visibility}}; text-decoration: {{d.deco}}; cursor: pointer;">{{d.label}}</button>
+</sc-for>
+</div>
+<span style="font-size: 13px; color: #A3A3A3;">Dimanches barrés : salon fermé.</span>
+</div>
+<div style="flex: 1 1 280px; display: flex; flex-direction: column; gap: 14px;">
+<strong style="font-size: 16px;">{{dayTitle}}</strong>
+<sc-if value="{{hasDay}}" hint-placeholder-val="{{false}}">
+<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(84px, 1fr)); gap: 8px;">
+<sc-for list="{{slots}}" as="t" hint-placeholder-count="12">
+<button type="button" disabled="{{t.disabled}}" aria-pressed="{{t.selected}}" onClick="{{t.pick}}" style="min-height: 44px; border-radius: 10px; border: 1px {{t.borderStyle}} {{t.border}}; background: {{t.bg}}; color: {{t.fg}}; font: 500 15px Inter, sans-serif; text-decoration: {{t.deco}}; cursor: pointer;">{{t.label}}</button>
+</sc-for>
+</div>
+<span style="font-size: 13px; color: #A3A3A3; line-height: 1.5;">Créneaux calculés selon la durée de la prestation, la pause de midi et les réservations existantes. Barré = déjà pris.</span>
+</sc-if>
+<sc-if value="{{noDay}}" hint-placeholder-val="{{true}}">
+<p style="margin: 0; padding: 20px; border-radius: 12px; border: 1px dashed #3A3A3A; color: #BDBDBD; font-size: 15px;">Sélectionnez un jour pour voir les horaires disponibles.</p>
+</sc-if>
+</div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{isStep4}}" hint-placeholder-val="{{false}}">
+<div style="display: flex; flex-direction: column; gap: 20px;">
+<h2 style="margin: 0; font-family: 'Playfair Display', Georgia, serif; font-size: 28px; font-weight: 600;">4. Vos coordonnées</h2>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 18px;">
+<div style="display: flex; flex-direction: column; gap: 8px;"><label for="r-first" style="font-size: 14px; font-weight: 600;">Prénom *</label><input id="r-first" type="text" autocomplete="given-name" required style="min-height: 48px; padding: 0 14px; border-radius: 10px; border: 1px solid #3A3A3A; background: #0F0F0F; color: #F8F8F8; font: 400 16px Inter, sans-serif;"></div>
+<div style="display: flex; flex-direction: column; gap: 8px;"><label for="r-last" style="font-size: 14px; font-weight: 600;">Nom *</label><input id="r-last" type="text" autocomplete="family-name" required style="min-height: 48px; padding: 0 14px; border-radius: 10px; border: 1px solid #3A3A3A; background: #0F0F0F; color: #F8F8F8; font: 400 16px Inter, sans-serif;"></div>
+<div style="display: flex; flex-direction: column; gap: 8px;"><label for="r-phone" style="font-size: 14px; font-weight: 600;">Téléphone *</label><input id="r-phone" type="tel" autocomplete="tel" placeholder="+221 77 000 00 00" required style="min-height: 48px; padding: 0 14px; border-radius: 10px; border: 1px solid #3A3A3A; background: #0F0F0F; color: #F8F8F8; font: 400 16px Inter, sans-serif;"><span style="font-size: 13px; color: #A3A3A3;">Pour confirmer et vous rappeler la veille.</span></div>
+<div style="display: flex; flex-direction: column; gap: 8px;"><label for="r-email" style="font-size: 14px; font-weight: 600;">Email (facultatif)</label><input id="r-email" type="email" autocomplete="email" style="min-height: 48px; padding: 0 14px; border-radius: 10px; border: 1px solid #3A3A3A; background: #0F0F0F; color: #F8F8F8; font: 400 16px Inter, sans-serif;"><span style="font-size: 13px; color: #A3A3A3;">Pour recevoir la confirmation par email.</span></div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px;"><label for="r-notes" style="font-size: 14px; font-weight: 600;">Précisions pour le coiffeur (facultatif)</label><textarea id="r-notes" rows="3" maxlength="500" style="padding: 12px 14px; border-radius: 10px; border: 1px solid #3A3A3A; background: #0F0F0F; color: #F8F8F8; font: 400 16px Inter, sans-serif; resize: vertical;"></textarea></div>
+<label style="display: flex; gap: 12px; align-items: flex-start; font-size: 14px; color: #D9D9D9; line-height: 1.5;"><input type="checkbox" required style="width: 18px; height: 18px; margin-top: 2px; accent-color: #D4AF37;">J'accepte que mes données soient utilisées pour gérer ce rendez-vous (politique de confidentialité).</label>
+</div>
+</sc-if>
+
+<sc-if value="{{isStep5}}" hint-placeholder-val="{{false}}">
+<div style="display: flex; flex-direction: column; align-items: center; text-align: center; gap: 18px; padding: 24px 0;">
+<span style="width: 72px; height: 72px; border-radius: 999px; background: #D4AF37; color: #0F0F0F; display: flex; align-items: center; justify-content: center;"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"></path></svg></span>
+<h2 style="margin: 0; font-family: 'Playfair Display', Georgia, serif; font-size: 32px; font-weight: 600;">Demande de rendez-vous envoyée</h2>
+<p style="margin: 0; font-size: 16px; color: #BDBDBD; max-width: 520px; line-height: 1.6;">Le salon confirme votre rendez-vous par SMS. Conservez votre code : il permet de retrouver ou d'annuler votre réservation jusqu'à 24 h avant.</p>
+<div style="padding: 16px 28px; border-radius: 14px; border: 1px dashed #D4AF37; display: flex; flex-direction: column; gap: 4px;"><span style="font-size: 13px; color: #BDBDBD;">Code de réservation</span><strong style="font-size: 24px; letter-spacing: 0.08em; color: #D4AF37;">RDV-2026-000011</strong></div>
+<div style="display: flex; flex-wrap: wrap; gap: 12px; justify-content: center;">
+<a href="Accueil.dc.html" style="display: inline-flex; align-items: center; min-height: 48px; padding: 0 24px; border-radius: 999px; border: 1px solid #D4AF37; color: #D4AF37; font-weight: 600;">Retour à l'accueil</a>
+<a href="Compte.dc.html" style="display: inline-flex; align-items: center; min-height: 48px; padding: 0 24px; border-radius: 999px; background: #D4AF37; color: #0F0F0F; font-weight: 600;">Créer un compte pour suivre mes RDV</a>
+</div>
+<button type="button" onClick="{{restart}}" style="min-height: 44px; border: none; background: transparent; color: #BDBDBD; font: 500 14px Inter, sans-serif; text-decoration: underline; text-underline-offset: 4px; cursor: pointer;">Recommencer la démonstration</button>
+</div>
+</sc-if>
+
+<sc-if value="{{showNav}}" hint-placeholder-val="{{true}}">
+<div style="display: flex; justify-content: space-between; gap: 12px; border-top: 1px solid #262626; padding-top: 24px;">
+<button type="button" onClick="{{back}}" disabled="{{isStep1}}" style="min-height: 48px; padding: 0 24px; border-radius: 999px; border: 1px solid {{backBorder}}; background: transparent; color: {{backFg}}; font: 600 15px Inter, sans-serif; cursor: pointer;">Retour</button>
+<button type="button" onClick="{{next}}" disabled="{{cannotContinue}}" style="min-height: 48px; padding: 0 28px; border-radius: 999px; border: none; background: {{nextBg}}; color: {{nextFg}}; font: 600 15px Inter, sans-serif; cursor: pointer;">{{nextLabel}}</button>
+</div>
+</sc-if>
+</section>
+
+<aside aria-label="Récapitulatif" style="flex: 1 1 300px; max-width: 380px; background: #F8F8F8; color: #0F0F0F; border-radius: 20px; padding: 28px; box-sizing: border-box; display: flex; flex-direction: column; gap: 16px;">
+<h2 style="margin: 0; font-family: 'Playfair Display', Georgia, serif; font-size: 22px; font-weight: 600;">Récapitulatif</h2>
+<div style="display: flex; justify-content: space-between; gap: 12px; font-size: 15px; border-bottom: 1px solid #E4E4E7; padding-bottom: 12px;"><span style="color: #52525B;">Prestation</span><strong style="text-align: right;">{{sumService}}</strong></div>
+<div style="display: flex; justify-content: space-between; gap: 12px; font-size: 15px; border-bottom: 1px solid #E4E4E7; padding-bottom: 12px;"><span style="color: #52525B;">Coiffeur</span><strong style="text-align: right;">{{sumStylist}}</strong></div>
+<div style="display: flex; justify-content: space-between; gap: 12px; font-size: 15px; border-bottom: 1px solid #E4E4E7; padding-bottom: 12px;"><span style="color: #52525B;">Date</span><strong style="text-align: right;">{{sumDate}}</strong></div>
+<div style="display: flex; justify-content: space-between; gap: 12px; font-size: 15px; border-bottom: 1px solid #E4E4E7; padding-bottom: 12px;"><span style="color: #52525B;">Durée</span><strong style="text-align: right;">{{sumDuration}}</strong></div>
+<div style="display: flex; justify-content: space-between; gap: 12px; font-size: 18px; padding-top: 4px;"><span>Total</span><strong>{{sumPrice}}</strong></div>
+<p style="margin: 0; font-size: 13px; color: #52525B; line-height: 1.5;">Paiement au salon après la prestation (espèces, Wave, Orange Money, Free Money).</p>
+</aside>
+</div>
+
+</div>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1250}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { step: 1, serviceId: null, stylistId: null, day: null, slot: null };
+  }
+  renderVals() {
+    const st = this.state;
+    const SERVICES = [
+      { id: 1, category: 'Tresses', name: 'Tresses africaines', duration: 180, price: 25000, stylists: ['fatou', 'bineta'] },
+      { id: 2, category: 'Tresses', name: 'Nattes collées', duration: 90, price: 12000, stylists: ['fatou'] },
+      { id: 3, category: 'Soins', name: 'Soin profond au karité', duration: 60, price: 8000, stylists: ['fatou', 'bineta'] }
+    ];
+    const STYLISTS = [
+      { id: 'any', name: 'Peu importe', initial: '?', hint: 'Premier disponible' },
+      { id: 'fatou', name: 'Fatou', initial: 'F', hint: 'Tresses, soins' },
+      { id: 'bineta', name: 'Bineta', initial: 'B', hint: 'Tresses, soins' }
+    ];
+    const DAY_NAMES = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'];
+    const money = (n) => n.toLocaleString('fr-FR').replace(/ | /g, ' ') + ' F CFA';
+    const dur = (m) => (m >= 60 ? Math.floor(m / 60) + ' h' + (m % 60 ? ' ' + (m % 60) : '') : m + ' min');
+    const hhmm = (m) => String(Math.floor(m / 60)).padStart(2, '0') + ':' + String(m % 60).padStart(2, '0');
+    const weekday = (d) => (d + 5) % 7; // 1er novembre 2026 = dimanche ; 0 = lundi
+
+    const service = SERVICES.find((s) => s.id === st.serviceId) || null;
+    const stylist = STYLISTS.find((p) => p.id === st.stylistId) || null;
+
+    const steps = ['Prestation', 'Coiffeur', 'Date et heure', 'Coordonnées', 'Confirmation'].map((label, i) => {
+      const n = i + 1, done = n < st.step, cur = n === st.step;
+      return {
+        num: done ? '✓' : String(n), label, current: cur ? 'step' : 'false',
+        border: cur ? '#D4AF37' : '#2A2A2A', bg: cur ? '#17140B' : 'transparent', fg: cur || done ? '#F8F8F8' : '#A3A3A3',
+        dotBg: cur || done ? '#D4AF37' : '#262626', dotFg: cur || done ? '#0F0F0F' : '#BDBDBD'
+      };
+    });
+
+    const services = SERVICES.map((s) => {
+      const sel = s.id === st.serviceId;
+      return { ...s, durationLabel: dur(s.duration), priceLabel: money(s.price), selected: sel ? 'true' : 'false',
+        border: sel ? '#D4AF37' : '#2A2A2A', bg: sel ? '#17140B' : '#0F0F0F',
+        pick: () => this.setState({ serviceId: s.id, stylistId: null, slot: null }) };
+    });
+
+    const stylists = STYLISTS.filter((p) => p.id === 'any' || (service && service.stylists.includes(p.id))).map((p) => {
+      const sel = p.id === st.stylistId;
+      return { ...p, selected: sel ? 'true' : 'false', border: sel ? '#D4AF37' : '#2A2A2A', bg: sel ? '#17140B' : '#0F0F0F',
+        pick: () => this.setState({ stylistId: p.id, slot: null }) };
+    });
+
+    const days = [];
+    for (let i = 0; i < 6; i++) days.push({ label: '', disabled: true, selected: 'false', aria: 'vide', visibility: 'hidden', border: 'transparent', bg: 'transparent', fg: 'transparent', deco: 'none', pick: () => {} });
+    for (let d = 1; d <= 30; d++) {
+      const closed = weekday(d) === 6;
+      const sel = d === st.day;
+      days.push({ label: String(d), disabled: closed, selected: sel ? 'true' : 'false',
+        aria: DAY_NAMES[weekday(d)] + ' ' + d + ' novembre' + (closed ? ', fermé' : ''), visibility: 'visible',
+        border: sel ? '#D4AF37' : (closed ? 'transparent' : '#3A3A3A'), bg: sel ? '#D4AF37' : 'transparent',
+        fg: sel ? '#0F0F0F' : (closed ? '#5A5A5A' : '#F8F8F8'), deco: closed ? 'line-through' : 'none',
+        pick: () => this.setState({ day: d, slot: null }) });
+    }
+    while (days.length % 7) days.push({ label: '', disabled: true, selected: 'false', aria: 'vide', visibility: 'hidden', border: 'transparent', bg: 'transparent', fg: 'transparent', deco: 'none', pick: () => {} });
+
+    let slots = [];
+    if (st.day && service) {
+      const wd = weekday(st.day);
+      const close = wd === 5 ? 20 * 60 : 19 * 60;
+      const brk = wd === 5 ? null : (wd === 4 ? [13 * 60, 15 * 60] : [13 * 60, 14 * 60]);
+      for (let m = 9 * 60, i = 0; m + service.duration <= close; m += 30, i++) {
+        if (brk && m < brk[1] && m + service.duration > brk[0]) continue;
+        const taken = (st.day * 7 + i * 3) % 5 === 0;
+        const sel = st.slot === m;
+        slots.push({ label: hhmm(m), disabled: taken, selected: sel ? 'true' : 'false',
+          borderStyle: taken ? 'dashed' : 'solid', border: sel ? '#D4AF37' : '#3A3A3A',
+          bg: sel ? '#D4AF37' : 'transparent', fg: sel ? '#0F0F0F' : (taken ? '#6B6B6B' : '#F8F8F8'),
+          deco: taken ? 'line-through' : 'none', pick: () => this.setState({ slot: m }) });
+      }
+    }
+
+    const canContinue = (st.step === 1 && service) || (st.step === 2 && stylist) || (st.step === 3 && st.day && st.slot !== null) || st.step === 4;
+    const dateLabel = st.day ? DAY_NAMES[weekday(st.day)] + ' ' + st.day + ' novembre 2026' : '—';
+
+    return {
+      steps, services, stylists, days, slots,
+      isStep1: st.step === 1, isStep2: st.step === 2, isStep3: st.step === 3, isStep4: st.step === 4, isStep5: st.step === 5,
+      showNav: st.step < 5,
+      hasDay: !!st.day, noDay: !st.day,
+      dayTitle: st.day ? dateLabel : 'Horaires disponibles',
+      cannotContinue: !canContinue,
+      nextLabel: st.step === 4 ? 'Envoyer la demande' : 'Continuer',
+      nextBg: canContinue ? '#D4AF37' : '#2A2A2A', nextFg: canContinue ? '#0F0F0F' : '#7A7A7A',
+      backBorder: st.step === 1 ? '#2A2A2A' : '#D4AF37', backFg: st.step === 1 ? '#5A5A5A' : '#D4AF37',
+      next: () => canContinue && this.setState({ step: st.step + 1 }),
+      back: () => this.setState({ step: Math.max(1, st.step - 1) }),
+      restart: () => this.setState({ step: 1, serviceId: null, stylistId: null, day: null, slot: null }),
+      sumService: service ? service.name : '—',
+      sumStylist: stylist ? stylist.name : '—',
+      sumDate: st.day && st.slot !== null ? dateLabel + ' à ' + hhmm(st.slot) : dateLabel,
+      sumDuration: service ? dur(service.duration) : '—',
+      sumPrice: service ? money(service.price) : '—'
+    };
+  }
+}
+</script>
+</body>
+</html>

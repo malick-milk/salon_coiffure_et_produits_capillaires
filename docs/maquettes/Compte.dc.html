@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Mon compte</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#0F0F0F}
+a{color:#F8F8F8;text-decoration:none}a:hover{color:#D4AF37}
+</style>
+</helmet>
+<div style="font-family: Inter, system-ui, sans-serif; color: #F8F8F8; background: #0F0F0F; min-height: 100vh;">
+
+<header style="border-bottom: 1px solid #262626; padding: 0 24px;">
+<div style="max-width: 1280px; margin: 0 auto; min-height: 80px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px;">
+<a href="Accueil.dc.html" aria-label="Accueil" style="display: flex; align-items: center; justify-content: center; width: 160px; height: 48px; border: 1px dashed #D4AF37; border-radius: 8px; color: #D4AF37; font-size: 12px; letter-spacing: 0.14em;">[LOGO]</a>
+<nav aria-label="Navigation principale" style="display: flex; flex-wrap: wrap; gap: 32px; font-size: 15px; font-weight: 500;">
+<a href="Catalogue.dc.html">Boutique</a>
+<a href="Accueil.dc.html">Prestations</a>
+<a href="Reservation.dc.html">Réserver</a>
+</nav>
+<a href="Compte.dc.html" aria-current="page" style="display: flex; align-items: center; gap: 10px; min-height: 44px; color: #D4AF37; font-weight: 500;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"></circle><path d="M20 21a8 8 0 0 0-16 0"></path></svg>Mariama</a>
+</div>
+</header>
+
+<main style="padding: 40px 24px 96px;">
+<div style="max-width: 1280px; margin: 0 auto; display: flex; flex-wrap: wrap; gap: 32px; align-items: flex-start;">
+
+<nav aria-label="Mon compte" style="flex: 1 1 240px; max-width: 280px; display: flex; flex-direction: column; gap: 4px; background: #1A1A1A; border: 1px solid #262626; border-radius: 16px; padding: 12px; box-sizing: border-box;">
+<a href="#" aria-current="page" style="display: flex; align-items: center; gap: 12px; min-height: 48px; padding: 0 14px; border-radius: 10px; background: #17140B; color: #D4AF37; font-weight: 600;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="9" rx="1"></rect><rect x="14" y="3" width="7" height="5" rx="1"></rect><rect x="14" y="12" width="7" height="9" rx="1"></rect><rect x="3" y="16" width="7" height="5" rx="1"></rect></svg>Vue d'ensemble</a>
+<a href="#commandes" style="display: flex; align-items: center; gap: 12px; min-height: 48px; padding: 0 14px; border-radius: 10px;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m7.5 4.27 9 5.15"></path><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"></path><path d="m3.3 7 8.7 5 8.7-5M12 22V12"></path></svg>Mes commandes</a>
+<a href="#rdv" style="display: flex; align-items: center; gap: 12px; min-height: 48px; padding: 0 14px; border-radius: 10px;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"></rect><path d="M16 2v4M8 2v4M3 10h18"></path></svg>Mes réservations</a>
+<a href="#" style="display: flex; align-items: center; gap: 12px; min-height: 48px; padding: 0 14px; border-radius: 10px;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"></path><circle cx="12" cy="10" r="3"></circle></svg>Mes adresses</a>
+<a href="#" style="display: flex; align-items: center; gap: 12px; min-height: 48px; padding: 0 14px; border-radius: 10px;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"></circle><path d="M20 21a8 8 0 0 0-16 0"></path></svg>Profil et sécurité</a>
+<button type="button" style="display: flex; align-items: center; gap: 12px; min-height: 48px; padding: 0 14px; border-radius: 10px; border: none; background: transparent; color: #BDBDBD; font: 400 16px Inter, sans-serif; cursor: pointer; border-top: 1px solid #262626; margin-top: 8px;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"></path></svg>Se déconnecter</button>
+</nav>
+
+<div style="flex: 999 1 560px; min-width: 0; display: flex; flex-direction: column; gap: 28px;">
+<div style="display: flex; flex-direction: column; gap: 6px;">
+<h1 style="margin: 0; font-family: 'Playfair Display', Georgia, serif; font-size: 40px; font-weight: 600;">Bonjour Mariama</h1>
+<p style="margin: 0; color: #BDBDBD; font-size: 16px;">Cliente depuis janvier 2026</p>
+</div>
+
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px;">
+<div style="background: #17140B; border: 1px solid #B8860B; border-radius: 16px; padding: 22px; display: flex; flex-direction: column; gap: 10px;">
+<span style="font-size: 13px; letter-spacing: 0.14em; text-transform: uppercase; color: #D4AF37; font-weight: 600;">Prochain rendez-vous</span>
+<strong style="font-size: 20px;">Samedi 14 novembre · 10:00</strong>
+<span style="font-size: 15px; color: #D9D9D9;">Tresses africaines avec Fatou</span>
+<span style="display: inline-flex; width: fit-content; padding: 4px 12px; border-radius: 999px; background: #DCEBFF; color: #0B3D91; font-size: 13px; font-weight: 600;">Confirmée</span>
+</div>
+<div style="background: #1A1A1A; border: 1px solid #262626; border-radius: 16px; padding: 22px; display: flex; flex-direction: column; gap: 10px;">
+<span style="font-size: 13px; letter-spacing: 0.14em; text-transform: uppercase; color: #BDBDBD; font-weight: 600;">Commande en cours</span>
+<strong style="font-size: 20px;">CMD-2026-000008</strong>
+<span style="font-size: 15px; color: #D9D9D9;">Prête pour retrait en boutique</span>
+<span style="display: inline-flex; width: fit-content; padding: 4px 12px; border-radius: 999px; background: #DCEBFF; color: #0B3D91; font-size: 13px; font-weight: 600;">Confirmée</span>
+</div>
+</div>
+
+<section id="commandes" style="background: #F8F8F8; color: #0F0F0F; border-radius: 16px; padding: 24px; display: flex; flex-direction: column; gap: 16px;">
+<div style="display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap;">
+<h2 style="margin: 0; font-family: 'Playfair Display', Georgia, serif; font-size: 26px; font-weight: 600;">Mes commandes</h2>
+<a href="Catalogue.dc.html" style="color: #0F0F0F; font-weight: 600; text-decoration: underline; text-underline-offset: 4px; min-height: 44px; display: flex; align-items: center;">Continuer mes achats</a>
+</div>
+<div style="overflow-x: auto;">
+<table style="width: 100%; min-width: 640px; border-collapse: collapse; font-size: 15px;">
+<thead><tr style="text-align: left; color: #52525B; font-size: 13px; border-bottom: 1px solid #D4D4D8;"><th scope="col" style="padding: 10px 8px; font-weight: 600;">Référence</th><th scope="col" style="padding: 10px 8px; font-weight: 600;">Date</th><th scope="col" style="padding: 10px 8px; font-weight: 600;">Mode</th><th scope="col" style="padding: 10px 8px; font-weight: 600;">Statut</th><th scope="col" style="padding: 10px 8px; font-weight: 600; text-align: right;">Total</th><th scope="col" style="padding: 10px 8px; font-weight: 600; text-align: right;">Facture</th></tr></thead>
+<tbody>
+<sc-for list="{{orders}}" as="o" hint-placeholder-count="3">
+<tr style="border-bottom: 1px solid #E4E4E7;">
+<td style="padding: 14px 8px; font-weight: 600;">{{o.ref}}</td>
+<td style="padding: 14px 8px;">{{o.date}}</td>
+<td style="padding: 14px 8px;">{{o.mode}}</td>
+<td style="padding: 14px 8px;"><span style="padding: 4px 12px; border-radius: 999px; background: {{o.bg}}; color: {{o.fg}}; font-size: 13px; font-weight: 600; white-space: nowrap;">{{o.status}}</span></td>
+<td style="padding: 14px 8px; text-align: right; font-weight: 600; white-space: nowrap;">{{o.total}}</td>
+<td style="padding: 14px 8px; text-align: right;"><sc-if value="{{o.invoice}}" hint-placeholder-val="{{true}}"><a href="#" aria-label="Télécharger la facture {{o.ref}} en PDF" style="display: inline-flex; align-items: center; gap: 6px; color: #0F0F0F; font-weight: 600; min-height: 44px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"></path><path d="M14 2v4a2 2 0 0 0 2 2h4M16 13H8M16 17H8M10 9H8"></path></svg>PDF</a></sc-if><sc-if value="{{o.noInvoice}}" hint-placeholder-val="{{false}}"><span style="color: #71717A; font-size: 13px;">Après paiement</span></sc-if></td>
+</tr>
+</sc-for>
+</tbody>
+</table>
+</div>
+</section>
+
+<section id="rdv" style="background: #F8F8F8; color: #0F0F0F; border-radius: 16px; padding: 24px; display: flex; flex-direction: column; gap: 16px;">
+<h2 style="margin: 0; font-family: 'Playfair Display', Georgia, serif; font-size: 26px; font-weight: 600;">Mes réservations</h2>
+<sc-for list="{{bookings}}" as="b" hint-placeholder-count="3">
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 16px; padding: 16px; border: 1px solid #E4E4E7; border-radius: 12px; background: #FFFFFF;">
+<div style="width: 64px; text-align: center; display: flex; flex-direction: column; gap: 2px;"><strong style="font-size: 24px;">{{b.day}}</strong><span style="font-size: 13px; color: #52525B; text-transform: uppercase;">{{b.month}}</span></div>
+<div style="flex: 1 1 220px; display: flex; flex-direction: column; gap: 4px;"><strong style="font-size: 16px;">{{b.service}}</strong><span style="font-size: 14px; color: #52525B;">{{b.detail}}</span></div>
+<span style="padding: 4px 12px; border-radius: 999px; background: {{b.bg}}; color: {{b.fg}}; font-size: 13px; font-weight: 600;">{{b.status}}</span>
+<sc-if value="{{b.cancellable}}" hint-placeholder-val="{{false}}"><button type="button" style="min-height: 44px; padding: 0 18px; border-radius: 999px; border: 1px solid #0F0F0F; background: transparent; color: #0F0F0F; font: 600 14px Inter, sans-serif; cursor: pointer;">Annuler</button></sc-if>
+</div>
+</sc-for>
+<p style="margin: 0; font-size: 13px; color: #52525B;">Annulation possible en ligne jusqu'à 24 h avant le rendez-vous. Au-delà, contactez le salon.</p>
+</section>
+</div>
+
+</div>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1350}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const S = {
+      confirmed: { status: 'Confirmée', bg: '#DCEBFF', fg: '#0B3D91' },
+      delivered: { status: 'Livrée', bg: '#DFF3E4', fg: '#14532D' },
+      completed: { status: 'Terminée', bg: '#DFF3E4', fg: '#14532D' }
+    };
+    return {
+      orders: [
+        { ref: 'CMD-2026-000008', date: '20/03/2026', mode: 'Retrait', total: '13 000 F CFA', invoice: false, noInvoice: true, ...S.confirmed },
+        { ref: 'CMD-2026-000003', date: '10/02/2026', mode: 'Retrait', total: '16 000 F CFA', invoice: true, noInvoice: false, ...S.delivered },
+        { ref: 'CMD-2026-000001', date: '06/01/2026', mode: 'Livraison', total: '20 500 F CFA', invoice: true, noInvoice: false, ...S.delivered }
+      ],
+      bookings: [
+        { day: '14', month: 'nov.', service: 'Tresses africaines', detail: '10:00 · 3 h · Fatou · 25 000 F CFA', cancellable: true, ...S.confirmed },
+        { day: '21', month: 'févr.', service: 'Soin profond au karité', detail: '16:00 · 1 h · Fatou · 8 000 F CFA', cancellable: false, ...S.completed },
+        { day: '10', month: 'janv.', service: 'Tresses africaines', detail: '09:00 · 3 h · Fatou · 25 000 F CFA', cancellable: false, ...S.completed }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

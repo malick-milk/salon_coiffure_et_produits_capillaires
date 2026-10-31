@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>BI — tableau de bord décisionnel</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F4F4F5}
+a{color:#0F0F0F;text-decoration:none}a:hover{color:#7A5A00}
+</style>
+</helmet>
+<div style="font-family: Inter, system-ui, sans-serif; color: #0F0F0F; background: #F4F4F5; min-height: 100vh; padding: 28px; box-sizing: border-box;">
+<div style="max-width: 1360px; margin: 0 auto; display: flex; flex-direction: column; gap: 22px;">
+
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: end; gap: 16px;">
+<div style="display: flex; flex-direction: column; gap: 6px;">
+<a href="ErpDashboard.dc.html" style="font-size: 14px; color: #52525B; display: inline-flex; align-items: center; gap: 6px; min-height: 32px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"></path></svg>Retour à l'ERP</a>
+<h1 style="margin: 0; font-family: 'Playfair Display', Georgia, serif; font-size: 34px; font-weight: 600;">Tableau de bord décisionnel</h1>
+<span style="font-size: 13px; color: #52525B;">1er trimestre 2026 · données de démonstration · chaque chiffre suit le dictionnaire des KPI</span>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 8px; align-items: center;">
+<div role="group" aria-label="Période" style="display: flex; flex-wrap: wrap; gap: 6px; padding: 4px; border-radius: 999px; background: #FFFFFF; border: 1px solid #E4E4E7;">
+<button type="button" aria-pressed="false" style="min-height: 40px; padding: 0 14px; border-radius: 999px; border: none; background: transparent; color: #3F3F46; font: 500 14px Inter, sans-serif;">7 jours</button>
+<button type="button" aria-pressed="false" style="min-height: 40px; padding: 0 14px; border-radius: 999px; border: none; background: transparent; color: #3F3F46; font: 500 14px Inter, sans-serif;">30 jours</button>
+<button type="button" aria-pressed="true" style="min-height: 40px; padding: 0 14px; border-radius: 999px; border: none; background: #0F0F0F; color: #F8F8F8; font: 600 14px Inter, sans-serif;">Trimestre</button>
+<button type="button" aria-pressed="false" style="min-height: 40px; padding: 0 14px; border-radius: 999px; border: none; background: transparent; color: #3F3F46; font: 500 14px Inter, sans-serif;">Année</button>
+<button type="button" aria-pressed="false" style="min-height: 40px; padding: 0 14px; border-radius: 999px; border: none; background: transparent; color: #3F3F46; font: 500 14px Inter, sans-serif;">Personnalisée</button>
+</div>
+<button type="button" style="min-height: 48px; padding: 0 18px; border-radius: 999px; border: 1px solid #0F0F0F; background: #FFFFFF; color: #0F0F0F; font: 600 14px Inter, sans-serif; display: inline-flex; align-items: center; gap: 8px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"></path></svg>Exporter en CSV</button>
+</div>
+</div>
+
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px;">
+<sc-for list="{{kpis}}" as="k" hint-placeholder-count="6">
+<div style="background: #FFFFFF; border: 1px solid #E4E4E7; border-radius: 16px; padding: 18px; display: flex; flex-direction: column; gap: 6px;">
+<span style="font-size: 13px; color: #52525B; font-weight: 500;">{{k.label}}</span>
+<strong style="font-size: 26px; font-weight: 600; letter-spacing: -0.01em;">{{k.value}}</strong>
+<span style="font-size: 12px; color: #52525B; line-height: 1.4;">{{k.def}}</span>
+</div>
+</sc-for>
+</div>
+
+<div style="display: flex; flex-wrap: wrap; gap: 16px; align-items: stretch;">
+<section style="flex: 3 1 560px; background: #FFFFFF; border: 1px solid #E4E4E7; border-radius: 16px; padding: 22px; display: flex; flex-direction: column; gap: 14px;">
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; gap: 10px; align-items: center;">
+<h2 style="margin: 0; font-size: 17px; font-weight: 600;">Évolution du chiffre d'affaires cumulé</h2>
+<span style="font-size: 13px; color: #52525B;">Requête Q01 · fonction de fenêtrage SUM() OVER</span>
+</div>
+<figure style="margin: 0;">
+<svg viewBox="0 0 640 260" width="100%" role="img" aria-label="CA cumulé : 61 500 fin janvier, 113 000 fin février, 171 500 fin mars" style="display: block;">
+<line x1="60" y1="220" x2="620" y2="220" stroke="#D4D4D8" stroke-width="1"></line>
+<line x1="60" y1="153" x2="620" y2="153" stroke="#F4F4F5" stroke-width="1"></line>
+<line x1="60" y1="87" x2="620" y2="87" stroke="#F4F4F5" stroke-width="1"></line>
+<line x1="60" y1="20" x2="620" y2="20" stroke="#F4F4F5" stroke-width="1"></line>
+<text x="52" y="224" text-anchor="end" font-size="12" fill="#52525B">0</text>
+<text x="52" y="157" text-anchor="end" font-size="12" fill="#52525B">60 k</text>
+<text x="52" y="91" text-anchor="end" font-size="12" fill="#52525B">120 k</text>
+<text x="52" y="24" text-anchor="end" font-size="12" fill="#52525B">180 k</text>
+<path d="M60 220 L153 151.7 L340 94.4 L527 29.4 L527 220 Z" fill="#D4AF37" fill-opacity="0.18"></path>
+<polyline points="60,220 153,151.7 340,94.4 527,29.4" fill="none" stroke="#B8860B" stroke-width="3" stroke-linejoin="round"></polyline>
+<circle cx="153" cy="151.7" r="5" fill="#0F0F0F"></circle>
+<circle cx="340" cy="94.4" r="5" fill="#0F0F0F"></circle>
+<circle cx="527" cy="29.4" r="5" fill="#0F0F0F"></circle>
+<text x="153" y="138" text-anchor="middle" font-size="13" font-weight="600" fill="#0F0F0F">61 500</text>
+<text x="340" y="81" text-anchor="middle" font-size="13" font-weight="600" fill="#0F0F0F">113 000</text>
+<text x="527" y="16" text-anchor="middle" font-size="13" font-weight="600" fill="#0F0F0F">171 500</text>
+<text x="153" y="244" text-anchor="middle" font-size="12" fill="#52525B">Fin janv.</text>
+<text x="340" y="244" text-anchor="middle" font-size="12" fill="#52525B">Fin févr.</text>
+<text x="527" y="244" text-anchor="middle" font-size="12" fill="#52525B">Fin mars</text>
+</svg>
+</figure>
+<p style="margin: 0; font-size: 13px; color: #52525B;">En production, la courbe est quotidienne (table daily_sales_snapshots) avec la période précédente en pointillés pour comparaison.</p>
+</section>
+
+<section style="flex: 2 1 380px; background: #FFFFFF; border: 1px solid #E4E4E7; border-radius: 16px; padding: 22px; display: flex; flex-direction: column; gap: 14px;">
+<div style="display: flex; flex-direction: column; gap: 4px;">
+<h2 style="margin: 0; font-size: 17px; font-weight: 600;">Demande de réservations : jour × heure</h2>
+<span style="font-size: 13px; color: #52525B;">Requête Q08 · réservations non annulées</span>
+</div>
+<div style="overflow-x: auto;">
+<table style="border-collapse: separate; border-spacing: 3px; font-size: 12px; min-width: 360px;">
+<thead><tr><th scope="col" style="width: 40px;"></th><sc-for list="{{hours}}" as="h" hint-placeholder-count="10"><th scope="col" style="font-weight: 500; color: #52525B; padding-bottom: 4px;">{{h}}</th></sc-for></tr></thead>
+<tbody>
+<sc-for list="{{heat}}" as="r" hint-placeholder-count="6">
+<tr><th scope="row" style="text-align: left; font-weight: 500; color: #3F3F46; padding-right: 6px;">{{r.day}}</th>
+<sc-for list="{{r.cells}}" as="c" hint-placeholder-count="10"><td aria-label="{{c.aria}}" style="width: 30px; height: 30px; border-radius: 6px; background: {{c.bg}}; color: {{c.fg}}; text-align: center; font-weight: 600;">{{c.label}}</td></sc-for>
+</tr>
+</sc-for>
+</tbody>
+</table>
+</div>
+<div style="display: flex; align-items: center; gap: 8px; font-size: 12px; color: #52525B;"><span>Moins</span><span style="width: 18px; height: 12px; border-radius: 3px; background: #F4F4F5; border: 1px solid #E4E4E7;"></span><span style="width: 18px; height: 12px; border-radius: 3px; background: #F3E3B0;"></span><span style="width: 18px; height: 12px; border-radius: 3px; background: #D4AF37;"></span><span style="width: 18px; height: 12px; border-radius: 3px; background: #7A5A00;"></span><span>Plus</span></div>
+<p style="margin: 0; font-size: 13px; color: #3F3F46; line-height: 1.5;"><strong>Lecture :</strong> le samedi 10 h concentre 5 demandes sur 9. Piste : renforcer l'équipe le samedi matin, proposer des créneaux en semaine.</p>
+</section>
+</div>
+
+<div style="display: flex; flex-wrap: wrap; gap: 16px; align-items: stretch;">
+<section style="flex: 1 1 460px; background: #FFFFFF; border: 1px solid #E4E4E7; border-radius: 16px; padding: 22px; display: flex; flex-direction: column; gap: 14px;">
+<div style="display: flex; flex-direction: column; gap: 4px;">
+<h2 style="margin: 0; font-size: 17px; font-weight: 600;">Top clients et valeur vie client</h2>
+<span style="font-size: 13px; color: #52525B;">Requête Q07 · produits + prestations · récence = jours depuis la dernière visite</span>
+</div>
+<div style="overflow-x: auto;">
+<table style="width: 100%; min-width: 460px; border-collapse: collapse; font-size: 14px;">
+<thead><tr style="text-align: left; color: #52525B; font-size: 12px; border-bottom: 1px solid #E4E4E7;"><th scope="col" style="padding: 8px 4px; font-weight: 600;">Client</th><th scope="col" style="padding: 8px 4px; font-weight: 600;">Type</th><th scope="col" style="padding: 8px 4px; font-weight: 600; text-align: right;">Visites</th><th scope="col" style="padding: 8px 4px; font-weight: 600; text-align: right;">CLV</th><th scope="col" style="padding: 8px 4px; font-weight: 600; text-align: right;">Récence</th></tr></thead>
+<tbody>
+<sc-for list="{{clients}}" as="c" hint-placeholder-count="5">
+<tr style="border-bottom: 1px solid #F4F4F5;"><td style="padding: 10px 4px; font-weight: 500;">{{c.name}}</td><td style="padding: 10px 4px; color: #52525B;">{{c.type}}</td><td style="padding: 10px 4px; text-align: right;">{{c.visits}}</td><td style="padding: 10px 4px; text-align: right; font-weight: 600; white-space: nowrap;">{{c.clv}}</td><td style="padding: 10px 4px; text-align: right; color: #52525B; white-space: nowrap;">{{c.recency}}</td></tr>
+</sc-for>
+</tbody>
+</table>
+</div>
+</section>
+
+<section style="flex: 1 1 460px; background: #FFFFFF; border: 1px solid #E4E4E7; border-radius: 16px; padding: 22px; display: flex; flex-direction: column; gap: 14px;">
+<div style="display: flex; flex-direction: column; gap: 4px;">
+<h2 style="margin: 0; font-size: 17px; font-weight: 600;">Rotation des stocks et couverture</h2>
+<span style="font-size: 13px; color: #52525B;">Requêtes Q10 et Q11 · rotation = coût des ventes ÷ stock moyen valorisé</span>
+</div>
+<div style="display: flex; flex-direction: column; gap: 12px;">
+<sc-for list="{{rotation}}" as="r" hint-placeholder-count="5">
+<div style="display: flex; flex-direction: column; gap: 6px;">
+<div style="display: flex; justify-content: space-between; gap: 10px; font-size: 14px;"><span style="font-weight: 500;">{{r.name}}</span><span style="color: #3F3F46; white-space: nowrap;"><strong style="color: #0F0F0F;">{{r.ratio}}</strong> · {{r.cover}}</span></div>
+<div style="height: 10px; border-radius: 999px; background: #F4F4F5; overflow: hidden;"><div style="height: 10px; width: {{r.width}}; background: {{r.color}}; border-radius: 999px;"></div></div>
+</div>
+</sc-for>
+</div>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; margin-top: 4px;">
+<div style="padding: 12px; border-radius: 12px; background: #FFF4D6; color: #5C4300; font-size: 13px; line-height: 1.5;"><strong>Sous le seuil :</strong> huile de baobab (4 / 5). Réapprovisionner.</div>
+<div style="padding: 12px; border-radius: 12px; background: #F4F4F5; color: #3F3F46; font-size: 13px; line-height: 1.5;"><strong>Faible rotation :</strong> shampoing clarifiant, 0 vente en 90 j, 56 000 F CFA immobilisés.</div>
+</div>
+</section>
+</div>
+
+<div style="display: flex; flex-wrap: wrap; gap: 16px; align-items: stretch;">
+<section style="flex: 1 1 380px; background: #FFFFFF; border: 1px solid #E4E4E7; border-radius: 16px; padding: 22px; display: flex; flex-direction: column; gap: 12px;">
+<h2 style="margin: 0; font-size: 17px; font-weight: 600;">Pertes de stock valorisées</h2>
+<span style="font-size: 13px; color: #52525B;">Requête Q13 · au prix d'achat</span>
+<strong style="font-size: 28px; font-weight: 600;">22 400 F CFA</strong>
+<div style="display: flex; justify-content: space-between; font-size: 14px; border-top: 1px solid #F4F4F5; padding-top: 10px;"><span>12/03 · Huile de ricin bio · 4 flacons cassés</span><strong>14 000</strong></div>
+<div style="display: flex; justify-content: space-between; font-size: 14px; border-top: 1px solid #F4F4F5; padding-top: 10px;"><span>15/03 · Huile de baobab · 2 périmés</span><strong>8 400</strong></div>
+</section>
+<section style="flex: 1 1 380px; background: #0F0F0F; color: #F8F8F8; border-radius: 16px; padding: 22px; display: flex; flex-direction: column; gap: 12px;">
+<span style="font-size: 12px; letter-spacing: 0.16em; text-transform: uppercase; color: #D4AF37; font-weight: 600;">Prochainement</span>
+<h2 style="margin: 0; font-family: 'Playfair Display', Georgia, serif; font-size: 24px; font-weight: 600;">Prévision des ventes</h2>
+<p style="margin: 0; font-size: 14px; line-height: 1.6; color: #D9D9D9;">Aujourd'hui : moyenne mobile sur 90 jours (date estimée de rupture). Demain : modèle de séries temporelles entraîné sur daily_product_stats, avec intervalle de confiance, écrit dans la table forecasts.</p>
+<a href="#" style="color: #D4AF37; font-weight: 600; min-height: 44px; display: inline-flex; align-items: center;">Voir le dictionnaire des KPI</a>
+</section>
+</div>
+
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1900}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const HOURS = [9, 10, 11, 12, 13, 14, 15, 16, 17, 18];
+    const DAYS = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'];
+    const DATA = { 'Sam-9': 1, 'Sam-10': 5, 'Sam-14': 1, 'Sam-15': 1, 'Sam-16': 1 };
+    const shade = (n) => n === 0 ? ['#F4F4F5', '#A1A1AA'] : n === 1 ? ['#F3E3B0', '#5C4300'] : n < 4 ? ['#D4AF37', '#0F0F0F'] : ['#7A5A00', '#FFFFFF'];
+    const heat = DAYS.map((d) => ({
+      day: d,
+      cells: HOURS.map((h) => {
+        const n = DATA[d + '-' + h] || 0;
+        const [bg, fg] = shade(n);
+        return { label: n ? String(n) : '', bg, fg, aria: d + ' ' + h + ' h : ' + n + ' réservation' + (n > 1 ? 's' : '') };
+      })
+    }));
+    const maxRatio = 0.57;
+    const rot = (name, ratio, cover, color) => ({ name, ratio: ratio.toFixed(2).replace('.', ','), cover,
+      width: Math.max(2, Math.round(ratio / maxRatio * 100)) + '%', color });
+    return {
+      kpis: [
+        { label: 'CA du trimestre', value: '171 500 F', def: 'Commandes payées + prestations terminées' },
+        { label: 'Panier moyen', value: '14 250 F', def: 'CA produits ÷ 6 commandes payées' },
+        { label: 'Taux de retour client', value: '80 %', def: '4 clients sur 5 sont venus au moins 2 fois' },
+        { label: 'Valeur vie client moyenne', value: '34 300 F', def: 'Total dépensé par client depuis sa 1re visite' },
+        { label: 'Taux de no-show', value: '14,3 %', def: '1 absence sur 7 rendez-vous passés' },
+        { label: 'Nouveaux clients', value: '6', def: '2 par mois sur le trimestre' }
+      ],
+      hours: HOURS.map((h) => h + 'h'),
+      heat,
+      clients: [
+        { name: 'Mariama Sow', type: 'Inscrite', visits: 4, clv: '69 500 F', recency: '27 j' },
+        { name: 'Khady Fall', type: 'Invitée', visits: 3, clv: '28 000 F', recency: '18 j' },
+        { name: 'Aminata Ba', type: 'Invitée', visits: 2, clv: '27 500 F', recency: '41 j' },
+        { name: 'Rokhaya Sarr', type: 'Invitée', visits: 1, clv: '25 000 F', recency: '6 j' },
+        { name: 'Coumba Mbaye', type: 'Invitée', visits: 2, clv: '21 500 F', recency: '6 j' }
+      ],
+      rotation: [
+        rot('Huile de baobab pure', 0.57, 'couverture 90 j', '#B8860B'),
+        rot('Peigne démêlant en bois', 0.22, 'couverture 360 j', '#0F0F0F'),
+        rot('Huile de ricin bio', 0.14, 'couverture 558 j', '#0F0F0F'),
+        rot('Shampoing karité hydratant', 0.10, 'couverture 856 j', '#0F0F0F'),
+        rot('Shampoing clarifiant', 0.00, 'aucune vente', '#A1A1AA')
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -10,7 +10,7 @@ vitrine et e-commerce, réservation en ligne, ERP d'administration et tableau de
 | 1 | Analyse du besoin — [docs/01_ANALYSE_DU_BESOIN.md](docs/01_ANALYSE_DU_BESOIN.md) | Terminée |
 | 2 | Architecture — [ARCHITECTURE.md](ARCHITECTURE.md) | Terminée (décisions provisoires, ADR-011) |
 | 3 | Base de données — [DATABASE.md](DATABASE.md), [database/](database/) | Terminée (schéma testé sur MySQL 8.4) |
-| 4 | Maquettes | À faire |
+| 4 | Maquettes — [docs/04_MAQUETTES.md](docs/04_MAQUETTES.md), [maquettes interactives](https://claude.ai/artifact/KUfhiWo6RP8ziNSapB9CEa) | Terminée |
 | 5 | Frontend React | À faire |
 | 6 | Backend Laravel | À faire |
 | 7 | ERP | À faire |

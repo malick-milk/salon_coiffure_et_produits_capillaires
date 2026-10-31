@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>ERP — tableau de bord</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F4F4F5}
+a{color:#0F0F0F;text-decoration:none}a:hover{color:#7A5A00}
+</style>
+</helmet>
+<div style="font-family: Inter, system-ui, sans-serif; color: #0F0F0F; background: #F4F4F5; min-height: 100vh; display: flex; flex-wrap: wrap;">
+
+<nav aria-label="Menu ERP" style="flex: 1 1 248px; max-width: 280px; background: #0F0F0F; color: #F8F8F8; padding: 20px 14px; box-sizing: border-box; display: flex; flex-direction: column; gap: 22px;">
+<span style="display: flex; align-items: center; justify-content: center; height: 48px; border: 1px dashed #D4AF37; border-radius: 8px; color: #D4AF37; font-size: 12px; letter-spacing: 0.14em;">[LOGO] · ERP</span>
+<sc-for list="{{menu}}" as="g" hint-placeholder-count="3">
+<div style="display: flex; flex-direction: column; gap: 2px;">
+<span style="font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: #A3A3A3; padding: 0 12px 6px;">{{g.title}}</span>
+<sc-for list="{{g.items}}" as="it" hint-placeholder-count="4">
+<a href="{{it.href}}" aria-current="{{it.current}}" style="display: flex; align-items: center; gap: 12px; min-height: 42px; padding: 0 12px; border-radius: 10px; background: {{it.bg}}; color: {{it.fg}}; font-size: 14px; font-weight: 500;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{it.icon}}"></path></svg>{{it.label}}<sc-if value="{{it.badge}}" hint-placeholder-val="{{false}}"><span style="margin-left: auto; min-width: 22px; height: 22px; padding: 0 6px; box-sizing: border-box; border-radius: 999px; background: #D4AF37; color: #0F0F0F; font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center;">{{it.badge}}</span></sc-if></a>
+</sc-for>
+</div>
+</sc-for>
+</nav>
+
+<div style="flex: 999 1 640px; min-width: 0; display: flex; flex-direction: column;">
+<header style="background: #FFFFFF; border-bottom: 1px solid #E4E4E7; padding: 14px 28px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px;">
+<div style="display: flex; align-items: center; gap: 10px; min-height: 44px; padding: 0 14px; border-radius: 10px; border: 1px solid #D4D4D8; background: #FAFAFA; flex: 0 1 380px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#52525B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg><label for="erp-search" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0);">Recherche globale</label><input id="erp-search" type="search" placeholder="Commande, client, produit…" style="border: none; outline: none; background: transparent; font: 400 15px Inter, sans-serif; flex-grow: 1; min-width: 0; color: #0F0F0F;"></div>
+<div style="display: flex; align-items: center; gap: 18px;">
+<span style="font-size: 14px; color: #52525B;">Samedi 14 mars 2026</span>
+<span style="display: flex; align-items: center; gap: 10px;"><span style="width: 40px; height: 40px; border-radius: 999px; background: #0F0F0F; color: #D4AF37; display: flex; align-items: center; justify-content: center; font-weight: 600;">AN</span><span style="display: flex; flex-direction: column;"><strong style="font-size: 14px;">Awa Ndiaye</strong><span style="font-size: 12px; color: #52525B;">Super administrateur</span></span></span>
+</div>
+</header>
+
+<main style="padding: 28px; display: flex; flex-direction: column; gap: 24px;">
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: end; gap: 12px;">
+<div style="display: flex; flex-direction: column; gap: 4px;">
+<h1 style="margin: 0; font-family: 'Playfair Display', Georgia, serif; font-size: 32px; font-weight: 600;">Tableau de bord</h1>
+<span style="font-size: 13px; color: #52525B;">Données de démonstration (database/sample_data.sql)</span>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 10px;">
+<a href="#" style="display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 18px; border-radius: 999px; border: 1px solid #0F0F0F; font-weight: 600; font-size: 14px;">Nouvelle vente en boutique</a>
+<a href="#" style="display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 18px; border-radius: 999px; background: #0F0F0F; color: #F8F8F8; font-weight: 600; font-size: 14px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5v14"></path></svg>Nouveau rendez-vous</a>
+</div>
+</div>
+
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 16px;">
+<sc-for list="{{kpis}}" as="k" hint-placeholder-count="4">
+<div style="background: #FFFFFF; border: 1px solid #E4E4E7; border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 8px;">
+<span style="font-size: 13px; color: #52525B; font-weight: 500;">{{k.label}}</span>
+<strong style="font-size: 28px; font-weight: 600; letter-spacing: -0.01em;">{{k.value}}</strong>
+<span style="font-size: 13px; color: {{k.trendColor}}; font-weight: 500;">{{k.sub}}</span>
+</div>
+</sc-for>
+</div>
+
+<div style="display: flex; flex-wrap: wrap; gap: 16px; align-items: stretch;">
+<section style="flex: 2 1 480px; background: #FFFFFF; border: 1px solid #E4E4E7; border-radius: 16px; padding: 22px; display: flex; flex-direction: column; gap: 18px;">
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; align-items: center;">
+<h2 style="margin: 0; font-size: 17px; font-weight: 600;">Chiffre d'affaires mensuel (F CFA)</h2>
+<div style="display: flex; gap: 16px; font-size: 13px; color: #3F3F46;"><span style="display: inline-flex; align-items: center; gap: 6px;"><span style="width: 12px; height: 12px; border-radius: 3px; background: #0F0F0F;"></span>Produits</span><span style="display: inline-flex; align-items: center; gap: 6px;"><span style="width: 12px; height: 12px; border-radius: 3px; background: #B8860B;"></span>Prestations</span></div>
+</div>
+<div role="img" aria-label="Janvier 61 500, février 51 500, mars 58 500 F CFA" style="display: flex; align-items: flex-end; gap: 40px; height: 280px; padding: 0 12px; border-bottom: 1px solid #D4D4D8;">
+<sc-for list="{{months}}" as="m" hint-placeholder-count="3">
+<div style="flex: 1 1 0; display: flex; flex-direction: column; align-items: center; gap: 8px; max-width: 120px;">
+<span style="font-size: 13px; font-weight: 600;">{{m.total}}</span>
+<div style="width: 100%; display: flex; flex-direction: column; gap: 2px;">
+<div style="height: {{m.servicesH}}; background: #B8860B; border-radius: 6px 6px 0 0;"></div>
+<div style="height: {{m.productsH}}; background: #0F0F0F;"></div>
+</div>
+</div>
+</sc-for>
+</div>
+<div style="display: flex; gap: 40px; padding: 0 12px; font-size: 13px; color: #52525B;">
+<sc-for list="{{months}}" as="m" hint-placeholder-count="3"><span style="flex: 1 1 0; max-width: 120px; text-align: center;">{{m.label}}</span></sc-for>
+</div>
+</section>
+
+<section style="flex: 1 1 300px; background: #FFFFFF; border: 1px solid #E4E4E7; border-radius: 16px; padding: 22px; display: flex; flex-direction: column; gap: 14px;">
+<h2 style="margin: 0; font-size: 17px; font-weight: 600;">Planning du jour</h2>
+<sc-for list="{{agenda}}" as="a" hint-placeholder-count="2">
+<div style="display: flex; gap: 14px; padding: 12px; border-radius: 12px; border: 1px solid #E4E4E7;">
+<strong style="font-size: 15px; min-width: 52px;">{{a.time}}</strong>
+<div style="display: flex; flex-direction: column; gap: 3px; flex-grow: 1;"><span style="font-size: 14px; font-weight: 600;">{{a.service}}</span><span style="font-size: 13px; color: #52525B;">{{a.who}}</span></div>
+<span style="align-self: center; padding: 3px 10px; border-radius: 999px; background: #DFF3E4; color: #14532D; font-size: 12px; font-weight: 600;">{{a.status}}</span>
+</div>
+</sc-for>
+<a href="#" style="font-size: 14px; font-weight: 600; text-decoration: underline; text-underline-offset: 4px; min-height: 44px; display: flex; align-items: center;">Ouvrir le planning de la semaine</a>
+</section>
+</div>
+
+<div style="display: flex; flex-wrap: wrap; gap: 16px; align-items: stretch;">
+<section style="flex: 1 1 340px; background: #FFFFFF; border: 1px solid #E4E4E7; border-radius: 16px; padding: 22px; display: flex; flex-direction: column; gap: 14px;">
+<h2 style="margin: 0; font-size: 17px; font-weight: 600;">Top produits du trimestre</h2>
+<div style="overflow-x: auto;">
+<table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+<thead><tr style="text-align: left; color: #52525B; font-size: 12px; border-bottom: 1px solid #E4E4E7;"><th scope="col" style="padding: 8px 4px; font-weight: 600;">Produit</th><th scope="col" style="padding: 8px 4px; font-weight: 600; text-align: right;">Vendus</th><th scope="col" style="padding: 8px 4px; font-weight: 600; text-align: right;">Marge</th><th scope="col" style="padding: 8px 4px; font-weight: 600; text-align: right;">Taux</th></tr></thead>
+<tbody>
+<sc-for list="{{tops}}" as="t" hint-placeholder-count="4">
+<tr style="border-bottom: 1px solid #F4F4F5;"><td style="padding: 10px 4px; font-weight: 500;">{{t.name}}</td><td style="padding: 10px 4px; text-align: right;">{{t.units}}</td><td style="padding: 10px 4px; text-align: right; font-weight: 600; white-space: nowrap;">{{t.margin}}</td><td style="padding: 10px 4px; text-align: right; color: #52525B;">{{t.rate}}</td></tr>
+</sc-for>
+</tbody>
+</table>
+</div>
+</section>
+
+<section style="flex: 1 1 300px; background: #FFFFFF; border: 1px solid #E4E4E7; border-radius: 16px; padding: 22px; display: flex; flex-direction: column; gap: 14px;">
+<h2 style="margin: 0; font-size: 17px; font-weight: 600; display: flex; align-items: center; gap: 8px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#B45309" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path><path d="M12 9v4M12 17h.01"></path></svg>Alertes stock</h2>
+<div style="padding: 14px; border-radius: 12px; background: #FFF4D6; display: flex; flex-direction: column; gap: 4px;"><strong style="font-size: 14px; color: #5C4300;">Huile de baobab pure</strong><span style="font-size: 13px; color: #5C4300;">4 en stock · seuil d'alerte 5</span></div>
+<div style="padding: 14px; border-radius: 12px; background: #F4F4F5; display: flex; flex-direction: column; gap: 4px;"><strong style="font-size: 14px;">Shampoing clarifiant</strong><span style="font-size: 13px; color: #3F3F46;">Aucune vente depuis 90 jours · 56 000 F CFA immobilisés</span></div>
+<a href="#" style="font-size: 14px; font-weight: 600; text-decoration: underline; text-underline-offset: 4px; min-height: 44px; display: flex; align-items: center;">Gérer le stock</a>
+</section>
+
+<section style="flex: 2 1 480px; background: #FFFFFF; border: 1px solid #E4E4E7; border-radius: 16px; padding: 22px; display: flex; flex-direction: column; gap: 14px;">
+<h2 style="margin: 0; font-size: 17px; font-weight: 600;">Dernières commandes</h2>
+<div style="overflow-x: auto;">
+<table style="width: 100%; min-width: 520px; border-collapse: collapse; font-size: 14px;">
+<thead><tr style="text-align: left; color: #52525B; font-size: 12px; border-bottom: 1px solid #E4E4E7;"><th scope="col" style="padding: 8px 4px; font-weight: 600;">Référence</th><th scope="col" style="padding: 8px 4px; font-weight: 600;">Client</th><th scope="col" style="padding: 8px 4px; font-weight: 600;">Canal</th><th scope="col" style="padding: 8px 4px; font-weight: 600;">Statut</th><th scope="col" style="padding: 8px 4px; font-weight: 600; text-align: right;">Total</th></tr></thead>
+<tbody>
+<sc-for list="{{orders}}" as="o" hint-placeholder-count="4">
+<tr style="border-bottom: 1px solid #F4F4F5;"><td style="padding: 10px 4px; font-weight: 600;"><a href="#">{{o.ref}}</a></td><td style="padding: 10px 4px;">{{o.customer}}</td><td style="padding: 10px 4px; color: #52525B;">{{o.channel}}</td><td style="padding: 10px 4px;"><span style="padding: 3px 10px; border-radius: 999px; background: {{o.bg}}; color: {{o.fg}}; font-size: 12px; font-weight: 600;">{{o.status}}</span></td><td style="padding: 10px 4px; text-align: right; font-weight: 600; white-space: nowrap;">{{o.total}}</td></tr>
+</sc-for>
+</tbody>
+</table>
+</div>
+</section>
+</div>
+</main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1550}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const I = {
+      dash: 'M3 3h7v9H3zM14 3h7v5h-7zM14 12h7v9h-7zM3 16h7v5H3z',
+      orders: 'M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4ZM3 6h18M16 10a4 4 0 0 1-8 0',
+      cal: 'M3 6a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2ZM16 2v4M8 2v4M3 10h18',
+      box: 'M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16ZM3.3 7l8.7 5 8.7-5M12 22V12',
+      tag: 'M12.6 2.6A2 2 0 0 0 11.2 2H4a2 2 0 0 0-2 2v7.2a2 2 0 0 0 .6 1.4l8.7 8.7a2.4 2.4 0 0 0 3.4 0l6.6-6.6a2.4 2.4 0 0 0 0-3.4ZM7.5 7.5h.01',
+      stock: 'M3 3v18h18M7 16v-3M12 16V9M17 16v-6',
+      users: 'M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 3a4 4 0 1 1 0 8 4 4 0 0 1 0-8M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75',
+      file: 'M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7ZM14 2v4a2 2 0 0 0 2 2h4M16 13H8M16 17H8',
+      chart: 'M22 7l-8.5 8.5-5-5L2 17M16 7h6v6',
+      shield: 'M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z',
+      log: 'M12 8v4l3 3M3.05 11a9 9 0 1 1 .5 4M3 4v7h7',
+      cog: 'M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6'
+    };
+    const item = (label, icon, opts = {}) => ({ label, icon: I[icon], href: opts.href || '#', badge: opts.badge || '',
+      current: opts.current ? 'page' : 'false', bg: opts.current ? '#D4AF37' : 'transparent', fg: opts.current ? '#0F0F0F' : '#E4E4E7' });
+    const st = {
+      delivered: { status: 'Livrée', bg: '#DFF3E4', fg: '#14532D' },
+      cancelled: { status: 'Annulée', bg: '#E4E4E7', fg: '#3F3F46' }
+    };
+    const H = (v) => Math.round(v / 70000 * 240) + 'px';
+    return {
+      menu: [
+        { title: 'Pilotage', items: [item('Tableau de bord', 'dash', { current: true }), item('Analytique', 'chart', { href: 'Analytique.dc.html' })] },
+        { title: 'Activité', items: [item('Commandes', 'orders'), item('Réservations', 'cal', { badge: '2' }), item('Clients', 'users'), item('Factures', 'file')] },
+        { title: 'Catalogue', items: [item('Produits', 'box'), item('Catégories', 'tag'), item('Stock', 'stock', { badge: '1' })] },
+        { title: 'Administration', items: [item('Utilisateurs', 'users'), item('Rôles et permissions', 'shield'), item("Journal d'audit", 'log'), item('Paramètres', 'cog')] }
+      ],
+      kpis: [
+        { label: "CA du jour", value: '33 000 F CFA', sub: '2 prestations terminées', trendColor: '#52525B' },
+        { label: 'CA du mois (au 14 mars)', value: '58 500 F CFA', sub: '+34,5 % vs 1er–14 février', trendColor: '#14532D' },
+        { label: 'Commandes du jour', value: '0', sub: 'Aucune commande en attente', trendColor: '#52525B' },
+        { label: 'Réservations du jour', value: '2', sub: 'Toutes honorées', trendColor: '#52525B' },
+        { label: 'Nouveaux clients (mars)', value: '2', sub: 'Dont 1 aujourd’hui', trendColor: '#52525B' }
+      ],
+      months: [
+        { label: 'Janvier', total: '61 500', productsH: H(28500), servicesH: H(33000) },
+        { label: 'Février', total: '51 500', productsH: H(31500), servicesH: H(20000) },
+        { label: 'Mars', total: '58 500', productsH: H(25500), servicesH: H(33000) }
+      ],
+      agenda: [
+        { time: '10:00', service: 'Tresses africaines', who: 'Rokhaya Sarr · avec Fatou', status: 'Terminée' },
+        { time: '10:00', service: 'Soin profond au karité', who: 'Coumba Mbaye · avec Bineta · sans RDV', status: 'Terminée' }
+      ],
+      tops: [
+        { name: 'Huile de baobab pure', units: 4, margin: '15 200 F', rate: '47,5 %' },
+        { name: 'Shampoing karité hydratant', units: 4, margin: '12 000 F', rate: '54,5 %' },
+        { name: 'Huile de ricin bio', units: 3, margin: '9 000 F', rate: '46,2 %' },
+        { name: 'Peigne démêlant en bois', units: 3, margin: '4 300 F', rate: '61,4 %' }
+      ],
+      orders: [
+        { ref: 'CMD-2026-000007', customer: 'Coumba Mbaye', channel: 'En ligne · livraison', total: '13 500 F CFA', ...st.delivered },
+        { ref: 'CMD-2026-000006', customer: 'Khady Fall', channel: 'Boutique', total: '12 000 F CFA', ...st.delivered },
+        { ref: 'CMD-2026-000005', customer: 'Ndeye Gueye', channel: 'En ligne · retrait', total: '6 500 F CFA', ...st.cancelled },
+        { ref: 'CMD-2026-000004', customer: 'Aminata Ba', channel: 'En ligne · livraison', total: '15 500 F CFA', ...st.delivered }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

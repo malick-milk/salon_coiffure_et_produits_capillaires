@@ -351,7 +351,7 @@ frontend/
 ```ts
 // Extrait prévu de tailwind.config.ts : les couleurs sont nommées par RÔLE, pas par valeur.
 colors: {
-  gold:    { DEFAULT: '#D4AF37', dark: '#B8860B' },
+  gold:    { DEFAULT: '#D4AF37', dark: '#B8860B', text: '#7A5A00' }, // text : or lisible sur fond clair (étape 4)
   ink:     { DEFAULT: '#0F0F0F', soft: '#1A1A1A' },
   ivory:   '#F8F8F8',
   mist:    '#D9D9D9',
