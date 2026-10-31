@@ -13,6 +13,26 @@
 | Git | 2.x | Versionnement |
 
 ## 2. Installation locale
+
+### 2.1 Services (MySQL, Redis, Mailpit)
+```bash
+docker compose up -d
+```
+| Service | Adresse | Rôle |
+|---|---|---|
+| MySQL 8.4 | `127.0.0.1:3306` (base `salon`, utilisateur `salon`) | Base de données |
+| Redis | `127.0.0.1:6379` | Cache et files d'attente |
+| Mailpit | http://localhost:8025 | Voir les emails envoyés en développement |
+
+Les ports sont exposés uniquement sur `127.0.0.1` : personne sur le réseau local ne peut atteindre votre base.
+
+### 2.2 Vérifier le modèle de données
+```bash
+bash database/verify.sh salon-mysql
+```
+Le script utilise une base séparée `salon_verify`, recréée à chaque lancement. Il ne touche jamais la base `salon`.
+
+### 2.3 Backend et frontend
 _À compléter aux étapes 5 et 6._
 
 ## 3. Structure des dossiers

@@ -1,0 +1,46 @@
+# =====================================================================
+#  Services de DÉVELOPPEMENT (ADR-010) — ne pas utiliser tel quel en production
+#  Démarrer :  docker compose up -d        Arrêter :  docker compose down
+#  Les données MySQL sont conservées dans le volume `mysql_data`.
+# =====================================================================
+services:
+  mysql:
+    image: mysql:8.4
+    container_name: salon-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE:-salon}
+      MYSQL_USER: ${DB_USERNAME:-salon}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-salon_dev_password}      # valeur de dev uniquement
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-root_dev_password}
+      TZ: UTC                                                    # on stocke toujours en UTC
+    command: >
+      --character-set-server=utf8mb4
+      --collation-server=utf8mb4_unicode_ci
+      --default-time-zone=+00:00
+    ports:
+      - "127.0.0.1:3306:3306"      # exposé UNIQUEMENT sur la machine locale (sécurité)
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      retries: 10
+
+  redis:                            # cache + files d'attente (emails, PDF, agrégats BI)
+    image: redis:7-alpine
+    container_name: salon-redis
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:6379:6379"
+
+  mailpit:                          # faux serveur SMTP : les emails envoyés s'affichent sur http://localhost:8025
+    image: axllent/mailpit:latest
+    container_name: salon-mailpit
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:1025:1025"       # SMTP
+      - "127.0.0.1:8025:8025"       # interface web
+
+volumes:
+  mysql_data:

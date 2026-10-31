@@ -9,7 +9,7 @@ vitrine et e-commerce, réservation en ligne, ERP d'administration et tableau de
 |---|---|---|
 | 1 | Analyse du besoin — [docs/01_ANALYSE_DU_BESOIN.md](docs/01_ANALYSE_DU_BESOIN.md) | Terminée |
 | 2 | Architecture — [ARCHITECTURE.md](ARCHITECTURE.md) | Terminée (décisions provisoires, ADR-011) |
-| 3 | Base de données | À faire |
+| 3 | Base de données — [DATABASE.md](DATABASE.md), [database/](database/) | Terminée (schéma testé sur MySQL 8.4) |
 | 4 | Maquettes | À faire |
 | 5 | Frontend React | À faire |
 | 6 | Backend Laravel | À faire |
@@ -24,6 +24,18 @@ vitrine et e-commerce, réservation en ligne, ERP d'administration et tableau de
 - Backend : Laravel (API REST versionnée `/api/v1`), Sanctum (auth SPA), spatie/laravel-permission (RBAC)
 - Base de données : MySQL 8 (+ Redis pour le cache et les files d'attente)
 - Dev : Docker Compose (MySQL, Redis, Mailpit)
+
+## Démarrage rapide (étape 3)
+
+```bash
+docker compose up -d
+```
+
+```bash
+bash database/verify.sh salon-mysql
+```
+
+Le script vérifie le modèle de données sur une base de test séparée. Voir [DATABASE.md §9](DATABASE.md).
 
 ## Documentation
 | Fichier | Rôle |
