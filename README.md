@@ -32,10 +32,10 @@ docker compose up -d
 ```
 
 ```bash
-bash database/verify.sh salon-mysql
+bash database/verify.sh
 ```
 
-Le script vérifie le modèle de données sur une base de test séparée. Voir [DATABASE.md §9](DATABASE.md).
+Le script vérifie le modèle de données sur une base de test séparée. Guide complet : [docs/TESTER_LE_PROJET.md](docs/TESTER_LE_PROJET.md).
 
 ## Documentation
 | Fichier | Rôle |

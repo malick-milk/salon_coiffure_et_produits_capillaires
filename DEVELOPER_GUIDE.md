@@ -28,7 +28,7 @@ Les ports sont exposés uniquement sur `127.0.0.1` : personne sur le réseau loc
 
 ### 2.2 Vérifier le modèle de données
 ```bash
-bash database/verify.sh salon-mysql
+bash database/verify.sh
 ```
 Le script utilise une base séparée `salon_verify`, recréée à chaque lancement. Il ne touche jamais la base `salon`.
 

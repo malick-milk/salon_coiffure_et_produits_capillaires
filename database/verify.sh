@@ -7,15 +7,18 @@
 #    6. exécute les requêtes analytiques
 #
 #  Prérequis : un conteneur MySQL 8 démarré, par exemple :
-#    docker run -d --name mysql-test -e MYSQL_ROOT_PASSWORD=root mysql:8.4
-#  Usage : bash database/verify.sh [nom_du_conteneur]
+#    docker compose up -d            (conteneur « salon-mysql », recommandé)
+#  Usage : bash database/verify.sh [nom_du_conteneur]   (défaut : salon-mysql)
 #  ATTENTION : détruit et recrée la base `salon_verify` (jamais la vraie base).
 # =====================================================================
 set -euo pipefail
 cd "$(dirname "$0")"
-CONTAINER="${1:-mysql-test}"
+CONTAINER="${1:-salon-mysql}"
 DB="salon_verify"
-mysql_exec() { docker exec -i "$CONTAINER" mysql -uroot -proot --default-character-set=utf8mb4 "$@" 2> >(grep -v 'Using a password' >&2); }
+# Le mot de passe root est lu dans le conteneur lui-même : le script marche
+# avec docker compose (root_dev_password) comme avec un conteneur de test (root).
+ROOT_PASSWORD=$(docker exec "$CONTAINER" printenv MYSQL_ROOT_PASSWORD) || { echo "Conteneur '$CONTAINER' introuvable ou arrêté. Lancez d'abord : docker compose up -d"; exit 1; }
+mysql_exec() { docker exec -i -e MYSQL_PWD="$ROOT_PASSWORD" "$CONTAINER" mysql -uroot --default-character-set=utf8mb4 "$@"; }
 
 echo "1. Base neuve '$DB'"
 mysql_exec -e "DROP DATABASE IF EXISTS $DB; CREATE DATABASE $DB CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"

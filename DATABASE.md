@@ -400,12 +400,14 @@ Q12 : le shampoing clarifiant n'a fait **aucune vente** en 90 jours, ce qui repr
 ## 9. Vérifier le modèle soi-même
 
 ```bash
-docker run -d --name mysql-test -e MYSQL_ROOT_PASSWORD=root mysql:8.4
+docker compose up -d
 ```
 
 ```bash
-bash database/verify.sh mysql-test
+bash database/verify.sh
 ```
+
+Le script utilise par défaut le conteneur `salon-mysql` créé par `docker compose`. Il lit le mot de passe root directement dans le conteneur. Guide pas à pas, y compris sous Windows : [docs/TESTER_LE_PROJET.md](docs/TESTER_LE_PROJET.md).
 
 Le script recrée une base neuve `salon_verify`, puis charge le schéma et les données. Il contrôle ensuite la cohérence du stock, lance les 15 tests d'intégrité et affiche les 13 KPI. Il s'arrête avec une erreur si une seule vérification échoue.
 
