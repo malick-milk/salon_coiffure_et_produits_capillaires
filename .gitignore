@@ -1,0 +1,39 @@
+# Dépendances
+node_modules/
+backend/vendor/
+
+# Variables d'environnement (secrets) — ne JAMAIS committer
+.env
+.env.*
+!.env.example
+
+# Builds et caches
+frontend/dist/
+backend/public/build/
+backend/public/hot
+backend/bootstrap/cache/*.php
+.phpunit.result.cache
+.vite/
+coverage/
+
+# Logs
+*.log
+backend/storage/logs/*
+!backend/storage/logs/.gitkeep
+
+# Fichiers téléversés par les utilisateurs
+backend/storage/app/public/*
+!backend/storage/app/public/.gitkeep
+
+# Data science
+analytics/.ipynb_checkpoints/
+analytics/data/raw/
+__pycache__/
+.venv/
+
+# IDE / système
+.idea/
+.vscode/*
+!.vscode/extensions.json
+.DS_Store
+Thumbs.db

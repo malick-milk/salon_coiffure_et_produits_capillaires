@@ -1,0 +1,37 @@
+# Salon Platform — E-commerce, Réservation, ERP & BI
+
+Plateforme web pour une entreprise de produits capillaires et un salon de coiffure :
+vitrine et e-commerce, réservation en ligne, ERP d'administration et tableau de bord décisionnel.
+
+## Avancement
+
+| Étape | Contenu | Statut |
+|---|---|---|
+| 1 | Analyse du besoin — [docs/01_ANALYSE_DU_BESOIN.md](docs/01_ANALYSE_DU_BESOIN.md) | Terminée |
+| 2 | Architecture — [ARCHITECTURE.md](ARCHITECTURE.md) | Terminée (décisions provisoires, ADR-011) |
+| 3 | Base de données | À faire |
+| 4 | Maquettes | À faire |
+| 5 | Frontend React | À faire |
+| 6 | Backend Laravel | À faire |
+| 7 | ERP | À faire |
+| 8 | Data Analytics | À faire |
+| 9 | Tests | À faire |
+| 10 | Audit de sécurité | À faire |
+| 11 | Déploiement | À faire |
+
+## Stack
+- Frontend : React + TypeScript + Vite + Tailwind CSS + shadcn/ui + Lucide React
+- Backend : Laravel (API REST versionnée `/api/v1`), Sanctum (auth SPA), spatie/laravel-permission (RBAC)
+- Base de données : MySQL 8 (+ Redis pour le cache et les files d'attente)
+- Dev : Docker Compose (MySQL, Redis, Mailpit)
+
+## Documentation
+| Fichier | Rôle |
+|---|---|
+| [DEVELOPER_GUIDE.md](DEVELOPER_GUIDE.md) | Installer, coder, conventions |
+| [ARCHITECTURE.md](ARCHITECTURE.md) | Organisation technique du projet |
+| [DATABASE.md](DATABASE.md) | Modèle de données |
+| [API_DOCUMENTATION.md](API_DOCUMENTATION.md) | Endpoints REST |
+| [SECURITY_GUIDE.md](SECURITY_GUIDE.md) | Mesures OWASP |
+| [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md) | Mise en production |
+| [MAINTENANCE_GUIDE.md](MAINTENANCE_GUIDE.md) | Exploitation et dépannage |
