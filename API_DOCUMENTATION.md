@@ -98,7 +98,7 @@ Le corps de `POST /orders` ne contient **aucun prix** : `items[{ product_id, qua
 
 ## Endpoints ERP
 
-_Étape 7._
+Tous exigent d'être connecté **et** de détenir une permission précise (403 sinon). Liste complète, permissions et règles : [docs/07_ERP.md](docs/07_ERP.md) §1.
 
 ## Endpoints analytics
 

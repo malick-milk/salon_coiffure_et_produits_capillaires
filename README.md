@@ -13,7 +13,7 @@ vitrine et e-commerce, réservation en ligne, ERP d'administration et tableau de
 | 4 | Maquettes — [docs/04_MAQUETTES.md](docs/04_MAQUETTES.md), [maquettes interactives](https://claude.ai/artifact/KUfhiWo6RP8ziNSapB9CEa) | Terminée |
 | 5 | Frontend React — [docs/05_FRONTEND.md](docs/05_FRONTEND.md), [frontend/](frontend/) | Terminée (vitrine, panier, réservation, compte client, commande) |
 | 6 | Backend Laravel — [docs/06_BACKEND.md](docs/06_BACKEND.md), [backend/](backend/) | Terminée : API complète, frontend branché sur la vraie API |
-| 7 | ERP | À faire |
+| 7 | ERP — [docs/07_ERP.md](docs/07_ERP.md) | Partie 1 terminée (API d'administration, factures PDF, audit) ; partie 2 : interface React |
 | 8 | Data Analytics | À faire |
 | 9 | Tests | À faire |
 | 10 | Audit de sécurité | À faire |

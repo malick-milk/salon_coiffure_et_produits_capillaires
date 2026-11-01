@@ -21,6 +21,12 @@ return Application::configure(basePath: dirname(__DIR__))
         // Sanctum en mode SPA : les requêtes venant du frontend (SANCTUM_STATEFUL_DOMAINS)
         // sont authentifiées par cookie de session + protection CSRF (ADR-003)
         $middleware->statefulApi();
+
+        // Middlewares de spatie/laravel-permission : ->middleware('permission:orders.manage') sur une route
+        $middleware->alias([
+            'permission' => \Spatie\Permission\Middleware\PermissionMiddleware::class,
+            'role' => \Spatie\Permission\Middleware\RoleMiddleware::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(
@@ -33,6 +39,12 @@ return Application::configure(basePath: dirname(__DIR__))
         $exceptions->render(fn (SlotUnavailableException $e) => response()->json(['message' => $e->getMessage()], 409));
         $exceptions->render(fn (InsufficientStockException $e) => response()->json(['message' => $e->getMessage(), 'items' => $e->items], 409));
 
+        // Permission manquante (spatie) : 403 au même format que les autres erreurs
+        $exceptions->render(function (\Spatie\Permission\Exceptions\UnauthorizedException $e, Request $request) {
+            if ($request->is('api/*')) {
+                return response()->json(['message' => 'Vous n’avez pas la permission d’effectuer cette action.'], 403);
+            }
+        });
         $exceptions->render(function (AuthenticationException $e, Request $request) {
             if ($request->is('api/*')) {
                 return response()->json(['message' => 'Non authentifié.'], 401);

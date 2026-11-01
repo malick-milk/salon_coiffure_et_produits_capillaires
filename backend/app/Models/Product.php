@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -15,7 +17,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  */
 class Product extends Model
 {
-    use SoftDeletes;
+    use LogsActivity, SoftDeletes;
 
     // stock_quantity est volontairement ABSENT : impossible de le modifier par « mass assignment »
     protected $fillable = [
@@ -61,5 +63,11 @@ class Product extends Model
     public function displayName(): string
     {
         return trim($this->name.' '.($this->unit_size ?? ''));
+    }
+
+    /** Journal d'audit (RG-SEC-01) : qui a modifié quoi, avec les valeurs avant et après */
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()->useLogName('products')->logOnly(['name', 'price', 'compare_at_price', 'cost_price', 'is_active', 'is_featured', 'low_stock_threshold', 'description'])->logOnlyDirty()->dontSubmitEmptyLogs();
     }
 }

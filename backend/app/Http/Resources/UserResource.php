@@ -17,6 +17,9 @@ class UserResource extends JsonResource
             'email' => $this->email,
             'phone' => $this->phone,
             'roles' => $this->getRoleNames()->values(),
+            // Le frontend s'en sert pour AFFICHER les menus de l'ERP (confort) ;
+            // chaque route de l'API revérifie la permission (sécurité)
+            'permissions' => $this->getAllPermissions()->pluck('name')->sort()->values(),
         ];
     }
 }

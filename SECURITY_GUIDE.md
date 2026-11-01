@@ -42,5 +42,8 @@
 | Intégrité métier | Transactions + `lockForUpdate` + contraintes CHECK et UNIQUE | BookingApiTest, OrderApiTest, StockServiceTest |
 | Anti-abus | Limitation de débit (voir API_DOCUMENTATION.md) | — |
 | Erreurs | JSON en français, sans détail technique quand `APP_DEBUG=false` | — |
+| RBAC sur l'ERP | Middleware `permission:*` sur chaque route d'administration ; montants masqués côté serveur sans `analytics.view` | AdminApiTest |
+| Journal d'audit | `spatie/laravel-activitylog` : auteur, date, valeurs avant et après (RG-SEC-01) | AdminApiTest |
+| Garde-fou administrateur | Impossible de retirer ses propres droits ; compte de production créé par `app:create-admin` (mot de passe non affiché) | AdminApiTest |
 
 _Audit complet : étape 10._

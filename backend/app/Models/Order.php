@@ -7,12 +7,16 @@ use App\Enums\OrderChannel;
 use App\Enums\OrderStatus;
 use App\Enums\PaymentStatus;
 use Illuminate\Database\Eloquent\Model;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 class Order extends Model
 {
+    use LogsActivity;
+
     protected $fillable = [
         'reference', 'customer_id', 'created_by', 'channel', 'status', 'payment_status', 'fulfillment_method', 'delivery_zone_id',
         'shipping_name', 'shipping_phone', 'shipping_city', 'shipping_district', 'shipping_address', 'shipping_landmark',
@@ -44,4 +48,10 @@ class Order extends Model
     public function items(): HasMany { return $this->hasMany(OrderItem::class); }
     public function deliveryZone(): BelongsTo { return $this->belongsTo(DeliveryZone::class); }
     public function payments(): MorphMany { return $this->morphMany(Payment::class, 'payable'); }
+
+    /** Journal d'audit (RG-SEC-01) : qui a modifié quoi, avec les valeurs avant et après */
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()->useLogName('orders')->logOnly(['status', 'payment_status', 'cancellation_reason'])->logOnlyDirty()->dontSubmitEmptyLogs();
+    }
 }

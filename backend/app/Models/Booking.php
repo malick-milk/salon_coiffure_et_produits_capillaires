@@ -6,10 +6,14 @@ use App\Enums\BookingSource;
 use App\Enums\BookingStatus;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Booking extends Model
 {
+    use LogsActivity;
+
     protected $fillable = [
         'reference', 'customer_id', 'service_id', 'stylist_id', 'source', 'status', 'starts_at', 'ends_at',
         'service_name', 'duration_minutes', 'price', 'customer_notes', 'admin_notes', 'cancellation_reason',
@@ -39,5 +43,11 @@ class Booking extends Model
     public function scopeActive(Builder $query): void
     {
         $query->whereIn('status', [BookingStatus::Pending, BookingStatus::Confirmed]);
+    }
+
+    /** Journal d'audit (RG-SEC-01) : qui a modifié quoi, avec les valeurs avant et après */
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()->useLogName('bookings')->logOnly(['status', 'starts_at', 'stylist_id', 'admin_notes'])->logOnlyDirty()->dontSubmitEmptyLogs();
     }
 }

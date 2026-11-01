@@ -13,4 +13,12 @@ enum PaymentMethod: string
     case FreeMoney = 'free_money';
     case Card = 'card';
     case BankTransfer = 'bank_transfer';
+
+    public function label(): string
+    {
+        return match ($this) {
+            self::Cash => 'Espèces', self::Wave => 'Wave', self::OrangeMoney => 'Orange Money',
+            self::FreeMoney => 'Free Money', self::Card => 'Carte bancaire', self::BankTransfer => 'Virement',
+        };
+    }
 }
