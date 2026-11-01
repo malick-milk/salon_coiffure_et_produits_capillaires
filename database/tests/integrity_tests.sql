@@ -53,3 +53,7 @@ INSERT INTO production_batches (batch_number, product_id, quantity_produced, pro
 INSERT INTO production_batches (batch_number, product_id, quantity_produced, produced_on, expires_on) VALUES ('LOT-T24', 6, 10, '2026-04-01', '2026-03-01');
 -- T25 Numéro de lot en double refusé (traçabilité)
 INSERT INTO production_batches (batch_number, product_id, quantity_produced, produced_on) VALUES ('LOT-2603-SHA', 6, 10, '2026-04-01');
+-- T26 Coût unitaire d'un lot non saisissable (colonne générée)
+UPDATE production_batches SET unit_cost = 1 WHERE id = 1;
+-- T27 Poste de coût à 0 F refusé
+INSERT INTO production_batch_costs (production_batch_id, category, label, amount) VALUES (1, 'packaging', 'Test', 0);

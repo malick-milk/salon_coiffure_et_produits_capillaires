@@ -1,6 +1,6 @@
 # Base de données
 
-> **Statut** : étape 3 — version 1.1. Le modèle est testé sur MySQL 8.4 (44 tables, 25 tests d'intégrité, 17 requêtes KPI).
+> **Statut** : étape 3 — version 1.1. Le modèle est testé sur MySQL 8.4 (45 tables, 27 tests d'intégrité, 18 requêtes KPI).
 > **Version 1.1** : intégration du MCD Looping du porteur du projet (avis, favoris, panier) et de son catalogue réel Dabo Hair : marque **fabriquée** par l'entreprise (lots de fabrication, péremption, coût de revient, ventes en gros, variantes). Analyse détaillée : [docs/03b_ANALYSE_MCD_EXISTANT.md](docs/03b_ANALYSE_MCD_EXISTANT.md).
 > **Prérequis** : [docs/01_ANALYSE_DU_BESOIN.md](docs/01_ANALYSE_DU_BESOIN.md) (règles de gestion `RG-*`, dictionnaire des KPI) et [ARCHITECTURE.md](ARCHITECTURE.md) (ADR-006 : grand livre du stock, ADR-008 : analytics).
 
@@ -10,8 +10,8 @@
 |---|---|
 | [`database/schema.sql`](database/schema.sql) | Schéma physique complet et commenté (référence) |
 | [`database/sample_data.sql`](database/sample_data.sql) | Petit jeu de données de démonstration |
-| [`database/analytics_queries.sql`](database/analytics_queries.sql) | 17 requêtes SQL qui implémentent les KPI |
-| [`database/tests/integrity_tests.sql`](database/tests/integrity_tests.sql) | 25 instructions **qui doivent échouer** (preuve que les règles sont protégées) |
+| [`database/analytics_queries.sql`](database/analytics_queries.sql) | 18 requêtes SQL qui implémentent les KPI |
+| [`database/tests/integrity_tests.sql`](database/tests/integrity_tests.sql) | 27 instructions **qui doivent échouer** (preuve que les règles sont protégées) |
 | [`database/verify.sh`](database/verify.sh) | Rejoue tout sur une base neuve : schéma, données, cohérence, tests, KPI |
 | [`docker-compose.yml`](docker-compose.yml) | MySQL 8.4, Redis et Mailpit pour le développement |
 
@@ -61,6 +61,7 @@
 | Choix | Raison |
 |---|---|
 | Argent en `INT UNSIGNED` (XOF) | Le FCFA n'a pas de centimes. Le `FLOAT` provoque des erreurs d'arrondi (`0.1 + 0.2 = 0.30000000000000004`) |
+| Coûts unitaires en `DECIMAL(10,2)` | Un coût unitaire est **calculé** (25 600 / 96 = 266,67). `DECIMAL` est exact, contrairement à `FLOAT`. On stocke le total payé (entier) et on dérive l'unitaire |
 | Agrégats en `BIGINT` | Un CA annuel peut dépasser 4,29 milliards (limite d'un `INT UNSIGNED`) |
 | `UNSIGNED` sur les stocks | MySQL refuse physiquement un stock négatif (test T01) |
 | Dates métier en `DATETIME`, stockées en UTC | `TIMESTAMP` s'arrête en 2038 et dépend du fuseau de la session. Dakar = UTC+0 toute l'année, mais le code convertit quand même : le projet reste portable |
@@ -85,13 +86,13 @@ L'application valide déjà les données (FormRequests Laravel). Mais un bug, un
 
 ---
 
-## 2. Vue d'ensemble : 7 domaines, 44 tables
+## 2. Vue d'ensemble : 7 domaines, 45 tables
 
 | Domaine | Tables |
 |---|---|
 | 1. Utilisateurs et RBAC | `users`, `roles`, `permissions`, `role_has_permissions`, `model_has_roles`, `model_has_permissions`, `activity_log` |
 | 2. Clients | `customers`, `addresses`, `delivery_zones`, `favorites` |
-| 3. Catalogue, stock et achats | `categories`, `brands`, `hair_types`, `products`, `product_hair_type`, `product_images`, `product_reviews`, `stock_movements`, `production_batches`, `suppliers`, `purchase_orders`, `purchase_order_items` |
+| 3. Catalogue, stock et achats | `categories`, `brands`, `hair_types`, `products`, `product_hair_type`, `product_images`, `product_reviews`, `stock_movements`, `production_batches`, `production_batch_costs`, `suppliers`, `purchase_orders`, `purchase_order_items` |
 | 4. Paniers, commandes et facturation | `carts`, `cart_items`, `orders`, `order_items`, `payments`, `invoices`, `invoice_sequences` |
 | 5. Salon et réservations | `service_categories`, `services`, `stylists`, `service_stylist`, `business_hours`, `closures`, `stylist_time_off`, `bookings` |
 | 6. Paramètres | `settings`, `contact_messages` |
@@ -236,7 +237,8 @@ Le détail de chaque colonne est commenté dans [`schema.sql`](database/schema.s
 | `products` | Fiche produit | `sku`, `price`, `cost_price` (achat ou coût de revient ; `NULL` = non calculé), `stock_quantity` (cache), `low_stock_threshold`, `is_featured`, `variant_of_id` (autre contenance) |
 | `product_images` | Galerie | `position`, `is_primary`, `alt_text` |
 | `stock_movements` | **Grand livre du stock** | `type`, `quantity` (signée), `stock_after`, `reference_*`, `reason` |
-| `production_batches` | Lots de fabrication (marque maison) | `batch_number` (unique), `quantity_produced`, `unit_cost` (coût de revient), `expires_on` |
+| `production_batches` | Lots de fabrication (marque maison) | `batch_number` (unique), `quantity_produced`, `total_cost` (payé, entier), `unit_cost` (**générée**, DECIMAL), `expires_on` |
+| `production_batch_costs` | Coût d'un lot poste par poste | `category` (ingrédients, flacons, étiquettes, main-d'œuvre, autres), `amount` |
 | `suppliers` | Fournisseurs de marques revendues | `name` (unique), coordonnées |
 | `purchase_orders` | Bons de commande fournisseur | `reference`, `status`, `total_cost`, `received_at` |
 | `purchase_order_items` | Lignes d'achat par lots | `packs_ordered`, `units_per_pack`, `unit_cost`, `quantity_ordered` et `line_total` (**générées**), `quantity_received` |
@@ -397,6 +399,7 @@ La **dimension calendrier** `calendar_dates` est une notion clé de la BI. En fa
 | Note moyenne par produit | Q15 |
 | Taux d'abandon de panier | Q16 |
 | Lots proches de la péremption | Q17 |
+| Rentabilité potentielle de chaque lot fabriqué | Q18 |
 
 ### 7.3 Exemple de résultat (données de démonstration)
 Q01 — CA mensuel en XOF :

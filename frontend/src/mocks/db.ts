@@ -1,5 +1,6 @@
 /**
- * Données du faux serveur (MSW). Elles reprennent database/sample_data.sql :
+ * Données du faux serveur (MSW). Elles reprennent database/sample_data.sql (stocks APRÈS la
+ * vente en gros n° 9 : la crème capillaire est en rupture) :
  * catalogue RÉEL Dabo Hair (noms, contenances, prix de vente), prestations et horaires de démo.
  * Ce fichier disparaîtra de l'usage quand l'API Laravel répondra (VITE_ENABLE_MOCKS=false).
  */
@@ -44,13 +45,13 @@ const base = {
 export const products: MockProduct[] = [
   { ...base, id: 10, slug: 'serum-activ-pousse-30-ml', sku: 'DAB-SAP-030', name: 'Sérum Activ’Pousse', unit_size: '30 ml', price: 3000, stock: 24, low_stock_threshold: 12, is_featured: true, category: cat.serums, variant_of: null },
   { ...base, id: 11, slug: 'serum-activ-pousse-15-ml', sku: 'DAB-SAP-015', name: 'Sérum Activ’Pousse', unit_size: '15 ml', price: 1500, stock: 24, low_stock_threshold: 6, is_featured: false, category: cat.serums, variant_of: 'serum-activ-pousse-30-ml' },
-  { ...base, id: 14, slug: 'serum-booster-30-ml', sku: 'DAB-SBO-030', name: 'Sérum Booster', unit_size: '30 ml', price: 3000, stock: 24, low_stock_threshold: 6, is_featured: false, category: cat.serums, variant_of: null },
-  { ...base, id: 7, slug: 'spray-hydratant-250-ml', sku: 'DAB-SPH-250', name: 'Spray hydratant', unit_size: '250 ml', price: 5000, stock: 24, low_stock_threshold: 12, is_featured: true, category: cat.hydratants, variant_of: null },
+  { ...base, id: 14, slug: 'serum-booster-30-ml', sku: 'DAB-SBO-030', name: 'Sérum Booster', unit_size: '30 ml', price: 3000, stock: 60, low_stock_threshold: 6, is_featured: false, category: cat.serums, variant_of: null },
+  { ...base, id: 7, slug: 'spray-hydratant-250-ml', sku: 'DAB-SPH-250', name: 'Spray hydratant', unit_size: '250 ml', price: 5000, stock: 48, low_stock_threshold: 12, is_featured: true, category: cat.hydratants, variant_of: null },
   { ...base, id: 8, slug: 'hydratant-100-ml', sku: 'DAB-HYD-100', name: 'Hydratant', unit_size: '100 ml', price: 2500, stock: 24, low_stock_threshold: 12, is_featured: false, category: cat.hydratants, variant_of: null },
-  { ...base, id: 9, slug: 'creme-capillaire', sku: 'DAB-CRE-001', name: 'Crème capillaire', unit_size: null, price: 3000, stock: 24, low_stock_threshold: 12, is_featured: true, category: cat.hydratants, variant_of: null },
-  { ...base, id: 12, slug: 'spray-anti-chute', sku: 'DAB-SAC-001', name: 'Spray anti-chute', unit_size: null, price: 5000, stock: 24, low_stock_threshold: 6, is_featured: false, category: cat.traitants, variant_of: null },
+  { ...base, id: 9, slug: 'creme-capillaire', sku: 'DAB-CRE-001', name: 'Crème capillaire', unit_size: null, price: 3000, stock: 0, low_stock_threshold: 12, is_featured: true, category: cat.hydratants, variant_of: null },
+  { ...base, id: 12, slug: 'spray-anti-chute', sku: 'DAB-SAC-001', name: 'Spray anti-chute', unit_size: null, price: 5000, stock: 72, low_stock_threshold: 6, is_featured: false, category: cat.traitants, variant_of: null },
   { ...base, id: 13, slug: 'masque-capillaire', sku: 'DAB-MAS-001', name: 'Masque capillaire', unit_size: null, price: 3000, stock: 24, low_stock_threshold: 6, is_featured: false, category: cat.traitants, variant_of: null },
-  { ...base, id: 6, slug: 'shampooing-dabo-hair', sku: 'DAB-SHA-001', name: 'Shampooing', unit_size: null, price: 3000, stock: 24, low_stock_threshold: 12, is_featured: true, category: cat.shampoings, variant_of: null },
+  { ...base, id: 6, slug: 'shampooing-sans-sulfate', sku: 'DAB-SHA-001', name: 'Shampooing sans sulfate', unit_size: null, price: 3000, stock: 48, low_stock_threshold: 12, is_featured: true, category: cat.shampoings, variant_of: null },
 ]
 
 export const services: (Service & { buffer_minutes: number })[] = [

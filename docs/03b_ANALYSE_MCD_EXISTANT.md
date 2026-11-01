@@ -1,7 +1,7 @@
 # ÉTAPE 3 bis — Analyse et amélioration du MCD existant
 
 > **Source** : [`docs/mcd/modele_mcd_original.loo`](mcd/modele_mcd_original.loo) (Looping), fourni par le porteur du projet, et la commande fournisseur Dabo Hair.
-> **Résultat** : le modèle final passe de 36 à **44 tables**. Il est testé sur MySQL 8.4 avec 25 tests d'intégrité et 17 requêtes KPI. Voir [DATABASE.md](../DATABASE.md).
+> **Résultat** : le modèle final passe de 36 à **45 tables**. Il est testé sur MySQL 8.4 avec 27 tests d'intégrité et 18 requêtes KPI. Voir [DATABASE.md](../DATABASE.md).
 
 ---
 
@@ -211,7 +211,31 @@ Les deux contenances du sérum Activ'Pousse sont deux références distinctes (p
 
 **Données de démonstration (à remplacer)** : numéros de lot, dates de fabrication et de péremption, quantités fabriquées.
 
-### 5.5 Et les achats fournisseur ?
+### 5.5 Les coûts réels de fabrication
+
+Source : la capture « Calcul des bénéfices par produit ». MySQL la **retrouve à l'identique** avec la requête Q18 :
+
+| Lot | Unités | Coût du lot | Coût unitaire | CA si tout est vendu | Marge potentielle | Taux |
+|---|---:|---:|---:|---:|---:|---:|
+| Spray hydratant | 96 | 33 600 | 350,00 | 480 000 | 446 400 | 93,0 % |
+| Crème capillaire | 96 | 14 400 | 150,00 | 288 000 | 273 600 | 95,0 % |
+| Sérum Activ'Pousse 30 ml | 96 | 25 600 | 266,67 | 288 000 | 262 400 | 91,1 % |
+| Sérum Booster | 96 | 25 600 | 266,67 | 288 000 | 262 400 | 91,1 % |
+| Shampooing sans sulfate | 96 | 38 400 | 400,00 | 288 000 | 249 600 | 86,7 % |
+| Masque capillaire | 48 | 18 400 | 383,33 | 144 000 | 125 600 | 87,2 % |
+| **Total (6 lots)** | | **156 000** | | **1 776 000** | **1 620 000** | |
+
+**Trois leçons de modélisation :**
+
+1. **On stocke le montant payé, on calcule l'unitaire.** 25 600 F ÷ 96 = 266,67 F. Si l'on stockait 267 F arrondi, on obtiendrait 267 × 96 = 25 632 F : 32 F « inventés ». La base stocke donc le **total exact** (`total_cost`, entier), et MySQL **calcule** l'unitaire (`unit_cost`, colonne générée en `DECIMAL`). Règle : l'argent réellement payé est un entier, une valeur dérivée peut avoir des décimales.
+2. **Le coût est détaillé poste par poste** (table `production_batch_costs` : ingrédients, flacons, étiquettes, main-d'œuvre, autres). On sait ainsi **ce qui** coûte cher, et un coût peut être complété au fil de l'eau. `verify.sh` contrôle que le total du lot est bien égal à la somme de ses postes.
+3. **Marge potentielle et marge réalisée sont deux choses différentes.** Le tableau ci-dessus suppose que **tout** le lot est vendu au **prix public**. La marge **réalisée** (Q04) ne compte que les ventes réellement payées, à leur prix réel. Et ces taux de 87 à 95 % sont calculés **avant** les autres charges : loyer, salaires, électricité, transport. Le bénéfice net sera plus bas.
+
+**À clarifier par l'entreprise** : la capture « Dépenses » précédente (171 000 F, par exemple 80 000 F pour la crème) ne correspond pas aux montants « Achat » (156 000 F, 14 400 F pour la crème). S'il s'agit de deux postes différents (ingrédients et emballages, par exemple), il suffira de les ajouter comme deux lignes de coût de chaque lot. Le coût unitaire se recalculera automatiquement. En attendant, seuls les montants « Achat », accompagnés des quantités, sont enregistrés, dans la catégorie `other`.
+
+**Encore inconnus** : le coût du spray anti-chute ; les lots de l'hydratant 100 ml et du sérum 15 ml.
+
+### 5.6 Et les achats fournisseur ?
 
 Les tables `suppliers` et `purchase_orders` restent utiles **si la boutique revend aussi des marques tierces**. La démonstration les illustre avec un fournisseur fictif. Les colonnes générées (`quantity_ordered = lots × unités par lot`, `line_total`) gardent tout leur intérêt pour les achats par douzaines.
 

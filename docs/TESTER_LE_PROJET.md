@@ -78,17 +78,19 @@ bash database/verify.sh
 1. Base neuve 'salon_verify'
 2. Schéma
 3. Données de démo
-   44 tables
+   45 tables
 4. Cohérence du stock (cache products.stock_quantity = somme du grand livre)
    OK
 4b. Cohérence des achats (total du bon = somme des lignes ; reçu = mouvements 'purchase')
    OK
+4c. Cohérence de la production (coût du lot = somme de ses postes de coût)
+   OK
 5. Tests d'intégrité
    OK    T01 RG-STK-01 : stock négatif interdit (colonne UNSIGNED)
    ...
-   => 25 refusés comme attendu, 0 acceptés à tort
+   => 27 refusés comme attendu, 0 acceptés à tort
 6. Requêtes analytiques
-   (17 tableaux de KPI)
+   (18 tableaux de KPI)
 Vérification terminée avec succès.
 ```
 

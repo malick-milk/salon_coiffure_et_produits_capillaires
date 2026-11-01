@@ -9,7 +9,7 @@ vitrine et e-commerce, réservation en ligne, ERP d'administration et tableau de
 |---|---|---|
 | 1 | Analyse du besoin — [docs/01_ANALYSE_DU_BESOIN.md](docs/01_ANALYSE_DU_BESOIN.md) | Terminée |
 | 2 | Architecture — [ARCHITECTURE.md](ARCHITECTURE.md) | Terminée (décisions provisoires, ADR-011) |
-| 3 | Base de données — [DATABASE.md](DATABASE.md), [database/](database/), [analyse du MCD existant](docs/03b_ANALYSE_MCD_EXISTANT.md) | Terminée (44 tables testées sur MySQL 8.4) |
+| 3 | Base de données — [DATABASE.md](DATABASE.md), [database/](database/), [analyse du MCD existant](docs/03b_ANALYSE_MCD_EXISTANT.md) | Terminée (45 tables testées sur MySQL 8.4) |
 | 4 | Maquettes — [docs/04_MAQUETTES.md](docs/04_MAQUETTES.md), [maquettes interactives](https://claude.ai/artifact/KUfhiWo6RP8ziNSapB9CEa) | Terminée |
 | 5 | Frontend React — [docs/05_FRONTEND.md](docs/05_FRONTEND.md), [frontend/](frontend/) | Partie 1 terminée (vitrine, panier, réservation) ; partie 2 : compte client et commande |
 | 6 | Backend Laravel | À faire |

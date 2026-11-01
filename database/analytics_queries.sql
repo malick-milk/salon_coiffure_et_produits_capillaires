@@ -319,3 +319,31 @@ JOIN products p ON p.id = pb.product_id
 WHERE pb.expires_on IS NOT NULL
   AND pb.expires_on <= @ref_date + INTERVAL 270 DAY   -- fenêtre large pour la démo ; 90 jours en production
 ORDER BY pb.expires_on;
+
+-- ---------------------------------------------------------------------
+-- Q18 — Rentabilité POTENTIELLE de chaque lot fabriqué (si tout le lot est vendu au prix public)
+-- Reproduit le « calcul des bénéfices par produit » de l'entreprise, directement depuis la base.
+-- Marge AVANT les autres charges (loyer, salaires, électricité, transport…).
+-- ---------------------------------------------------------------------
+SELECT pb.batch_number,
+       p.name,
+       pb.quantity_produced                                       AS units,
+       CONCAT(pb.quantity_produced DIV 12, ' douz.')              AS dozens,
+       pb.quantity_produced * p.price                             AS potential_revenue,
+       pb.total_cost,
+       pb.unit_cost,
+       pb.quantity_produced * p.price - pb.total_cost             AS potential_gross_margin,
+       ROUND(100 * (pb.quantity_produced * p.price - pb.total_cost) / (pb.quantity_produced * p.price), 1) AS margin_rate_pct
+FROM production_batches pb
+JOIN products p ON p.id = pb.product_id
+WHERE pb.total_cost IS NOT NULL
+ORDER BY potential_gross_margin DESC;
+
+-- Total des lots dont le coût est connu (contrôle : 1 776 000 / 156 000 / 1 620 000)
+SELECT COUNT(*)                                                    AS batches_with_cost,
+       SUM(pb.quantity_produced * p.price)                         AS potential_revenue,
+       SUM(pb.total_cost)                                          AS total_cost,
+       SUM(pb.quantity_produced * p.price) - SUM(pb.total_cost)    AS potential_gross_margin
+FROM production_batches pb
+JOIN products p ON p.id = pb.product_id
+WHERE pb.total_cost IS NOT NULL;

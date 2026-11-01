@@ -221,7 +221,8 @@ CREATE TABLE products (
     unit_size           VARCHAR(50)  NULL,              -- '250 ml', '500 g'
     price               INT UNSIGNED NOT NULL,          -- prix de vente TTC en XOF
     compare_at_price    INT UNSIGNED NULL,              -- ancien prix barré (promotion)
-    cost_price          INT UNSIGNED NULL,              -- coût d'achat OU coût de revient (fabrication). NULL = pas encore calculé.
+    cost_price          DECIMAL(10,2) NULL,             -- coût UNITAIRE d'achat ou de revient. DECIMAL car c'est un montant CALCULÉ :
+                                                        -- 25 600 F / 96 flacons = 266,67 F. NULL = pas encore calculé.
                                                         -- JAMAIS exposé au public (RG-STK-06)
     stock_quantity      INT UNSIGNED NOT NULL DEFAULT 0,-- CACHE de la somme des mouvements (ADR-006)
     low_stock_threshold INT UNSIGNED NOT NULL DEFAULT 5,
@@ -297,7 +298,11 @@ CREATE TABLE production_batches (
     batch_number      VARCHAR(40) NOT NULL,           -- numéro de lot imprimé sur le flacon : 'LOT-2026-03-SHA'
     product_id        BIGINT UNSIGNED NOT NULL,
     quantity_produced INT UNSIGNED NOT NULL,          -- unités fabriquées
-    unit_cost         INT UNSIGNED NULL,              -- coût de revient unitaire du lot (matières + flacon + étiquette)
+    -- Montant RÉELLEMENT dépensé pour le lot (entier, en XOF) = somme de production_batch_costs
+    total_cost        BIGINT UNSIGNED NULL,           -- NULL tant qu'aucun coût n'est saisi
+    -- Coût unitaire CALCULÉ par MySQL (colonne générée) : jamais saisi, donc jamais faux.
+    -- On stocke le total exact et on DÉRIVE l'unitaire : 267 x 96 = 25 632 ≠ 25 600 (l'arrondi fausserait le total)
+    unit_cost         DECIMAL(12,2) AS (total_cost / quantity_produced) STORED,
     produced_on       DATE NOT NULL,
     expires_on        DATE NULL,                      -- date de péremption
     notes             TEXT NULL,
@@ -311,6 +316,25 @@ CREATE TABLE production_batches (
     CONSTRAINT production_batches_created_by_fk FOREIGN KEY (created_by) REFERENCES users (id)    ON DELETE SET NULL,
     CONSTRAINT production_batches_quantity_chk  CHECK (quantity_produced > 0),
     CONSTRAINT production_batches_expiry_chk    CHECK (expires_on IS NULL OR expires_on > produced_on)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- DÉTAIL DU COÛT D'UN LOT, poste par poste (ingrédients, flacons, étiquettes…).
+-- Permet de savoir CE QUI coûte cher, et de compléter un coût au fil de l'eau.
+CREATE TABLE production_batch_costs (
+    id                  BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    production_batch_id BIGINT UNSIGNED NOT NULL,
+    category            ENUM('ingredients','packaging','labels','labor','other') NOT NULL,
+    label               VARCHAR(150) NOT NULL,        -- 'Beurre de karité 2 kg', 'Flacons 250 ml x 96'
+    amount              INT UNSIGNED NOT NULL,        -- montant payé en XOF (entier : de l'argent réel)
+    spent_on            DATE NULL,
+    created_by          BIGINT UNSIGNED NULL,
+    created_at          TIMESTAMP NULL,
+    updated_at          TIMESTAMP NULL,
+    KEY pbc_batch_index (production_batch_id),
+    KEY pbc_category_index (category),
+    CONSTRAINT pbc_batch_fk      FOREIGN KEY (production_batch_id) REFERENCES production_batches (id) ON DELETE CASCADE,
+    CONSTRAINT pbc_created_by_fk FOREIGN KEY (created_by)          REFERENCES users (id)              ON DELETE SET NULL,
+    CONSTRAINT pbc_amount_chk    CHECK (amount > 0)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- FOURNISSEURS : pour les produits d'autres marques revendus en boutique (si l'entreprise en revend).
@@ -463,7 +487,7 @@ CREATE TABLE order_items (
     product_name VARCHAR(191) NOT NULL,
     sku          VARCHAR(64)  NOT NULL,
     unit_price   INT UNSIGNED NOT NULL,              -- prix de vente unitaire au moment de l'achat
-    unit_cost    INT UNSIGNED NULL,                  -- coût unitaire figé au moment de la vente (NULL si coût de revient inconnu)
+    unit_cost    DECIMAL(10,2) NULL,                 -- coût unitaire figé au moment de la vente (NULL si coût de revient inconnu)
     quantity     INT UNSIGNED NOT NULL,
     line_total   INT UNSIGNED NOT NULL,
     created_at   TIMESTAMP NULL,

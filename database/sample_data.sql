@@ -182,11 +182,12 @@ INSERT INTO settings (`group`, `key`, value) VALUES
 -- =====================================================================
 --  CATALOGUE RÉEL DABO HAIR — marque fabriquée par l'entreprise
 -- =====================================================================
---  RÉEL     : noms, contenances et PRIX DE VENTE (fournis par le porteur du projet).
---  RÉEL     : la commande de 1 374 000 F CFA (capture), enregistrée comme vente
---             à un revendeur (commande n° 9).
---  INCONNU  : le coût de revient -> cost_price = NULL ([COÛT DE REVIENT À CALCULER]).
---  DÉMO     : numéros de lot, dates, quantités fabriquées et péremption.
+--  RÉEL : noms, contenances, PRIX DE VENTE.
+--  RÉEL : lots de fabrication (quantités) et coûts « Achat » de 6 produits
+--         (capture « Calcul des bénéfices par produit », total 156 000 F CFA).
+--  RÉEL : la commande de 1 374 000 F CFA, enregistrée comme vente en gros (n° 9).
+--  INCONNU : coût du spray anti-chute ; lots de l'hydratant 100 ml et du sérum 15 ml.
+--  DÉMO : numéros de lot, dates de fabrication et de péremption.
 -- =====================================================================
 
 INSERT INTO categories (id, parent_id, name, slug, position, created_at) VALUES
@@ -196,34 +197,50 @@ INSERT INTO categories (id, parent_id, name, slug, position, created_at) VALUES
 
 INSERT INTO brands (id, name, slug, is_house_brand, created_at) VALUES (3, 'Dabo Hair', 'dabo-hair', TRUE, NOW());
 
--- stock_quantity = production - vente de la commande 9 (vérifié par verify.sh)
+-- stock_quantity et cost_price sont calculés plus bas, à partir des lots et des ventes
 INSERT INTO products (id, category_id, brand_id, variant_of_id, sku, name, slug, unit_size, price, cost_price, stock_quantity, low_stock_threshold, is_active, is_featured, created_at) VALUES
- ( 6, 3, 3, NULL, 'DAB-SHA-001', 'Shampooing',        'shampooing-dabo-hair',     NULL,     3000, NULL, 24, 12, TRUE, TRUE,  '2026-03-20 10:00:00'),
- ( 7, 5, 3, NULL, 'DAB-SPH-250', 'Spray hydratant',   'spray-hydratant-250-ml',   '250 ml', 5000, NULL, 24, 12, TRUE, TRUE,  '2026-03-20 10:00:00'),
- ( 8, 5, 3, NULL, 'DAB-HYD-100', 'Hydratant',         'hydratant-100-ml',         '100 ml', 2500, NULL, 24, 12, TRUE, FALSE, '2026-03-20 10:00:00'),
- ( 9, 5, 3, NULL, 'DAB-CRE-001', 'Crème capillaire',  'creme-capillaire',         NULL,     3000, NULL, 24, 12, TRUE, TRUE,  '2026-03-20 10:00:00'),
- (10, 6, 3, NULL, 'DAB-SAP-030', 'Sérum Activ''Pousse','serum-activ-pousse-30-ml', '30 ml',  3000, NULL, 24, 12, TRUE, TRUE,  '2026-03-20 10:00:00'),
- (11, 6, 3, 10,   'DAB-SAP-015', 'Sérum Activ''Pousse','serum-activ-pousse-15-ml', '15 ml',  1500, NULL, 24,  6, TRUE, FALSE, '2026-03-20 10:00:00'),
- (12, 7, 3, NULL, 'DAB-SAC-001', 'Spray anti-chute',  'spray-anti-chute',         NULL,     5000, NULL, 24,  6, TRUE, FALSE, '2026-03-20 10:00:00'),
- (13, 7, 3, NULL, 'DAB-MAS-001', 'Masque capillaire', 'masque-capillaire',        NULL,     3000, NULL, 24,  6, TRUE, FALSE, '2026-03-20 10:00:00'),
- (14, 6, 3, NULL, 'DAB-SBO-030', 'Sérum Booster',     'serum-booster-30-ml',      '30 ml',  3000, NULL, 24,  6, TRUE, FALSE, '2026-03-20 10:00:00');
+ ( 6, 3, 3, NULL, 'DAB-SHA-001', 'Shampooing sans sulfate', 'shampooing-sans-sulfate',  NULL,     3000, NULL, 0, 12, TRUE, TRUE,  '2026-03-20 10:00:00'),
+ ( 7, 5, 3, NULL, 'DAB-SPH-250', 'Spray hydratant',         'spray-hydratant-250-ml',   '250 ml', 5000, NULL, 0, 12, TRUE, TRUE,  '2026-03-20 10:00:00'),
+ ( 8, 5, 3, NULL, 'DAB-HYD-100', 'Hydratant',               'hydratant-100-ml',         '100 ml', 2500, NULL, 0, 12, TRUE, FALSE, '2026-03-20 10:00:00'),
+ ( 9, 5, 3, NULL, 'DAB-CRE-001', 'Crème capillaire',        'creme-capillaire',         NULL,     3000, NULL, 0, 12, TRUE, TRUE,  '2026-03-20 10:00:00'),
+ (10, 6, 3, NULL, 'DAB-SAP-030', 'Sérum Activ''Pousse',     'serum-activ-pousse-30-ml', '30 ml',  3000, NULL, 0, 12, TRUE, TRUE,  '2026-03-20 10:00:00'),
+ (11, 6, 3, 10,   'DAB-SAP-015', 'Sérum Activ''Pousse',     'serum-activ-pousse-15-ml', '15 ml',  1500, NULL, 0,  6, TRUE, FALSE, '2026-03-20 10:00:00'),
+ (12, 7, 3, NULL, 'DAB-SAC-001', 'Spray anti-chute',        'spray-anti-chute',         NULL,     5000, NULL, 0,  6, TRUE, FALSE, '2026-03-20 10:00:00'),
+ (13, 7, 3, NULL, 'DAB-MAS-001', 'Masque capillaire',       'masque-capillaire',        NULL,     3000, NULL, 0,  6, TRUE, FALSE, '2026-03-20 10:00:00'),
+ (14, 6, 3, NULL, 'DAB-SBO-030', 'Sérum Booster',           'serum-booster-30-ml',      '30 ml',  3000, NULL, 0,  6, TRUE, FALSE, '2026-03-20 10:00:00');
 
--- Lots de fabrication (DÉMO) : quantité commandée + 2 douzaines de stock de boutique
-INSERT INTO production_batches (id, batch_number, product_id, quantity_produced, unit_cost, produced_on, expires_on, notes, created_by, created_at) VALUES
- (1, 'LOT-2603-SHA',   6,  72, NULL, '2026-03-20', '2028-03-20', 'Lot de démonstration', 1, '2026-03-20 10:00:00'),
- (2, 'LOT-2603-SPH',   7,  72, NULL, '2026-03-20', '2027-09-20', 'Lot de démonstration', 1, '2026-03-20 10:00:00'),
- (3, 'LOT-2603-HYD',   8,  84, NULL, '2026-03-20', '2027-09-20', 'Lot de démonstration', 1, '2026-03-20 10:00:00'),
- (4, 'LOT-2603-CRE',   9, 120, NULL, '2026-03-20', '2027-09-20', 'Lot de démonstration', 1, '2026-03-20 10:00:00'),
- (5, 'LOT-2603-SAP30',10,  96, NULL, '2026-03-20', '2027-03-20', 'Lot de démonstration', 1, '2026-03-20 10:00:00'),
- (6, 'LOT-2603-SAP15',11,  48, NULL, '2026-03-20', '2027-03-20', 'Lot de démonstration', 1, '2026-03-20 10:00:00'),
- (7, 'LOT-2603-SAC',  12,  48, NULL, '2026-03-20', '2027-09-20', 'Lot de démonstration', 1, '2026-03-20 10:00:00'),
- (8, 'LOT-2603-MAS',  13,  48, NULL, '2026-03-20', '2026-09-30', 'Lot de démonstration (péremption proche)', 1, '2026-03-20 10:00:00'),
- (9, 'LOT-2603-SBO',  14,  60, NULL, '2026-03-20', '2027-03-20', 'Lot de démonstration', 1, '2026-03-20 10:00:00');
+-- Lots de fabrication. total_cost = somme des postes de coût (vérifié par verify.sh) ;
+-- unit_cost est CALCULÉ par MySQL (colonne générée).
+INSERT INTO production_batches (id, batch_number, product_id, quantity_produced, total_cost, produced_on, expires_on, notes, created_by, created_at) VALUES
+ (1, 'LOT-2603-SPH',   7, 96, 33600, '2026-03-20', '2027-09-20', '8 douzaines', 1, '2026-03-20 10:00:00'),
+ (2, 'LOT-2603-CRE',   9, 96, 14400, '2026-03-20', '2027-09-20', '8 douzaines', 1, '2026-03-20 10:00:00'),
+ (3, 'LOT-2603-SHA',   6, 96, 38400, '2026-03-20', '2028-03-20', '8 douzaines', 1, '2026-03-20 10:00:00'),
+ (4, 'LOT-2603-SAP30',10, 96, 25600, '2026-03-20', '2027-03-20', '8 douzaines', 1, '2026-03-20 10:00:00'),
+ (5, 'LOT-2603-SBO',  14, 96, 25600, '2026-03-20', '2027-03-20', '8 douzaines', 1, '2026-03-20 10:00:00'),
+ (6, 'LOT-2603-MAS',  13, 48, 18400, '2026-03-20', '2026-09-30', '4 douzaines (péremption proche : démo)', 1, '2026-03-20 10:00:00'),
+ (7, 'LOT-2603-SAC',  12, 96, NULL,  '2026-03-20', '2027-09-20', '8 douzaines, coût à compléter', 1, '2026-03-20 10:00:00'),
+ (8, 'LOT-2603-HYD',   8, 84, NULL,  '2026-03-20', '2027-09-20', 'DÉMO : quantité et coût inconnus', 1, '2026-03-20 10:00:00'),
+ (9, 'LOT-2603-SAP15',11, 48, NULL,  '2026-03-20', '2027-03-20', 'DÉMO : quantité et coût inconnus', 1, '2026-03-20 10:00:00');
+
+-- Postes de coût. Catégorie 'other' : la capture dit « Achat » sans préciser s'il s'agit
+-- d'ingrédients ou d'emballages ([À PRÉCISER PAR L'ENTREPRISE]).
+INSERT INTO production_batch_costs (production_batch_id, category, label, amount, spent_on, created_by, created_at) VALUES
+ (1, 'other', 'Achat (calcul des bénéfices)', 33600, '2026-03-20', 1, NOW()),
+ (2, 'other', 'Achat (calcul des bénéfices)', 14400, '2026-03-20', 1, NOW()),
+ (3, 'other', 'Achat (calcul des bénéfices)', 38400, '2026-03-20', 1, NOW()),
+ (4, 'other', 'Achat (calcul des bénéfices)', 25600, '2026-03-20', 1, NOW()),
+ (5, 'other', 'Achat (calcul des bénéfices)', 25600, '2026-03-20', 1, NOW()),
+ (6, 'other', 'Achat (calcul des bénéfices)', 18400, '2026-03-20', 1, NOW());
 
 INSERT INTO stock_movements (product_id, type, quantity, stock_after, unit_cost, reference_type, reference_id, reason, user_id, created_at)
-SELECT product_id, 'production', quantity_produced, quantity_produced, unit_cost,
+SELECT product_id, 'production', quantity_produced, quantity_produced, ROUND(unit_cost),
        'App\\Models\\ProductionBatch', id, CONCAT('Fabrication ', batch_number), 1, '2026-03-20 10:00:00'
 FROM production_batches;
+
+-- Le coût de revient unitaire du produit = celui de son dernier lot
+UPDATE products p JOIN production_batches pb ON pb.product_id = p.id
+SET p.cost_price = pb.unit_cost
+WHERE pb.unit_cost IS NOT NULL;
 
 -- ---------- La commande RÉELLE de la capture : vente en gros à un revendeur ----------
 INSERT INTO customers (id, user_id, customer_type, first_name, last_name, phone, notes, created_at) VALUES
@@ -234,22 +251,20 @@ INSERT INTO orders (id, reference, customer_id, created_by, channel, status, pay
  (9, 'CMD-2026-000009', 7, 1, 'store', 'confirmed', 'unpaid', 'pickup',
      1374000, 0, 0, 1374000, 'Commande en gros (douzaines)', '2026-03-24 09:30:00', '2026-03-24 10:00:00');
 
--- unit_cost NULL : le coût de revient n'est pas encore connu (la marge ne sera pas calculée pour ces lignes)
-INSERT INTO order_items (order_id, product_id, product_name, sku, unit_price, unit_cost, quantity, line_total) VALUES
- (9,  6, 'Shampooing',                'DAB-SHA-001', 3000, NULL, 48, 144000),   -- 4 douzaines
- (9,  7, 'Spray hydratant 250 ml',    'DAB-SPH-250', 5000, NULL, 48, 240000),   -- 4 douzaines
- (9,  8, 'Hydratant 100 ml',          'DAB-HYD-100', 2500, NULL, 60, 150000),   -- 5 douzaines
- (9,  9, 'Crème capillaire',          'DAB-CRE-001', 3000, NULL, 96, 288000),   -- 8 douzaines
- (9, 10, 'Sérum Activ''Pousse 30 ml', 'DAB-SAP-030', 3000, NULL, 72, 216000),   -- 6 douzaines
- (9, 11, 'Sérum Activ''Pousse 15 ml', 'DAB-SAP-015', 1500, NULL, 24,  36000),   -- 2 douzaines
- (9, 12, 'Spray anti-chute',          'DAB-SAC-001', 5000, NULL, 24, 120000),   -- 2 douzaines
- (9, 13, 'Masque capillaire',         'DAB-MAS-001', 3000, NULL, 24,  72000),   -- 2 douzaines
- (9, 14, 'Sérum Booster 30 ml',       'DAB-SBO-030', 3000, NULL, 36, 108000);   -- 3 douzaines
+-- unit_cost FIGÉ au moment de la vente (copié depuis le produit) ; NULL si le coût est encore inconnu
+INSERT INTO order_items (order_id, product_id, product_name, sku, unit_price, unit_cost, quantity, line_total)
+SELECT 9, p.id, CONCAT(p.name, IFNULL(CONCAT(' ', p.unit_size), '')), p.sku, p.price, p.cost_price, q.qty, p.price * q.qty
+FROM products p
+JOIN (SELECT 6 AS id, 48 AS qty UNION ALL SELECT 7, 48 UNION ALL SELECT 8, 60 UNION ALL SELECT 9, 96 UNION ALL SELECT 10, 72
+      UNION ALL SELECT 11, 24 UNION ALL SELECT 12, 24 UNION ALL SELECT 13, 24 UNION ALL SELECT 14, 36) q ON q.id = p.id;
 
 INSERT INTO stock_movements (product_id, type, quantity, stock_after, reference_type, reference_id, user_id, created_at)
 SELECT oi.product_id, 'sale', -oi.quantity, pb.quantity_produced - oi.quantity, 'App\\Models\\Order', 9, 1, '2026-03-24 09:30:00'
 FROM order_items oi JOIN production_batches pb ON pb.product_id = oi.product_id
 WHERE oi.order_id = 9;
+
+-- Stock = somme du grand livre (la crème capillaire tombe à 0 : 96 fabriqués, 96 vendus)
+UPDATE products p SET stock_quantity = (SELECT SUM(m.quantity) FROM stock_movements m WHERE m.product_id = p.id) WHERE p.brand_id = 3;
 
 -- ---------- Achat fournisseur (DÉMO) : réassort d'un produit REVENDU d'une autre marque ----------
 INSERT INTO suppliers (id, name, notes, created_at) VALUES
