@@ -210,6 +210,7 @@ CREATE TABLE products (
     id                  BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     category_id         BIGINT UNSIGNED NOT NULL,
     brand_id            BIGINT UNSIGNED NULL,
+    variant_of_id       BIGINT UNSIGNED NULL,           -- autre contenance du même produit (ex. sérum 15 ml -> sérum 30 ml)
     sku                 VARCHAR(64)  NOT NULL,          -- référence interne unique (Stock Keeping Unit)
     name                VARCHAR(191) NOT NULL,
     slug                VARCHAR(191) NOT NULL,
@@ -233,9 +234,11 @@ CREATE TABLE products (
     KEY products_catalog_index (is_active, category_id, price),   -- filtre catalogue
     KEY products_featured_index (is_featured, is_active),
     KEY products_brand_index (brand_id),
+    KEY products_variant_index (variant_of_id),
     FULLTEXT KEY products_search_fulltext (name, short_description), -- recherche par mot-clé
     CONSTRAINT products_category_fk FOREIGN KEY (category_id) REFERENCES categories (id) ON DELETE RESTRICT,
     CONSTRAINT products_brand_fk    FOREIGN KEY (brand_id)    REFERENCES brands (id)     ON DELETE SET NULL,
+    CONSTRAINT products_variant_fk  FOREIGN KEY (variant_of_id) REFERENCES products (id) ON DELETE SET NULL,
     CONSTRAINT products_compare_price_chk CHECK (compare_at_price IS NULL OR compare_at_price > price)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -281,6 +284,98 @@ CREATE TABLE stock_movements (
     CONSTRAINT stock_movements_product_fk FOREIGN KEY (product_id) REFERENCES products (id) ON DELETE RESTRICT,
     CONSTRAINT stock_movements_user_fk    FOREIGN KEY (user_id)    REFERENCES users (id)    ON DELETE SET NULL,
     CONSTRAINT stock_movements_quantity_chk CHECK (quantity <> 0)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- FOURNISSEURS (ajout issu du MCD existant + commande Dabo Hair réelle)
+CREATE TABLE suppliers (
+    id           BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    name         VARCHAR(150) NOT NULL,              -- 'Dabo Hair'
+    contact_name VARCHAR(150) NULL,
+    phone        VARCHAR(20)  NULL,
+    email        VARCHAR(191) NULL,
+    address      VARCHAR(255) NULL,
+    notes        TEXT NULL,                          -- délais, conditions de paiement…
+    is_active    BOOLEAN NOT NULL DEFAULT TRUE,
+    created_at   TIMESTAMP NULL,
+    updated_at   TIMESTAMP NULL,
+    deleted_at   TIMESTAMP NULL,
+    UNIQUE KEY suppliers_name_unique (name)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- BONS DE COMMANDE FOURNISSEUR : l'entreprise achète son stock (souvent à la douzaine).
+CREATE TABLE purchase_orders (
+    id          BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    reference   VARCHAR(30) NOT NULL,                 -- 'BC-2026-0001'
+    supplier_id BIGINT UNSIGNED NOT NULL,
+    status      ENUM('draft','ordered','partially_received','received','cancelled') NOT NULL DEFAULT 'draft',
+    total_cost  BIGINT UNSIGNED NOT NULL DEFAULT 0,   -- somme des lignes (recalculée par l'application)
+    ordered_at  DATETIME NULL,
+    expected_at DATE NULL,                            -- livraison prévue
+    received_at DATETIME NULL,
+    notes       TEXT NULL,
+    created_by  BIGINT UNSIGNED NULL,
+    created_at  TIMESTAMP NULL,
+    updated_at  TIMESTAMP NULL,
+    UNIQUE KEY purchase_orders_reference_unique (reference),
+    KEY purchase_orders_supplier_index (supplier_id, ordered_at),
+    KEY purchase_orders_status_index (status),
+    CONSTRAINT purchase_orders_supplier_fk   FOREIGN KEY (supplier_id) REFERENCES suppliers (id) ON DELETE RESTRICT,
+    CONSTRAINT purchase_orders_created_by_fk FOREIGN KEY (created_by)  REFERENCES users (id)     ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE purchase_order_items (
+    id                BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    purchase_order_id BIGINT UNSIGNED NOT NULL,
+    product_id        BIGINT UNSIGNED NOT NULL,
+    packs_ordered     INT UNSIGNED NOT NULL,          -- nombre de lots commandés (ex. 4 douzaines)
+    units_per_pack    INT UNSIGNED NOT NULL DEFAULT 12, -- unités par lot (12 = douzaine)
+    unit_cost         INT UNSIGNED NOT NULL,          -- coût d'UNE unité en XOF
+    -- Colonnes GÉNÉRÉES : calculées par MySQL, impossibles à saisir de travers
+    quantity_ordered  INT UNSIGNED AS (packs_ordered * units_per_pack) STORED,             -- 4 x 12 = 48
+    line_total        BIGINT UNSIGNED AS (packs_ordered * units_per_pack * unit_cost) STORED, -- 48 x 3 000 = 144 000
+    quantity_received INT UNSIGNED NOT NULL DEFAULT 0, -- unités réellement reçues (réception partielle possible)
+    created_at        TIMESTAMP NULL,
+    updated_at        TIMESTAMP NULL,
+    UNIQUE KEY poi_order_product_unique (purchase_order_id, product_id),
+    KEY poi_product_index (product_id),
+    CONSTRAINT poi_order_fk   FOREIGN KEY (purchase_order_id) REFERENCES purchase_orders (id) ON DELETE CASCADE,
+    CONSTRAINT poi_product_fk FOREIGN KEY (product_id)        REFERENCES products (id)        ON DELETE RESTRICT,
+    CONSTRAINT poi_packs_chk    CHECK (packs_ordered > 0 AND units_per_pack > 0),
+    CONSTRAINT poi_received_chk CHECK (quantity_received <= packs_ordered * units_per_pack)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- AVIS CLIENTS (entité « Avis » du MCD existant, enrichie : modération + achat vérifié)
+CREATE TABLE product_reviews (
+    id          BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    product_id  BIGINT UNSIGNED NOT NULL,
+    customer_id BIGINT UNSIGNED NOT NULL,
+    order_id    BIGINT UNSIGNED NULL,                 -- renseigné = « achat vérifié »
+    rating      TINYINT UNSIGNED NOT NULL,            -- note de 1 à 5
+    comment     TEXT NULL,
+    status      ENUM('pending','approved','rejected') NOT NULL DEFAULT 'pending', -- publié seulement après modération
+    moderated_by BIGINT UNSIGNED NULL,
+    moderated_at DATETIME NULL,
+    created_at  TIMESTAMP NULL,
+    updated_at  TIMESTAMP NULL,
+    UNIQUE KEY reviews_product_customer_unique (product_id, customer_id), -- un avis par client et par produit
+    KEY reviews_product_status_index (product_id, status),
+    CONSTRAINT reviews_product_fk   FOREIGN KEY (product_id)   REFERENCES products (id)  ON DELETE CASCADE,
+    CONSTRAINT reviews_customer_fk  FOREIGN KEY (customer_id)  REFERENCES customers (id) ON DELETE CASCADE,
+    CONSTRAINT reviews_order_fk     FOREIGN KEY (order_id)     REFERENCES orders (id)    ON DELETE SET NULL,
+    CONSTRAINT reviews_moderator_fk FOREIGN KEY (moderated_by) REFERENCES users (id)     ON DELETE SET NULL,
+    CONSTRAINT reviews_rating_chk   CHECK (rating BETWEEN 1 AND 5)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- FAVORIS (MCD existant) : en Merise, c'est une ASSOCIATION porteuse de la date, pas une entité.
+-- D'où une clé primaire composée (user_id, product_id) au lieu d'un id_favoris.
+CREATE TABLE favorites (
+    user_id    BIGINT UNSIGNED NOT NULL,
+    product_id BIGINT UNSIGNED NOT NULL,
+    created_at TIMESTAMP NULL,
+    PRIMARY KEY (user_id, product_id),                -- impossible d'ajouter deux fois le même favori
+    KEY favorites_product_index (product_id),
+    CONSTRAINT favorites_user_fk    FOREIGN KEY (user_id)    REFERENCES users (id)    ON DELETE CASCADE,
+    CONSTRAINT favorites_product_fk FOREIGN KEY (product_id) REFERENCES products (id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- =====================================================================
@@ -352,6 +447,39 @@ CREATE TABLE order_items (
     CONSTRAINT order_items_product_fk FOREIGN KEY (product_id) REFERENCES products (id) ON DELETE RESTRICT,
     CONSTRAINT order_items_quantity_chk CHECK (quantity > 0),
     CONSTRAINT order_items_total_chk    CHECK (line_total = unit_price * quantity)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- PANIERS ENREGISTRÉS (MCD existant) : le panier suit le client d'un appareil à l'autre
+-- et permet d'analyser les paniers abandonnés (données BI).
+CREATE TABLE carts (
+    id                 BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    user_id            BIGINT UNSIGNED NULL,          -- client connecté
+    token              CHAR(36) NOT NULL,             -- UUID dans un cookie pour un invité
+    status             ENUM('active','converted','abandoned') NOT NULL DEFAULT 'active',
+    converted_order_id BIGINT UNSIGNED NULL,          -- commande issue de ce panier
+    last_activity_at   DATETIME NOT NULL,
+    created_at         TIMESTAMP NULL,
+    updated_at         TIMESTAMP NULL,
+    UNIQUE KEY carts_token_unique (token),
+    KEY carts_user_status_index (user_id, status),
+    KEY carts_status_activity_index (status, last_activity_at),   -- détection des paniers abandonnés
+    CONSTRAINT carts_user_fk  FOREIGN KEY (user_id)            REFERENCES users (id)  ON DELETE CASCADE,
+    CONSTRAINT carts_order_fk FOREIGN KEY (converted_order_id) REFERENCES orders (id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Le prix n'est PAS stocké ici : un panier affiche toujours le prix ACTUEL.
+-- Il est figé seulement dans order_items, au moment de la commande.
+CREATE TABLE cart_items (
+    cart_id    BIGINT UNSIGNED NOT NULL,
+    product_id BIGINT UNSIGNED NOT NULL,
+    quantity   INT UNSIGNED NOT NULL,
+    created_at TIMESTAMP NULL,
+    updated_at TIMESTAMP NULL,
+    PRIMARY KEY (cart_id, product_id),                -- un produit = une ligne (on augmente la quantité)
+    KEY cart_items_product_index (product_id),
+    CONSTRAINT cart_items_cart_fk    FOREIGN KEY (cart_id)    REFERENCES carts (id)    ON DELETE CASCADE,
+    CONSTRAINT cart_items_product_fk FOREIGN KEY (product_id) REFERENCES products (id) ON DELETE CASCADE,
+    CONSTRAINT cart_items_quantity_chk CHECK (quantity > 0)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- PAIEMENTS : séparés des commandes pour accueillir Wave / Orange Money / Free Money / carte (ADR-007).

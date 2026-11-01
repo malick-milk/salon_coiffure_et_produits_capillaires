@@ -283,7 +283,7 @@ Les routes `/admin` sont **chargées à la demande** (*lazy loading*). Un visite
 | Type d'état | Exemple | Outil |
 |---|---|---|
 | **État serveur** (données de l'API) | Liste des produits, commandes | **TanStack Query** (cache, rechargement, chargement / erreur) |
-| **État global client** | Panier, utilisateur connecté | **Zustand** (petit et simple) |
+| **État global client** | Panier, utilisateur connecté | **Zustand** (petit et simple). Le panier est aussi **enregistré côté serveur** (`carts`) : il suit le client d'un appareil à l'autre et alimente le KPI d'abandon de panier |
 | **État de formulaire** | Champs de réservation | **React Hook Form + Zod** (validation) |
 | **État d'URL** | Filtres du catalogue `?categorie=huiles&page=2` | **React Router** (filtres partageables par lien) |
 

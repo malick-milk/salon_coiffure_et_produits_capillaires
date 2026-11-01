@@ -191,6 +191,7 @@ WITH stock_levels AS (
                              THEN m.quantity END), 0) AS units_sold
     FROM products p
     LEFT JOIN stock_movements m ON m.product_id = p.id
+    WHERE p.is_active = TRUE              -- un produit pas encore en vente n'a pas de rotation à mesurer
     GROUP BY p.id, p.name, p.cost_price
 )
 SELECT id, name, stock_start, stock_end, units_sold,
@@ -225,6 +226,7 @@ SELECT p.id, p.name, p.stock_quantity, p.low_stock_threshold,
 FROM products p
 LEFT JOIN demand d ON d.product_id = p.id
 WHERE p.deleted_at IS NULL
+  AND p.is_active = TRUE
 ORDER BY (p.stock_quantity <= p.low_stock_threshold) DESC, days_of_cover;
 
 -- ---------------------------------------------------------------------
@@ -239,6 +241,7 @@ LEFT JOIN stock_movements m
       AND m.type IN ('sale', 'sale_cancellation')
       AND m.created_at >= @ref_date - INTERVAL 90 DAY
 WHERE p.stock_quantity > 0
+  AND p.is_active = TRUE
 GROUP BY p.id, p.name, p.stock_quantity, p.cost_price
 HAVING units_sold_90d <= 2
 ORDER BY immobilized_value DESC;
@@ -255,3 +258,42 @@ FROM stock_movements m
 JOIN products p ON p.id = m.product_id
 WHERE m.type = 'loss'
 ORDER BY m.created_at;
+
+-- ---------------------------------------------------------------------
+-- Q14 — Achats par fournisseur et valeur du stock reçu
+-- ---------------------------------------------------------------------
+SELECT s.name                               AS supplier,
+       po.reference,
+       DATE(po.received_at)                 AS received_on,
+       COUNT(poi.id)                        AS product_lines,
+       SUM(poi.packs_ordered)               AS packs,
+       SUM(poi.quantity_received)           AS units_received,
+       SUM(poi.line_total)                  AS lines_total,
+       po.total_cost                        AS order_total
+FROM purchase_orders po
+JOIN suppliers s             ON s.id = po.supplier_id
+JOIN purchase_order_items poi ON poi.purchase_order_id = po.id
+GROUP BY s.name, po.id, po.reference, po.received_at, po.total_cost
+ORDER BY po.received_at;
+
+-- ---------------------------------------------------------------------
+-- Q15 — Satisfaction : note moyenne par produit (avis publiés uniquement)
+-- ---------------------------------------------------------------------
+SELECT p.name,
+       COUNT(r.id)                          AS published_reviews,
+       ROUND(AVG(r.rating), 2)              AS avg_rating,
+       SUM(r.order_id IS NOT NULL)          AS verified_purchases
+FROM product_reviews r
+JOIN products p ON p.id = r.product_id
+WHERE r.status = 'approved'
+GROUP BY p.id, p.name
+ORDER BY avg_rating DESC, published_reviews DESC;
+
+-- ---------------------------------------------------------------------
+-- Q16 — Taux d'abandon de panier = paniers abandonnés ÷ (abandonnés + convertis)
+-- Un panier sans activité depuis 24 h passe en 'abandoned' (job planifié, étape 6).
+-- ---------------------------------------------------------------------
+SELECT SUM(status = 'converted')                                              AS converted_carts,
+       SUM(status = 'abandoned')                                              AS abandoned_carts,
+       ROUND(100 * SUM(status = 'abandoned') / NULLIF(SUM(status IN ('converted','abandoned')), 0), 1) AS abandonment_rate_pct
+FROM carts;

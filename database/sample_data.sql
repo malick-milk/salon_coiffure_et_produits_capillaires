@@ -178,3 +178,73 @@ INSERT INTO settings (`group`, `key`, value) VALUES
  ('tax','tax.rate','18.0'),
  ('shop','shop.guest_checkout','true'),
  ('company','company.identity','{"name": "Nom de l''entreprise", "ninea": "À renseigner", "rccm": "À renseigner", "address": "Dakar, Sénégal"}');
+
+-- =====================================================================
+--  CATALOGUE RÉEL DABO HAIR (commande fournisseur du client, 9 références)
+-- =====================================================================
+--  Source : commande Dabo Hair du porteur du projet (total 1 374 000 F CFA).
+--  Les prix de la commande sont des prix d'ACHAT (coût unitaire).
+--  Les PRIX DE VENTE ne sont pas encore connus : les produits sont créés
+--  INACTIFS (invisibles en boutique), avec un prix de vente provisoire égal
+--  au coût. [PRIX DE VENTE À DÉFINIR] avant de les activer dans l'ERP.
+-- =====================================================================
+
+INSERT INTO categories (id, parent_id, name, slug, position, created_at) VALUES
+ (5, 1, 'Hydratants et crèmes', 'hydratants-et-cremes', 3, NOW()),
+ (6, 1, 'Sérums',               'serums',               4, NOW()),
+ (7, 1, 'Soins traitants',      'soins-traitants',      5, NOW());
+
+INSERT INTO brands (id, name, slug, created_at) VALUES (3, 'Dabo Hair', 'dabo-hair', NOW());
+
+INSERT INTO suppliers (id, name, notes, created_at) VALUES
+ (1, 'Dabo Hair', 'Achats par lots de 12 (douzaines). Coordonnées : [À RENSEIGNER].', NOW());
+
+INSERT INTO products (id, category_id, brand_id, variant_of_id, sku, name, slug, unit_size, price, cost_price, stock_quantity, low_stock_threshold, is_active, created_at) VALUES
+ ( 6, 3, 3, NULL, 'DAB-SHA-001', 'Shampooing Dabo Hair',            'shampooing-dabo-hair',            NULL,     3000, 3000, 48, 12, FALSE, '2026-03-25 10:00:00'),
+ ( 7, 5, 3, NULL, 'DAB-SPH-250', 'Spray hydratant',                 'spray-hydratant-250-ml',          '250 ml', 5000, 5000, 48, 12, FALSE, '2026-03-25 10:00:00'),
+ ( 8, 5, 3, NULL, 'DAB-HYD-100', 'Hydratant',                       'hydratant-100-ml',                '100 ml', 2500, 2500, 60, 12, FALSE, '2026-03-25 10:00:00'),
+ ( 9, 5, 3, NULL, 'DAB-CRE-001', 'Crème capillaire',                'creme-capillaire',                NULL,     3000, 3000, 96, 12, FALSE, '2026-03-25 10:00:00'),
+ (10, 6, 3, NULL, 'DAB-SAP-030', 'Sérum Activ''Pousse',             'serum-activ-pousse-30-ml',        '30 ml',  3000, 3000, 72, 12, FALSE, '2026-03-25 10:00:00'),
+ (11, 6, 3, 10,   'DAB-SAP-015', 'Sérum Activ''Pousse',             'serum-activ-pousse-15-ml',        '15 ml',  1500, 1500, 24,  6, FALSE, '2026-03-25 10:00:00'),
+ (12, 7, 3, NULL, 'DAB-SAC-001', 'Spray anti-chute',                'spray-anti-chute',                NULL,     5000, 5000, 24,  6, FALSE, '2026-03-25 10:00:00'),
+ (13, 7, 3, NULL, 'DAB-MAS-001', 'Masque capillaire',               'masque-capillaire',               NULL,     3000, 3000, 24,  6, FALSE, '2026-03-25 10:00:00'),
+ (14, 6, 3, NULL, 'DAB-SBO-030', 'Sérum Booster',                   'serum-booster-30-ml',             '30 ml',  3000, 3000, 36,  6, FALSE, '2026-03-25 10:00:00');
+
+INSERT INTO purchase_orders (id, reference, supplier_id, status, total_cost, ordered_at, expected_at, received_at, created_by, created_at) VALUES
+ (1, 'BC-2026-0001', 1, 'received', 1374000, '2026-03-22 09:00:00', '2026-03-25', '2026-03-25 10:00:00', 1, '2026-03-22 09:00:00');
+
+-- quantity_ordered et line_total sont calculés automatiquement par MySQL (colonnes générées)
+INSERT INTO purchase_order_items (purchase_order_id, product_id, packs_ordered, units_per_pack, unit_cost, quantity_received) VALUES
+ (1,  6, 4, 12, 3000, 48),   -- Shampooing                4 douzaines x 3 000 = 144 000
+ (1,  7, 4, 12, 5000, 48),   -- Spray hydratant 250 ml    4 douzaines x 5 000 = 240 000
+ (1,  8, 5, 12, 2500, 60),   -- Hydratant 100 ml          5 douzaines x 2 500 = 150 000
+ (1,  9, 8, 12, 3000, 96),   -- Crème capillaire          8 douzaines x 3 000 = 288 000
+ (1, 10, 6, 12, 3000, 72),   -- Sérum Activ'Pousse 30 ml  6 douzaines x 3 000 = 216 000
+ (1, 11, 2, 12, 1500, 24),   -- Sérum Activ'Pousse 15 ml  2 douzaines x 1 500 =  36 000
+ (1, 12, 2, 12, 5000, 24),   -- Spray anti-chute          2 douzaines x 5 000 = 120 000
+ (1, 13, 2, 12, 3000, 24),   -- Masque capillaire         2 douzaines x 3 000 =  72 000
+ (1, 14, 3, 12, 3000, 36);   -- Sérum Booster 30 ml       3 douzaines x 3 000 = 108 000
+
+-- La réception du bon de commande crée un mouvement de stock 'purchase' par ligne
+INSERT INTO stock_movements (product_id, type, quantity, stock_after, unit_cost, reference_type, reference_id, reason, user_id, created_at)
+SELECT poi.product_id, 'purchase', poi.quantity_received, poi.quantity_received, poi.unit_cost,
+       'App\\Models\\PurchaseOrder', poi.purchase_order_id, 'Réception BC-2026-0001', 1, '2026-03-25 10:00:00'
+FROM purchase_order_items poi WHERE poi.purchase_order_id = 1;
+
+-- ---------- Avis, favoris, paniers (entités issues du MCD existant) ----------
+INSERT INTO product_reviews (product_id, customer_id, order_id, rating, comment, status, moderated_by, moderated_at, created_at) VALUES
+ (2, 1, 3, 5, 'Très bonne huile, cheveux plus doux.', 'approved', 1, '2026-02-15 10:00:00', '2026-02-14 18:00:00'),
+ (2, 2, 2, 4, 'Bon produit, flacon un peu petit.',     'approved', 1, '2026-01-20 10:00:00', '2026-01-19 12:00:00'),
+ (3, 3, 4, 5, 'Mousse bien et n''assèche pas.',        'pending',  NULL, NULL,              '2026-02-08 09:00:00');
+
+INSERT INTO favorites (user_id, product_id, created_at) VALUES (3, 1, '2026-01-05 10:05:00'), (3, 2, '2026-02-09 20:00:00');
+
+INSERT INTO carts (id, user_id, token, status, converted_order_id, last_activity_at, created_at) VALUES
+ (1, 3,    '7d1c2a4e-0000-4000-8000-000000000001', 'converted', 8,    '2026-03-20 08:30:00', '2026-03-19 21:00:00'),
+ (2, NULL, '7d1c2a4e-0000-4000-8000-000000000002', 'abandoned', NULL, '2026-03-10 22:15:00', '2026-03-10 22:00:00'),
+ (3, 3,    '7d1c2a4e-0000-4000-8000-000000000003', 'active',    NULL, '2026-03-21 09:00:00', '2026-03-21 09:00:00');
+
+INSERT INTO cart_items (cart_id, product_id, quantity, created_at) VALUES
+ (1, 1, 2, '2026-03-19 21:00:00'),
+ (2, 2, 1, '2026-03-10 22:00:00'), (2, 5, 1, '2026-03-10 22:05:00'),
+ (3, 4, 2, '2026-03-21 09:00:00');

@@ -74,15 +74,17 @@ bash database/verify.sh
 1. Base neuve 'salon_verify'
 2. Schéma
 3. Données de démo
-   36 tables
+   43 tables
 4. Cohérence du stock (cache products.stock_quantity = somme du grand livre)
+   OK
+4b. Cohérence des achats (total du bon = somme des lignes ; reçu = mouvements 'purchase')
    OK
 5. Tests d'intégrité
    OK    T01 RG-STK-01 : stock négatif interdit (colonne UNSIGNED)
    ...
-   => 15 refusés comme attendu, 0 acceptés à tort
+   => 22 refusés comme attendu, 0 acceptés à tort
 6. Requêtes analytiques
-   (13 tableaux de KPI)
+   (16 tableaux de KPI)
 Vérification terminée avec succès.
 ```
 
@@ -147,6 +149,16 @@ INSERT INTO bookings (reference, customer_id, service_id, stylist_id, status, st
 VALUES ('RDV-TEST', 4, 2, 1, 'pending', '2026-03-21 10:00:00', '2026-03-21 11:45:00', 'Nattes collées', 90, 12000);
 ```
 MySQL refuse : `Duplicate entry ... for key 'bookings_stylist_active_slot_unique'`. Changez `'pending'` en `'cancelled'` : l'insertion passe, car une réservation annulée ne bloque pas le créneau.
+</details>
+
+**Exercice 5** — Retrouvez le total de votre commande Dabo Hair à partir des lignes, sans utiliser `total_cost`.
+<details><summary>Solution</summary>
+
+```sql
+SELECT SUM(packs_ordered) AS douzaines, SUM(quantity_ordered) AS unites, SUM(line_total) AS total
+FROM purchase_order_items WHERE purchase_order_id = 1;
+```
+Résultat attendu : 36 douzaines, 432 unités, 1 374 000.
 </details>
 
 ### 2.7 Arrêter les services

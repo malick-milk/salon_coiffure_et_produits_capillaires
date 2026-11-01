@@ -31,6 +31,10 @@ echo "4. Cohérence du stock (cache products.stock_quantity = somme du grand liv
 INCOHERENT=$(mysql_exec -N "$DB" -e "SELECT COUNT(*) FROM (SELECT p.id FROM products p LEFT JOIN stock_movements m ON m.product_id = p.id GROUP BY p.id, p.stock_quantity HAVING p.stock_quantity <> COALESCE(SUM(m.quantity), 0)) x;")
 [ "$INCOHERENT" = "0" ] && echo "   OK" || { echo "   ÉCHEC : $INCOHERENT produit(s) incohérent(s)"; exit 1; }
 
+echo "4b. Cohérence des achats (total du bon = somme des lignes ; reçu = mouvements 'purchase')"
+BAD_PO=$(mysql_exec -N "$DB" -e "SELECT COUNT(*) FROM purchase_orders po WHERE po.total_cost <> (SELECT COALESCE(SUM(line_total), 0) FROM purchase_order_items WHERE purchase_order_id = po.id) OR (SELECT COALESCE(SUM(quantity_received), 0) FROM purchase_order_items WHERE purchase_order_id = po.id) <> (SELECT COALESCE(SUM(quantity), 0) FROM stock_movements WHERE type = 'purchase' AND reference_type LIKE '%PurchaseOrder' AND reference_id = po.id);")
+[ "$BAD_PO" = "0" ] && echo "   OK" || { echo "   ÉCHEC : $BAD_PO bon(s) de commande incohérent(s)"; exit 1; }
+
 echo "5. Tests d'intégrité"
 pass=0; fail=0
 while IFS= read -r label && IFS= read -r stmt; do

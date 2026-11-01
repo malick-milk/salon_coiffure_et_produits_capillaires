@@ -1,6 +1,7 @@
 # Base de données
 
-> **Statut** : étape 3 — version 1.0. Le modèle est testé sur MySQL 8.4 (36 tables, 15 tests d'intégrité, 13 requêtes KPI).
+> **Statut** : étape 3 — version 1.1. Le modèle est testé sur MySQL 8.4 (43 tables, 22 tests d'intégrité, 16 requêtes KPI).
+> **Version 1.1** : intégration du MCD Looping du porteur du projet (avis, favoris, panier) et de son catalogue réel Dabo Hair (fournisseurs, achats à la douzaine, variantes). Analyse détaillée : [docs/03b_ANALYSE_MCD_EXISTANT.md](docs/03b_ANALYSE_MCD_EXISTANT.md).
 > **Prérequis** : [docs/01_ANALYSE_DU_BESOIN.md](docs/01_ANALYSE_DU_BESOIN.md) (règles de gestion `RG-*`, dictionnaire des KPI) et [ARCHITECTURE.md](ARCHITECTURE.md) (ADR-006 : grand livre du stock, ADR-008 : analytics).
 
 ## Fichiers de cette étape
@@ -9,8 +10,8 @@
 |---|---|
 | [`database/schema.sql`](database/schema.sql) | Schéma physique complet et commenté (référence) |
 | [`database/sample_data.sql`](database/sample_data.sql) | Petit jeu de données de démonstration |
-| [`database/analytics_queries.sql`](database/analytics_queries.sql) | 13 requêtes SQL qui implémentent les KPI |
-| [`database/tests/integrity_tests.sql`](database/tests/integrity_tests.sql) | 15 instructions **qui doivent échouer** (preuve que les règles sont protégées) |
+| [`database/analytics_queries.sql`](database/analytics_queries.sql) | 16 requêtes SQL qui implémentent les KPI |
+| [`database/tests/integrity_tests.sql`](database/tests/integrity_tests.sql) | 22 instructions **qui doivent échouer** (preuve que les règles sont protégées) |
 | [`database/verify.sh`](database/verify.sh) | Rejoue tout sur une base neuve : schéma, données, cohérence, tests, KPI |
 | [`docker-compose.yml`](docker-compose.yml) | MySQL 8.4, Redis et Mailpit pour le développement |
 
@@ -84,14 +85,14 @@ L'application valide déjà les données (FormRequests Laravel). Mais un bug, un
 
 ---
 
-## 2. Vue d'ensemble : 7 domaines, 36 tables
+## 2. Vue d'ensemble : 7 domaines, 43 tables
 
 | Domaine | Tables |
 |---|---|
 | 1. Utilisateurs et RBAC | `users`, `roles`, `permissions`, `role_has_permissions`, `model_has_roles`, `model_has_permissions`, `activity_log` |
-| 2. Clients | `customers`, `addresses`, `delivery_zones` |
-| 3. Catalogue et stock | `categories`, `brands`, `hair_types`, `products`, `product_hair_type`, `product_images`, `stock_movements` |
-| 4. Commandes et facturation | `orders`, `order_items`, `payments`, `invoices`, `invoice_sequences` |
+| 2. Clients | `customers`, `addresses`, `delivery_zones`, `favorites` |
+| 3. Catalogue, stock et achats | `categories`, `brands`, `hair_types`, `products`, `product_hair_type`, `product_images`, `product_reviews`, `stock_movements`, `suppliers`, `purchase_orders`, `purchase_order_items` |
+| 4. Paniers, commandes et facturation | `carts`, `cart_items`, `orders`, `order_items`, `payments`, `invoices`, `invoice_sequences` |
 | 5. Salon et réservations | `service_categories`, `services`, `stylists`, `service_stylist`, `business_hours`, `closures`, `stylist_time_off`, `bookings` |
 | 6. Paramètres | `settings`, `contact_messages` |
 | 7. Analytics | `calendar_dates`, `daily_sales_snapshots`, `daily_product_stats`, `forecasts` |
@@ -118,6 +119,17 @@ erDiagram
     orders |o--o{ invoices : facture
     customers ||--o{ invoices : reçoit
     invoices |o--o{ invoices : "avoir de"
+    products |o--o{ products : "variante de"
+    suppliers ||--o{ purchase_orders : "fournit"
+    purchase_orders ||--|{ purchase_order_items : contient
+    products ||--o{ purchase_order_items : "acheté dans"
+    products ||--o{ product_reviews : "noté par"
+    customers ||--o{ product_reviews : "rédige"
+    users ||--o{ favorites : "aime"
+    products ||--o{ favorites : "aimé"
+    carts ||--o{ cart_items : contient
+    products ||--o{ cart_items : "dans"
+    carts |o--o| orders : "devient"
 ```
 
 ### 2.2 Salon et réservations
@@ -220,9 +232,15 @@ Le détail de chaque colonne est commenté dans [`schema.sql`](database/schema.s
 | `delivery_zones` | Zones et frais de livraison | `fee` |
 | `categories` | Arborescence du catalogue | `parent_id` (auto-référence), `slug` |
 | `brands`, `hair_types` | Filtres catalogue | `slug` |
-| `products` | Fiche produit | `sku`, `price`, `cost_price`, `stock_quantity` (cache), `low_stock_threshold`, `is_featured` |
+| `products` | Fiche produit | `sku`, `price`, `cost_price`, `stock_quantity` (cache), `low_stock_threshold`, `is_featured`, `variant_of_id` (autre contenance) |
 | `product_images` | Galerie | `position`, `is_primary`, `alt_text` |
 | `stock_movements` | **Grand livre du stock** | `type`, `quantity` (signée), `stock_after`, `reference_*`, `reason` |
+| `suppliers` | Fournisseurs (ex. Dabo Hair) | `name` (unique), coordonnées |
+| `purchase_orders` | Bons de commande fournisseur | `reference`, `status`, `total_cost`, `received_at` |
+| `purchase_order_items` | Lignes d'achat par lots | `packs_ordered`, `units_per_pack`, `unit_cost`, `quantity_ordered` et `line_total` (**générées**), `quantity_received` |
+| `product_reviews` | Avis clients modérés | `rating` (1 à 5), `status`, `order_id` (achat vérifié) |
+| `favorites` | Favoris (association porteuse) | clé `(user_id, product_id)` |
+| `carts` / `cart_items` | Paniers enregistrés | `token` (invité), `status`, `converted_order_id` ; clé `(cart_id, product_id)` |
 | `orders` | Commande | `reference`, `status`, `payment_status`, `fulfillment_method`, montants, horodatages métier |
 | `order_items` | Lignes (instantanés) | `unit_price`, `unit_cost`, `quantity`, `line_total` |
 | `payments` | Encaissements, multi-fournisseurs | `gateway`, `method`, `status`, `provider_reference` |
@@ -249,6 +267,9 @@ Le détail de chaque colonne est commenté dans [`schema.sql`](database/schema.s
 | `bookings.status` | `pending` → `confirmed` → `completed` ; ou `cancelled` ; ou `no_show` |
 | `payments.status` | `pending`, `succeeded`, `failed`, `refunded` |
 | `stock_movements.type` | `initial`, `purchase`, `sale`, `sale_cancellation`, `customer_return`, `loss`, `adjustment` |
+| `purchase_orders.status` | `draft` → `ordered` → `partially_received` → `received` ; ou `cancelled` |
+| `product_reviews.status` | `pending` → `approved` ou `rejected` |
+| `carts.status` | `active` → `converted` ; ou `abandoned` (24 h sans activité) |
 
 ---
 
@@ -298,6 +319,9 @@ Pour vérifier qu'une requête utilise un index : `EXPLAIN SELECT ...;` (la colo
 | RG-FAC-03 Facture immuable | — | Aucune route de modification ; avoirs | — |
 | RG-RES-01/02 Pas de chevauchement | `UNIQUE (stylist_id, active_slot)` | Transaction + `FOR UPDATE` (§6.3) | T07 |
 | RG-CLI-01 Téléphone unique | `UNIQUE phone` | Validation `unique:customers,phone` | T12 |
+| Avis : note de 1 à 5, un avis par client et par produit | `CHECK`, `UNIQUE` | Validation + modération | T16, T17 |
+| Favori unique | Clé primaire composée | — | T18 |
+| Achats : réception ≤ commande, total calculé | `CHECK`, colonnes générées | `ReceivePurchaseOrderAction` | T19 à T21, `verify.sh` étape 4b |
 
 ### 6.2 Passer une commande (transaction)
 ```sql
@@ -366,6 +390,9 @@ La **dimension calendrier** `calendar_dates` est une notion clé de la BI. En fa
 | Proches de la rupture, prévision (couverture) | Q11 |
 | Produits à faible rotation, valeur immobilisée | Q12 |
 | Pertes de stock valorisées | Q13 |
+| Achats par fournisseur | Q14 |
+| Note moyenne par produit | Q15 |
+| Taux d'abandon de panier | Q16 |
 
 ### 7.3 Exemple de résultat (données de démonstration)
 Q01 — CA mensuel en XOF :
@@ -442,7 +469,6 @@ DB::statement('ALTER TABLE stock_movements ADD CONSTRAINT stock_movements_quanti
 | Évolution | Impact sur le schéma |
 |---|---|
 | Plusieurs boutiques ou dépôts | Table `locations` + `location_id` sur `stock_movements` (stock par emplacement) |
-| Fournisseurs et bons de réception | Tables `suppliers`, `purchase_orders`, `purchase_order_items` (mouvements `purchase`) |
 | Codes promo | Tables `coupons`, `coupon_redemptions` (`orders.discount_total` existe déjà) |
 | Programme de fidélité | Table `loyalty_transactions` (même principe de grand livre que le stock) |
 | Paiement en ligne | Aucun changement de schéma : `payments` est prête |

@@ -33,3 +33,17 @@ UPDATE products SET compare_at_price = 1000 WHERE id = 1;
 UPDATE business_hours SET opens_at = '19:00', closes_at = '09:00' WHERE day_of_week = 1;
 -- T15 Commande pour un client inexistant refusée (intégrité référentielle)
 INSERT INTO orders (reference, customer_id, fulfillment_method, subtotal, total, placed_at) VALUES ('CMD-T-15', 9999, 'pickup', 1, 1, NOW());
+-- T16 Note d'avis hors de l'échelle 1 à 5 refusée
+INSERT INTO product_reviews (product_id, customer_id, rating) VALUES (1, 4, 6);
+-- T17 Deux avis du même client sur le même produit refusés
+INSERT INTO product_reviews (product_id, customer_id, rating) VALUES (2, 1, 3);
+-- T18 Même produit ajouté deux fois aux favoris refusé (clé primaire composée)
+INSERT INTO favorites (user_id, product_id) VALUES (3, 1);
+-- T19 Réception supérieure à la quantité commandée refusée
+UPDATE purchase_order_items SET quantity_received = 49 WHERE purchase_order_id = 1 AND product_id = 6;
+-- T20 Ligne d'achat à zéro lot refusée
+INSERT INTO purchase_order_items (purchase_order_id, product_id, packs_ordered, unit_cost) VALUES (1, 1, 0, 3500);
+-- T21 Colonne générée non modifiable à la main (le total d'une ligne d'achat se calcule seul)
+UPDATE purchase_order_items SET line_total = 1 WHERE purchase_order_id = 1 AND product_id = 6;
+-- T22 Quantité nulle dans un panier refusée
+INSERT INTO cart_items (cart_id, product_id, quantity) VALUES (3, 1, 0);
