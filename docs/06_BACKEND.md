@@ -67,6 +67,17 @@ php artisan serve
 
 Testez dans le navigateur : http://localhost:8000/api/v1/products. Vous devez voir le JSON des 9 produits. Comme pour le frontend, **laissez la fenêtre ouverte** ; Ctrl + C arrête le serveur.
 
+### Erreurs fréquentes à l'installation (Windows)
+
+| Message | Cause | Solution |
+|---|---|---|
+| `Failed opening required '...backend/vendor/autoload.php'` | Les bibliothèques PHP ne sont pas installées : le dossier `vendor/` n'est **jamais** sur GitHub (`.gitignore`), il se recrée sur chaque ordinateur | Dans `backend/` : `composer install`, puis la suite du §1.3 |
+| `requires ext-fileinfo` / `ext-zip` / `ext-gd`… (pendant `composer install`) | Extension PHP désactivée dans `php.ini` | `php --ini` affiche le fichier utilisé ; ouvrez-le et retirez le `;` devant `extension=fileinfo`, `openssl`, `mbstring`, `pdo_mysql`, `zip`, `gd`, `intl`, `curl` ; rouvrez Git Bash |
+| `could not find driver` | Extension `pdo_mysql` désactivée | Même correction, ligne `extension=pdo_mysql` |
+| `No application encryption key has been specified` | `php artisan key:generate` oublié | Le lancer dans `backend/` |
+| `SQLSTATE[HY000] [2002]` | MySQL (Docker) arrêté, ou mauvais port | Docker Desktop ouvert, `docker compose up -d`, `DB_PORT=3307` dans `backend/.env` |
+| `Your PHP version (8.x) does not satisfy requirement php ^8.3` | PHP trop ancien | Installer PHP 8.3 ou plus récent (§1.1) |
+
 ### 1.5 Lancer les tests
 Les tests utilisent une base **séparée**, `salon_test`, qu'il faut créer une fois :
 
