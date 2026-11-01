@@ -95,7 +95,11 @@ const log = (ok, msg) => console.log(`${ok ? 'OK  ' : 'FAIL'} ${msg}`)
   log(true, 'Déconnexion : /compte/commandes redirige vers la connexion')
 
   // 9. Commande INVITÉ + conflit de stock (30 sérums demandés, 24 en stock)
-  await page.evaluate(() => localStorage.setItem('dabo-hair-cart', JSON.stringify({ state: { items: [{ productId: 10, slug: 'serum-activ-pousse-30-ml', name: 'Sérum Activ’Pousse', unitSize: '30 ml', price: 3000, quantity: 30 }] }, version: 1 })))
+  // L'identifiant du produit est demandé à l'API (il diffère entre le faux serveur et la vraie base)
+  await page.evaluate(async () => {
+    const { data } = await (await fetch('/api/v1/products/serum-activ-pousse-30-ml', { headers: { Accept: 'application/json' } })).json()
+    localStorage.setItem('dabo-hair-cart', JSON.stringify({ state: { items: [{ productId: data.id, slug: data.slug, name: data.name, unitSize: data.unit_size, price: data.price, quantity: 30 }] }, version: 1 }))
+  })
   await page.goto(BASE + '/commande')
   await page.getByLabel('Prénom *').fill('Khady')
   await page.getByLabel('Nom *', { exact: true }).fill('Fall')

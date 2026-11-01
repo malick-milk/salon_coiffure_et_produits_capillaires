@@ -1,6 +1,6 @@
 # Documentation API
 
-> Statut : **contrat v0** défini à l'étape 5 par le frontend (types : `frontend/src/types/api.ts`, faux serveur : `frontend/src/mocks/handlers.ts`). Implémentation Laravel et documentation générée (Scribe) à l'étape 6.
+> Statut : **v1 implémentée** (étape 6) dans `backend/routes/api.php`, conforme au contrat défini par le frontend (`frontend/src/types/api.ts`). Vérifiée par 51 tests backend et 51 vérifications de parcours navigateur sur la vraie API.
 
 ## Conventions (format, erreurs, pagination)
 
@@ -14,6 +14,9 @@
 | 404 | Introuvable | `{ "message": "Produit introuvable." }` |
 | 409 | Conflit (créneau déjà pris) | `{ "message": "…" }` |
 | 422 | Données invalides | `{ "message": "…", "errors": { "customer.phone": ["…"] } }` |
+| 401 | Non authentifié | `{ "message": "Non authentifié." }` |
+| 403 | Accès refusé (ressource d'un autre client) | `{ "message": "Accès refusé." }` |
+| 419 | Jeton CSRF absent ou expiré | `{ "message": "Session expirée. Rechargez la page." }` |
 | 429 | Trop de requêtes | `{ "message": "…" }` |
 
 ## Authentification
@@ -85,9 +88,17 @@ Tous exigent d'être connecté (401 sinon) et ne renvoient **que** les données 
 
 Le corps de `POST /orders` ne contient **aucun prix** : `items[{ product_id, quantity }]`, mode de réception, zone, coordonnées, adresse. Le serveur, dans une transaction : verrouille les produits, vérifie le stock, recalcule les montants, crée la commande et ses lignes avec les prix figés, puis enregistre les mouvements de stock « vente ».
 
+## Limitations de débit
+
+| Limite | Portée |
+|---|---|
+| 120 requêtes / minute | Toute l'API, par utilisateur ou adresse IP |
+| 20 / heure | `POST /bookings`, `POST /orders`, `POST /auth/register`, par adresse IP |
+| 5 essais / minute | `POST /auth/login`, par email et adresse IP |
+
 ## Endpoints ERP
 
-_À compléter._
+_Étape 7._
 
 ## Endpoints analytics
 

@@ -13,6 +13,35 @@ export const http = axios.create({
   headers: { Accept: 'application/json' },
 })
 
+/**
+ * PROTECTION CSRF (Sanctum) : toute requête qui MODIFIE des données (POST, PATCH, DELETE…)
+ * doit porter le jeton lu dans le cookie XSRF-TOKEN. Un visiteur qui n'a encore jamais
+ * appelé /sanctum/csrf-cookie n'a pas ce cookie : on le demande juste avant l'envoi.
+ */
+const SAFE_METHODS = ['get', 'head', 'options']
+const hasXsrfCookie = () => document.cookie.split('; ').some((c) => c.startsWith('XSRF-TOKEN='))
+const refreshCsrfCookie = () => axios.get('/sanctum/csrf-cookie', { withCredentials: true })
+
+http.interceptors.request.use(async (config) => {
+  if (!SAFE_METHODS.includes((config.method ?? 'get').toLowerCase()) && !hasXsrfCookie()) {
+    await refreshCsrfCookie()
+  }
+  return config
+})
+
+/** 419 = jeton CSRF ou session expiré : on renouvelle le jeton et on rejoue la requête UNE seule fois */
+http.interceptors.response.use(undefined, async (error: unknown) => {
+  if (axios.isAxiosError(error) && error.response?.status === 419 && error.config) {
+    const config = error.config as typeof error.config & { _csrfRetried?: boolean }
+    if (!config._csrfRetried) {
+      config._csrfRetried = true
+      await refreshCsrfCookie()
+      return http(config)
+    }
+  }
+  return Promise.reject(error)
+})
+
 /** Erreur de validation renvoyée par Laravel (HTTP 422) */
 export interface ValidationErrorBody {
   message: string

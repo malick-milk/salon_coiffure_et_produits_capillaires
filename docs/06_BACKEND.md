@@ -1,10 +1,13 @@
 # ÉTAPE 6 — Développement du backend Laravel
 
-> **Statut** :
-> - **Partie 1 terminée** : installation, migrations, modèles, seeders, API publique du catalogue et du salon, disponibilités.
-> - **Partie 2 (à venir)** : création de réservation, authentification Sanctum, commandes, espace client, puis branchement du frontend sur la vraie API.
+> **Statut** : terminée.
+> - **Partie 1** : installation, migrations, modèles, seeders, API publique du catalogue et du salon, disponibilités.
+> - **Partie 2** : réservations, authentification Sanctum, commandes, espace client, et **frontend branché sur la vraie API**.
 >
-> **Vérification** : 26 tests (115 vérifications) sur une base MySQL dédiée.
+> **Vérification** :
+> - 51 tests backend (244 vérifications) sur une base MySQL dédiée ;
+> - 40 tests frontend ;
+> - **51 vérifications de parcours dans un vrai navigateur, sur la vraie API** (24 pour la vitrine, 27 pour le compte et la commande).
 
 ---
 
@@ -164,12 +167,73 @@ Ce qui n'est pas dans la Resource **ne sort pas** : un test vérifie que `cost_p
 
 ---
 
-## 3. Bugs trouvés pendant cette partie
+## 3. Partie 2 : réservations, connexion, commandes
+
+### 3.1 Brancher le site React sur la vraie API
+Dans `frontend/.env.local`, passez `VITE_ENABLE_MOCKS=false`. Lancez ensuite **trois fenêtres** Git Bash :
+
+| Fenêtre | Commande | Rôle |
+|---|---|---|
+| 1 (dossier du projet) | `docker compose up -d` | MySQL |
+| 2 (`backend`) | `php artisan serve` | API sur le port 8000 |
+| 3 (`frontend`) | `npm run dev` | Site sur le port 5173 ; Vite transmet `/api` et `/sanctum` à Laravel |
+
+Ouvrez http://localhost:5173. Comptes de démonstration : `mariama@client.test` / `demo-dabo-2026` (cliente) et `admin@dabohair.test` / `admin-dabo-2026` (pour l'ERP de l'étape 7).
+
+Pour **remettre la démo à zéro** (stock, commandes, réservations) :
+
+```bash
+php artisan migrate:fresh --seed
+```
+
+### 3.2 Les Actions : un cas d'utilisation = une classe
+| Classe | Ce qu'elle garantit |
+|---|---|
+| `CreateBookingAction` | Verrou sur les coiffeurs, revérification de la disponibilité, affectation de « peu importe », **index unique** en filet de sécurité → 409 si le créneau est pris |
+| `PlaceOrderAction` | Prix lus **en base**, produits **verrouillés** par ordre d'identifiant (évite les interblocages), stock vérifié pour **toutes** les lignes avant la moindre écriture, tout dans **une transaction** |
+| `CustomerResolver` | Une seule fiche client par téléphone. Un invité ne peut pas renommer la fiche d'un autre |
+| `ReferenceGenerator` | Références `CMD-2026-000010` uniques, grâce à un compteur verrouillé (table `counters`) |
+
+Les deux Actions principales sont les traductions PHP de `handlers.ts` et `orders.ts` (frontend). Les mêmes cas sont testés des deux côtés.
+
+### 3.3 L'authentification Sanctum, de bout en bout
+1. Le site appelle `GET /sanctum/csrf-cookie` : Laravel dépose le cookie `XSRF-TOKEN`.
+2. `POST /api/v1/auth/login` : Laravel vérifie le **hachage** du mot de passe (`Auth::attempt`), puis **régénère l'identifiant de session** pour empêcher la fixation de session.
+3. La session est stockée dans un cookie **HttpOnly**, illisible par JavaScript.
+4. Chaque requête qui modifie des données doit porter le jeton CSRF. Sans lui, la réponse est **419**. Le frontend a deux intercepteurs : il demande le jeton s'il manque, et rejoue une fois la requête après un 419.
+
+**Autres protections :**
+- **message vague** en cas d'échec de connexion ;
+- **5 essais**, puis 429 pendant 1 minute (par email et adresse IP) ;
+- **compte désactivé** refusé ;
+- **`AuthenticateSession`** : si le mot de passe change, les autres sessions sont invalidées.
+
+### 3.4 Les Policies : qui a le droit ?
+`OrderPolicy::view` et `BookingPolicy::cancel` vérifient que la ressource appartient à l'utilisateur connecté, ou qu'il a la permission (`orders.view`, `bookings.manage`) pour le personnel. C'est la protection **anti-IDOR** : connaître `CMD-2026-000011` ne suffit pas, la réponse est **403**.
+
+### 3.5 Les codes de réponse, résumés
+| Code | Quand |
+|---|---|
+| 201 | Réservation, commande ou compte créés |
+| 401 | Non connecté (`/auth/me` pour un visiteur, `/me/*`) |
+| 403 | La ressource appartient à quelqu'un d'autre |
+| 404 | Ressource introuvable |
+| 409 | Créneau déjà pris, stock insuffisant (avec le détail par produit) |
+| 419 | Jeton CSRF absent ou expiré |
+| 422 | Données invalides (messages en français, champ par champ) |
+| 429 | Trop de tentatives (connexion) ou de créations (20 par heure et par adresse IP) |
+
+## 4. Bugs trouvés pendant cette étape
 1. **Table pivot introuvable** : pour `belongsToMany`, Laravel devine le nom de la table pivot par ordre alphabétique (`hair_type_product`), alors que notre schéma l'appelle `product_hair_type`. Le nom est désormais indiqué explicitement.
 2. **Lecture d'un paramètre JSON sans conversion** : `->value('value')` contourne les *casts* du modèle. Remplacé par `->first()?->value`.
 3. **Messages de validation bruts** (`validation.integer`) : ajout de `lang/fr/validation.php` et `lang/fr.json`.
+4. **Arrêt brutal de PHP pendant les tests** : un trait écrit dans `Concerns.php` au lieu de `NormalizesPhones.php`. L'autoload PSR-4 exige **un fichier par classe, au même nom**. L'erreur n'est apparue que dans les tests, parce que le premier test à charger ce trait était celui du profil.
+5. **`/auth/me` répondait 201** juste après une inscription : Laravel répond automatiquement « 201 Created » quand le modèle vient d'être créé dans le même cycle. Statut 200 forcé.
+6. **Commande en erreur 500** : après `create()`, les valeurs `DEFAULT` de MySQL (`payment_status`) ne sont pas relues dans l'objet PHP. Elles sont maintenant renseignées explicitement.
+7. **Réservation d'un visiteur refusée (419)** une fois le frontend branché : sans connexion préalable, le cookie CSRF n'existait pas. Corrigé avec les intercepteurs axios.
+8. **Un test supposait des identifiants de produits** propres au faux serveur : il demande maintenant l'identifiant à l'API.
 
-## 4. Décisions
+## 5. Décisions
 | Décision | Raison |
 |---|---|
 | Laravel 13 (version actuelle) | Laravel publie une version majeure par an avec peu de changements cassants ; la 12 ne reçoit plus de correctifs de sécurité après début 2027 |

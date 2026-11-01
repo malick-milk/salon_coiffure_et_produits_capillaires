@@ -5,6 +5,7 @@ use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use App\Exceptions\InsufficientStockException;
 use App\Exceptions\SlotUnavailableException;
+use Illuminate\Auth\AuthenticationException;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -32,6 +33,11 @@ return Application::configure(basePath: dirname(__DIR__))
         $exceptions->render(fn (SlotUnavailableException $e) => response()->json(['message' => $e->getMessage()], 409));
         $exceptions->render(fn (InsufficientStockException $e) => response()->json(['message' => $e->getMessage(), 'items' => $e->items], 409));
 
+        $exceptions->render(function (AuthenticationException $e, Request $request) {
+            if ($request->is('api/*')) {
+                return response()->json(['message' => 'Non authentifié.'], 401);
+            }
+        });
         $exceptions->render(function (NotFoundHttpException $e, Request $request) {
             if ($request->is('api/*')) {
                 return response()->json(['message' => 'Ressource introuvable.'], 404);

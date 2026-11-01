@@ -27,10 +27,20 @@
 | Aucun secret dans le frontend | Les variables `VITE_*` sont publiques | revue de code |
 | Faux serveur exclu de la production | `import.meta.env.DEV` | build vérifié |
 
-### Backend (étape 6) — à implémenter, déjà spécifié par le faux serveur
-- Message de connexion vague, limitation à 5 tentatives par minute (RG-SEC-02).
-- Vérification du propriétaire sur `/me/orders/{reference}` (Policy Laravel, anti-IDOR).
-- Validation complète (FormRequest), même pour ce que le frontend valide déjà.
-- Transaction + verrou (`lockForUpdate`) pour les commandes et les réservations.
+### Backend (étape 6) — mesures en place et testées
+| Mesure | Détail | Test |
+|---|---|---|
+| CSRF | Sanctum `statefulApi()` : 419 sans jeton | vérification manuelle + parcours navigateur |
+| Session sécurisée | Cookie HttpOnly, session régénérée à la connexion, invalidée à la déconnexion, `AuthenticateSession` | AuthApiTest |
+| Mots de passe | Hachage bcrypt automatique (`'password' => 'hashed'`), 8 à 72 caractères | AuthApiTest |
+| Anti-énumération | Même message pour un email inconnu et un mauvais mot de passe | AuthApiTest |
+| Anti-force brute | 5 essais par email et adresse IP, puis 429 | AuthApiTest, parcours-compte |
+| Anti-IDOR | `OrderPolicy`, `BookingPolicy` → 403 | OrderApiTest, AccountApiTest |
+| Mass assignment | `$fillable` en liste blanche ; `stock_quantity` non remplissable | revue de code |
+| Injection SQL | Eloquent + liaison de paramètres ; jokers `%` et `_` neutralisés | CatalogApiTest |
+| Données sensibles | API Resources : jamais `cost_price`, `unit_cost`, stock exact, mot de passe | CatalogApiTest, OrderApiTest |
+| Intégrité métier | Transactions + `lockForUpdate` + contraintes CHECK et UNIQUE | BookingApiTest, OrderApiTest, StockServiceTest |
+| Anti-abus | Limitation de débit (voir API_DOCUMENTATION.md) | — |
+| Erreurs | JSON en français, sans détail technique quand `APP_DEBUG=false` | — |
 
 _Audit complet : étape 10._
