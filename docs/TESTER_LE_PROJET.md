@@ -220,7 +220,7 @@ cp .env.example .env.local
 npm run dev
 ```
 
-Ouvrez http://localhost:5173. Le faux serveur répond à la place de Laravel.
+Ouvrez http://localhost:5173. Par défaut (`VITE_ENABLE_MOCKS=false` dans `.env.example`), le site interroge la **vraie API Laravel** : lancez aussi `php artisan serve` dans `backend/` (voir le Test 4). Sans PHP, mettez `VITE_ENABLE_MOCKS=true` dans `.env.local` : le faux serveur répond alors à la place de Laravel.
 
 | À essayer | Résultat attendu |
 |---|---|
@@ -252,7 +252,7 @@ cd backend && php artisan migrate:fresh --seed && php artisan serve
 cd frontend && npm run dev
 ```
 
-Dans `frontend/.env.local`, `VITE_ENABLE_MOCKS=false` (sinon le faux serveur, qui ne connaît pas l'ERP, répond à la place de Laravel).
+Vérifiez que `frontend/.env.local` contient `VITE_ENABLE_MOCKS=false` (valeur par défaut ; avec `true`, le faux serveur, qui ne connaît pas l'ERP, répond à la place de Laravel).
 
 Connectez-vous sur http://localhost:5173/connexion avec `admin@dabohair.test` / `admin-dabo-2026` : vous arrivez sur `/admin`.
 
