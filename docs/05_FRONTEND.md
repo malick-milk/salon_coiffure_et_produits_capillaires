@@ -1,8 +1,10 @@
-# ÉTAPE 5 — Développement du frontend (partie 1 : la vitrine)
+# ÉTAPE 5 — Développement du frontend
 
-> **Statut** : partie 1 terminée. Vitrine, catalogue, fiche produit, panier, réservation complète.
-> **Partie 2 (à venir)** : connexion et inscription, espace client, validation de commande.
-> **Vérification** : TypeScript strict sans erreur, 28 tests unitaires, 24 vérifications de parcours dans un vrai navigateur.
+> **Statut** : terminée.
+> - **Partie 1** : vitrine, catalogue, fiche produit, panier, réservation.
+> - **Partie 2** : connexion, inscription, espace client, validation de commande.
+>
+> **Vérification** : TypeScript strict sans erreur, 40 tests unitaires, 51 vérifications de parcours dans un vrai navigateur (24 pour la vitrine, 27 pour le compte et la commande).
 
 ---
 
@@ -189,7 +191,58 @@ frontend/
 | JSON de l'API en `snake_case` (ADR-012) | Identique aux colonnes MySQL et à la convention Laravel : aucune traduction, moins de bugs |
 | `@testing-library/jest-dom` fixé en 6.9.1 | La 6.10.0 a été publiée par erreur (avertissement npm) |
 
-## 6. Bugs trouvés et corrigés grâce aux tests
+## 6. Partie 2 : compte client et commande
+
+### 6.1 Les nouvelles pages
+| Page | URL | Ce qu'on peut faire |
+|---|---|---|
+| Connexion | `/connexion` | Se connecter, puis revenir à la page demandée |
+| Inscription | `/inscription` | Créer un compte (connexion automatique ensuite) |
+| Validation de commande | `/commande` | Retrait ou livraison (zone, adresse, point de repère), **avec ou sans compte** |
+| Espace client | `/compte` | Prochain rendez-vous, commande en cours |
+| Mes commandes | `/compte/commandes` et `/compte/commandes/:reference` | Historique, détail avec prix figés, adresse de livraison |
+| Mes réservations | `/compte/reservations` | Historique, annulation jusqu'à 24 h avant |
+| Profil | `/compte/profil` | Modifier nom, prénom, téléphone |
+
+**Compte de démonstration** (faux serveur uniquement) : `mariama@client.test` / `demo-dabo-2026`.
+
+### 6.2 La connexion sécurisée, expliquée
+1. `GET /sanctum/csrf-cookie` : le serveur dépose un jeton anti-CSRF dans un cookie.
+2. `POST /auth/login` : axios renvoie automatiquement ce jeton dans l'en-tête `X-XSRF-TOKEN`.
+3. Le serveur répond avec un **cookie de session HttpOnly**, que JavaScript **ne peut pas lire**. Même en cas de faille XSS, la session ne peut pas être volée.
+4. `GET /auth/me` indique qui est connecté (**401** pour un visiteur : c'est normal).
+
+L'utilisateur connecté est une donnée du **serveur** (`useMe()`), pas une variable stockée dans le navigateur. À la déconnexion, **tout le cache est vidé** : les données d'un compte ne restent pas visibles pour la personne suivante sur le même téléphone.
+
+### 6.3 Les protections démontrées par les tests
+| Protection | Ce qui se passe | Où |
+|---|---|---|
+| **Page protégée** | `/compte/...` sans être connecté renvoie vers `/connexion?redirect=…` | `RequireAuth` (confort) + **401 du serveur** (sécurité) |
+| **Message d'erreur vague** | « Ces identifiants ne correspondent à aucun compte » : on ne révèle pas si l'email existe | Serveur |
+| **Limitation des tentatives** (RG-SEC-02) | 6e essai bloqué pendant 1 minute (429) | Serveur |
+| **IDOR** (OWASP A01) | Connaître la référence de la commande d'un autre client ne suffit pas : 403 | Serveur (vérifie le propriétaire) |
+| **Open redirect** | `?redirect=https://site-pirate…` est remplacé par `/compte` | `safeRedirect()` |
+| **Prix non modifiables** (RG-COM-04) | La commande n'envoie que des identifiants et des quantités : le serveur recalcule tout | `CheckoutRequest` |
+| **Stock vérifié** (RG-STK-01) | 30 sérums demandés pour 24 en stock : 409 avec le détail, et un bouton « Passer à 24 » | `priceOrder()` |
+| **Faux serveur jamais en production** | `import.meta.env.DEV` : MSW est supprimé du build | `main.tsx` |
+
+### 6.4 Validation conditionnelle
+L'adresse n'est obligatoire **que** pour une livraison. Zod l'exprime avec `superRefine`, qui voit tout l'objet et signale le bon champ :
+
+```ts
+.superRefine((v, ctx) => {
+  if (v.fulfillment_method !== 'delivery') return
+  if (v.address_line.length < 3) ctx.addIssue({ code: 'custom', path: ['address_line'], message: 'Indiquez l’adresse de livraison.' })
+})
+```
+
+### 6.5 Le calcul de commande, en fonction pure
+`src/mocks/orders.ts` (`priceOrder`) est la **spécification** du futur `PlaceOrderAction` Laravel. Elle prend ses prix dans la base, regroupe les doublons, vérifie le stock et ajoute les frais de la zone (0 pour un retrait). Elle calcule `total = sous-total - remise + frais`, exactement comme la contrainte `CHECK` de MySQL. Ses 5 tests seront rejoués en PHP.
+
+## 7. Bugs trouvés et corrigés grâce aux tests
 1. **Créneau réservé affiché libre un instant** : après une réservation, l'ancien cache était réaffiché pendant le rechargement. Corrigé avec `removeQueries`.
 2. **Nouvelle tentative inutile après une 404** : corrigé par une règle de nouvelles tentatives limitée aux erreurs 5xx et réseau.
 3. **Indicateur d'étapes sur deux lignes** sur mobile : compacté (seule l'étape en cours garde son libellé).
+4. **Faux serveur inclus dans le build de production** (308 Ko), parce que `.env.local` est aussi lu par `vite build`. Corrigé avec `import.meta.env.DEV`. Le build est vérifié sans aucune trace de MSW.
+5. **Données du faux serveur perdues au rechargement** : le stock remontait à 24 après une vente. L'état du faux serveur est maintenant enregistré dans le `localStorage`, pour qu'il se comporte comme une vraie base.
+6. **Préremplissage qui écrasait la saisie** : si le client tapait avant le chargement de son profil, son texte était remplacé. Corrigé avec `keepDirtyValues`.

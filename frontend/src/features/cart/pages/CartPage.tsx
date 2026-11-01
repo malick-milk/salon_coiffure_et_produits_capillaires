@@ -54,8 +54,8 @@ export function CartPage() {
               <h2 className="font-display text-[22px] font-semibold">Total</h2>
               <div className="flex justify-between text-[15px]"><span className="text-[#52525b]">{count} article{count > 1 ? 's' : ''}</span><strong>{formatPrice(subtotal)}</strong></div>
               <p className="text-[13px] leading-relaxed text-[#52525b]">Frais de livraison calculés à l'étape suivante selon votre zone. Retrait en boutique gratuit. Les prix sont confirmés par le serveur à la validation.</p>
-              <Button variant="dark" disabled title="Disponible à l'étape suivante du projet">Valider la commande</Button>
-              <p className="text-center text-xs text-[#52525b]">La validation de commande arrive avec l'espace client (étape 5, partie 2).</p>
+              <Button asChild variant="dark"><Link to="/commande">Valider la commande</Link></Button>
+              <p className="text-center text-xs text-[#52525b]">Commande possible sans compte. Paiement à la réception.</p>
             </aside>
           </div>
         )}

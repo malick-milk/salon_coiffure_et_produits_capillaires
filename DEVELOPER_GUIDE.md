@@ -109,8 +109,8 @@ Fichiers de configuration à la racine :
 | Partie | Commande | Contenu |
 |---|---|---|
 | Base de données | `bash database/verify.sh` | 25 tests d'intégrité + 17 requêtes KPI |
-| Frontend | `cd frontend && npm run test:run` | 28 tests unitaires (Vitest) |
-| Parcours navigateur | `node frontend/e2e/parcours-vitrine.cjs ./captures` | 24 vérifications (Playwright) |
+| Frontend | `cd frontend && npm run test:run` | 40 tests unitaires (Vitest) |
+| Parcours navigateur | `node frontend/e2e/parcours-vitrine.cjs ./captures` puis `parcours-compte.cjs` | 24 + 27 vérifications (Playwright) |
 
 La suite complète (backend, CI) sera mise en place à l'étape 9.
 

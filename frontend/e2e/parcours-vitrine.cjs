@@ -141,7 +141,8 @@ const log = (ok, msg) => console.log(`${ok ? 'OK  ' : 'FAIL'} ${msg}`)
   // Une seule 404 est ATTENDUE : celle du test « produit inexistant »
   const expected404 = errors.filter((e) => e.includes('404')).length
   log(expected404 === 1, `Console : ${expected404} réponse 404 (1 attendue, aucune nouvelle tentative)`)
-  const real = errors.filter((e) => !e.includes('Download the React DevTools') && !e.includes('404'))
+  // 401 attendus : GET /auth/me répond « non authentifié » pour un visiteur (comportement standard de Sanctum)
+  const real = errors.filter((e) => !e.includes('Download the React DevTools') && !e.includes('404') && !e.includes('401'))
   log(real.length === 0, `Console : ${real.length} erreur(s) JavaScript${real.length ? ' → ' + real.join(' | ') : ''}`)
   await browser.close()
 })().catch((e) => { console.error('FAIL exception', e.message); process.exit(1) })

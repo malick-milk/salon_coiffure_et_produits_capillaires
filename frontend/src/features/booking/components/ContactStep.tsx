@@ -3,9 +3,9 @@
  * React Hook Form évite de re-rendre toute la page à chaque lettre tapée (formulaires rapides).
  */
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useId } from 'react'
 import { useForm, type UseFormSetError } from 'react-hook-form'
-import { Input, Label, Textarea } from '@/components/ui/input'
+import { Field } from '@/components/common/FormField'
+import { Input, Textarea } from '@/components/ui/input'
 import { contactSchema, type ContactInput, type ContactValues } from '../schema'
 
 export type ContactSetError = UseFormSetError<ContactInput>
@@ -49,21 +49,5 @@ export function ContactStep({ formId, onSubmit }: { formId: string; onSubmit: (v
         {errors.consent && <p role="alert" className="text-sm font-medium text-[#f87171]">{errors.consent.message}</p>}
       </div>
     </form>
-  )
-}
-
-/** Champ de formulaire accessible : le libellé, l'aide et l'erreur sont reliés au champ (aria-describedby) */
-function Field({ label, hint, error, children }: { label: string; hint?: string; error?: string; children: (id: string, describedBy?: string) => React.ReactNode }) {
-  const id = useId()
-  const hintId = hint && !error ? `${id}-hint` : undefined // l'aide est remplacée par l'erreur
-  const errorId = error ? `${id}-error` : undefined
-  const describedBy = [hintId, errorId].filter(Boolean).join(' ') || undefined
-  return (
-    <div className="flex flex-col gap-2">
-      <Label htmlFor={id}>{label}</Label>
-      {children(id, describedBy)}
-      {hint && !error && <p id={hintId} className="text-[13px] text-[#a3a3a3]">{hint}</p>}
-      {error && <p id={errorId} role="alert" className="text-sm font-medium text-[#f87171]">{error}</p>}
-    </div>
   )
 }

@@ -140,3 +140,107 @@ export interface BookingConfirmation {
   ends_at: string
   price: Money
 }
+
+// ---------- Authentification (Sanctum, cookie de session HttpOnly — ADR-003) ----------
+export interface User {
+  id: number
+  first_name: string
+  last_name: string
+  email: string
+  phone: string | null
+  roles: string[] // 'customer', 'manager'… (les PERMISSIONS sont vérifiées côté serveur)
+}
+
+export interface LoginRequest {
+  email: string
+  password: string
+  remember: boolean
+}
+
+export interface RegisterRequest {
+  first_name: string
+  last_name: string
+  email: string
+  phone: string
+  password: string
+  password_confirmation: string
+  consent: boolean
+}
+
+// ---------- Commandes ----------
+export type OrderStatus = 'pending' | 'confirmed' | 'preparing' | 'ready' | 'shipped' | 'delivered' | 'cancelled'
+export type PaymentStatus = 'unpaid' | 'paid' | 'refunded'
+export type FulfillmentMethod = 'pickup' | 'delivery'
+
+export interface DeliveryZone {
+  id: number
+  name: string
+  fee: Money
+}
+
+export interface ShippingAddress {
+  city: string
+  district: string | null
+  address_line: string
+  landmark: string | null // point de repère, très utile pour le livreur
+}
+
+/** Ce que le navigateur envoie : des IDENTIFIANTS et des quantités, JAMAIS de prix (RG-COM-04) */
+export interface CheckoutRequest {
+  items: { product_id: number; quantity: number }[]
+  fulfillment_method: FulfillmentMethod
+  delivery_zone_id: number | null
+  customer: { first_name: string; last_name: string; phone: string; email: string | null }
+  shipping_address: ShippingAddress | null
+  notes: string | null
+  consent: boolean
+}
+
+/** Erreur 409 de stock : quels produits posent problème et combien il en reste */
+export interface StockConflict {
+  message: string
+  items: { product_id: number; name: string; requested: number; available: number }[]
+}
+
+export interface OrderLine {
+  product_slug: string | null
+  product_name: string
+  unit_price: Money // prix FIGÉ au moment de la commande
+  quantity: number
+  line_total: Money
+}
+
+export interface OrderSummary {
+  reference: string
+  status: OrderStatus
+  payment_status: PaymentStatus
+  fulfillment_method: FulfillmentMethod
+  total: Money
+  items_count: number
+  placed_at: string
+}
+
+export interface OrderDetail extends OrderSummary {
+  items: OrderLine[]
+  subtotal: Money
+  discount_total: Money
+  shipping_fee: Money
+  delivery_zone: string | null
+  shipping_address: ShippingAddress | null
+  invoice_available: boolean // facture PDF disponible une fois la commande payée (RG-FAC-01)
+  can_cancel: boolean // le client peut annuler tant que la commande est « en attente » (RG-COM-05)
+}
+
+// ---------- Réservations du client ----------
+export type BookingStatus = 'pending' | 'confirmed' | 'completed' | 'cancelled' | 'no_show'
+
+export interface CustomerBooking {
+  reference: string
+  status: BookingStatus
+  service_name: string
+  stylist_name: string
+  starts_at: string
+  duration_minutes: number
+  price: Money
+  can_cancel: boolean // jusqu'à 24 h avant (RG-RES-04)
+}

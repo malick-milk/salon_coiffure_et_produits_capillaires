@@ -1,6 +1,7 @@
 import { CalendarDays, House, Search, ShoppingBag, Store, User } from 'lucide-react'
 import { Link, NavLink, Outlet, ScrollRestoration } from 'react-router'
 import { Logo } from '@/components/common/Placeholder'
+import { useMe } from '@/features/auth/hooks'
 import { useCartCount } from '@/features/cart/store'
 import { cn } from '@/lib/utils'
 
@@ -14,6 +15,7 @@ const NAV = [
 /** Mise en page de la vitrine : bandeau, en-tête, contenu de la page, pied de page, navigation mobile */
 export function PublicLayout() {
   const cartCount = useCartCount()
+  const { data: user } = useMe()
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -48,9 +50,14 @@ export function PublicLayout() {
             <Link to="/boutique" aria-label="Rechercher un produit" className="hidden size-11 items-center justify-center rounded-full hover:bg-ink-soft sm:flex">
               <Search className="size-[22px]" aria-hidden="true" />
             </Link>
-            <span aria-label="Mon compte (bientôt disponible)" className="hidden size-11 items-center justify-center rounded-full text-[#6b6b6b] sm:flex" title="Espace client : étape suivante">
+            <Link
+              to={user ? '/compte' : '/connexion'}
+              aria-label={user ? `Mon compte (${user.first_name})` : 'Se connecter'}
+              className="hidden min-h-11 items-center gap-2 rounded-full px-2.5 hover:bg-ink-soft sm:flex"
+            >
               <User className="size-[22px]" aria-hidden="true" />
-            </span>
+              {user && <span className="text-sm font-medium">{user.first_name}</span>}
+            </Link>
             <Link to="/panier" aria-label={`Panier, ${cartCount} article${cartCount > 1 ? 's' : ''}`} className="relative flex size-11 items-center justify-center rounded-full hover:bg-ink-soft">
               <ShoppingBag className="size-[22px]" aria-hidden="true" />
               {cartCount > 0 && (
@@ -70,12 +77,13 @@ export function PublicLayout() {
       <Footer />
 
       {/* Barre du bas, accessible au pouce, uniquement sur mobile */}
-      <nav aria-label="Navigation mobile" className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-4 border-t border-ink-line bg-ink-soft px-1 pt-1.5 pb-2.5 md:hidden">
+      <nav aria-label="Navigation mobile" className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-5 border-t border-ink-line bg-ink-soft px-1 pt-1.5 pb-2.5 md:hidden">
         {[
           { to: '/', label: 'Accueil', Icon: House, end: true },
           { to: '/boutique', label: 'Boutique', Icon: Store, end: false },
           { to: '/reserver', label: 'Réserver', Icon: CalendarDays, end: false },
           { to: '/panier', label: 'Panier', Icon: ShoppingBag, end: false },
+          { to: user ? '/compte' : '/connexion', label: user ? 'Compte' : 'Connexion', Icon: User, end: false },
         ].map(({ to, label, Icon, end }) => (
           <NavLink key={to} to={to} end={end} className={({ isActive }) => cn('flex min-h-[52px] flex-col items-center justify-center gap-1 text-[11px]', isActive && 'text-gold')}>
             <Icon className="size-[22px]" aria-hidden="true" />

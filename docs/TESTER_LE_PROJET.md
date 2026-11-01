@@ -1,7 +1,7 @@
 # Tester le projet sur votre ordinateur
 
 > **Ce qui est testable aujourd'hui (étapes 1 à 4)** : les maquettes, et la base de données avec ses règles et ses KPI.
-> Le site React et l'API Laravel arriveront aux étapes 5 et 6 ; ce guide sera complété à ce moment-là.
+> **Nouveau (étape 5)** : le site React se teste aussi, voir le Test 3 en fin de document.
 
 Durée : environ 30 minutes la première fois (installations comprises), puis 2 minutes.
 
@@ -198,3 +198,37 @@ Pour valider l'étape, indiquez-moi simplement :
 1. Le résultat de `bash database/verify.sh` (la dernière ligne suffit, ou le message d'erreur complet).
 2. Vos remarques sur les maquettes (design, textes, parcours, éléments manquants).
 3. Vos réponses aux questions métier encore ouvertes (voir [ARCHITECTURE.md, ADR-011](../ARCHITECTURE.md)), si vous souhaitez changer une hypothèse.
+
+---
+
+## Test 3 — Le site React (étape 5)
+
+```bash
+cd frontend
+```
+
+```bash
+npm install
+```
+
+```bash
+cp .env.example .env.local
+```
+
+```bash
+npm run dev
+```
+
+Ouvrez http://localhost:5173. Le faux serveur répond à la place de Laravel.
+
+| À essayer | Résultat attendu |
+|---|---|
+| Boutique → filtre « Sérums » | 3 produits ; l'URL contient `?category=serums` |
+| Crème capillaire | En rupture (96 fabriquées, 96 vendues au revendeur) : bouton désactivé |
+| Fiche du sérum 30 ml → « 15 ml » | Le prix passe à 1 500 F CFA |
+| Panier → Valider la commande → Livraison | Zone et adresse deviennent obligatoires ; les frais s'ajoutent au total |
+| Réserver → Nattes collées | Bineta n'est pas proposée |
+| Connexion `mariama@client.test` / `demo-dabo-2026` | Accès à l'espace client : commandes, réservations, profil |
+| 6 connexions ratées de suite | La 6e est bloquée pendant 1 minute |
+
+**Remettre la démo à zéro** : outils de développement du navigateur (F12) → Application → Local Storage → supprimer `msw-db-v1` et `msw-session-user-id`.

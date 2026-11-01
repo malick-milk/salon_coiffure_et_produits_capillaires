@@ -18,7 +18,15 @@
 
 ## Authentification
 
-_À compléter._
+Sanctum en mode SPA (ADR-003) : cookie de session HttpOnly + jeton CSRF.
+
+| Méthode | URL | Corps | Réponse |
+|---|---|---|---|
+| GET | `/sanctum/csrf-cookie` | — | 204 + cookie `XSRF-TOKEN` (à appeler avant login et inscription) |
+| POST | `/auth/login` | `{ email, password, remember }` | 200 `User` ; 422 identifiants invalides (message vague) ; 429 après 5 échecs |
+| POST | `/auth/register` | `RegisterRequest` | 201 `User` (connecté) ; 422 (email ou téléphone déjà utilisés, mots de passe différents…) |
+| POST | `/auth/logout` | — | 204 |
+| GET | `/auth/me` | — | 200 `User` ; **401 si visiteur** |
 
 ## Endpoints publics
 
@@ -58,7 +66,24 @@ Réponse 201 :
 
 ## Endpoints client
 
-_À compléter._
+Tous exigent d'être connecté (401 sinon) et ne renvoient **que** les données de l'utilisateur connecté.
+
+| Méthode | URL | Réponse |
+|---|---|---|
+| GET | `/me/orders` | `OrderSummary[]`, la plus récente en premier |
+| GET | `/me/orders/{reference}` | `OrderDetail` ; **403** si la commande appartient à un autre client (anti-IDOR) ; 404 si inconnue |
+| GET | `/me/bookings` | `CustomerBooking[]` avec `can_cancel` calculé par le serveur |
+| POST | `/me/bookings/{reference}/cancel` | `CustomerBooking` ; 422 à moins de 24 h (RG-RES-04) |
+| PATCH | `/me/profile` | `{ first_name, last_name, phone }` → `User` |
+
+### Commande (avec ou sans compte)
+
+| Méthode | URL | Réponse |
+|---|---|---|
+| GET | `/delivery-zones` | `DeliveryZone[]` |
+| POST | `/orders` | 201 `OrderDetail` ; **409** `StockConflict` (`items[{ product_id, name, requested, available }]`) ; 422 |
+
+Le corps de `POST /orders` ne contient **aucun prix** : `items[{ product_id, quantity }]`, mode de réception, zone, coordonnées, adresse. Le serveur, dans une transaction : verrouille les produits, vérifie le stock, recalcule les montants, crée la commande et ses lignes avec les prix figés, puis enregistre les mouvements de stock « vente ».
 
 ## Endpoints ERP
 

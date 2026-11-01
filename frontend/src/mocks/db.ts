@@ -4,7 +4,7 @@
  * catalogue RÉEL Dabo Hair (noms, contenances, prix de vente), prestations et horaires de démo.
  * Ce fichier disparaîtra de l'usage quand l'API Laravel répondra (VITE_ENABLE_MOCKS=false).
  */
-import type { BusinessHour, Category, ProductDetail, Service, Stylist } from '@/types/api'
+import type { BookingStatus, BusinessHour, Category, CustomerBooking, DeliveryZone, OrderDetail, ProductDetail, Service, Stylist } from '@/types/api'
 import type { Closure, ExistingBooking } from './availability'
 
 const dabo = { name: 'Dabo Hair', slug: 'dabo-hair' }
@@ -101,7 +101,120 @@ function seedBookings(): ExistingBooking[] {
   return list
 }
 
+export const deliveryZones: DeliveryZone[] = [
+  { id: 1, name: 'Dakar Plateau', fee: 1000 },
+  { id: 2, name: 'Parcelles Assainies', fee: 1500 },
+  { id: 3, name: 'Rufisque', fee: 2500 },
+]
+
+/**
+ * Comptes de démonstration. ATTENTION : faux serveur uniquement.
+ * Dans Laravel, le mot de passe n'est JAMAIS stocké : seul son HACHAGE bcrypt l'est (Hash::make),
+ * et la comparaison se fait avec Hash::check. Ici, la comparaison en clair sert seulement à la démo.
+ */
+export interface MockUser {
+  id: number
+  first_name: string
+  last_name: string
+  email: string
+  phone: string | null
+  password: string
+  roles: string[]
+}
+
+export const users: MockUser[] = [
+  { id: 3, first_name: 'Mariama', last_name: 'Sow', email: 'mariama@client.test', phone: '770000003', password: 'demo-dabo-2026', roles: ['customer'] },
+]
+
+export interface MockOrder extends OrderDetail {
+  user_id: number | null
+}
+
+export interface MockCustomerBooking extends CustomerBooking {
+  user_id: number
+}
+
+/** Date relative à aujourd'hui (pour que la démo reste cohérente quel que soit le jour) */
+const relDay = (days: number, time: string) => {
+  const d = new Date()
+  d.setUTCDate(d.getUTCDate() + days)
+  return `${d.toISOString().slice(0, 10)}T${time}:00`
+}
+
+const order = (o: Omit<MockOrder, 'items_count' | 'total'>): MockOrder => ({
+  ...o,
+  items_count: o.items.reduce((n, l) => n + l.quantity, 0),
+  total: o.subtotal - o.discount_total + o.shipping_fee,
+})
+
+function seedOrders(): MockOrder[] {
+  return [
+    order({
+      user_id: 3, reference: 'CMD-2026-000102', status: 'confirmed', payment_status: 'unpaid', fulfillment_method: 'pickup',
+      placed_at: relDay(-2, '18:20'), subtotal: 6000, discount_total: 0, shipping_fee: 0, delivery_zone: null, shipping_address: null,
+      items: [{ product_slug: 'creme-capillaire', product_name: 'Crème capillaire', unit_price: 3000, quantity: 2, line_total: 6000 }],
+      invoice_available: false, can_cancel: false,
+    }),
+    order({
+      user_id: 3, reference: 'CMD-2026-000101', status: 'delivered', payment_status: 'paid', fulfillment_method: 'delivery',
+      placed_at: relDay(-25, '10:15'), subtotal: 11000, discount_total: 0, shipping_fee: 1000, delivery_zone: 'Dakar Plateau',
+      shipping_address: { city: 'Dakar', district: 'Plateau', address_line: 'Rue 10', landmark: 'Près de la pharmacie' },
+      items: [
+        { product_slug: 'serum-activ-pousse-30-ml', product_name: 'Sérum Activ’Pousse 30 ml', unit_price: 3000, quantity: 2, line_total: 6000 },
+        { product_slug: 'spray-hydratant-250-ml', product_name: 'Spray hydratant 250 ml', unit_price: 5000, quantity: 1, line_total: 5000 },
+      ],
+      invoice_available: true, can_cancel: false,
+    }),
+  ]
+}
+
+function seedCustomerBookings(): MockCustomerBooking[] {
+  const b = (reference: string, status: BookingStatus, service_name: string, days: number, time: string, duration_minutes: number, price: number): MockCustomerBooking =>
+    ({ user_id: 3, reference, status, service_name, stylist_name: 'Fatou', starts_at: relDay(days, time), duration_minutes, price, can_cancel: false })
+  return [
+    b('RDV-2026-000201', 'confirmed', 'Tresses africaines', 10, '10:00', 180, 25000),
+    b('RDV-2026-000105', 'completed', 'Soin profond au karité', -30, '16:00', 60, 8000),
+  ]
+}
+
 export const db = {
   bookings: seedBookings(),
   nextBookingNumber: 11,
+  orders: seedOrders(),
+  customerBookings: seedCustomerBookings(),
+  nextOrderNumber: 10, // CMD-2026-000009 existe déjà en base (vente en gros)
+  failedLogins: new Map<string, { count: number; until: number }>(),
 }
+
+/**
+ * PERSISTANCE du faux serveur. Sans elle, recharger la page remettrait le stock et les
+ * commandes à zéro (MSW vit dans la mémoire de la page), ce que ne fait jamais un vrai serveur.
+ * Pour repartir de zéro : vider le localStorage du site (outils de développement du navigateur).
+ */
+const DB_KEY = 'msw-db-v1'
+
+export function persistDb() {
+  localStorage.setItem(DB_KEY, JSON.stringify({
+    ...db,
+    failedLogins: [...db.failedLogins],
+    stocks: products.map((p) => [p.id, p.stock]),
+    users,
+  }))
+}
+
+function restoreDb() {
+  try {
+    const raw = localStorage.getItem(DB_KEY)
+    if (!raw) return
+    const saved = JSON.parse(raw)
+    Object.assign(db, { ...saved, failedLogins: new Map(saved.failedLogins) })
+    for (const [id, stock] of saved.stocks as [number, number][]) {
+      const p = products.find((x) => x.id === id)
+      if (p) p.stock = stock
+    }
+    users.splice(0, users.length, ...(saved.users as MockUser[]))
+  } catch {
+    localStorage.removeItem(DB_KEY) // données corrompues : on repart des données initiales
+  }
+}
+restoreDb()

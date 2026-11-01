@@ -12,7 +12,8 @@
 import { delay, http, HttpResponse } from 'msw'
 import type { BookingConfirmation, BookingRequest, ProductDetail, ProductSummary, StockStatus } from '@/types/api'
 import { computeDayAvailability, toHHMM, toMinutes } from './availability'
-import { bookingSettings, businessHours, categories, closures, db, products, services, stylists, type MockProduct } from './db'
+import { bookingSettings, businessHours, categories, closures, db, persistDb, products, services, stylists, type MockProduct } from './db'
+import { currentUser } from './handlers-account'
 
 const API = '/api/v1'
 const PER_PAGE = 12
@@ -188,6 +189,15 @@ export const handlers = [
       ends_at: `${body.date}T${toHHMM(endMinutes)}:00`,
       price: service.price,
     }
+    const user = currentUser()
+    if (user) {
+      db.customerBookings.push({
+        user_id: user.id, reference: confirmation.reference, status: 'pending', service_name: service.name,
+        stylist_name: confirmation.stylist_name, starts_at: confirmation.starts_at, duration_minutes: service.duration_minutes,
+        price: service.price, can_cancel: true,
+      })
+    }
+    persistDb()
     return HttpResponse.json({ data: confirmation }, { status: 201 })
   }),
 ]

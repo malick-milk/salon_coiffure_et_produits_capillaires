@@ -9,7 +9,10 @@ import { App } from './app/App'
 import './index.css'
 
 async function enableMocks() {
-  if (import.meta.env.VITE_ENABLE_MOCKS !== 'true') return
+  // import.meta.env.DEV vaut false dans un build de production : Vite supprime alors tout ce bloc
+  // (élimination du code mort). Le faux serveur ne peut donc JAMAIS partir en production,
+  // même si un fichier .env.local contient VITE_ENABLE_MOCKS=true.
+  if (!import.meta.env.DEV || import.meta.env.VITE_ENABLE_MOCKS !== 'true') return
   // import() dynamique : le code de MSW n'est téléchargé QUE si les mocks sont activés
   const { worker } = await import('./mocks/browser')
   await worker.start({ onUnhandledRequest: 'bypass', quiet: true })
