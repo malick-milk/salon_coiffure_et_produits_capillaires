@@ -19,7 +19,9 @@ services:
       --collation-server=utf8mb4_unicode_ci
       --default-time-zone=+00:00
     ports:
-      - "127.0.0.1:3306:3306"      # exposé UNIQUEMENT sur la machine locale (sécurité)
+      # Port 3307 côté PC : évite le conflit avec le MySQL de XAMPP/WAMP (port 3306).
+      # Exposé UNIQUEMENT sur la machine locale (sécurité). Modifiable : DB_PORT=3306 docker compose up -d
+      - "127.0.0.1:${DB_PORT:-3307}:3306"
     volumes:
       - mysql_data:/var/lib/mysql
     healthcheck:

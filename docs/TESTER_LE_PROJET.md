@@ -34,7 +34,11 @@ Durée : environ 30 minutes la première fois (installations comprises), puis 2 
 |---|---|---|
 | **Git** | Récupérer le code | https://git-scm.com — sous Windows, il installe aussi **Git Bash** (terminal où les commandes ci-dessous fonctionnent) |
 | **Docker Desktop** | Faire tourner MySQL sans l'installer | https://www.docker.com/products/docker-desktop — lancez-le et attendez « Engine running » |
-| **DBeaver** (facultatif) | Explorer la base avec une interface graphique | https://dbeaver.io (version Community, gratuite) |
+| **DBeaver** ou **MySQL Workbench** (facultatif) | Explorer la base avec une interface graphique | https://dbeaver.io (Community, gratuite) ou https://dev.mysql.com/downloads/workbench/ |
+
+> **Vous avez XAMPP ?** Son MySQL (en réalité MariaDB) utilise le port **3306**. Le MySQL du projet, dans Docker, utilise le port **3307** : les deux peuvent tourner en même temps. Attention à bien choisir le **port 3307** dans DBeaver ou Workbench, sinon vous serez connecté à la base de XAMPP, qui ne contient pas les tables du projet.
+>
+> **Pourquoi ne pas utiliser le MySQL de XAMPP ?** XAMPP fournit MariaDB, un « cousin » de MySQL. Certaines fonctionnalités du schéma (colonnes générées, contraintes `CHECK`, type `JSON`) s'y comportent un peu différemment. Le projet cible MySQL 8.4, celui de la production : on développe sur la même version que la production pour éviter les mauvaises surprises.
 
 > **Windows** : utilisez **Git Bash** (clic droit dans un dossier, « Open Git Bash here ») pour toutes les commandes. Si Docker demande d'activer WSL 2, acceptez et redémarrez.
 
@@ -74,7 +78,7 @@ bash database/verify.sh
 1. Base neuve 'salon_verify'
 2. Schéma
 3. Données de démo
-   43 tables
+   44 tables
 4. Cohérence du stock (cache products.stock_quantity = somme du grand livre)
    OK
 4b. Cohérence des achats (total du bon = somme des lignes ; reçu = mouvements 'purchase')
@@ -82,9 +86,9 @@ bash database/verify.sh
 5. Tests d'intégrité
    OK    T01 RG-STK-01 : stock négatif interdit (colonne UNSIGNED)
    ...
-   => 22 refusés comme attendu, 0 acceptés à tort
+   => 25 refusés comme attendu, 0 acceptés à tort
 6. Requêtes analytiques
-   (16 tableaux de KPI)
+   (17 tableaux de KPI)
 Vérification terminée avec succès.
 ```
 
@@ -92,19 +96,30 @@ Vérification terminée avec succès.
 |---|---|---|
 | `Conteneur 'salon-mysql' introuvable ou arrêté` | Docker n'est pas lancé, ou `docker compose up -d` pas exécuté | Lancer Docker Desktop, puis `docker compose up -d` |
 | `Can't connect to local MySQL server` | MySQL démarre encore | Attendre 30 secondes et relancer |
-| `port is already allocated` (au `docker compose up`) | Un autre MySQL utilise déjà le port 3306 sur votre PC | Arrêter cet autre MySQL (XAMPP, WAMP…) |
+| `port is already allocated` (au `docker compose up`) | Un autre programme utilise déjà le port 3307 | Choisir un autre port : `DB_PORT=3308 docker compose up -d` (et utiliser 3308 dans DBeaver ou Workbench) |
 | Accents mal affichés dans Git Bash | Réglage du terminal | Sans gravité : les données sont correctes en base |
 
-### 2.5 Explorer la base avec DBeaver (recommandé pour un analyste)
+### 2.5 Explorer la base avec DBeaver ou MySQL Workbench
+
+**DBeaver** (recommandé pour un analyste)
 
 1. DBeaver → **Nouvelle connexion** → **MySQL**.
 2. Paramètres :
-   - Hôte : `127.0.0.1` — Port : `3306`
+   - Hôte : `127.0.0.1` — Port : **`3307`**
    - Base : `salon_verify` (la base remplie par `verify.sh`)
    - Utilisateur : `root` — Mot de passe : `root_dev_password`
    - Onglet « Propriétés du pilote » : si une erreur parle de *Public Key Retrieval*, passez `allowPublicKeyRetrieval` à `true`.
 3. Ouvrez `database/analytics_queries.sql` dans DBeaver et exécutez les requêtes une par une (Ctrl + Entrée).
 4. Clic droit sur la base → **Diagramme ER** : DBeaver dessine toutes les tables et leurs relations.
+
+**MySQL Workbench**
+
+1. Écran d'accueil → bouton **+** à côté de « MySQL Connections ».
+2. Connection Name : `Salon (Docker)` — Hostname : `127.0.0.1` — Port : **`3307`** — Username : `root`.
+3. **Store in Vault** → mot de passe `root_dev_password` → **Test Connection** → **OK**.
+4. Ouvrez la connexion, double-cliquez sur `salon_verify` dans le panneau **Schemas** (elle passe en gras = base active).
+5. **File → Open SQL Script** → `database/analytics_queries.sql` → exécutez une requête avec l'éclair à curseur (Ctrl + Entrée).
+6. **Database → Reverse Engineer** sur `salon_verify` : Workbench génère le diagramme de toutes les tables (l'équivalent du MLD de Looping).
 
 > Ces identifiants sont ceux de **développement** (fichier `docker-compose.yml`). En production, ils seront différents et secrets (étape 11).
 
@@ -151,14 +166,14 @@ VALUES ('RDV-TEST', 4, 2, 1, 'pending', '2026-03-21 10:00:00', '2026-03-21 11:45
 MySQL refuse : `Duplicate entry ... for key 'bookings_stylist_active_slot_unique'`. Changez `'pending'` en `'cancelled'` : l'insertion passe, car une réservation annulée ne bloque pas le créneau.
 </details>
 
-**Exercice 5** — Retrouvez le total de votre commande Dabo Hair à partir des lignes, sans utiliser `total_cost`.
+**Exercice 5** — Retrouvez le total de la commande Dabo Hair (commande n° 9) à partir de ses lignes, et le nombre de douzaines.
 <details><summary>Solution</summary>
 
 ```sql
-SELECT SUM(packs_ordered) AS douzaines, SUM(quantity_ordered) AS unites, SUM(line_total) AS total
-FROM purchase_order_items WHERE purchase_order_id = 1;
+SELECT SUM(quantity) AS unites, SUM(quantity) / 12 AS douzaines, SUM(line_total) AS total
+FROM order_items WHERE order_id = 9;
 ```
-Résultat attendu : 36 douzaines, 432 unités, 1 374 000.
+Résultat attendu : 432 unités, 36 douzaines, 1 374 000.
 </details>
 
 ### 2.7 Arrêter les services

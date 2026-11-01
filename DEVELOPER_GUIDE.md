@@ -20,7 +20,7 @@ docker compose up -d
 ```
 | Service | Adresse | Rôle |
 |---|---|---|
-| MySQL 8.4 | `127.0.0.1:3306` (base `salon`, utilisateur `salon`) | Base de données |
+| MySQL 8.4 | `127.0.0.1:3307` (base `salon`, utilisateur `salon`) | Base de données. Port 3307 pour ne pas gêner le MySQL de XAMPP (3306) |
 | Redis | `127.0.0.1:6379` | Cache et files d'attente |
 | Mailpit | http://localhost:8025 | Voir les emails envoyés en développement |
 

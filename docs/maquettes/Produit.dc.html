@@ -36,7 +36,7 @@ a{color:#F8F8F8;text-decoration:none}a:hover{color:#D4AF37}
 <main style="padding: 40px 24px 96px;">
 <div style="max-width: 1280px; margin: 0 auto; display: flex; flex-direction: column; gap: 40px;">
 
-<nav aria-label="Fil d'Ariane" style="font-size: 14px; color: #A3A3A3; display: flex; flex-wrap: wrap; gap: 8px; align-items: center;"><a href="Accueil.dc.html" style="color: #A3A3A3;">Accueil</a><span aria-hidden="true">/</span><a href="Catalogue.dc.html" style="color: #A3A3A3;">Boutique</a><span aria-hidden="true">/</span><a href="Catalogue.dc.html" style="color: #A3A3A3;">Huiles</a><span aria-hidden="true">/</span><span style="color: #F8F8F8;">Huile de ricin bio</span></nav>
+<nav aria-label="Fil d'Ariane" style="font-size: 14px; color: #A3A3A3; display: flex; flex-wrap: wrap; gap: 8px; align-items: center;"><a href="Accueil.dc.html" style="color: #A3A3A3;">Accueil</a><span aria-hidden="true">/</span><a href="Catalogue.dc.html" style="color: #A3A3A3;">Boutique</a><span aria-hidden="true">/</span><a href="Catalogue.dc.html" style="color: #A3A3A3;">Sérums</a><span aria-hidden="true">/</span><span style="color: #F8F8F8;">Sérum Activ’Pousse</span></nav>
 
 <div style="display: flex; flex-wrap: wrap; gap: 56px; align-items: flex-start;">
 <div style="flex: 1 1 480px; display: flex; flex-direction: column; gap: 16px;">
@@ -50,9 +50,16 @@ a{color:#F8F8F8;text-decoration:none}a:hover{color:#D4AF37}
 </div>
 
 <div style="flex: 1 1 420px; display: flex; flex-direction: column; gap: 22px;">
-<span style="font-size: 13px; letter-spacing: 0.16em; text-transform: uppercase; color: #D4AF37; font-weight: 600;">Maison Karité</span>
-<h1 style="margin: 0; font-family: 'Playfair Display', Georgia, serif; font-size: 44px; line-height: 1.1; font-weight: 600;">Huile de ricin bio</h1>
-<div style="display: flex; align-items: baseline; gap: 14px;"><strong style="font-size: 30px; font-weight: 600;">6 500 F CFA</strong><span style="font-size: 14px; color: #A3A3A3;">TTC · 250 ml</span></div>
+<span style="font-size: 13px; letter-spacing: 0.16em; text-transform: uppercase; color: #D4AF37; font-weight: 600;">Dabo Hair · fabrication maison</span>
+<h1 style="margin: 0; font-family: 'Playfair Display', Georgia, serif; font-size: 44px; line-height: 1.1; font-weight: 600;">Sérum Activ’Pousse</h1>
+<div style="display: flex; align-items: baseline; gap: 14px;"><strong style="font-size: 30px; font-weight: 600;">3 000 F CFA</strong><span style="font-size: 14px; color: #A3A3A3;">TTC · 30 ml</span></div>
+<div role="group" aria-label="Contenance" style="display: flex; flex-direction: column; gap: 10px;">
+<span style="font-size: 14px; color: #BDBDBD;">Contenance</span>
+<div style="display: flex; flex-wrap: wrap; gap: 10px;">
+<button type="button" aria-pressed="true" style="min-height: 48px; padding: 0 20px; border-radius: 12px; border: 2px solid #D4AF37; background: #17140B; color: #F8F8F8; font: 600 15px Inter, sans-serif; display: flex; flex-direction: column; justify-content: center; gap: 2px;">30 ml<span style="font-size: 12px; font-weight: 500; color: #D4AF37;">3 000 F CFA</span></button>
+<a href="Produit.dc.html" style="min-height: 48px; padding: 0 20px; border-radius: 12px; border: 1px solid #3A3A3A; color: #F8F8F8; font: 500 15px Inter, sans-serif; display: flex; flex-direction: column; justify-content: center; gap: 2px;">15 ml<span style="font-size: 12px; color: #A3A3A3;">1 500 F CFA</span></a>
+</div>
+</div>
 <p style="margin: 0; font-size: 16px; line-height: 1.7; color: #D9D9D9;">[DESCRIPTION COURTE DU PRODUIT — 2 à 3 phrases sur les bienfaits et l'usage.]</p>
 <div style="display: flex; flex-wrap: wrap; gap: 8px; align-items: center;">
 <span style="font-size: 14px; color: #BDBDBD;">Convient aux cheveux :</span>
@@ -76,7 +83,7 @@ a{color:#F8F8F8;text-decoration:none}a:hover{color:#D4AF37}
 <span style="display: flex; gap: 12px; align-items: center;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#D4AF37" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"></path></svg>Paiement à la réception (espèces, Wave, Orange Money)</span>
 </div>
 
-<span style="font-size: 13px; color: #A3A3A3;">Référence : HUI-RIC-250</span>
+<span style="font-size: 13px; color: #A3A3A3;">Référence : DAB-SAP-030 · Lot et date de péremption imprimés sur le flacon</span>
 </div>
 </div>
 
@@ -110,9 +117,9 @@ class Component extends DCLogic {
   renderVals() {
     return {
       related: [
-        { name: 'Huile de baobab pure', price: '8 000 F CFA' },
-        { name: 'Shampoing karité hydratant', price: '5 500 F CFA' },
-        { name: 'Peigne démêlant en bois', price: '3 000 F CFA' }
+        { name: 'Sérum Booster 30 ml', price: '3 000 F CFA' },
+        { name: 'Spray anti-chute', price: '5 000 F CFA' },
+        { name: 'Masque capillaire', price: '3 000 F CFA' }
       ]
     };
   }

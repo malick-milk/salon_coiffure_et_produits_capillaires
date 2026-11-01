@@ -1,7 +1,7 @@
 # Base de données
 
-> **Statut** : étape 3 — version 1.1. Le modèle est testé sur MySQL 8.4 (43 tables, 22 tests d'intégrité, 16 requêtes KPI).
-> **Version 1.1** : intégration du MCD Looping du porteur du projet (avis, favoris, panier) et de son catalogue réel Dabo Hair (fournisseurs, achats à la douzaine, variantes). Analyse détaillée : [docs/03b_ANALYSE_MCD_EXISTANT.md](docs/03b_ANALYSE_MCD_EXISTANT.md).
+> **Statut** : étape 3 — version 1.1. Le modèle est testé sur MySQL 8.4 (44 tables, 25 tests d'intégrité, 17 requêtes KPI).
+> **Version 1.1** : intégration du MCD Looping du porteur du projet (avis, favoris, panier) et de son catalogue réel Dabo Hair : marque **fabriquée** par l'entreprise (lots de fabrication, péremption, coût de revient, ventes en gros, variantes). Analyse détaillée : [docs/03b_ANALYSE_MCD_EXISTANT.md](docs/03b_ANALYSE_MCD_EXISTANT.md).
 > **Prérequis** : [docs/01_ANALYSE_DU_BESOIN.md](docs/01_ANALYSE_DU_BESOIN.md) (règles de gestion `RG-*`, dictionnaire des KPI) et [ARCHITECTURE.md](ARCHITECTURE.md) (ADR-006 : grand livre du stock, ADR-008 : analytics).
 
 ## Fichiers de cette étape
@@ -10,8 +10,8 @@
 |---|---|
 | [`database/schema.sql`](database/schema.sql) | Schéma physique complet et commenté (référence) |
 | [`database/sample_data.sql`](database/sample_data.sql) | Petit jeu de données de démonstration |
-| [`database/analytics_queries.sql`](database/analytics_queries.sql) | 16 requêtes SQL qui implémentent les KPI |
-| [`database/tests/integrity_tests.sql`](database/tests/integrity_tests.sql) | 22 instructions **qui doivent échouer** (preuve que les règles sont protégées) |
+| [`database/analytics_queries.sql`](database/analytics_queries.sql) | 17 requêtes SQL qui implémentent les KPI |
+| [`database/tests/integrity_tests.sql`](database/tests/integrity_tests.sql) | 25 instructions **qui doivent échouer** (preuve que les règles sont protégées) |
 | [`database/verify.sh`](database/verify.sh) | Rejoue tout sur une base neuve : schéma, données, cohérence, tests, KPI |
 | [`docker-compose.yml`](docker-compose.yml) | MySQL 8.4, Redis et Mailpit pour le développement |
 
@@ -85,13 +85,13 @@ L'application valide déjà les données (FormRequests Laravel). Mais un bug, un
 
 ---
 
-## 2. Vue d'ensemble : 7 domaines, 43 tables
+## 2. Vue d'ensemble : 7 domaines, 44 tables
 
 | Domaine | Tables |
 |---|---|
 | 1. Utilisateurs et RBAC | `users`, `roles`, `permissions`, `role_has_permissions`, `model_has_roles`, `model_has_permissions`, `activity_log` |
 | 2. Clients | `customers`, `addresses`, `delivery_zones`, `favorites` |
-| 3. Catalogue, stock et achats | `categories`, `brands`, `hair_types`, `products`, `product_hair_type`, `product_images`, `product_reviews`, `stock_movements`, `suppliers`, `purchase_orders`, `purchase_order_items` |
+| 3. Catalogue, stock et achats | `categories`, `brands`, `hair_types`, `products`, `product_hair_type`, `product_images`, `product_reviews`, `stock_movements`, `production_batches`, `suppliers`, `purchase_orders`, `purchase_order_items` |
 | 4. Paniers, commandes et facturation | `carts`, `cart_items`, `orders`, `order_items`, `payments`, `invoices`, `invoice_sequences` |
 | 5. Salon et réservations | `service_categories`, `services`, `stylists`, `service_stylist`, `business_hours`, `closures`, `stylist_time_off`, `bookings` |
 | 6. Paramètres | `settings`, `contact_messages` |
@@ -120,6 +120,7 @@ erDiagram
     customers ||--o{ invoices : reçoit
     invoices |o--o{ invoices : "avoir de"
     products |o--o{ products : "variante de"
+    products ||--o{ production_batches : "fabriqué en"
     suppliers ||--o{ purchase_orders : "fournit"
     purchase_orders ||--|{ purchase_order_items : contient
     products ||--o{ purchase_order_items : "acheté dans"
@@ -227,15 +228,16 @@ Le détail de chaque colonne est commenté dans [`schema.sql`](database/schema.s
 | `users` | Comptes de connexion | `email` (unique), `phone` (unique), `password` (hash), `is_active` |
 | `roles` / `permissions` / pivots | RBAC (spatie) | `name` ex. `orders.update` |
 | `activity_log` | Audit : qui a modifié quoi | `causer_*`, `subject_*`, `properties` (avant/après) |
-| `customers` | Client métier, inscrit ou invité | `user_id` (nullable, unique), `phone` (unique), `marketing_consent` |
+| `customers` | Client métier, inscrit ou invité | `user_id` (nullable, unique), `customer_type` (particulier / revendeur), `phone` (unique), `marketing_consent` |
 | `addresses` | Adresses de livraison | `district`, `landmark` (repère), `delivery_zone_id` |
 | `delivery_zones` | Zones et frais de livraison | `fee` |
 | `categories` | Arborescence du catalogue | `parent_id` (auto-référence), `slug` |
-| `brands`, `hair_types` | Filtres catalogue | `slug` |
-| `products` | Fiche produit | `sku`, `price`, `cost_price`, `stock_quantity` (cache), `low_stock_threshold`, `is_featured`, `variant_of_id` (autre contenance) |
+| `brands`, `hair_types` | Filtres catalogue | `slug`, `is_house_brand` (marque fabriquée par l'entreprise) |
+| `products` | Fiche produit | `sku`, `price`, `cost_price` (achat ou coût de revient ; `NULL` = non calculé), `stock_quantity` (cache), `low_stock_threshold`, `is_featured`, `variant_of_id` (autre contenance) |
 | `product_images` | Galerie | `position`, `is_primary`, `alt_text` |
 | `stock_movements` | **Grand livre du stock** | `type`, `quantity` (signée), `stock_after`, `reference_*`, `reason` |
-| `suppliers` | Fournisseurs (ex. Dabo Hair) | `name` (unique), coordonnées |
+| `production_batches` | Lots de fabrication (marque maison) | `batch_number` (unique), `quantity_produced`, `unit_cost` (coût de revient), `expires_on` |
+| `suppliers` | Fournisseurs de marques revendues | `name` (unique), coordonnées |
 | `purchase_orders` | Bons de commande fournisseur | `reference`, `status`, `total_cost`, `received_at` |
 | `purchase_order_items` | Lignes d'achat par lots | `packs_ordered`, `units_per_pack`, `unit_cost`, `quantity_ordered` et `line_total` (**générées**), `quantity_received` |
 | `product_reviews` | Avis clients modérés | `rating` (1 à 5), `status`, `order_id` (achat vérifié) |
@@ -266,7 +268,7 @@ Le détail de chaque colonne est commenté dans [`schema.sql`](database/schema.s
 | `orders.payment_status` | `unpaid`, `paid`, `refunded` |
 | `bookings.status` | `pending` → `confirmed` → `completed` ; ou `cancelled` ; ou `no_show` |
 | `payments.status` | `pending`, `succeeded`, `failed`, `refunded` |
-| `stock_movements.type` | `initial`, `purchase`, `sale`, `sale_cancellation`, `customer_return`, `loss`, `adjustment` |
+| `stock_movements.type` | `initial`, `production`, `purchase`, `sale`, `sale_cancellation`, `customer_return`, `loss`, `adjustment` |
 | `purchase_orders.status` | `draft` → `ordered` → `partially_received` → `received` ; ou `cancelled` |
 | `product_reviews.status` | `pending` → `approved` ou `rejected` |
 | `carts.status` | `active` → `converted` ; ou `abandoned` (24 h sans activité) |
@@ -322,6 +324,7 @@ Pour vérifier qu'une requête utilise un index : `EXPLAIN SELECT ...;` (la colo
 | Avis : note de 1 à 5, un avis par client et par produit | `CHECK`, `UNIQUE` | Validation + modération | T16, T17 |
 | Favori unique | Clé primaire composée | — | T18 |
 | Achats : réception ≤ commande, total calculé | `CHECK`, colonnes générées | `ReceivePurchaseOrderAction` | T19 à T21, `verify.sh` étape 4b |
+| Lots : quantité > 0, péremption après fabrication, numéro unique | `CHECK`, `UNIQUE` | `RecordProductionBatchAction` | T23 à T25 |
 
 ### 6.2 Passer une commande (transaction)
 ```sql
@@ -393,6 +396,7 @@ La **dimension calendrier** `calendar_dates` est une notion clé de la BI. En fa
 | Achats par fournisseur | Q14 |
 | Note moyenne par produit | Q15 |
 | Taux d'abandon de panier | Q16 |
+| Lots proches de la péremption | Q17 |
 
 ### 7.3 Exemple de résultat (données de démonstration)
 Q01 — CA mensuel en XOF :

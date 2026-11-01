@@ -42,7 +42,7 @@ a{color:#F8F8F8;text-decoration:none}a:hover{color:#D4AF37}
 <div style="flex: 1 1 480px; display: flex; flex-direction: column; gap: 28px;">
 <p style="margin: 0; font-size: 13px; letter-spacing: 0.2em; text-transform: uppercase; color: #D4AF37; font-weight: 600;">Salon de coiffure et soins capillaires</p>
 <h1 style="margin: 0; font-family: 'Playfair Display', Georgia, serif; font-size: 64px; line-height: 1.05; font-weight: 600;">L'art du soin capillaire, au salon comme chez vous</h1>
-<p style="margin: 0; font-size: 18px; line-height: 1.65; color: #BDBDBD; max-width: 520px;">Réservez votre prestation en quelques clics et retrouvez nos produits sélectionnés pour chaque type de cheveux.</p>
+<p style="margin: 0; font-size: 18px; line-height: 1.65; color: #BDBDBD; max-width: 520px;">Réservez votre prestation en quelques clics et découvrez les soins Dabo Hair, fabriqués par nos soins.</p>
 <div style="display: flex; flex-wrap: wrap; gap: 14px;">
 <a href="Reservation.dc.html" style="display: inline-flex; align-items: center; gap: 10px; min-height: 52px; padding: 0 30px; border-radius: 999px; background: #D4AF37; color: #0F0F0F; font-weight: 600; font-size: 16px;">Réserver une prestation<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"></path></svg></a>
 <a href="Catalogue.dc.html" style="display: inline-flex; align-items: center; min-height: 52px; padding: 0 30px; border-radius: 999px; border: 1px solid #D4AF37; color: #D4AF37; font-weight: 600; font-size: 16px;">Découvrir la boutique</a>
@@ -152,7 +152,7 @@ a{color:#F8F8F8;text-decoration:none}a:hover{color:#D4AF37}
 <span style="display: flex; align-items: center; justify-content: center; width: 160px; height: 48px; border: 1px dashed #D4AF37; border-radius: 8px; color: #D4AF37; font-size: 12px; letter-spacing: 0.14em;">[LOGO]</span>
 <span style="color: #BDBDBD; line-height: 1.6;">Produits capillaires et salon de coiffure.</span>
 </div>
-<nav aria-label="Boutique" style="display: flex; flex-direction: column; gap: 10px;"><strong style="color: #D4AF37; font-size: 13px; letter-spacing: 0.14em; text-transform: uppercase;">Boutique</strong><a href="Catalogue.dc.html">Tous les produits</a><a href="#">Huiles</a><a href="#">Shampoings</a><a href="#">Accessoires</a></nav>
+<nav aria-label="Boutique" style="display: flex; flex-direction: column; gap: 10px;"><strong style="color: #D4AF37; font-size: 13px; letter-spacing: 0.14em; text-transform: uppercase;">Boutique</strong><a href="Catalogue.dc.html">Tous les produits</a><a href="#">Sérums</a><a href="#">Hydratants et crèmes</a><a href="#">Soins traitants</a><a href="#">Shampoings</a></nav>
 <nav aria-label="Salon" style="display: flex; flex-direction: column; gap: 10px;"><strong style="color: #D4AF37; font-size: 13px; letter-spacing: 0.14em; text-transform: uppercase;">Salon</strong><a href="#prestations">Prestations</a><a href="Reservation.dc.html">Réserver</a><a href="#salon">Horaires</a></nav>
 <nav aria-label="Aide" style="display: flex; flex-direction: column; gap: 10px;"><strong style="color: #D4AF37; font-size: 13px; letter-spacing: 0.14em; text-transform: uppercase;">Aide</strong><a href="#">Suivre ma commande</a><a href="#">Livraison et retrait</a><a href="#contact">Contact</a></nav>
 </div>
@@ -170,10 +170,10 @@ class Component extends DCLogic {
   renderVals() {
     return {
       products: [
-        { brand: 'Maison Karité', name: 'Huile de ricin bio', size: '250 ml', price: '6 500 F CFA' },
-        { brand: 'Baobab Care', name: 'Huile de baobab pure', size: '100 ml', price: '8 000 F CFA' },
-        { brand: 'Maison Karité', name: 'Shampoing karité hydratant', size: '500 ml', price: '5 500 F CFA' },
-        { brand: 'Accessoires', name: 'Peigne démêlant en bois', size: 'Bois naturel', price: '3 000 F CFA' }
+        { brand: 'Dabo Hair', name: 'Sérum Activ’Pousse', size: '30 ml · existe en 15 ml', price: '3 000 F CFA' },
+        { brand: 'Dabo Hair', name: 'Spray hydratant', size: '250 ml', price: '5 000 F CFA' },
+        { brand: 'Dabo Hair', name: 'Crème capillaire', size: 'Soin quotidien', price: '3 000 F CFA' },
+        { brand: 'Dabo Hair', name: 'Shampooing', size: 'Lavage doux', price: '3 000 F CFA' }
       ],
       services: [
         { category: 'Tresses', name: 'Tresses africaines', duration: '3 h', price: '25 000 F CFA' },

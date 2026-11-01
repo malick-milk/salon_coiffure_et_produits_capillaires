@@ -180,13 +180,13 @@ INSERT INTO settings (`group`, `key`, value) VALUES
  ('company','company.identity','{"name": "Nom de l''entreprise", "ninea": "À renseigner", "rccm": "À renseigner", "address": "Dakar, Sénégal"}');
 
 -- =====================================================================
---  CATALOGUE RÉEL DABO HAIR (commande fournisseur du client, 9 références)
+--  CATALOGUE RÉEL DABO HAIR — marque fabriquée par l'entreprise
 -- =====================================================================
---  Source : commande Dabo Hair du porteur du projet (total 1 374 000 F CFA).
---  Les prix de la commande sont des prix d'ACHAT (coût unitaire).
---  Les PRIX DE VENTE ne sont pas encore connus : les produits sont créés
---  INACTIFS (invisibles en boutique), avec un prix de vente provisoire égal
---  au coût. [PRIX DE VENTE À DÉFINIR] avant de les activer dans l'ERP.
+--  RÉEL     : noms, contenances et PRIX DE VENTE (fournis par le porteur du projet).
+--  RÉEL     : la commande de 1 374 000 F CFA (capture), enregistrée comme vente
+--             à un revendeur (commande n° 9).
+--  INCONNU  : le coût de revient -> cost_price = NULL ([COÛT DE REVIENT À CALCULER]).
+--  DÉMO     : numéros de lot, dates, quantités fabriquées et péremption.
 -- =====================================================================
 
 INSERT INTO categories (id, parent_id, name, slug, position, created_at) VALUES
@@ -194,42 +194,80 @@ INSERT INTO categories (id, parent_id, name, slug, position, created_at) VALUES
  (6, 1, 'Sérums',               'serums',               4, NOW()),
  (7, 1, 'Soins traitants',      'soins-traitants',      5, NOW());
 
-INSERT INTO brands (id, name, slug, created_at) VALUES (3, 'Dabo Hair', 'dabo-hair', NOW());
+INSERT INTO brands (id, name, slug, is_house_brand, created_at) VALUES (3, 'Dabo Hair', 'dabo-hair', TRUE, NOW());
 
+-- stock_quantity = production - vente de la commande 9 (vérifié par verify.sh)
+INSERT INTO products (id, category_id, brand_id, variant_of_id, sku, name, slug, unit_size, price, cost_price, stock_quantity, low_stock_threshold, is_active, is_featured, created_at) VALUES
+ ( 6, 3, 3, NULL, 'DAB-SHA-001', 'Shampooing',        'shampooing-dabo-hair',     NULL,     3000, NULL, 24, 12, TRUE, TRUE,  '2026-03-20 10:00:00'),
+ ( 7, 5, 3, NULL, 'DAB-SPH-250', 'Spray hydratant',   'spray-hydratant-250-ml',   '250 ml', 5000, NULL, 24, 12, TRUE, TRUE,  '2026-03-20 10:00:00'),
+ ( 8, 5, 3, NULL, 'DAB-HYD-100', 'Hydratant',         'hydratant-100-ml',         '100 ml', 2500, NULL, 24, 12, TRUE, FALSE, '2026-03-20 10:00:00'),
+ ( 9, 5, 3, NULL, 'DAB-CRE-001', 'Crème capillaire',  'creme-capillaire',         NULL,     3000, NULL, 24, 12, TRUE, TRUE,  '2026-03-20 10:00:00'),
+ (10, 6, 3, NULL, 'DAB-SAP-030', 'Sérum Activ''Pousse','serum-activ-pousse-30-ml', '30 ml',  3000, NULL, 24, 12, TRUE, TRUE,  '2026-03-20 10:00:00'),
+ (11, 6, 3, 10,   'DAB-SAP-015', 'Sérum Activ''Pousse','serum-activ-pousse-15-ml', '15 ml',  1500, NULL, 24,  6, TRUE, FALSE, '2026-03-20 10:00:00'),
+ (12, 7, 3, NULL, 'DAB-SAC-001', 'Spray anti-chute',  'spray-anti-chute',         NULL,     5000, NULL, 24,  6, TRUE, FALSE, '2026-03-20 10:00:00'),
+ (13, 7, 3, NULL, 'DAB-MAS-001', 'Masque capillaire', 'masque-capillaire',        NULL,     3000, NULL, 24,  6, TRUE, FALSE, '2026-03-20 10:00:00'),
+ (14, 6, 3, NULL, 'DAB-SBO-030', 'Sérum Booster',     'serum-booster-30-ml',      '30 ml',  3000, NULL, 24,  6, TRUE, FALSE, '2026-03-20 10:00:00');
+
+-- Lots de fabrication (DÉMO) : quantité commandée + 2 douzaines de stock de boutique
+INSERT INTO production_batches (id, batch_number, product_id, quantity_produced, unit_cost, produced_on, expires_on, notes, created_by, created_at) VALUES
+ (1, 'LOT-2603-SHA',   6,  72, NULL, '2026-03-20', '2028-03-20', 'Lot de démonstration', 1, '2026-03-20 10:00:00'),
+ (2, 'LOT-2603-SPH',   7,  72, NULL, '2026-03-20', '2027-09-20', 'Lot de démonstration', 1, '2026-03-20 10:00:00'),
+ (3, 'LOT-2603-HYD',   8,  84, NULL, '2026-03-20', '2027-09-20', 'Lot de démonstration', 1, '2026-03-20 10:00:00'),
+ (4, 'LOT-2603-CRE',   9, 120, NULL, '2026-03-20', '2027-09-20', 'Lot de démonstration', 1, '2026-03-20 10:00:00'),
+ (5, 'LOT-2603-SAP30',10,  96, NULL, '2026-03-20', '2027-03-20', 'Lot de démonstration', 1, '2026-03-20 10:00:00'),
+ (6, 'LOT-2603-SAP15',11,  48, NULL, '2026-03-20', '2027-03-20', 'Lot de démonstration', 1, '2026-03-20 10:00:00'),
+ (7, 'LOT-2603-SAC',  12,  48, NULL, '2026-03-20', '2027-09-20', 'Lot de démonstration', 1, '2026-03-20 10:00:00'),
+ (8, 'LOT-2603-MAS',  13,  48, NULL, '2026-03-20', '2026-09-30', 'Lot de démonstration (péremption proche)', 1, '2026-03-20 10:00:00'),
+ (9, 'LOT-2603-SBO',  14,  60, NULL, '2026-03-20', '2027-03-20', 'Lot de démonstration', 1, '2026-03-20 10:00:00');
+
+INSERT INTO stock_movements (product_id, type, quantity, stock_after, unit_cost, reference_type, reference_id, reason, user_id, created_at)
+SELECT product_id, 'production', quantity_produced, quantity_produced, unit_cost,
+       'App\\Models\\ProductionBatch', id, CONCAT('Fabrication ', batch_number), 1, '2026-03-20 10:00:00'
+FROM production_batches;
+
+-- ---------- La commande RÉELLE de la capture : vente en gros à un revendeur ----------
+INSERT INTO customers (id, user_id, customer_type, first_name, last_name, phone, notes, created_at) VALUES
+ (7, NULL, 'reseller', '[REVENDEUR]', '[NOM]', '+221770000099', 'Client revendeur : commandes à la douzaine.', '2026-03-24 09:00:00');
+
+INSERT INTO orders (id, reference, customer_id, created_by, channel, status, payment_status, fulfillment_method,
+                    subtotal, discount_total, shipping_fee, total, customer_notes, placed_at, confirmed_at) VALUES
+ (9, 'CMD-2026-000009', 7, 1, 'store', 'confirmed', 'unpaid', 'pickup',
+     1374000, 0, 0, 1374000, 'Commande en gros (douzaines)', '2026-03-24 09:30:00', '2026-03-24 10:00:00');
+
+-- unit_cost NULL : le coût de revient n'est pas encore connu (la marge ne sera pas calculée pour ces lignes)
+INSERT INTO order_items (order_id, product_id, product_name, sku, unit_price, unit_cost, quantity, line_total) VALUES
+ (9,  6, 'Shampooing',                'DAB-SHA-001', 3000, NULL, 48, 144000),   -- 4 douzaines
+ (9,  7, 'Spray hydratant 250 ml',    'DAB-SPH-250', 5000, NULL, 48, 240000),   -- 4 douzaines
+ (9,  8, 'Hydratant 100 ml',          'DAB-HYD-100', 2500, NULL, 60, 150000),   -- 5 douzaines
+ (9,  9, 'Crème capillaire',          'DAB-CRE-001', 3000, NULL, 96, 288000),   -- 8 douzaines
+ (9, 10, 'Sérum Activ''Pousse 30 ml', 'DAB-SAP-030', 3000, NULL, 72, 216000),   -- 6 douzaines
+ (9, 11, 'Sérum Activ''Pousse 15 ml', 'DAB-SAP-015', 1500, NULL, 24,  36000),   -- 2 douzaines
+ (9, 12, 'Spray anti-chute',          'DAB-SAC-001', 5000, NULL, 24, 120000),   -- 2 douzaines
+ (9, 13, 'Masque capillaire',         'DAB-MAS-001', 3000, NULL, 24,  72000),   -- 2 douzaines
+ (9, 14, 'Sérum Booster 30 ml',       'DAB-SBO-030', 3000, NULL, 36, 108000);   -- 3 douzaines
+
+INSERT INTO stock_movements (product_id, type, quantity, stock_after, reference_type, reference_id, user_id, created_at)
+SELECT oi.product_id, 'sale', -oi.quantity, pb.quantity_produced - oi.quantity, 'App\\Models\\Order', 9, 1, '2026-03-24 09:30:00'
+FROM order_items oi JOIN production_batches pb ON pb.product_id = oi.product_id
+WHERE oi.order_id = 9;
+
+-- ---------- Achat fournisseur (DÉMO) : réassort d'un produit REVENDU d'une autre marque ----------
 INSERT INTO suppliers (id, name, notes, created_at) VALUES
- (1, 'Dabo Hair', 'Achats par lots de 12 (douzaines). Coordonnées : [À RENSEIGNER].', NOW());
-
-INSERT INTO products (id, category_id, brand_id, variant_of_id, sku, name, slug, unit_size, price, cost_price, stock_quantity, low_stock_threshold, is_active, created_at) VALUES
- ( 6, 3, 3, NULL, 'DAB-SHA-001', 'Shampooing Dabo Hair',            'shampooing-dabo-hair',            NULL,     3000, 3000, 48, 12, FALSE, '2026-03-25 10:00:00'),
- ( 7, 5, 3, NULL, 'DAB-SPH-250', 'Spray hydratant',                 'spray-hydratant-250-ml',          '250 ml', 5000, 5000, 48, 12, FALSE, '2026-03-25 10:00:00'),
- ( 8, 5, 3, NULL, 'DAB-HYD-100', 'Hydratant',                       'hydratant-100-ml',                '100 ml', 2500, 2500, 60, 12, FALSE, '2026-03-25 10:00:00'),
- ( 9, 5, 3, NULL, 'DAB-CRE-001', 'Crème capillaire',                'creme-capillaire',                NULL,     3000, 3000, 96, 12, FALSE, '2026-03-25 10:00:00'),
- (10, 6, 3, NULL, 'DAB-SAP-030', 'Sérum Activ''Pousse',             'serum-activ-pousse-30-ml',        '30 ml',  3000, 3000, 72, 12, FALSE, '2026-03-25 10:00:00'),
- (11, 6, 3, 10,   'DAB-SAP-015', 'Sérum Activ''Pousse',             'serum-activ-pousse-15-ml',        '15 ml',  1500, 1500, 24,  6, FALSE, '2026-03-25 10:00:00'),
- (12, 7, 3, NULL, 'DAB-SAC-001', 'Spray anti-chute',                'spray-anti-chute',                NULL,     5000, 5000, 24,  6, FALSE, '2026-03-25 10:00:00'),
- (13, 7, 3, NULL, 'DAB-MAS-001', 'Masque capillaire',               'masque-capillaire',               NULL,     3000, 3000, 24,  6, FALSE, '2026-03-25 10:00:00'),
- (14, 6, 3, NULL, 'DAB-SBO-030', 'Sérum Booster',                   'serum-booster-30-ml',             '30 ml',  3000, 3000, 36,  6, FALSE, '2026-03-25 10:00:00');
+ (1, '[FOURNISSEUR DE DÉMONSTRATION]', 'Utile seulement si la boutique revend des marques tierces.', NOW());
 
 INSERT INTO purchase_orders (id, reference, supplier_id, status, total_cost, ordered_at, expected_at, received_at, created_by, created_at) VALUES
- (1, 'BC-2026-0001', 1, 'received', 1374000, '2026-03-22 09:00:00', '2026-03-25', '2026-03-25 10:00:00', 1, '2026-03-22 09:00:00');
+ (1, 'BC-2026-0001', 1, 'received', 114000, '2026-03-22 09:00:00', '2026-03-25', '2026-03-25 11:00:00', 1, '2026-03-22 09:00:00');
 
--- quantity_ordered et line_total sont calculés automatiquement par MySQL (colonnes générées)
+-- quantity_ordered et line_total sont calculés par MySQL (colonnes générées)
 INSERT INTO purchase_order_items (purchase_order_id, product_id, packs_ordered, units_per_pack, unit_cost, quantity_received) VALUES
- (1,  6, 4, 12, 3000, 48),   -- Shampooing                4 douzaines x 3 000 = 144 000
- (1,  7, 4, 12, 5000, 48),   -- Spray hydratant 250 ml    4 douzaines x 5 000 = 240 000
- (1,  8, 5, 12, 2500, 60),   -- Hydratant 100 ml          5 douzaines x 2 500 = 150 000
- (1,  9, 8, 12, 3000, 96),   -- Crème capillaire          8 douzaines x 3 000 = 288 000
- (1, 10, 6, 12, 3000, 72),   -- Sérum Activ'Pousse 30 ml  6 douzaines x 3 000 = 216 000
- (1, 11, 2, 12, 1500, 24),   -- Sérum Activ'Pousse 15 ml  2 douzaines x 1 500 =  36 000
- (1, 12, 2, 12, 5000, 24),   -- Spray anti-chute          2 douzaines x 5 000 = 120 000
- (1, 13, 2, 12, 3000, 24),   -- Masque capillaire         2 douzaines x 3 000 =  72 000
- (1, 14, 3, 12, 3000, 36);   -- Sérum Booster 30 ml       3 douzaines x 3 000 = 108 000
+ (1, 1, 2, 12, 3500, 24),   -- Huile de ricin bio         2 douzaines x 3 500 = 84 000
+ (1, 3, 1, 12, 2500, 12);   -- Shampoing karité hydratant 1 douzaine  x 2 500 = 30 000
 
--- La réception du bon de commande crée un mouvement de stock 'purchase' par ligne
-INSERT INTO stock_movements (product_id, type, quantity, stock_after, unit_cost, reference_type, reference_id, reason, user_id, created_at)
-SELECT poi.product_id, 'purchase', poi.quantity_received, poi.quantity_received, poi.unit_cost,
-       'App\\Models\\PurchaseOrder', poi.purchase_order_id, 'Réception BC-2026-0001', 1, '2026-03-25 10:00:00'
-FROM purchase_order_items poi WHERE poi.purchase_order_id = 1;
+INSERT INTO stock_movements (product_id, type, quantity, stock_after, unit_cost, reference_type, reference_id, reason, user_id, created_at) VALUES
+ (1, 'purchase', 24, 55, 3500, 'App\\Models\\PurchaseOrder', 1, 'Réception BC-2026-0001', 1, '2026-03-25 11:00:00'),
+ (3, 'purchase', 12, 50, 2500, 'App\\Models\\PurchaseOrder', 1, 'Réception BC-2026-0001', 1, '2026-03-25 11:00:00');
+UPDATE products SET stock_quantity = stock_quantity + 24 WHERE id = 1;
+UPDATE products SET stock_quantity = stock_quantity + 12 WHERE id = 3;
 
 -- ---------- Avis, favoris, paniers (entités issues du MCD existant) ----------
 INSERT INTO product_reviews (product_id, customer_id, order_id, rating, comment, status, moderated_by, moderated_at, created_at) VALUES

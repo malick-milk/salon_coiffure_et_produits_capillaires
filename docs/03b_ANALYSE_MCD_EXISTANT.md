@@ -1,7 +1,7 @@
 # ÉTAPE 3 bis — Analyse et amélioration du MCD existant
 
 > **Source** : [`docs/mcd/modele_mcd_original.loo`](mcd/modele_mcd_original.loo) (Looping), fourni par le porteur du projet, et la commande fournisseur Dabo Hair.
-> **Résultat** : le modèle final passe de 36 à **43 tables**. Il est testé sur MySQL 8.4 avec 22 tests d'intégrité et 16 requêtes KPI. Voir [DATABASE.md](../DATABASE.md).
+> **Résultat** : le modèle final passe de 36 à **44 tables**. Il est testé sur MySQL 8.4 avec 25 tests d'intégrité et 17 requêtes KPI. Voir [DATABASE.md](../DATABASE.md).
 
 ---
 
@@ -118,7 +118,7 @@ erDiagram
 | 7 | Pas de paiement ni de facture | Rien n'est prévu pour Wave, Orange Money, Free Money, ni pour les factures PDF | Tables `payments`, `invoices`, `invoice_sequences` |
 | 8 | `favoris`, `ligne_panier`, `ligne_commande` ont un identifiant propre | Rien n'empêche d'ajouter **deux fois** le même produit aux favoris | Voir §3.2 : ce sont des associations porteuses |
 | 9 | `Avis` sans contrôle | Note 12 sur 5 possible, avis multiples d'un même client, publication sans modération | `CHECK rating BETWEEN 1 AND 5`, `UNIQUE (produit, client)`, statut de modération, « achat vérifié » |
-| 10 | Pas de fournisseurs ni d'achats | Votre commande Dabo Hair (à la douzaine) n'a nulle part où être enregistrée | `suppliers`, `purchase_orders`, `purchase_order_items` (§5) |
+| 10 | Pas de production ni de lots | L'entreprise fabrique ses produits : pas de suivi des lots, du coût de revient, ni des péremptions | `production_batches`, mouvement `production`, marque maison, clients revendeurs (§5) |
 | 11 | Pas de module réservation | Le salon ne peut pas gérer ses rendez-vous | 8 tables : prestations, coiffeurs, horaires, fermetures, congés, réservations (§6) |
 | 12 | Noms mélangés (`imageProduit`, `Avis`, `id_user`) | Une convention irrégulière cause des erreurs dans le code | Convention Laravel : anglais, `snake_case`, pluriel (`product_images`) |
 
@@ -162,43 +162,58 @@ Dans `cart_items`, il n'y a **pas** de colonne prix : un panier affiche toujours
 
 ---
 
-## 5. Votre catalogue réel : Dabo Hair
+## 5. Votre catalogue réel : Dabo Hair, une marque fabriquée
 
-### 5.1 Ce que révèle votre commande
-| Observation | Conséquence sur le modèle |
-|---|---|
-| Vous achetez **à la douzaine** et vendez **à l'unité** | Deux unités différentes : le lot d'achat (12) et l'unité de vente. D'où `packs_ordered`, `units_per_pack` et `quantity_ordered` (calculée) |
-| Le même sérum existe en **30 ml** et en **15 ml** | Deux références (SKU) distinctes, chacune avec son prix et son stock, reliées par `variant_of_id` pour afficher « Autres contenances » sur la fiche produit |
-| Les prix sont des **prix d'achat** | Ils vont dans `cost_price`. Le **prix de vente** reste à définir |
+### 5.1 Ce que change le fait de FABRIQUER ses produits
 
-### 5.2 Les colonnes générées : MySQL fait le calcul
+L'entreprise fabrique ses propres produits sous la marque **Dabo Hair**. Un fabricant ne se gère pas comme un revendeur :
 
-```sql
-quantity_ordered INT AS (packs_ordered * units_per_pack) STORED,               -- 4 × 12 = 48
-line_total       BIGINT AS (packs_ordered * units_per_pack * unit_cost) STORED  -- 48 × 3 000 = 144 000
-```
+| Revendeur | Fabricant (votre cas) | Conséquence sur le modèle |
+|---|---|---|
+| Le stock entre par des **achats** | Le stock entre par la **production** | Table `production_batches` + mouvement de stock `production` |
+| Le coût = le prix d'achat | Le coût = le **coût de revient** (matières premières, flacon, étiquette, temps) | `products.cost_price` peut être `NULL` tant qu'il n'est pas calculé |
+| Le fournisseur gère la traçabilité | **Vous** êtes responsable de chaque lot | Numéro de lot unique et date de péremption (obligatoires pour un cosmétique) |
+| — | Vous vendez aussi **en gros**, à la douzaine | `customers.customer_type` : particulier ou revendeur |
+| — | Votre marque est un actif à suivre | `brands.is_house_brand` : CA de la marque maison et CA des marques revendues |
 
-On ne peut pas saisir ces colonnes à la main (test T21). Une erreur de calcul est donc impossible. La vérification confirme que MySQL retrouve **exactement votre total : 1 374 000 F CFA** (36 douzaines, 432 unités, requête Q14).
+> **Pourquoi le numéro de lot est-il si important ?** Si un client signale une réaction à la crème capillaire, le numéro de lot imprimé sur le flacon permet de retrouver **tous les flacons fabriqués le même jour** et de les retirer de la vente, sans tout jeter. C'est la **traçabilité**.
 
-### 5.3 Les 9 références créées
+### 5.2 La commande de la capture : une vente en gros
 
-| SKU | Produit | Catégorie | Lots × unités | Coût unitaire |
-|---|---|---|---|---:|
-| DAB-SHA-001 | Shampooing | Shampoings | 4 × 12 = 48 | 3 000 |
-| DAB-SPH-250 | Spray hydratant 250 ml | Hydratants et crèmes | 4 × 12 = 48 | 5 000 |
-| DAB-HYD-100 | Hydratant 100 ml | Hydratants et crèmes | 5 × 12 = 60 | 2 500 |
-| DAB-CRE-001 | Crème capillaire | Hydratants et crèmes | 8 × 12 = 96 | 3 000 |
-| DAB-SAP-030 | Sérum Activ'Pousse 30 ml | Sérums | 6 × 12 = 72 | 3 000 |
-| DAB-SAP-015 | Sérum Activ'Pousse 15 ml (variante du 30 ml) | Sérums | 2 × 12 = 24 | 1 500 |
-| DAB-SAC-001 | Spray anti-chute | Soins traitants | 2 × 12 = 24 | 5 000 |
-| DAB-MAS-001 | Masque capillaire | Soins traitants | 2 × 12 = 24 | 3 000 |
-| DAB-SBO-030 | Sérum Booster 30 ml | Sérums | 3 × 12 = 36 | 3 000 |
+La commande de 1 374 000 F CFA est enregistrée comme une **vente** (commande n° 9) à un client **revendeur**. Les quantités sont stockées **en unités** (48 shampooings) ; l'affichage « 4 douzaines » est une simple présentation. La vérification confirme : **9 lignes, 432 unités, 1 374 000 F CFA**, et chaque ligne respecte `line_total = prix × quantité`.
 
-Les produits sont créés **inactifs** (invisibles en boutique) tant que leur **prix de vente** n'est pas fixé. Le classement en catégories est une proposition, à valider.
+### 5.3 Le coût de revient inconnu : une leçon de qualité des données
 
-**Règle ajoutée** : un produit inactif n'entre pas dans les indicateurs de rotation et de rupture (Q10 à Q12). Un produit qui n'est pas encore en vente ne peut pas être « à faible rotation ».
+Le coût de revient n'est pas encore connu, donc on enregistre `NULL` (« inconnu ») et **surtout pas 0**.
 
----
+- Avec `0`, la marge afficherait **100 %** : un chiffre faux, mais qui a l'air vrai. C'est le pire cas en analyse de données.
+- Avec `NULL`, la requête Q04 affiche une marge **vide**. Le tableau de bord pourra afficher « coût de revient à renseigner ».
+
+> **Règle d'analyste** : une donnée manquante doit **se voir**. Une valeur inventée (0, une moyenne…) pour boucher un trou fausse silencieusement toutes les décisions prises ensuite.
+
+La rotation des stocks (Q10) est désormais calculée **en unités**. Le résultat est identique quand le coût est constant, et il reste calculable sans coût de revient.
+
+### 5.4 Les 9 références
+
+| SKU | Produit | Catégorie (proposée) | Prix de vente |
+|---|---|---|---:|
+| DAB-SHA-001 | Shampooing | Shampoings | 3 000 |
+| DAB-SPH-250 | Spray hydratant 250 ml | Hydratants et crèmes | 5 000 |
+| DAB-HYD-100 | Hydratant 100 ml | Hydratants et crèmes | 2 500 |
+| DAB-CRE-001 | Crème capillaire | Hydratants et crèmes | 3 000 |
+| DAB-SAP-030 | Sérum Activ'Pousse 30 ml | Sérums | 3 000 |
+| DAB-SAP-015 | Sérum Activ'Pousse 15 ml (variante du 30 ml) | Sérums | 1 500 |
+| DAB-SAC-001 | Spray anti-chute | Soins traitants | 5 000 |
+| DAB-MAS-001 | Masque capillaire | Soins traitants | 3 000 |
+| DAB-SBO-030 | Sérum Booster 30 ml | Sérums | 3 000 |
+
+Les deux contenances du sérum Activ'Pousse sont deux références distinctes (prix et stock différents), reliées par `variant_of_id`. La fiche produit pourra ainsi proposer « 30 ml / 15 ml ».
+
+**Données de démonstration (à remplacer)** : numéros de lot, dates de fabrication et de péremption, quantités fabriquées.
+
+### 5.5 Et les achats fournisseur ?
+
+Les tables `suppliers` et `purchase_orders` restent utiles **si la boutique revend aussi des marques tierces**. La démonstration les illustre avec un fournisseur fictif. Les colonnes générées (`quantity_ordered = lots × unités par lot`, `line_total`) gardent tout leur intérêt pour les achats par douzaines.
 
 ## 6. Le module réservation (absent de votre MCD)
 
@@ -265,7 +280,8 @@ erDiagram
 | `Avis` | `product_reviews` | + modération, achat vérifié |
 | `panier` / `ligne_panier` | `carts` / `cart_items` | + panier invité, abandon |
 | `favoris` | `favorites` | Clé composée |
-| — | `suppliers`, `purchase_orders`, `purchase_order_items` | Nouveau (Dabo Hair) |
+| — | `production_batches` | Nouveau : fabrication Dabo Hair (lots, péremption) |
+| — | `suppliers`, `purchase_orders`, `purchase_order_items` | Nouveau : achats de marques revendues |
 | — | `payments`, `invoices`, `invoice_sequences` | Nouveau |
 | — | 8 tables de réservation | Nouveau |
 | — | `activity_log`, `settings`, tables d'agrégats BI | Nouveau |
@@ -279,7 +295,7 @@ Redessiner le modèle vous-même est le meilleur moyen de le comprendre. Dans Lo
 1. Transformez `favoris` en **association** `aimer` entre `utilisateur` et `produit`, porteuse de `date_ajout`, avec les cardinalités `(0,n)` des deux côtés.
 2. Faites de même pour `ligne_panier`, qui devient l'association `contenir` entre `panier` et `produit`, porteuse de `quantite`.
 3. Ajoutez l'entité `client` et l'association `correspondre` : `utilisateur (0,1)` — `(0,1) client`.
-4. Ajoutez `fournisseur`, `bon_commande` et l'association `commander` entre `bon_commande` et `produit`, porteuse de `nb_lots`, `unites_par_lot` et `cout_unitaire`.
+4. Ajoutez l'entité `lot_fabrication` (numero_lot, quantite, date_fabrication, date_peremption, cout_revient_unitaire), reliée à `produit` par `(1,1)`—`(0,n)`.
 5. Ajoutez `mouvement_stock`, relié à `produit` par `(1,1)`—`(0,n)`.
 6. Ajoutez le module réservation du §6.1.
 7. Générez le script SQL avec Looping (menu MLD / SQL) et comparez-le à `database/schema.sql`. Les différences restantes sont les choix **physiques** expliqués dans DATABASE.md : index, `CHECK`, colonnes générées, instantanés.

@@ -123,6 +123,7 @@ CREATE TABLE customers (
     user_id           BIGINT UNSIGNED NULL,           -- NULL = client invité (sans compte)
     first_name        VARCHAR(100) NOT NULL,
     last_name         VARCHAR(100) NOT NULL,
+    customer_type     ENUM('individual','reseller') NOT NULL DEFAULT 'individual', -- particulier / revendeur (vente en gros)
     phone             VARCHAR(20)  NOT NULL,          -- identifiant naturel d'un invité
     email             VARCHAR(191) NULL,
     marketing_consent BOOLEAN NOT NULL DEFAULT FALSE, -- consentement explicite (données personnelles)
@@ -192,6 +193,7 @@ CREATE TABLE brands (
     name       VARCHAR(120) NOT NULL,
     slug       VARCHAR(140) NOT NULL,
     logo_path  VARCHAR(255) NULL,
+    is_house_brand BOOLEAN NOT NULL DEFAULT FALSE, -- TRUE = marque fabriquée par l'entreprise (Dabo Hair)
     is_active  BOOLEAN NOT NULL DEFAULT TRUE,
     created_at TIMESTAMP NULL,
     updated_at TIMESTAMP NULL,
@@ -219,7 +221,8 @@ CREATE TABLE products (
     unit_size           VARCHAR(50)  NULL,              -- '250 ml', '500 g'
     price               INT UNSIGNED NOT NULL,          -- prix de vente TTC en XOF
     compare_at_price    INT UNSIGNED NULL,              -- ancien prix barré (promotion)
-    cost_price          INT UNSIGNED NOT NULL,          -- prix d'achat : JAMAIS exposé au public (RG-STK-06)
+    cost_price          INT UNSIGNED NULL,              -- coût d'achat OU coût de revient (fabrication). NULL = pas encore calculé.
+                                                        -- JAMAIS exposé au public (RG-STK-06)
     stock_quantity      INT UNSIGNED NOT NULL DEFAULT 0,-- CACHE de la somme des mouvements (ADR-006)
     low_stock_threshold INT UNSIGNED NOT NULL DEFAULT 5,
     is_active           BOOLEAN NOT NULL DEFAULT TRUE,  -- visible dans le catalogue
@@ -269,7 +272,7 @@ CREATE TABLE product_images (
 CREATE TABLE stock_movements (
     id             BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     product_id     BIGINT UNSIGNED NOT NULL,
-    type           ENUM('initial','purchase','sale','sale_cancellation','customer_return','loss','adjustment') NOT NULL,
+    type           ENUM('initial','production','purchase','sale','sale_cancellation','customer_return','loss','adjustment') NOT NULL,
     quantity       INT NOT NULL,                     -- SIGNÉ : +10 entrée, -2 sortie
     stock_after    INT UNSIGNED NOT NULL,            -- stock après le mouvement (contrôle de cohérence)
     unit_cost      INT UNSIGNED NULL,                -- coût unitaire (entrées) : valorisation du stock
@@ -286,10 +289,34 @@ CREATE TABLE stock_movements (
     CONSTRAINT stock_movements_quantity_chk CHECK (quantity <> 0)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- FOURNISSEURS (ajout issu du MCD existant + commande Dabo Hair réelle)
+-- LOTS DE FABRICATION : l'entreprise fabrique ses produits (marque Dabo Hair).
+-- Chaque lot produit fait entrer du stock (mouvement 'production') et garde la
+-- traçabilité exigée pour des cosmétiques : numéro de lot et date de péremption.
+CREATE TABLE production_batches (
+    id                BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    batch_number      VARCHAR(40) NOT NULL,           -- numéro de lot imprimé sur le flacon : 'LOT-2026-03-SHA'
+    product_id        BIGINT UNSIGNED NOT NULL,
+    quantity_produced INT UNSIGNED NOT NULL,          -- unités fabriquées
+    unit_cost         INT UNSIGNED NULL,              -- coût de revient unitaire du lot (matières + flacon + étiquette)
+    produced_on       DATE NOT NULL,
+    expires_on        DATE NULL,                      -- date de péremption
+    notes             TEXT NULL,
+    created_by        BIGINT UNSIGNED NULL,
+    created_at        TIMESTAMP NULL,
+    updated_at        TIMESTAMP NULL,
+    UNIQUE KEY production_batches_number_unique (batch_number),
+    KEY production_batches_product_index (product_id, produced_on),
+    KEY production_batches_expiry_index (expires_on),            -- lots proches de la péremption
+    CONSTRAINT production_batches_product_fk    FOREIGN KEY (product_id) REFERENCES products (id) ON DELETE RESTRICT,
+    CONSTRAINT production_batches_created_by_fk FOREIGN KEY (created_by) REFERENCES users (id)    ON DELETE SET NULL,
+    CONSTRAINT production_batches_quantity_chk  CHECK (quantity_produced > 0),
+    CONSTRAINT production_batches_expiry_chk    CHECK (expires_on IS NULL OR expires_on > produced_on)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- FOURNISSEURS : pour les produits d'autres marques revendus en boutique (si l'entreprise en revend).
 CREATE TABLE suppliers (
     id           BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    name         VARCHAR(150) NOT NULL,              -- 'Dabo Hair'
+    name         VARCHAR(150) NOT NULL,
     contact_name VARCHAR(150) NULL,
     phone        VARCHAR(20)  NULL,
     email        VARCHAR(191) NULL,
@@ -302,7 +329,7 @@ CREATE TABLE suppliers (
     UNIQUE KEY suppliers_name_unique (name)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- BONS DE COMMANDE FOURNISSEUR : l'entreprise achète son stock (souvent à la douzaine).
+-- BONS DE COMMANDE FOURNISSEUR : achat de produits revendus, souvent par lots (douzaines).
 CREATE TABLE purchase_orders (
     id          BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     reference   VARCHAR(30) NOT NULL,                 -- 'BC-2026-0001'
@@ -436,7 +463,7 @@ CREATE TABLE order_items (
     product_name VARCHAR(191) NOT NULL,
     sku          VARCHAR(64)  NOT NULL,
     unit_price   INT UNSIGNED NOT NULL,              -- prix de vente unitaire au moment de l'achat
-    unit_cost    INT UNSIGNED NOT NULL,              -- coût d'achat unitaire au moment de l'achat (marge)
+    unit_cost    INT UNSIGNED NULL,                  -- coût unitaire figé au moment de la vente (NULL si coût de revient inconnu)
     quantity     INT UNSIGNED NOT NULL,
     line_total   INT UNSIGNED NOT NULL,
     created_at   TIMESTAMP NULL,

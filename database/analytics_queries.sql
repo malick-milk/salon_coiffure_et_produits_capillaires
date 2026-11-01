@@ -84,8 +84,10 @@ SELECT oi.product_id,
        oi.product_name,
        SUM(oi.quantity)                                        AS units_sold,
        SUM(oi.line_total)                                      AS revenue,
-       SUM(oi.line_total - oi.unit_cost * oi.quantity)         AS gross_margin,
-       ROUND(100 * SUM(oi.line_total - oi.unit_cost * oi.quantity) / SUM(oi.line_total), 1) AS margin_rate_pct,
+       -- Qualité des données : si un coût est inconnu (NULL), la marge est NULL plutôt que fausse
+       IF(SUM(oi.unit_cost IS NULL) > 0, NULL, SUM(oi.line_total - oi.unit_cost * oi.quantity)) AS gross_margin,
+       IF(SUM(oi.unit_cost IS NULL) > 0, NULL,
+          ROUND(100 * SUM(oi.line_total - oi.unit_cost * oi.quantity) / SUM(oi.line_total), 1)) AS margin_rate_pct,
        RANK() OVER (ORDER BY SUM(oi.quantity) DESC)            AS rank_by_units,
        RANK() OVER (ORDER BY SUM(oi.line_total - oi.unit_cost * oi.quantity) DESC) AS rank_by_margin
 FROM order_items oi
@@ -197,7 +199,9 @@ WITH stock_levels AS (
 SELECT id, name, stock_start, stock_end, units_sold,
        units_sold * cost_price                                        AS cogs,
        ROUND((stock_start + stock_end) / 2 * cost_price)              AS avg_stock_value,
-       ROUND(units_sold * cost_price / NULLIF((stock_start + stock_end) / 2 * cost_price, 0), 2) AS turnover_ratio
+       -- Calculée en UNITÉS : identique au ratio en valeur quand le coût est constant,
+       -- et utilisable même si le coût de revient n'est pas encore connu
+       ROUND(units_sold / NULLIF((stock_start + stock_end) / 2, 0), 2) AS turnover_ratio
 FROM stock_levels
 ORDER BY turnover_ratio DESC;
 
@@ -297,3 +301,21 @@ SELECT SUM(status = 'converted')                                              AS
        SUM(status = 'abandoned')                                              AS abandoned_carts,
        ROUND(100 * SUM(status = 'abandoned') / NULLIF(SUM(status IN ('converted','abandoned')), 0), 1) AS abandonment_rate_pct
 FROM carts;
+
+-- ---------------------------------------------------------------------
+-- Q17 — Fabrication : lots proches de la péremption (moins de 90 jours)
+-- Stock restant estimé au niveau du produit (le stock n'est pas suivi lot par lot en V1).
+-- ---------------------------------------------------------------------
+SELECT pb.batch_number,
+       p.name,
+       p.unit_size,
+       pb.quantity_produced,
+       pb.produced_on,
+       pb.expires_on,
+       DATEDIFF(pb.expires_on, @ref_date)   AS days_before_expiry,
+       p.stock_quantity                     AS product_stock_now
+FROM production_batches pb
+JOIN products p ON p.id = pb.product_id
+WHERE pb.expires_on IS NOT NULL
+  AND pb.expires_on <= @ref_date + INTERVAL 270 DAY   -- fenêtre large pour la démo ; 90 jours en production
+ORDER BY pb.expires_on;

@@ -40,10 +40,16 @@ INSERT INTO product_reviews (product_id, customer_id, rating) VALUES (2, 1, 3);
 -- T18 Même produit ajouté deux fois aux favoris refusé (clé primaire composée)
 INSERT INTO favorites (user_id, product_id) VALUES (3, 1);
 -- T19 Réception supérieure à la quantité commandée refusée
-UPDATE purchase_order_items SET quantity_received = 49 WHERE purchase_order_id = 1 AND product_id = 6;
+UPDATE purchase_order_items SET quantity_received = 25 WHERE purchase_order_id = 1 AND product_id = 1;
 -- T20 Ligne d'achat à zéro lot refusée
-INSERT INTO purchase_order_items (purchase_order_id, product_id, packs_ordered, unit_cost) VALUES (1, 1, 0, 3500);
+INSERT INTO purchase_order_items (purchase_order_id, product_id, packs_ordered, unit_cost) VALUES (1, 2, 0, 4200);
 -- T21 Colonne générée non modifiable à la main (le total d'une ligne d'achat se calcule seul)
-UPDATE purchase_order_items SET line_total = 1 WHERE purchase_order_id = 1 AND product_id = 6;
+UPDATE purchase_order_items SET line_total = 1 WHERE purchase_order_id = 1 AND product_id = 1;
 -- T22 Quantité nulle dans un panier refusée
 INSERT INTO cart_items (cart_id, product_id, quantity) VALUES (3, 1, 0);
+-- T23 Lot de fabrication de quantité nulle refusé
+INSERT INTO production_batches (batch_number, product_id, quantity_produced, produced_on) VALUES ('LOT-T23', 6, 0, '2026-04-01');
+-- T24 Lot dont la péremption précède la fabrication refusé
+INSERT INTO production_batches (batch_number, product_id, quantity_produced, produced_on, expires_on) VALUES ('LOT-T24', 6, 10, '2026-04-01', '2026-03-01');
+-- T25 Numéro de lot en double refusé (traçabilité)
+INSERT INTO production_batches (batch_number, product_id, quantity_produced, produced_on) VALUES ('LOT-2603-SHA', 6, 10, '2026-04-01');
