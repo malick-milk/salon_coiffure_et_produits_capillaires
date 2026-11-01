@@ -146,6 +146,14 @@ interface PaymentGateway {
 - **Décision** : MySQL, Redis et Mailpit (faux serveur d'email pour voir les emails envoyés) tournent dans Docker. PHP et Node tournent en local ou dans Docker, au choix.
 - **Pourquoi** : tous les développeurs ont exactement les mêmes versions. « Ça marche sur ma machine » n'est plus une excuse.
 
+### ADR-012 — Format JSON de l'API : snake_case
+- **Décision** : les clés JSON de l'API sont en `snake_case` (`unit_size`, `stock_status`), comme les colonnes MySQL. Les types TypeScript (`frontend/src/types/api.ts`) reprennent ce format.
+- **Pourquoi** : aucune couche de conversion entre camelCase et snake_case à écrire, tester et maintenir. C'est la convention par défaut de Laravel.
+
+### ADR-013 — Développement du frontend avec un faux serveur (MSW)
+- **Décision** : tant que l'API n'existe pas, Mock Service Worker répond aux appels `/api/v1/*` dans le navigateur (`VITE_ENABLE_MOCKS=true`).
+- **Pourquoi** : le frontend avance sans attendre le backend, appelle les vraies URL et gère déjà les vraies erreurs (404, 409, 422). Le contrat (`types/api.ts`) et les tests des créneaux servent de spécification à l'étape 6.
+
 ### ADR-011 — Décisions métier provisoires (questions §11 de l'analyse)
 En l'absence de réponse, les hypothèses suivantes sont retenues. Elles sont **paramétrables** quand c'est possible, pour pouvoir changer d'avis sans réécrire le code.
 
@@ -340,10 +348,10 @@ frontend/
 | `react-hook-form` + `zod` | Formulaires et validation |
 | `axios` | Client HTTP (gère nativement le cookie XSRF de Sanctum) |
 | `recharts` | Graphiques BI |
-| `framer-motion` | Animations discrètes (apparitions, transitions) |
+| CSS (`@keyframes`) | Animations discrètes ; framer-motion seulement si un besoin plus riche apparaît |
 | `lucide-react` | Icônes SVG |
 | `date-fns` | Manipulation des dates et créneaux |
-| `react-helmet-async` | Balises SEO (ADR-009) |
+| (natif React 19) | Balises `<title>` / `<meta>` par page (ADR-009), sans bibliothèque |
 | `vitest` + `@testing-library/react` + `playwright` | Tests unitaires et de bout en bout |
 
 ### 4.5 Design system (tokens)
@@ -357,6 +365,8 @@ colors: {
   mist:    '#D9D9D9',
 }
 ```
+
+> **Mise en œuvre (étape 5)** : Tailwind v4 se configure en CSS ; les tokens sont dans `frontend/src/index.css` (bloc `@theme`), y compris `gold-text` (#7A5A00) pour le texte or sur fond clair.
 
 Typographie proposée : une **serif élégante pour les titres** (ex. *Playfair Display* / *Cormorant*) et une **sans-serif lisible pour le texte** (ex. *Inter*). Le contraste « or sur noir » sera vérifié (WCAG AA). Le texte courant en or sera réservé aux tailles moyennes et grandes.
 

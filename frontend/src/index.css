@@ -1,0 +1,54 @@
+/*
+ * Feuille de style globale.
+ * Tailwind CSS v4 se configure directement en CSS (bloc @theme), sans fichier tailwind.config.
+ * Chaque variable --color-xxx crée automatiquement les classes bg-xxx, text-xxx, border-xxx…
+ */
+@import "tailwindcss";
+
+@theme {
+  /* --- Couleurs de la marque (docs/04_MAQUETTES.md §3.1), nommées par RÔLE --- */
+  --color-gold: #d4af37;        /* boutons principaux, accents sur fond noir */
+  --color-gold-dark: #b8860b;   /* survol, graphiques sur fond clair */
+  --color-gold-text: #7a5a00;   /* texte or sur fond CLAIR (contraste suffisant) */
+  --color-gold-soft: #17140b;   /* fond d'un élément sélectionné sur noir */
+  --color-ink: #0f0f0f;         /* fond principal, texte sur fond clair */
+  --color-ink-soft: #1a1a1a;    /* cartes, panneaux */
+  --color-ink-line: #262626;    /* bordures sur fond noir */
+  --color-ivory: #f8f8f8;       /* texte sur noir, fonds clairs */
+  --color-mist: #d9d9d9;        /* séparateurs */
+  --color-muted: #bdbdbd;       /* texte secondaire sur noir (contraste 10:1) */
+
+  /* --- Typographies --- */
+  --font-display: "Playfair Display", Georgia, serif;
+  --font-sans: "Inter", system-ui, sans-serif;
+
+  /* --- Animations discrètes --- */
+  --animate-fade-up: fade-up 300ms ease-out both;
+  @keyframes fade-up {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+}
+
+@layer base {
+  html {
+    color-scheme: dark;
+  }
+  body {
+    @apply bg-ink font-sans text-ivory antialiased;
+  }
+  /* Contour de focus visible et élégant pour la navigation au clavier (accessibilité) */
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-gold;
+  }
+}
+
+/* Respect du réglage système « réduire les animations » */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

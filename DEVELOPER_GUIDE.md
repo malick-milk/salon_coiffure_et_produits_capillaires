@@ -32,8 +32,26 @@ bash database/verify.sh
 ```
 Le script utilise une base séparée `salon_verify`, recréée à chaque lancement. Il ne touche jamais la base `salon`.
 
-### 2.3 Backend et frontend
-_À compléter aux étapes 5 et 6._
+### 2.3 Frontend (React)
+```bash
+cd frontend
+```
+
+```bash
+npm install
+```
+
+```bash
+cp .env.example .env.local
+```
+
+```bash
+npm run dev
+```
+Puis http://localhost:5173. Avec `VITE_ENABLE_MOCKS=true`, le faux serveur MSW répond à la place de l'API : aucun backend n'est nécessaire. Détails et explications : [docs/05_FRONTEND.md](docs/05_FRONTEND.md).
+
+### 2.4 Backend (Laravel)
+_À compléter à l'étape 6._
 
 ## 3. Structure des dossiers
 Voir [ARCHITECTURE.md §3.2 (backend)](ARCHITECTURE.md) et [§4.3 (frontend)](ARCHITECTURE.md).
@@ -88,7 +106,13 @@ Fichiers de configuration à la racine :
   - `test: ...`, `refactor: ...`, `chore: ...`
 
 ## 6. Lancer les tests
-_À compléter à l'étape 9._
+| Partie | Commande | Contenu |
+|---|---|---|
+| Base de données | `bash database/verify.sh` | 25 tests d'intégrité + 17 requêtes KPI |
+| Frontend | `cd frontend && npm run test:run` | 28 tests unitaires (Vitest) |
+| Parcours navigateur | `node frontend/e2e/parcours-vitrine.cjs ./captures` | 24 vérifications (Playwright) |
+
+La suite complète (backend, CI) sera mise en place à l'étape 9.
 
 ## 7. Ajouter une fonctionnalité pas à pas (recette type)
 1. Écrire la règle de gestion dans `docs/01_ANALYSE_DU_BESOIN.md`.
