@@ -23,5 +23,8 @@ class AppServiceProvider extends ServiceProvider
 
         // Limitation de débit (anti-abus, OWASP) : 120 requêtes / minute / utilisateur ou adresse IP
         RateLimiter::for('api', fn (Request $request) => Limit::perMinute(120)->by($request->user()?->id ?: $request->ip()));
+
+        // Création de réservations, commandes, comptes : 20 par heure et par adresse IP (anti-spam, RG-RES-07)
+        RateLimiter::for('checkout', fn (Request $request) => Limit::perHour(20)->by($request->ip()));
     }
 }

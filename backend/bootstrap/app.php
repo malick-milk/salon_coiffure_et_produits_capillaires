@@ -3,6 +3,8 @@
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use App\Exceptions\InsufficientStockException;
+use App\Exceptions\SlotUnavailableException;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -26,14 +28,25 @@ return Application::configure(basePath: dirname(__DIR__))
 
         // Messages d'erreur de l'API en français, au format du contrat : { "message": "…" }.
         // En production, jamais de détail technique (trace, requête SQL) dans la réponse.
+        // Exceptions MÉTIER -> 409 Conflit, au format attendu par le frontend
+        $exceptions->render(fn (SlotUnavailableException $e) => response()->json(['message' => $e->getMessage()], 409));
+        $exceptions->render(fn (InsufficientStockException $e) => response()->json(['message' => $e->getMessage(), 'items' => $e->items], 409));
+
         $exceptions->render(function (NotFoundHttpException $e, Request $request) {
             if ($request->is('api/*')) {
                 return response()->json(['message' => 'Ressource introuvable.'], 404);
             }
         });
         $exceptions->render(function (HttpExceptionInterface $e, Request $request) {
-            if ($request->is('api/*') && $e->getStatusCode() === 429) {
-                return response()->json(['message' => 'Trop de requêtes. Réessayez dans un instant.'], 429, $e->getHeaders());
+            if (! $request->is('api/*')) {
+                return null;
             }
+
+            return match ($e->getStatusCode()) {
+                403 => response()->json(['message' => 'Accès refusé.'], 403),
+                419 => response()->json(['message' => 'Session expirée. Rechargez la page.'], 419),
+                429 => response()->json(['message' => 'Trop de requêtes. Réessayez dans un instant.'], 429, $e->getHeaders()),
+                default => null, // les autres erreurs HTTP gardent leur message (abort(422, '…'))
+            };
         });
     })->create();
