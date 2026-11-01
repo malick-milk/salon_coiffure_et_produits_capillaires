@@ -10,11 +10,13 @@ import { apiErrorMessage, apiErrorStatus, type ValidationErrorBody } from '@/lib
 import { PasswordInput } from '../components/PasswordInput'
 import { safeRedirect } from '../components/RequireAuth'
 import { useLogin, useMe } from '../hooks'
+import { isStaff } from '../permissions'
 import { loginSchema, type LoginValues } from '../schema'
 
 export function LoginPage() {
   const [params] = useSearchParams()
-  const redirect = safeRedirect(params.get('redirect'))
+  // Sans redirection demandée, le personnel arrive sur l'ERP et le client sur son espace
+  const target = (user: Parameters<typeof isStaff>[0]) => safeRedirect(params.get('redirect'), isStaff(user) ? '/admin' : '/compte')
   const navigate = useNavigate()
   const me = useMe()
   const login = useLogin()
@@ -23,11 +25,11 @@ export function LoginPage() {
     defaultValues: { email: '', password: '', remember: true },
   })
 
-  if (me.data) return <Navigate to={redirect} replace />
+  if (me.data) return <Navigate to={target(me.data)} replace />
 
   const onSubmit = (values: LoginValues) =>
     login.mutate(values, {
-      onSuccess: () => navigate(redirect, { replace: true }),
+      onSuccess: (user) => navigate(target(user), { replace: true }),
       onError: (error) => {
         if (apiErrorStatus(error) === 422 && axios.isAxiosError<ValidationErrorBody>(error)) applyServerErrors(error.response?.data.errors, setError)
       },
@@ -52,7 +54,7 @@ export function LoginPage() {
       </form>
       <p className="text-center text-sm text-muted">
         Pas encore de compte ?{' '}
-        <Link to={`/inscription?redirect=${encodeURIComponent(redirect)}`} className="font-semibold text-gold underline underline-offset-4">Créer un compte</Link>
+        <Link to={`/inscription?redirect=${encodeURIComponent(safeRedirect(params.get('redirect')))}`} className="font-semibold text-gold underline underline-offset-4">Créer un compte</Link>
       </p>
     </AuthShell>
   )

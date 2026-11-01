@@ -156,7 +156,7 @@ frontend/
 ├── vite.config.ts           # serveur de dev, alias @, proxy /api, découpage du build, tests
 ├── .env.example             # VITE_ENABLE_MOCKS
 ├── public/mockServiceWorker.js  # généré par MSW (ne pas modifier)
-├── e2e/parcours-vitrine.cjs # parcours navigateur (24 vérifications)
+├── e2e/parcours-vitrine.cjs # parcours navigateur (24 vérifications) ; parcours-compte.cjs (27) ; parcours-admin.cjs (25, étape 7)
 └── src/
     ├── main.tsx             # démarre MSW (si activé) puis React
     ├── index.css            # Tailwind v4 + tokens de la marque (@theme)

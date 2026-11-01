@@ -1,7 +1,8 @@
-import { CalendarDays, House, Search, ShoppingBag, Store, User } from 'lucide-react'
+import { CalendarDays, House, LayoutDashboard, Search, ShoppingBag, Store, User } from 'lucide-react'
 import { Link, NavLink, Outlet, ScrollRestoration } from 'react-router'
 import { Logo } from '@/components/common/Placeholder'
 import { useMe } from '@/features/auth/hooks'
+import { isStaff } from '@/features/auth/permissions'
 import { useCartCount } from '@/features/cart/store'
 import { cn } from '@/lib/utils'
 
@@ -50,6 +51,11 @@ export function PublicLayout() {
             <Link to="/boutique" aria-label="Rechercher un produit" className="hidden size-11 items-center justify-center rounded-full hover:bg-ink-soft sm:flex">
               <Search className="size-[22px]" aria-hidden="true" />
             </Link>
+            {user && isStaff(user) && (
+              <Link to="/admin" className="flex min-h-11 items-center gap-2 rounded-full border border-gold/40 px-3 text-sm font-semibold text-gold hover:bg-ink-soft">
+                <LayoutDashboard className="size-[18px]" aria-hidden="true" />ERP
+              </Link>
+            )}
             <Link
               to={user ? '/compte' : '/connexion'}
               aria-label={user ? `Mon compte (${user.first_name})` : 'Se connecter'}

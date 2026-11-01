@@ -181,7 +181,8 @@ class AdminApiTest extends TestCase
         $this->assertSame($this->admin->id, $log->causer_id);
         $this->assertSame(3000, $log->properties['old']['price']);
         $this->assertSame(3500, $log->properties['attributes']['price']);
-        $this->getJson('/api/v1/admin/audit?log=products')->assertOk()->assertJsonPath('data.0.causer', 'Awa Ndiaye');
+        $this->getJson('/api/v1/admin/audit?log=products')->assertOk()->assertJsonPath('data.0.causer', 'Awa Ndiaye')
+            ->assertJsonPath('data.0.subject_label', $serum->displayName()); // libellé lisible, pas « Product #3 »
     }
 
     // ---------- Clients et équipe ----------

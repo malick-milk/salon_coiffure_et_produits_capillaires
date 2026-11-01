@@ -18,6 +18,9 @@ export const buttonVariants = cva(
         ghost: 'text-ivory hover:bg-ink-soft',
         dark: 'bg-ink text-ivory hover:bg-ink-soft', // sur fond clair
         link: 'text-ivory underline underline-offset-4 hover:text-gold',
+        // Variantes pour les zones CLAIRES (ERP) : l'or en texte sur blanc n'est pas assez contrasté
+        subtle: 'border border-[#d4d4d8] bg-white text-ink hover:bg-[#f4f4f5] disabled:bg-[#f4f4f5] disabled:text-[#a1a1aa]',
+        danger: 'bg-[#b91c1c] text-white hover:bg-[#991b1b]',
       },
       size: {
         md: 'min-h-12 px-7 text-[15px]', // 48 px : cible tactile confortable

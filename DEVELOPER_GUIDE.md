@@ -134,7 +134,7 @@ Fichiers de configuration à la racine :
 | Base de données | `bash database/verify.sh` | 25 tests d'intégrité + 17 requêtes KPI |
 | Backend | `cd backend && php artisan test` | 66 tests sur MySQL `salon_test` (PHPUnit) |
 | Frontend | `cd frontend && npm run test:run` | 40 tests unitaires (Vitest) |
-| Parcours navigateur | `node frontend/e2e/parcours-vitrine.cjs ./captures` puis `parcours-compte.cjs` | 24 + 27 vérifications (Playwright) |
+| Parcours navigateur | `node frontend/e2e/parcours-vitrine.cjs ./captures` puis `parcours-compte.cjs` et `parcours-admin.cjs` (base remise à zéro avant chaque parcours : `php artisan migrate:fresh --seed`) | 24 + 27 + 25 vérifications (Playwright) |
 
 La suite complète (backend, CI) sera mise en place à l'étape 9.
 

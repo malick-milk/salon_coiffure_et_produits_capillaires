@@ -2,6 +2,7 @@
 
 > **Ce qui est testable aujourd'hui (étapes 1 à 4)** : les maquettes, et la base de données avec ses règles et ses KPI.
 > **Nouveau (étape 5)** : le site React se teste aussi, voir le Test 3 en fin de document.
+> **Nouveau (étape 7)** : l'ERP d'administration, voir le Test 4.
 
 Durée : environ 30 minutes la première fois (installations comprises), puis 2 minutes.
 
@@ -232,3 +233,44 @@ Ouvrez http://localhost:5173. Le faux serveur répond à la place de Laravel.
 | 6 connexions ratées de suite | La 6e est bloquée pendant 1 minute |
 
 **Remettre la démo à zéro** : outils de développement du navigateur (F12) → Application → Local Storage → supprimer `msw-db-v1` et `msw-session-user-id`.
+
+---
+
+## Test 4 — L'ERP d'administration (étape 7)
+
+Il faut la vraie API Laravel (voir [docs/06_BACKEND.md](06_BACKEND.md) pour la première installation). Dans trois fenêtres Git Bash :
+
+```bash
+docker compose up -d
+```
+
+```bash
+cd backend && php artisan migrate:fresh --seed && php artisan serve
+```
+
+```bash
+cd frontend && npm run dev
+```
+
+Dans `frontend/.env.local`, `VITE_ENABLE_MOCKS=false` (sinon le faux serveur, qui ne connaît pas l'ERP, répond à la place de Laravel).
+
+Connectez-vous sur http://localhost:5173/connexion avec `admin@dabohair.test` / `admin-dabo-2026` : vous arrivez sur `/admin`.
+
+| À essayer | Résultat attendu |
+|---|---|
+| Tableau de bord | Alerte « Crème capillaire · rupture de stock » |
+| Commandes → CMD-2026-000102 → Mettre en préparation → Prête à retirer | Les boutons changent à chaque étape (seules les transitions permises sont proposées) |
+| Encaisser avec Wave | « Paiement enregistré, facture émise » et lien Facture FAC-2026-000001 (PDF) |
+| Produits et stock → Stock (shampooing) → Perte de 2 avec un motif | Stock 48 → 46, ligne ajoutée au grand livre |
+| Fabrication → Spray anti-chute, 96 unités, postes 15 000 + 10 000 | Coût de revient 260,42 F par unité ; la marge apparaît dans Produits |
+| Équipe → créer un caissier, puis se reconnecter avec ce compte | Pas de chiffre d'affaires, pas de menu Équipe ni Audit |
+| Journal d'audit | Toutes vos actions, avec l'auteur et les valeurs avant / après |
+| Se connecter avec `mariama@client.test` puis ouvrir `/admin` | « Accès réservé au personnel » |
+
+**Parcours automatique** (après `php artisan migrate:fresh --seed`) :
+
+```bash
+cd frontend && node e2e/parcours-admin.cjs ./captures
+```
+
+Résultat attendu : 25 lignes `OK`, et les captures d'écran dans `frontend/captures/`.

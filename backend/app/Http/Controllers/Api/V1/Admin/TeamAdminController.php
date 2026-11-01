@@ -3,7 +3,12 @@
 namespace App\Http\Controllers\Api\V1\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Booking;
+use App\Models\Order;
+use App\Models\Product;
+use App\Models\ProductionBatch;
 use App\Models\User;
+use App\Support\Phone;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -36,7 +41,7 @@ class TeamAdminController extends Controller
             'first_name' => ['required', 'string', 'min:2', 'max:100'],
             'last_name' => ['required', 'string', 'min:2', 'max:100'],
             'email' => ['required', 'email:rfc', 'max:191', 'unique:users,email'],
-            'phone' => ['nullable', 'string', 'regex:'.\App\Support\Phone::SENEGAL_MOBILE, 'unique:users,phone'],
+            'phone' => ['nullable', 'string', 'regex:'.Phone::SENEGAL_MOBILE, 'unique:users,phone'],
             'role' => ['required', Rule::in(self::STAFF_ROLES)],
             'password' => ['required', 'string', 'max:72', Password::min(10)->letters()->numbers()],
         ]);
@@ -71,12 +76,13 @@ class TeamAdminController extends Controller
     public function audit(Request $request): JsonResponse
     {
         $request->validate(['page' => ['nullable', 'integer', 'min:1'], 'log' => ['nullable', 'string', 'max:30']]);
-        $page = Activity::query()->with('causer')->when($request->input('log'), fn ($q, $l) => $q->where('log_name', $l))->latest('id')->paginate(30);
+        $page = Activity::query()->with(['causer', 'subject'])->when($request->input('log'), fn ($q, $l) => $q->where('log_name', $l))->latest('id')->paginate(30);
 
         return response()->json([
             'data' => $page->getCollection()->map(fn (Activity $a) => [
                 'id' => $a->id, 'log' => $a->log_name, 'event' => $a->event, 'description' => $a->description,
                 'subject' => $a->subject_type ? class_basename($a->subject_type).' #'.$a->subject_id : null,
+                'subject_label' => $this->subjectLabel($a->subject),
                 'causer' => $a->causer ? trim($a->causer->first_name.' '.$a->causer->last_name) : 'Système',
                 'changes' => $a->properties, 'created_at' => $a->created_at?->format('Y-m-d\TH:i:s'),
             ]),
@@ -88,5 +94,17 @@ class TeamAdminController extends Controller
     {
         return ['id' => $u->id, 'first_name' => $u->first_name, 'last_name' => $u->last_name, 'email' => $u->email, 'phone' => $u->phone,
             'role' => $u->getRoleNames()->first(), 'is_active' => $u->is_active, 'last_login_at' => $u->last_login_at?->format('Y-m-d\TH:i:s')];
+    }
+
+    /** Libellé lisible de l'objet modifié (« Masque capillaire », « CMD-2026-000102 »…), null s'il a été supprimé */
+    private function subjectLabel(?object $subject): ?string
+    {
+        return match (true) {
+            $subject instanceof Product => $subject->displayName(),
+            $subject instanceof Order, $subject instanceof Booking => $subject->reference,
+            $subject instanceof ProductionBatch => 'Lot '.$subject->batch_number,
+            $subject instanceof User => trim($subject->first_name.' '.$subject->last_name),
+            default => null,
+        };
     }
 }

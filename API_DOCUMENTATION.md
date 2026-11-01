@@ -100,6 +100,8 @@ Le corps de `POST /orders` ne contient **aucun prix** : `items[{ product_id, qua
 
 Tous exigent d'être connecté **et** de détenir une permission précise (403 sinon). Liste complète, permissions et règles : [docs/07_ERP.md](docs/07_ERP.md) §1.
 
+`GET /auth/me` renvoie `permissions` (tableau de chaînes, vide pour un client) : l'interface s'en sert pour masquer ce qui est interdit, le serveur reste seul juge. `GET /admin/audit` renvoie `subject` (technique) et `subject_label` (lisible, `null` si l'objet a été supprimé).
+
 ## Endpoints analytics
 
 _À compléter._

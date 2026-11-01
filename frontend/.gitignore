@@ -2,3 +2,6 @@ node_modules
 dist
 *.local
 coverage
+
+# Captures d’écran des parcours de test (e2e)
+captures/

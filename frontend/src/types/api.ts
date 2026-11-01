@@ -148,7 +148,8 @@ export interface User {
   last_name: string
   email: string
   phone: string | null
-  roles: string[] // 'customer', 'manager'… (les PERMISSIONS sont vérifiées côté serveur)
+  roles: string[] // 'customer', 'manager'…
+  permissions: string[] // sert à AFFICHER les menus de l'ERP ; chaque route de l'API revérifie (sécurité)
 }
 
 export interface LoginRequest {

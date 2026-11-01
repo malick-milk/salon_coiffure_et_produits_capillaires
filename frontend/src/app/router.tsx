@@ -13,8 +13,9 @@ import { NotFoundPage } from '@/pages/NotFoundPage'
  * CHARGEMENT À LA DEMANDE (code splitting) : la page Réserver utilise zod et react-hook-form,
  * deux bibliothèques lourdes. Avec « lazy », leur code n'est téléchargé que lorsque le visiteur
  * ouvre cette page. L'accueil et le catalogue se chargent donc plus vite, surtout en 4G.
- * Les zones /compte et /admin suivront le même principe.
+ * Les zones /compte et /admin suivent le même principe : un client ne télécharge jamais le code de l'ERP.
  */
+const admin = () => import('@/features/admin/pages/AdminPages')
 export const router = createBrowserRouter([
   {
     element: <PublicLayout />,
@@ -44,6 +45,24 @@ export const router = createBrowserRouter([
         ],
       },
       { path: '*', element: <NotFoundPage /> },
+    ],
+  },
+  {
+    // L'ERP est HORS du PublicLayout : il a son propre gabarit (menu latéral, thème clair).
+    path: 'admin',
+    errorElement: <RouteError />,
+    lazy: async () => ({ Component: (await import('@/features/admin/AdminLayout')).AdminLayout }),
+    hydrateFallbackElement: <p className="p-10 text-center">Chargement…</p>,
+    children: [
+      { index: true, lazy: async () => ({ Component: (await admin()).DashboardPage }) },
+      { path: 'commandes', lazy: async () => ({ Component: (await admin()).OrdersPage }) },
+      { path: 'commandes/:reference', lazy: async () => ({ Component: (await admin()).OrderDetailPage }) },
+      { path: 'planning', lazy: async () => ({ Component: (await admin()).PlanningPage }) },
+      { path: 'clients', lazy: async () => ({ Component: (await admin()).CustomersPage }) },
+      { path: 'produits', lazy: async () => ({ Component: (await admin()).ProductsPage }) },
+      { path: 'fabrication', lazy: async () => ({ Component: (await admin()).ProductionPage }) },
+      { path: 'equipe', lazy: async () => ({ Component: (await admin()).TeamPage }) },
+      { path: 'audit', lazy: async () => ({ Component: (await admin()).AuditPage }) },
     ],
   },
 ])

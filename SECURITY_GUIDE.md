@@ -46,4 +46,13 @@
 | Journal d'audit | `spatie/laravel-activitylog` : auteur, date, valeurs avant et après (RG-SEC-01) | AdminApiTest |
 | Garde-fou administrateur | Impossible de retirer ses propres droits ; compte de production créé par `app:create-admin` (mot de passe non affiché) | AdminApiTest |
 
+### Interface ERP (étape 7.2) — mesures en place et testées
+| Mesure | Détail | Test |
+|---|---|---|
+| Interface adaptée aux permissions | Menu et boutons masqués via `useCan()` ; **confort uniquement**, le serveur reste seul juge | parcours-admin |
+| Accès direct à l'API refusé | Un caissier qui appelle `/api/v1/admin/users` reçoit 403 | parcours-admin |
+| Montants jamais envoyés sans droit | Le CA est `null` côté serveur pour le caissier, pas seulement caché | AdminApiTest, parcours-admin |
+| Code de l'ERP non téléchargé par les clients | Routes `/admin` chargées à la demande (`lazy`) | build vérifié |
+| Client sur `/admin` | Page « accès réservé au personnel » | parcours-admin |
+
 _Audit complet : étape 10._

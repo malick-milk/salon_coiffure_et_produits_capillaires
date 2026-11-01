@@ -20,7 +20,8 @@ export const currentUser = (): MockUser | undefined => {
   const id = Number(localStorage.getItem(SESSION_KEY))
   return users.find((u) => u.id === id)
 }
-const toUser = ({ password: _p, ...u }: MockUser): User => u
+// Le faux serveur n'a pas d'ERP : ses comptes n'ont aucune permission d'administration
+const toUser = ({ password: _p, ...u }: MockUser): User => ({ ...u, permissions: [] })
 const unauthenticated = () => HttpResponse.json({ message: 'Non authentifié.' }, { status: 401 })
 const invalid = (errors: Record<string, string[]>) =>
   HttpResponse.json({ message: 'Certaines informations sont invalides.', errors }, { status: 422 })
