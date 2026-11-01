@@ -269,7 +269,7 @@ backend/
 | `barryvdh/laravel-dompdf` | Factures PDF | HTML → PDF, simple à styliser |
 | `maatwebsite/excel` | Exports Excel / CSV | Exigence EF-ERP-11 |
 | `knuckleswtf/scribe` | Documentation API générée depuis le code | La doc reste synchronisée avec le code |
-| `pestphp/pest` | Tests | Syntaxe lisible, standard Laravel actuel |
+| `phpunit/phpunit` | Tests (fourni par Laravel) | Aucune dépendance en plus ; tests sur MySQL `salon_test` (étape 6) |
 | `larastan/larastan` + `laravel/pint` | Analyse statique + formatage | Qualité de code automatique |
 
 ---

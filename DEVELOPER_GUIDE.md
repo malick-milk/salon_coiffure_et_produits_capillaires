@@ -50,8 +50,31 @@ npm run dev
 ```
 Puis http://localhost:5173. Avec `VITE_ENABLE_MOCKS=true`, le faux serveur MSW répond à la place de l'API : aucun backend n'est nécessaire. Détails et explications : [docs/05_FRONTEND.md](docs/05_FRONTEND.md).
 
-### 2.4 Backend (Laravel)
-_À compléter à l'étape 6._
+### 2.4 Backend (Laravel 13, PHP 8.3+)
+```bash
+cd backend
+```
+
+```bash
+composer install
+```
+
+```bash
+cp .env.example .env
+```
+
+```bash
+php artisan key:generate
+```
+
+```bash
+php artisan migrate:fresh --seed
+```
+
+```bash
+php artisan serve
+```
+L'API répond sur http://localhost:8000/api/v1. Installation de PHP 8.3 sous Windows et explications : [docs/06_BACKEND.md](docs/06_BACKEND.md).
 
 ## 3. Structure des dossiers
 Voir [ARCHITECTURE.md §3.2 (backend)](ARCHITECTURE.md) et [§4.3 (frontend)](ARCHITECTURE.md).
@@ -109,6 +132,7 @@ Fichiers de configuration à la racine :
 | Partie | Commande | Contenu |
 |---|---|---|
 | Base de données | `bash database/verify.sh` | 25 tests d'intégrité + 17 requêtes KPI |
+| Backend | `cd backend && php artisan test` | 26 tests sur MySQL `salon_test` (PHPUnit) |
 | Frontend | `cd frontend && npm run test:run` | 40 tests unitaires (Vitest) |
 | Parcours navigateur | `node frontend/e2e/parcours-vitrine.cjs ./captures` puis `parcours-compte.cjs` | 24 + 27 vérifications (Playwright) |
 

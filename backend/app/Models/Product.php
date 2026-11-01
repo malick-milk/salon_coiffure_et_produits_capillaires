@@ -39,7 +39,8 @@ class Product extends Model
 
     public function category(): BelongsTo { return $this->belongsTo(Category::class); }
     public function brand(): BelongsTo { return $this->belongsTo(Brand::class); }
-    public function hairTypes(): BelongsToMany { return $this->belongsToMany(HairType::class); }
+    // Nom de la table pivot explicite : Laravel devinerait « hair_type_product » (ordre alphabétique)
+    public function hairTypes(): BelongsToMany { return $this->belongsToMany(HairType::class, 'product_hair_type'); }
     public function images(): HasMany { return $this->hasMany(ProductImage::class)->orderBy('position'); }
     public function stockMovements(): HasMany { return $this->hasMany(StockMovement::class); }
     public function mainProduct(): BelongsTo { return $this->belongsTo(Product::class, 'variant_of_id'); }
