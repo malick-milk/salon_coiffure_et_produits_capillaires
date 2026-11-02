@@ -59,7 +59,7 @@ export const accountHandlers = [
     }
     // Piège fréquent : le compte du personnel n'existe que dans Laravel. Message d'aide, en développement seulement
     if (email.endsWith('@dabohair.test')) {
-      return invalid({ email: ['Le faux serveur (MSW) est actif et ne connaît pas les comptes du personnel. Mettez VITE_ENABLE_MOCKS=false dans frontend/.env.local, puis relancez npm run dev.'] })
+      return invalid({ email: ['Le faux serveur (MSW) est actif et ne connaît pas les comptes du personnel. VITE_ENABLE_MOCKS=true est défini dans un fichier .env de frontend/ (ls -a pour voir les fichiers cachés) ou dans une variable d’environnement : mettez false, puis relancez npm run dev.'] })
     }
     const user = users.find((u) => u.email === email)
     if (!user || user.password !== body.password) {

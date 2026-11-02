@@ -271,7 +271,7 @@ Connectez-vous sur http://localhost:5173/connexion avec `admin@dabohair.test` / 
 
 | Symptôme | Cause | Solution |
 |---|---|---|
-| Pastille brune « Faux serveur (MSW) actif » en bas à gauche | `frontend/.env.local` contient `VITE_ENABLE_MOCKS=true` (copié à l'étape 5) : le faux serveur ne connaît que Mariama | Mettre `VITE_ENABLE_MOCKS=false`, arrêter `npm run dev` (Ctrl + C) et le relancer : Vite ne relit ce fichier qu'au démarrage |
+| Pastille brune « Faux serveur (MSW) actif » en bas à gauche | `frontend/.env.local` contient `VITE_ENABLE_MOCKS=true` (copié à l'étape 5) : le faux serveur ne connaît que Mariama | Dans `frontend/` : `grep -H VITE_ENABLE_MOCKS .env*` (les fichiers commençant par un point sont cachés : `ls -a`) et `echo $VITE_ENABLE_MOCKS` (variable d'environnement, prioritaire sur les fichiers). Mettre `false` partout, arrêter `npm run dev` (Ctrl + C) et le relancer : Vite ne relit ces réglages qu'au démarrage |
 | « Ces identifiants ne correspondent à aucun compte » sans pastille | Base remplie avant la création du compte, ou mot de passe mal saisi | Dans `backend/` : `php artisan migrate:fresh --seed`, puis réessayer |
 | « Trop de tentatives » | 5 essais ratés en une minute (protection anti force brute) | Attendre une minute |
 | Aucune ligne `/api/v1/auth/login` n'apparaît dans la fenêtre de `php artisan serve` ; Vite affiche `http proxy error … ECONNREFUSED ::1:8000` | Le proxy de Vite visait « localhost », que Windows traduit en IPv6 (`::1`), alors que Laravel écoute en IPv4 (`127.0.0.1`) | Corrigé dans `vite.config.ts` : `git pull`, puis relancer `npm run dev` |
