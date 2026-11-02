@@ -16,11 +16,14 @@ export default defineConfig({
   },
   server: {
     port: 5173,
-    // Quand l'API Laravel existera (étape 6), les appels /api seront transmis au backend.
+    // Les appels /api et /sanctum sont transmis à Laravel (php artisan serve).
     // Le navigateur croit parler au même serveur : pas de problème de CORS en développement.
+    // 127.0.0.1 et NON « localhost » : depuis Node 17, « localhost » peut désigner l'adresse IPv6 ::1
+    // (fréquent sous Windows), alors que « php artisan serve » n'écoute que sur 127.0.0.1 (IPv4).
+    // Le proxy échouait alors (ECONNREFUSED) et la connexion semblait refuser le mot de passe.
     proxy: {
-      '/api': 'http://localhost:8000',
-      '/sanctum': 'http://localhost:8000',
+      '/api': 'http://127.0.0.1:8000',
+      '/sanctum': 'http://127.0.0.1:8000',
     },
   },
   build: {
