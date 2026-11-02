@@ -132,7 +132,7 @@ Fichiers de configuration à la racine :
 | Partie | Commande | Contenu |
 |---|---|---|
 | Base de données | `bash database/verify.sh` | 25 tests d'intégrité + 17 requêtes KPI |
-| Backend | `cd backend && php artisan test` | 66 tests sur MySQL `salon_test` (PHPUnit) |
+| Backend | `cd backend && php artisan test` | 81 tests (PHPUnit) : 15 unitaires sans base (`tests/Unit`, quelques millisecondes) + 66 fonctionnels sur MySQL `salon_test` (`tests/Feature`) |
 | Frontend | `cd frontend && npm run test:run` | 40 tests unitaires (Vitest) |
 | Parcours navigateur | `node frontend/e2e/parcours-vitrine.cjs ./captures` puis `parcours-compte.cjs` et `parcours-admin.cjs` (base remise à zéro avant chaque parcours : `php artisan migrate:fresh --seed`) | 24 + 27 + 25 vérifications (Playwright) |
 

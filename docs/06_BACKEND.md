@@ -76,6 +76,7 @@ Testez dans le navigateur : http://localhost:8000/api/v1/products. Vous devez vo
 | `could not find driver` | Extension `pdo_mysql` désactivée | Même correction, ligne `extension=pdo_mysql` |
 | `No application encryption key has been specified` | `php artisan key:generate` oublié | Le lancer dans `backend/` |
 | `SQLSTATE[HY000] [2002]` | MySQL (Docker) arrêté, ou mauvais port | Docker Desktop ouvert, `docker compose up -d`, `DB_PORT=3307` dans `backend/.env` |
+| `Test directory "...tests/Unit" not found` | Git ne versionne pas les dossiers vides : `tests/Unit` manquait sur GitHub (corrigé, il contient maintenant des tests) | `git pull` |
 | `Your PHP version (8.x) does not satisfy requirement php ^8.3` | PHP trop ancien | Installer PHP 8.3 ou plus récent (§1.1) |
 
 ### 1.5 Lancer les tests
@@ -88,6 +89,10 @@ docker exec salon-mysql mysql -uroot -proot_dev_password -e "CREATE DATABASE IF 
 ```bash
 php artisan test
 ```
+
+Résultat attendu : **81 tests réussis**. Deux familles de tests :
+- **unitaires** (`tests/Unit`) : une classe testée seule, sans Laravel ni base de données (machines à états, téléphones) ; ils durent quelques millisecondes (`php artisan test --testsuite=Unit`) ;
+- **fonctionnels** (`tests/Feature`) : de vraies requêtes HTTP sur l'API, avec une base remplie avant chaque test ; plus lents, mais ils vérifient le comportement de bout en bout.
 
 ---
 
