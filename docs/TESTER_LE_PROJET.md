@@ -3,6 +3,7 @@
 > **Ce qui est testable aujourd'hui (étapes 1 à 4)** : les maquettes, et la base de données avec ses règles et ses KPI.
 > **Nouveau (étape 5)** : le site React se teste aussi, voir le Test 3 en fin de document.
 > **Nouveau (étape 7)** : l'ERP d'administration, voir le Test 4.
+> **Nouveau (étape 8)** : le tableau de bord d'analyses, voir le Test 5.
 
 Durée : environ 30 minutes la première fois (installations comprises), puis 2 minutes.
 
@@ -285,3 +286,46 @@ cd frontend && node e2e/parcours-admin.cjs ./captures
 ```
 
 Résultat attendu : 25 lignes `OK`, et les captures d'écran dans `frontend/captures/`.
+
+---
+
+## Test 5 — Les analyses (étape 8)
+
+Dans `backend/`, générez 180 jours d'historique **fictif** (environ 45 secondes). Il faut une base propre :
+
+```bash
+php artisan migrate:fresh --seed
+```
+
+```bash
+php artisan app:demo-history
+```
+
+Connectez-vous en administrateur, puis menu **Analyses**.
+
+| À essayer | Résultat attendu |
+|---|---|
+| Boutons 7 jours / 30 jours / 90 jours / 12 mois | Les tuiles se comparent à la période précédente ; le graphique passe par jour, par semaine, puis par mois |
+| Survoler une colonne du graphique | Infobulle : produits, prestations et total |
+| « Voir les données » sous un graphique | Les chiffres exacts, en tableau |
+| Bandeau jaune | Les produits sans coût de revient : leur marge n'est pas comptée |
+| Tableau du stock | Les sérums les plus vendus ont la rupture la plus proche |
+| Heatmap « Affluence » | Le samedi est le jour le plus chargé |
+| Bouton « Lignes de commande » | Un fichier CSV s'ouvre dans Excel, sans nom ni téléphone |
+| Se connecter avec un compte caissier | Pas de menu Analyses |
+
+**Bonus Python** (si Python est installé) : exportez « Ventes par jour » et « Produits par jour », puis :
+
+```bash
+cd analytics
+```
+
+```bash
+pip install -r requirements.txt
+```
+
+```bash
+python prevision_ventes.py ventes_par_jour.csv produits_par_jour.csv
+```
+
+Le script compare 4 modèles de prévision et écrit `forecasts.csv`. Explication : [docs/08_ANALYTICS.md](08_ANALYTICS.md) §6.

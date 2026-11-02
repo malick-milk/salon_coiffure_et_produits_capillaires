@@ -1,0 +1,4 @@
+# Données exportées et prévisions générées (jamais versionnées : elles peuvent contenir des données réelles)
+*.csv
+__pycache__/
+.venv/

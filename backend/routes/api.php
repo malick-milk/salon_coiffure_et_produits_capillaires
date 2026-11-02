@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\V1\Admin\CatalogAdminController;
 use App\Http\Controllers\Api\V1\Admin\CustomerAdminController;
 use App\Http\Controllers\Api\V1\Admin\DashboardController;
 use App\Http\Controllers\Api\V1\Admin\OrderAdminController;
+use App\Http\Controllers\Api\V1\Admin\AnalyticsController;
 use App\Http\Controllers\Api\V1\Admin\TeamAdminController;
 use App\Http\Controllers\Api\V1\CatalogController;
 use App\Http\Controllers\Api\V1\InvoiceController;
@@ -89,6 +90,12 @@ Route::prefix('v1')->middleware('throttle:api')->group(function () {
                 Route::get('roles', [TeamAdminController::class, 'roles']);
             });
             Route::get('audit', [TeamAdminController::class, 'audit'])->middleware('permission:audit.view');
+
+            // Étape 8 : tableau de bord décisionnel (BI) et exports CSV, réservés au propriétaire
+            Route::middleware('permission:analytics.view')->group(function () {
+                Route::get('analytics', [AnalyticsController::class, 'overview']);
+                Route::get('analytics/export/{dataset}', [AnalyticsController::class, 'export'])->middleware('throttle:20,1');
+            });
         });
     });
 });

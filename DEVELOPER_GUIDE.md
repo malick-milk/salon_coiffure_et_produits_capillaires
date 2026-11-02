@@ -132,11 +132,19 @@ Fichiers de configuration à la racine :
 | Partie | Commande | Contenu |
 |---|---|---|
 | Base de données | `bash database/verify.sh` | 25 tests d'intégrité + 17 requêtes KPI |
-| Backend | `cd backend && php artisan test` | 81 tests (PHPUnit) : 15 unitaires sans base (`tests/Unit`, quelques millisecondes) + 66 fonctionnels sur MySQL `salon_test` (`tests/Feature`) |
-| Frontend | `cd frontend && npm run test:run` | 40 tests unitaires (Vitest) |
-| Parcours navigateur | `node frontend/e2e/parcours-vitrine.cjs ./captures` puis `parcours-compte.cjs` et `parcours-admin.cjs` (base remise à zéro avant chaque parcours : `php artisan migrate:fresh --seed`) | 24 + 27 + 25 vérifications (Playwright) |
+| Backend | `cd backend && php artisan test` | 93 tests (PHPUnit) : 17 unitaires sans base (`tests/Unit`, quelques millisecondes) + 76 fonctionnels sur MySQL `salon_test` (`tests/Feature`) |
+| Frontend | `cd frontend && npm run test:run` | 44 tests unitaires (Vitest) |
+| Parcours navigateur | `node frontend/e2e/parcours-vitrine.cjs ./captures` puis `parcours-compte.cjs` et `parcours-admin.cjs` (base remise à zéro avant chaque parcours : `php artisan migrate:fresh --seed`) | 24 + 27 + 29 vérifications (Playwright) |
 
 La suite complète (backend, CI) sera mise en place à l'étape 9.
+
+### Commandes utiles (données et analytique)
+| Commande (dans `backend/`) | Effet |
+|---|---|
+| `php artisan migrate:fresh --seed` | Base remise à zéro : catalogue Dabo Hair, comptes de démonstration |
+| `php artisan app:demo-history` | 180 jours d'historique **fictif** (local uniquement), pour l'écran Analyses |
+| `php artisan analytics:snapshot` | Recalcule les agrégats d'hier et d'aujourd'hui (`--all` : tout l'historique) |
+| `php artisan schedule:list` | Tâches planifiées (dont le job nocturne de l'analytique) |
 
 ## 7. Ajouter une fonctionnalité pas à pas (recette type)
 1. Écrire la règle de gestion dans `docs/01_ANALYSE_DU_BESOIN.md`.

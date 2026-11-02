@@ -76,6 +76,8 @@ class PlaceOrderAction
                 'shipping_landmark' => $address['landmark'] ?? null,
                 'subtotal' => $subtotal,
                 'discount_total' => 0,
+                'tax_rate' => 0, // pas de TVA facturée pour l'instant ; explicite, sinon la facture lirait null
+                'tax_total' => 0,
                 'shipping_fee' => $shippingFee,
                 'total' => $subtotal + $shippingFee, // = sous-total - remise + frais (contrainte CHECK)
                 'customer_notes' => $data['notes'] ?? null,

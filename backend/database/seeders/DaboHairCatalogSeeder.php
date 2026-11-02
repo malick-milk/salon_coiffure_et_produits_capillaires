@@ -16,6 +16,7 @@ use App\Models\Product;
 use App\Models\ProductionBatch;
 use App\Services\Inventory\StockService;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Carbon;
 
 /**
  * CATALOGUE RÉEL DABO HAIR (docs/03b §5) : prix de vente, lots de fabrication, coûts « Achat »
@@ -69,7 +70,11 @@ class DaboHairCatalogSeeder extends Seeder
                 $batch->costs()->create(['category' => ProductionCostCategory::Other, 'label' => 'Achat (calcul des bénéfices)', 'amount' => $cost, 'spent_on' => '2026-03-20']);
                 $product->update(['cost_price' => $batch->refresh()->unit_cost]); // coût unitaire calculé par MySQL
             }
+            // Le mouvement est daté du jour de fabrication, pas du jour où l'on remplit la base :
+            // l'historique du stock (étape 8) se reconstruit à partir de ces dates
+            Carbon::setTestNow('2026-03-20 08:00:00');
             $stock->record($product, StockMovementType::Production, $qty, $batch, "Fabrication {$batch->batch_number}", unitCost: $cost ? (int) round($cost / $qty) : null);
+            Carbon::setTestNow();
         }
         $products['DAB-SAP-015']->update(['variant_of_id' => $products['DAB-SAP-030']->id]);
 
@@ -90,7 +95,9 @@ class DaboHairCatalogSeeder extends Seeder
         foreach ($lines as $sku => $qty) {
             $p = $products[$sku];
             $order->items()->create(['product_id' => $p->id, 'product_name' => $p->displayName(), 'sku' => $sku, 'unit_price' => $p->price, 'unit_cost' => $p->cost_price, 'quantity' => $qty, 'line_total' => $p->price * $qty]);
+            Carbon::setTestNow('2026-03-24 09:30:00'); // sortie de stock à la date de la commande
             $stock->record($p, StockMovementType::Sale, -$qty, $order);
+            Carbon::setTestNow();
         }
     }
 }

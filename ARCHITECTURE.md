@@ -129,6 +129,7 @@ interface PaymentGateway {
 ```
 
 ### ADR-008 — Analytics : requêtes SQL + tables d'agrégats
+- **Statut** : mis en œuvre à l'étape 8 ([docs/08_ANALYTICS.md](docs/08_ANALYTICS.md)) : `SnapshotBuilder`, job `analytics:snapshot` à 00 h 30, recalcul à la demande des jours manquants et du jour en cours (fraîcheur 5 minutes).
 - **Décision** :
   1. Les KPIs temps réel (aujourd'hui) sont calculés par des requêtes SQL optimisées (index), puis mis en cache 5 minutes.
   2. Chaque nuit, un job calcule des **agrégats quotidiens** (`daily_sales_snapshots`, `daily_product_stats`). Les graphiques sur des mois ou des années lisent ces tables, ce qui est rapide.

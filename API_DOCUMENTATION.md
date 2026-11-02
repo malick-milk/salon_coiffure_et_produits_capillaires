@@ -104,5 +104,16 @@ Tous exigent d'être connecté **et** de détenir une permission précise (403 s
 
 ## Endpoints analytics
 
-_À compléter._
+Permission `analytics.view` (propriétaire). Détail des formules : [docs/08_ANALYTICS.md](docs/08_ANALYTICS.md) §3.
+
+| Méthode | URL | Paramètres | Réponse |
+|---|---|---|---|
+| GET | `/admin/analytics` | `from`, `to` (AAAA-MM-JJ, 30 derniers jours par défaut, 2 ans maximum, `to` ≤ aujourd'hui) | `{ data: { period, previous_period, kpis: { current, previous }, series, top_products, stock, top_customers, booking_heatmap, payment_methods, data_quality, computed_at } }` |
+| GET | `/admin/analytics/export/{jeu}` | `jeu` : `daily_sales`, `product_daily` ou `order_lines` ; `from`, `to` | Fichier CSV (`;`, UTF-8 avec BOM), sans donnée personnelle ; 20 par minute |
+
+Conventions :
+- montants en F CFA (entiers) ;
+- une valeur **`null`** signifie « inconnu » ou « non calculable » (marge sans coût de revient, taux sans dénominateur), jamais 0 ;
+- `granularity` vaut `day` jusqu'à 62 jours, `week` jusqu'à 190 jours, `month` au-delà ;
+- `series[].date` est le premier jour de la période regroupée (le lundi pour une semaine).
 

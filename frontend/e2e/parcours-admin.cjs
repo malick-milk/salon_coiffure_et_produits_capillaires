@@ -39,9 +39,9 @@ async function login(page, email, password) {
   await page.getByText('CA du mois').waitFor()
   log(true, 'Tableau de bord : le chiffre d’affaires est visible (permission analytics.view)')
   log(await page.getByText(/Crème capillaire.*rupture de stock/).count() === 1, 'Alerte stock : Crème capillaire en rupture')
-  const ALL = ['Tableau de bord', 'Commandes', 'Planning', 'Clients', 'Produits et stock', 'Fabrication', 'Équipe et rôles', 'Journal d’audit']
+  const ALL = ['Tableau de bord', 'Analyses', 'Commandes', 'Planning', 'Clients', 'Produits et stock', 'Fabrication', 'Équipe et rôles', 'Journal d’audit']
   const visible = async (m) => { const r = []; for (const n of ALL) if (await m.getByRole('link', { name: n, exact: true }).count()) r.push(n); return r }
-  log((await visible(menu)).length === 8, 'Menu complet : 8 entrées pour le super administrateur')
+  log((await visible(menu)).length === 9, 'Menu complet : 9 entrées pour le super administrateur')
   await page.screenshot({ path: `${SHOTS}/40-erp-dashboard.png`, fullPage: true })
 
   // 3. Commandes : filtre puis traitement complet d'un retrait en boutique
@@ -158,6 +158,23 @@ async function login(page, email, password) {
   log(/Masque/.test(audit) && /CMD-2026-000102/.test(audit), 'Audit : changement de prix et commande tracés')
   await page.screenshot({ path: `${SHOTS}/47-erp-audit.png`, fullPage: true })
 
+  // 9 bis. Analyses (étape 8) : le CA encaissé pendant ce parcours apparaît, l'export CSV se télécharge
+  await menu.getByRole('link', { name: 'Analyses', exact: true }).click()
+  await page.getByRole('heading', { name: 'Évolution du chiffre d’affaires' }).waitFor()
+  // L'ancien écran reste affiché (estompé) pendant le rechargement : on attend la RÉPONSE de l'API, puis l'affichage
+  const reloaded = page.waitForResponse((r) => r.url().includes('/admin/analytics?') && r.status() === 200)
+  await page.getByRole('button', { name: '7 jours' }).click()
+  await reloaded
+  await page.getByText('Mise à jour…').waitFor({ state: 'detached' })
+  const kpi = (await page.locator('div', { has: page.getByText('Panier moyen', { exact: true }) }).last().textContent()).replace(/[\u202f\u00a0]/g, ' ')
+  log(/6 000 F CFA/.test(kpi), `Analyses 7 jours : panier moyen = la commande encaissée (${kpi.match(/[\d ]+ F CFA/)?.[0]?.trim()})`)
+  log(await page.getByText(/Coût de revient inconnu pour/).count() === 1, 'Analyses : avertissement de qualité des données (coûts inconnus)')
+  const href = await page.getByRole('link', { name: 'Lignes de commande' }).getAttribute('href')
+  const csv = await page.request.get(BASE + href, { headers: { Referer: BASE + '/admin/analyses' } })
+  const body = await csv.text()
+  log(csv.status() === 200 && body.includes('CMD-2026-000102') && !body.includes('Mariama'), 'Export CSV : la commande y est, le nom de la cliente non (minimisation)')
+  await page.screenshot({ path: `${SHOTS}/47b-erp-analyses.png`, fullPage: true })
+
   // 10. Le caissier : menu réduit, pas de chiffre d'affaires, pages interdites
   await ctx.clearCookies()
   const p2 = await (await browser.newContext({ viewport: { width: 1440, height: 900 } })).newPage()
@@ -168,12 +185,14 @@ async function login(page, email, password) {
   log(await p2.getByText('CA du mois').count() === 0, 'Caissier : le chiffre d’affaires est masqué (le serveur ne l’envoie pas)')
   const m2 = p2.getByRole('navigation', { name: 'Menu ERP' })
   const v2 = await visible(m2)
-  log(!v2.includes('Équipe et rôles') && !v2.includes('Journal d’audit') && v2.includes('Commandes'), `Caissier : menu réduit (${v2.join(', ')})`)
+  log(!v2.includes('Équipe et rôles') && !v2.includes('Journal d’audit') && !v2.includes('Analyses') && v2.includes('Commandes'), `Caissier : menu réduit (${v2.join(', ')})`)
   await m2.getByRole('link', { name: 'Fabrication', exact: true }).click()
   await p2.getByRole('heading', { name: 'Lots fabriqués' }).waitFor()
   log(await p2.getByRole('button', { name: 'Enregistrer le lot' }).count() === 0, 'Caissier : consulte les lots (stock.view) mais sans formulaire de fabrication (production.manage)')
   const api = await p2.request.get(BASE + '/api/v1/admin/users', { headers: { Accept: 'application/json', Referer: BASE + '/admin' } })
   log(api.status() === 403, 'Caissier : l’API /admin/users répond 403 même si on tape l’URL')
+  const bi = await p2.request.get(BASE + '/api/v1/admin/analytics/export/order_lines', { headers: { Referer: BASE + '/admin' } })
+  log(bi.status() === 403, 'Caissier : l’export des données de vente répond 403')
   await p2.screenshot({ path: `${SHOTS}/48-erp-caissier.png`, fullPage: true })
 
   // 11. La cliente : page « accès refusé »

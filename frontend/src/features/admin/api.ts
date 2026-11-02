@@ -6,6 +6,7 @@ import type {
   AdminBooking, AdminCustomer, AdminOrderDetail, AdminOrderRow, AdminProduct, AuditEntry, CostCategory, Dashboard,
   PageMeta, PaymentMethod, ProductionBatch, RoleWithPermissions, StaffRole, StaffUser, StockMovementRow,
 } from '@/types/admin'
+import type { Analytics, ExportDataset } from '@/types/analytics'
 
 type Page<T> = { data: T[]; meta: PageMeta }
 const get = async <T>(url: string, params?: object) => (await http.get<{ data: T }>(url, { params })).data.data
@@ -102,3 +103,22 @@ export const useUpdateStaff = () =>
 
 /** Lien de téléchargement direct : le cookie de session accompagne la requête (même origine) */
 export const invoicePdfUrl = (number: string) => `/api/v1${A}/invoices/${encodeURIComponent(number)}/pdf`
+
+// ---------- Étape 8 : analyses (BI) ----------
+
+/**
+ * keepPreviousData : quand on change de période, l'ancien graphique reste affiché (estompé) pendant
+ * le chargement, au lieu d'un squelette qui fait sauter la mise en page.
+ */
+export function useAnalytics(from: string, to: string) {
+  return useQuery({
+    queryKey: ['admin', 'analytics', from, to],
+    queryFn: () => get<Analytics>(`${A}/analytics`, { from, to }),
+    placeholderData: keepPreviousData,
+    staleTime: 5 * 60_000, // même fraîcheur que les agrégats du jour côté serveur
+  })
+}
+
+/** Lien de téléchargement : le navigateur envoie le cookie de session, le serveur vérifie analytics.view */
+export const analyticsExportUrl = (dataset: ExportDataset, from: string, to: string) =>
+  `/api/v1${A}/analytics/export/${dataset}?${new URLSearchParams({ from, to })}`

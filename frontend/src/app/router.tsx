@@ -55,6 +55,8 @@ export const router = createBrowserRouter([
     hydrateFallbackElement: <p className="p-10 text-center">Chargement…</p>,
     children: [
       { index: true, lazy: async () => ({ Component: (await admin()).DashboardPage }) },
+      // Fichier à part : Recharts (≈ 110 Ko compressés) n'est téléchargé que par le propriétaire, sur cette page
+      { path: 'analyses', lazy: async () => ({ Component: (await import('@/features/admin/pages/AnalyticsPage')).AnalyticsPage }) },
       { path: 'commandes', lazy: async () => ({ Component: (await admin()).OrdersPage }) },
       { path: 'commandes/:reference', lazy: async () => ({ Component: (await admin()).OrderDetailPage }) },
       { path: 'planning', lazy: async () => ({ Component: (await admin()).PlanningPage }) },

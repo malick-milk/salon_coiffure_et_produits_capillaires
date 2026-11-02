@@ -12,7 +12,13 @@ import { cn } from '@/lib/utils'
 type MenuItem = { to: string; label: string; Icon: LucideIcon; permission: string; end?: boolean }
 
 export const ADMIN_MENU: { group: string; items: MenuItem[] }[] = [
-  { group: 'Pilotage', items: [{ to: '/admin', label: 'Tableau de bord', Icon: LayoutDashboard, permission: 'orders.view', end: true }] },
+  {
+    group: 'Pilotage',
+    items: [
+      { to: '/admin', label: 'Tableau de bord', Icon: LayoutDashboard, permission: 'orders.view', end: true },
+      { to: '/admin/analyses', label: 'Analyses', Icon: BarChart3, permission: 'analytics.view' },
+    ],
+  },
   {
     group: 'Activité',
     items: [
@@ -51,8 +57,10 @@ export function AdminLayout() {
   // Un coiffeur n'a pas accès au tableau de bord : il arrive directement sur le planning
   if (location.pathname === '/admin' && !can(user, 'orders.view')) return <Navigate to={menu[0]?.items[0]?.to ?? '/'} replace />
 
+  // Mobile : menu AU-DESSUS du contenu (flex-col). « flex-wrap » écrasait le contenu : avec flex-basis 0,
+  // il tenait « en théorie » sur la même ligne que le menu pleine largeur. Écran large : côte à côte.
   return (
-    <div className="flex min-h-screen flex-wrap bg-[#f4f4f5] text-ink [color-scheme:light]">
+    <div className="flex min-h-screen flex-col bg-[#f4f4f5] text-ink [color-scheme:light] lg:flex-row">
       <nav aria-label="Menu ERP" className="flex w-full flex-col gap-5 bg-ink p-4 text-ivory lg:min-h-screen lg:w-64 lg:shrink-0">
         <Link to="/admin" className="flex h-12 items-center justify-center rounded-lg border border-dashed border-gold font-display text-lg text-gold">Dabo Hair · ERP</Link>
         <div className="flex gap-4 overflow-x-auto lg:flex-col lg:gap-5 lg:overflow-visible">
@@ -77,7 +85,7 @@ export function AdminLayout() {
       </nav>
       <div className="flex min-w-0 flex-1 flex-col">
         <header className="flex flex-wrap items-center justify-between gap-3 border-b border-[#e4e4e7] bg-white px-6 py-3">
-          <span className="flex items-center gap-2 text-sm text-[#52525b]"><BarChart3 className="size-4" aria-hidden="true" />{new Intl.DateTimeFormat('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }).format(new Date())}</span>
+          <span className="flex items-center gap-2 text-sm text-[#52525b]"><CalendarDays className="size-4" aria-hidden="true" />{new Intl.DateTimeFormat('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }).format(new Date())}</span>
           <span className="flex items-center gap-2.5">
             <span className="flex size-9 items-center justify-center rounded-full bg-ink text-sm font-semibold text-gold" aria-hidden="true">{user.first_name.charAt(0)}{user.last_name.charAt(0)}</span>
             <span className="flex flex-col text-sm leading-tight"><strong>{user.first_name} {user.last_name}</strong><span className="text-xs text-[#52525b]">{ROLE_LABELS[user.roles[0] ?? ''] ?? user.roles[0]}</span></span>

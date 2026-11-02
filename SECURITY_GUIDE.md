@@ -55,4 +55,13 @@
 | Code de l'ERP non téléchargé par les clients | Routes `/admin` chargées à la demande (`lazy`) | build vérifié |
 | Client sur `/admin` | Page « accès réservé au personnel » | parcours-admin |
 
+### Analytique (étape 8) — mesures en place et testées
+| Mesure | Détail | Test |
+|---|---|---|
+| Accès réservé | `analytics.view` (propriétaire) ; 403 pour gérant, caissier, coiffeuse | AnalyticsApiTest, parcours-admin |
+| Minimisation des exports | Aucun nom, téléphone ni adresse : le client est un identifiant (pseudonyme) | AnalyticsApiTest, parcours-admin |
+| Injection de formule CSV (OWASP) | Cellule texte commençant par `= + - @` préfixée d'une apostrophe | CsvSanitizeTest |
+| Anti-abus | Exports limités à 20 par minute ; période limitée à 2 ans ; dates validées | AnalyticsApiTest |
+| Données fictives isolées | `app:demo-history` refusé hors environnement local ; n'écrit pas dans le journal d'audit | AnalyticsApiTest |
+
 _Audit complet : étape 10._

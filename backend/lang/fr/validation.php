@@ -50,5 +50,6 @@ return [
         'items' => 'les articles', 'items.*.product_id' => 'le produit', 'items.*.quantity' => 'la quantité',
         'fulfillment_method' => 'le mode de réception', 'delivery_zone_id' => 'la zone de livraison',
         'shipping_address.city' => 'la ville', 'shipping_address.address_line' => 'l’adresse',
+        'dataset' => 'le jeu de données', 'from' => 'la date de début', 'to' => 'la date de fin',
     ],
 ];

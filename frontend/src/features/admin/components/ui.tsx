@@ -16,7 +16,8 @@ export function PageHeader({ title, subtitle, actions }: { title: string; subtit
 
 export function Card({ title, actions, children, className }: { title?: string; actions?: ReactNode; children: ReactNode; className?: string }) {
   return (
-    <section className={cn('flex flex-col gap-4 rounded-2xl border border-[#e4e4e7] bg-white p-5', className)}>
+    // min-w-0 : dans une grille, une carte peut être plus étroite que son tableau (qui défile alors, au lieu d'élargir la page)
+    <section className={cn('flex min-w-0 flex-col gap-4 rounded-2xl border border-[#e4e4e7] bg-white p-5', className)}>
       {(title || actions) && (
         <div className="flex flex-wrap items-center justify-between gap-2">
           {title && <h2 className="text-[17px] font-semibold text-ink">{title}</h2>}

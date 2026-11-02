@@ -418,6 +418,11 @@ Q12 : le shampoing clarifiant n'a fait **aucune vente** en 90 jours, ce qui repr
 
 > **Lecture d'analyste** : un produit très rentable (taux de marge élevé) n'est pas forcément celui qui rapporte le plus (marge totale). Il faut toujours regarder **les deux** indicateurs.
 
+### 7.3 bis Mise en œuvre (étape 8)
+- `daily_sales_snapshots.costed_revenue` (ajoutée à l'étape 8) : la part du CA dont le coût de revient est connu. Le taux de marge se calcule sur cette base, jamais en comptant un coût inconnu comme 0.
+- `daily_product_stats.cost` est `NULL` quand une vente du jour a un coût inconnu.
+- Les agrégats sont calculés par `SnapshotBuilder` (job nocturne `analytics:snapshot`). Détails et dictionnaire des KPI : [docs/08_ANALYTICS.md](docs/08_ANALYTICS.md).
+
 ### 7.4 Préparation au Machine Learning
 - **Séries temporelles** prêtes : `daily_product_stats` contient une ligne par produit et par jour.
 - **Variables explicatives** disponibles : jour de la semaine, week-end, mois (`calendar_dates`), prix, promotion (`compare_at_price`).
