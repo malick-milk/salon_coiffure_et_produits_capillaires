@@ -57,6 +57,10 @@ export const accountHandlers = [
     if (lock && lock.count >= MAX_ATTEMPTS && lock.until > Date.now()) {
       return HttpResponse.json({ message: 'Trop de tentatives. Réessayez dans une minute.' }, { status: 429 })
     }
+    // Piège fréquent : le compte du personnel n'existe que dans Laravel. Message d'aide, en développement seulement
+    if (email.endsWith('@dabohair.test')) {
+      return invalid({ email: ['Le faux serveur (MSW) est actif et ne connaît pas les comptes du personnel. Mettez VITE_ENABLE_MOCKS=false dans frontend/.env.local, puis relancez npm run dev.'] })
+    }
     const user = users.find((u) => u.email === email)
     if (!user || user.password !== body.password) {
       const count = (lock && lock.until > Date.now() ? lock.count : 0) + 1

@@ -267,6 +267,15 @@ Connectez-vous sur http://localhost:5173/connexion avec `admin@dabohair.test` / 
 | Journal d'audit | Toutes vos actions, avec l'auteur et les valeurs avant / après |
 | Se connecter avec `mariama@client.test` puis ouvrir `/admin` | « Accès réservé au personnel » |
 
+**Le mot de passe administrateur est refusé ?**
+
+| Symptôme | Cause | Solution |
+|---|---|---|
+| Pastille brune « Faux serveur (MSW) actif » en bas à gauche | `frontend/.env.local` contient `VITE_ENABLE_MOCKS=true` (copié à l'étape 5) : le faux serveur ne connaît que Mariama | Mettre `VITE_ENABLE_MOCKS=false`, arrêter `npm run dev` (Ctrl + C) et le relancer : Vite ne relit ce fichier qu'au démarrage |
+| « Ces identifiants ne correspondent à aucun compte » sans pastille | Base remplie avant la création du compte, ou mot de passe mal saisi | Dans `backend/` : `php artisan migrate:fresh --seed`, puis réessayer |
+| « Trop de tentatives » | 5 essais ratés en une minute (protection anti force brute) | Attendre une minute |
+| « Erreur réseau » | `php artisan serve` n'est pas lancé | Le lancer dans une autre fenêtre |
+
 **Parcours automatique** (après `php artisan migrate:fresh --seed`) :
 
 ```bash

@@ -16,6 +16,16 @@ async function enableMocks() {
   // import() dynamique : le code de MSW n'est téléchargé QUE si les mocks sont activés
   const { worker } = await import('./mocks/browser')
   await worker.start({ onUnhandledRequest: 'bypass', quiet: true })
+  showMockBadge()
+}
+
+/** Pastille visible en permanence : impossible d'oublier que l'on parle au faux serveur et non à Laravel */
+function showMockBadge() {
+  const badge = document.createElement('div')
+  badge.textContent = 'Faux serveur (MSW) actif — pour Laravel et l’ERP : VITE_ENABLE_MOCKS=false'
+  badge.setAttribute('role', 'status')
+  badge.style.cssText = 'position:fixed;left:8px;bottom:8px;z-index:9999;padding:6px 10px;border-radius:8px;background:#7a5a00;color:#fff;font:600 12px/1.3 system-ui,sans-serif;max-width:calc(100vw - 16px);pointer-events:none'
+  document.body.appendChild(badge)
 }
 
 enableMocks().then(() => {
