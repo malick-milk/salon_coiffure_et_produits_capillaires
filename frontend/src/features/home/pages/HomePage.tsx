@@ -6,12 +6,22 @@ import { Seo } from '@/components/common/Seo'
 import { Eyebrow, QueryError } from '@/components/common/States'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
+import { homeContent } from '@/content/home'
 import { useBusinessHours, useServices } from '@/features/booking/hooks'
 import { ProductCard } from '@/features/catalog/components/ProductCard'
 import { useProducts } from '@/features/catalog/hooks'
 import { formatDuration, formatPrice } from '@/lib/format'
 import { apiErrorMessage } from '@/lib/http'
 import type { BusinessHour } from '@/types/api'
+
+// Une icône par engagement (dans l'ordre de homeContent.commitments)
+const COMMITMENT_ICONS = [CalendarDays, ShoppingBag, Truck, Check]
+const { hero, promoBanner: promo } = homeContent
+
+function PromoBanner({ image, alt, link }: { image: string; alt: string; link: string | null }) {
+  const img = <img src={image} alt={alt} width={1280} height={320} loading="lazy" className="mx-auto w-full max-w-7xl rounded-3xl object-cover" />
+  return link ? <Link to={link} className="block">{img}</Link> : img
+}
 
 const DAYS = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche']
 
@@ -34,31 +44,33 @@ export function HomePage() {
       <section className="px-4 pt-14 pb-20 sm:px-6 sm:pt-[72px]">
         <div className="mx-auto flex max-w-7xl flex-col gap-12 lg:flex-row lg:items-center">
           <div className="flex flex-1 flex-col gap-7 motion-safe:animate-fade-up">
-            <Eyebrow>Salon de coiffure et soins capillaires</Eyebrow>
-            <h1 className="font-display text-[40px] leading-[1.05] font-semibold sm:text-6xl">L'art du soin capillaire, au salon comme chez vous</h1>
-            <p className="max-w-xl text-lg leading-relaxed text-muted">Réservez votre prestation en quelques clics et découvrez les soins Dabo Hair, fabriqués par nos soins.</p>
+            <Eyebrow>{hero.eyebrow}</Eyebrow>
+            <h1 className="font-display text-[40px] leading-[1.05] font-semibold sm:text-6xl">{hero.title}</h1>
+            <p className="max-w-xl text-lg leading-relaxed text-muted">{hero.subtitle}</p>
             <div className="flex flex-wrap gap-3.5">
-              <Button asChild className="min-h-[52px]"><Link to="/reserver">Réserver une prestation <ArrowRight aria-hidden="true" /></Link></Button>
-              <Button asChild variant="outline" className="min-h-[52px]"><Link to="/boutique">Découvrir la boutique</Link></Button>
+              <Button asChild className="min-h-[52px]"><Link to="/reserver">{hero.primaryButton} <ArrowRight aria-hidden="true" /></Link></Button>
+              <Button asChild variant="outline" className="min-h-[52px]"><Link to="/boutique">{hero.secondaryButton}</Link></Button>
             </div>
           </div>
-          <ImagePlaceholder label="Image hero" hint="1200 × 1400 px · photo du salon ou d'une coiffure signature" className="aspect-[6/7] max-h-[620px] flex-1 rounded-3xl" />
+          {hero.image ? (
+            // Image la plus visible de la page : chargée en priorité (fetchPriority) et jamais en différé.
+            // width/height réservent la place avant le chargement : la page ne « saute » pas.
+            <img src={hero.image} alt={hero.imageAlt} width={1200} height={1400} fetchPriority="high"
+              className="aspect-[6/7] max-h-[620px] w-full flex-1 rounded-3xl object-cover lg:w-auto" />
+          ) : (
+            <ImagePlaceholder label="Image hero" hint="1200 × 1400 px · à déposer dans public/images, puis src/content/home.ts" className="aspect-[6/7] max-h-[620px] flex-1 rounded-3xl" />
+          )}
         </div>
       </section>
 
       <section aria-label="Nos engagements" className="border-y border-ink-line px-4 py-7 sm:px-6">
         <ul className="mx-auto grid max-w-7xl gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {[
-            [CalendarDays, 'Réservation en ligne, sans compte'],
-            [ShoppingBag, 'Retrait gratuit en boutique'],
-            [Truck, 'Livraison à Dakar et environs'],
-            [Check, 'Paiement à la réception'],
-          ].map(([Icon, label]) => {
-            const I = Icon as typeof Check
+          {homeContent.commitments.map((label, i) => {
+            const Icon = COMMITMENT_ICONS[i] ?? Check // un 5e engagement ajouté prend l’icône « coche »
             return (
-              <li key={label as string} className="flex items-center gap-3.5 text-[15px]">
-                <I className="size-7 text-gold" aria-hidden="true" />
-                {label as string}
+              <li key={label} className="flex items-center gap-3.5 text-[15px]">
+                <Icon className="size-7 text-gold" aria-hidden="true" />
+                {label}
               </li>
             )
           })}
@@ -66,7 +78,11 @@ export function HomePage() {
       </section>
 
       <section className="px-4 pt-[72px] sm:px-6">
-        <ImagePlaceholder label="Bannière promotionnelle" hint="1280 × 320 px · gérée depuis l'ERP" className="mx-auto min-h-56 max-w-7xl rounded-3xl border-gold-dark bg-gold-soft text-gold" />
+        {promo.image ? (
+          <PromoBanner image={promo.image} alt={promo.imageAlt} link={promo.link} />
+        ) : (
+          <ImagePlaceholder label="Bannière promotionnelle" hint="1280 × 320 px · à déposer dans public/images, puis src/content/home.ts" className="mx-auto min-h-56 max-w-7xl rounded-3xl border-gold-dark bg-gold-soft text-gold" />
+        )}
       </section>
 
       <section className="px-4 py-20 sm:px-6">

@@ -1,0 +1,9 @@
+Déposez ici les photos du site (hero, bannière, salon…).
+
+1. Nom de fichier simple, sans espace ni accent : hero.webp, banniere-tabaski.jpg
+2. Format .webp (le plus léger) ou .jpg ; moins de 300 Ko si possible
+   (outil gratuit pour réduire une photo : https://squoosh.app)
+3. Indiquez le chemin dans frontend/src/content/home.ts, en commençant par /images/
+   Exemple : image: '/images/hero.webp',
+
+Tout fichier de ce dossier est PUBLIC : n'y mettez jamais de document privé.

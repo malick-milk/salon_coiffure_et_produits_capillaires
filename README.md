@@ -40,6 +40,7 @@ Le script vérifie le modèle de données sur une base de test séparée. Guide 
 ## Documentation
 | Fichier | Rôle |
 |---|---|
+| [docs/GUIDE_MODIFIER_LE_SITE.md](docs/GUIDE_MODIFIER_LE_SITE.md) | **Commencer ici pour modifier le site** : où est quoi, trouver un fichier, détecter les erreurs |
 | [DEVELOPER_GUIDE.md](DEVELOPER_GUIDE.md) | Installer, coder, conventions |
 | [ARCHITECTURE.md](ARCHITECTURE.md) | Organisation technique du projet |
 | [DATABASE.md](DATABASE.md) | Modèle de données |
