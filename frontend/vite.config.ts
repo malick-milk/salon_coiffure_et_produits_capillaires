@@ -43,5 +43,12 @@ export default defineConfig({
     globals: true,
     setupFiles: './src/test/setup.ts',
     css: false,
+    // npm run test:coverage : quelle part du code les tests exécutent-ils ?
+    coverage: {
+      provider: 'v8',
+      include: ['src/**/*.{ts,tsx}'],
+      exclude: ['src/**/*.test.*', 'src/test/**', 'src/mocks/browser.ts', 'src/main.tsx', 'src/types/**', 'src/vite-env.d.ts'],
+      reporter: ['text-summary', 'text', 'html'], // le rapport HTML détaillé est dans coverage/index.html
+    },
   },
 })

@@ -123,4 +123,13 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    /*
+    | Limites anti-abus (requêtes par adresse IP). NE PAS les relever en production :
+    | seul le test de concurrence (tests/charge) les augmente, sur un serveur local.
+    */
+    'rate_limits' => [
+        'api' => (int) env('API_RATE_LIMIT', 120),         // par minute
+        'checkout' => (int) env('CHECKOUT_RATE_LIMIT', 20), // réservations, commandes, inscriptions : par heure
+    ],
+
 ];

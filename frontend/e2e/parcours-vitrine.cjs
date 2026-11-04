@@ -10,7 +10,9 @@
 const { chromium } = require('playwright')
 const SHOTS = process.argv[2]
 const BASE = 'http://localhost:5173'
-const log = (ok, msg) => console.log(`${ok ? 'OK  ' : 'FAIL'} ${msg}`)
+// Chaque échec est compté : le script se termine en erreur (code 1), ce que l'intégration continue détecte
+let failures = 0
+const log = (ok, msg) => { if (!ok) failures++; console.log(`${ok ? 'OK  ' : 'FAIL'} ${msg}`) }
 
 ;(async () => {
   const browser = await chromium.launch()
@@ -145,4 +147,5 @@ const log = (ok, msg) => console.log(`${ok ? 'OK  ' : 'FAIL'} ${msg}`)
   const real = errors.filter((e) => !e.includes('Download the React DevTools') && !e.includes('404') && !e.includes('401'))
   log(real.length === 0, `Console : ${real.length} erreur(s) JavaScript${real.length ? ' → ' + real.join(' | ') : ''}`)
   await browser.close()
+  process.exit(failures ? 1 : 0)
 })().catch((e) => { console.error('FAIL exception', e.message); process.exit(1) })

@@ -15,6 +15,8 @@ export function Input({ className, ...props }: ComponentProps<'input'>) {
 }
 
 export function Label({ className, ...props }: ComponentProps<'label'>) {
+  // Composant générique : l'appelant fournit htmlFor (ou y place le champ), d'où la règle désactivée ICI seulement
+  // eslint-disable-next-line jsx-a11y/label-has-associated-control
   return <label className={cn('text-sm font-semibold', className)} {...props} />
 }
 

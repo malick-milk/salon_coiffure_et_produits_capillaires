@@ -90,7 +90,7 @@ docker exec salon-mysql mysql -uroot -proot_dev_password -e "CREATE DATABASE IF 
 php artisan test
 ```
 
-Résultat attendu : **81 tests réussis**. Deux familles de tests :
+Résultat attendu : **106 tests réussis** (chiffre de l'étape 9). Deux familles de tests :
 - **unitaires** (`tests/Unit`) : une classe testée seule, sans Laravel ni base de données (machines à états, téléphones) ; ils durent quelques millisecondes (`php artisan test --testsuite=Unit`) ;
 - **fonctionnels** (`tests/Feature`) : de vraies requêtes HTTP sur l'API, avec une base remplie avant chaque test ; plus lents, mais ils vérifient le comportement de bout en bout.
 

@@ -6,7 +6,9 @@
 const { chromium } = require('playwright')
 const SHOTS = process.argv[2]
 const BASE = 'http://localhost:5173'
-const log = (ok, msg) => console.log(`${ok ? 'OK  ' : 'FAIL'} ${msg}`)
+// Chaque échec est compté : le script se termine en erreur (code 1), ce que l'intégration continue détecte
+let failures = 0
+const log = (ok, msg) => { if (!ok) failures++; console.log(`${ok ? 'OK  ' : 'FAIL'} ${msg}`) }
 
 ;(async () => {
   const browser = await chromium.launch()
@@ -181,4 +183,5 @@ const log = (ok, msg) => console.log(`${ok ? 'OK  ' : 'FAIL'} ${msg}`)
 
   log(errors.length === 0, `Console : ${errors.length} erreur(s) JavaScript inattendue(s)${errors.length ? ' → ' + errors.join(' | ') : ''}`)
   await browser.close()
+  process.exit(failures ? 1 : 0)
 })().catch((e) => { console.error('FAIL exception', e.message.split('\n').slice(0, 6).join('\n')); process.exit(1) })

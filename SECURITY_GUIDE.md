@@ -64,4 +64,14 @@
 | Anti-abus | Exports limités à 20 par minute ; période limitée à 2 ans ; dates validées | AnalyticsApiTest |
 | Données fictives isolées | `app:demo-history` refusé hors environnement local ; n'écrit pas dans le journal d'audit | AnalyticsApiTest |
 
+### Tests de sécurité ajoutés (étape 9)
+| Mesure | Preuve |
+|---|---|
+| Anti-spam des réservations et commandes : 20 par heure et par adresse IP | RateLimitTest (la 21ᵉ reçoit 429) ; les limites par défaut ne peuvent pas être relevées sans variable d'environnement explicite |
+| Protection CSRF côté client : jeton demandé avant toute modification, un seul rejeu après 419 | http.test.ts |
+| Aucune double réservation, aucun stock négatif sous requêtes simultanées | tests/charge/concurrence.mjs (+ test de mutation : sans verrou, 8 ventes perdues) |
+| Messages d'erreur sans détail technique | http.test.ts, TranslationCoverageTest (aucune clé brute affichée) |
+| Mot de passe du propriétaire haché, jamais en clair | ConsoleCommandsTest |
+| Accessibilité vérifiée automatiquement | ESLint jsx-a11y dans l'intégration continue |
+
 _Audit complet : étape 10._

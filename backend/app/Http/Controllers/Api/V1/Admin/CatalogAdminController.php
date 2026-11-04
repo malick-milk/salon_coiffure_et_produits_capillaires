@@ -13,6 +13,7 @@ use App\Services\Inventory\StockService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 
 /** Produits, stock et fabrication (EF-COM-01 à 05). Ici, le coût de revient EST visible (personnel autorisé). */
 class CatalogAdminController extends Controller
@@ -28,13 +29,20 @@ class CatalogAdminController extends Controller
     {
         $data = $request->validate([
             'price' => ['sometimes', 'integer', 'min:0', 'max:10000000'],
-            'compare_at_price' => ['sometimes', 'nullable', 'integer', 'gt:price'],
+            'compare_at_price' => ['sometimes', 'nullable', 'integer', 'min:1'],
             'is_active' => ['sometimes', 'boolean'],
             'is_featured' => ['sometimes', 'boolean'],
             'low_stock_threshold' => ['sometimes', 'integer', 'min:0', 'max:100000'],
             'short_description' => ['sometimes', 'nullable', 'string', 'max:500'],
             'description' => ['sometimes', 'nullable', 'string', 'max:10000'],
         ]);
+        // Le prix barré se compare au prix FINAL : celui envoyé, sinon le prix actuel.
+        // (« gt:price » ne voyait que le champ de la requête : un prix barré seul était toujours refusé)
+        $price = $data['price'] ?? $product->price;
+        $compareAt = array_key_exists('compare_at_price', $data) ? $data['compare_at_price'] : $product->compare_at_price;
+        if ($compareAt !== null && $compareAt <= $price) {
+            throw ValidationException::withMessages(['compare_at_price' => "Le prix barré doit être supérieur au prix de vente ({$price} F)."]);
+        }
         $product->update($data); // tracé dans le journal d'audit (valeurs avant / après)
 
         return response()->json(['data' => $this->productRow($product->fresh(['category', 'brand']))]);

@@ -7,7 +7,7 @@ const xof = new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 0 })
 
 /** 6500 -> "6 500 F CFA" (espace normale, plus lisible et prévisible que l'espace fine d'Intl) */
 export function formatPrice(amount: number): string {
-  return `${xof.format(amount).replace(/[  ]/g, ' ')} F CFA`
+  return `${xof.format(amount).replace(/[\u202f\u00a0]/g, ' ')} F CFA`
 }
 
 /** 90 -> "1 h 30", 180 -> "3 h", 45 -> "45 min" */

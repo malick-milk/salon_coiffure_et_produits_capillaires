@@ -132,6 +132,14 @@ tail -n 40 storage/logs/laravel.log
 ```
 
 ### 5.2 Avant d'enregistrer dans Git (les vérifications automatiques)
+
+**Le plus simple** : une seule commande lance tout, depuis le dossier du projet, et affiche un résumé :
+
+```bash
+bash scripts/verifier-tout.sh
+```
+
+Et après le `git push`, GitHub revérifie tout de son côté (onglet **Actions**, [docs/09_TESTS.md](09_TESTS.md) §7). Le détail, commande par commande :
 Ce sont les « filets de sécurité » écrits pendant les étapes précédentes. Lancez-les après une modification.
 
 Vérifier les types et construire le site, depuis `frontend/` (c'est la commande la plus importante) :
@@ -140,13 +148,13 @@ Vérifier les types et construire le site, depuis `frontend/` (c'est la commande
 npm run build
 ```
 
-Lancer les 44 tests du frontend :
+Lancer les 56 tests du frontend :
 
 ```bash
 npm run test:run
 ```
 
-Lancer les 93 tests du backend, depuis `backend/` (Docker doit être lancé) :
+Lancer les 106 tests du backend, depuis `backend/` (Docker doit être lancé) :
 
 ```bash
 php artisan test

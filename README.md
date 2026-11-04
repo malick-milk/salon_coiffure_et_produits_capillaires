@@ -1,5 +1,7 @@
 # Salon Platform — E-commerce, Réservation, ERP & BI
 
+[![CI](https://github.com/malick-milk/salon_coiffure_et_produits_capillaires/actions/workflows/ci.yml/badge.svg)](https://github.com/malick-milk/salon_coiffure_et_produits_capillaires/actions/workflows/ci.yml)
+
 Plateforme web pour une entreprise de produits capillaires et un salon de coiffure :
 vitrine et e-commerce, réservation en ligne, ERP d'administration et tableau de bord décisionnel.
 
@@ -15,7 +17,7 @@ vitrine et e-commerce, réservation en ligne, ERP d'administration et tableau de
 | 6 | Backend Laravel — [docs/06_BACKEND.md](docs/06_BACKEND.md), [backend/](backend/) | Terminée : API complète, frontend branché sur la vraie API |
 | 7 | ERP — [docs/07_ERP.md](docs/07_ERP.md) | Terminée (API d'administration, factures PDF, audit, interface React `/admin`) |
 | 8 | Data Analytics — [docs/08_ANALYTICS.md](docs/08_ANALYTICS.md), [analytics/](analytics/) | Terminée (agrégats quotidiens, tableau de bord BI, exports CSV, prévisions Python) |
-| 9 | Tests | À faire |
+| 9 | Tests — [docs/09_TESTS.md](docs/09_TESTS.md) | Terminée (252 vérifications, couverture backend 95,8 %, concurrence, intégration continue GitHub Actions) |
 | 10 | Audit de sécurité | À faire |
 | 11 | Déploiement | À faire |
 

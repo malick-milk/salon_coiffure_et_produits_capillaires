@@ -1,0 +1,149 @@
+# INTÉGRATION CONTINUE : à chaque « git push » sur main (et chaque pull request), GitHub vérifie tout le projet
+# sur ses propres serveurs. Résultat dans l'onglet « Actions » du dépôt ; un ✗ rouge = quelque chose est cassé.
+# Les commandes sont EXACTEMENT celles du guide (docs/09_TESTS.md) : ce qui passe chez vous passe ici.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+# Un nouveau push annule la vérification précédente encore en cours (inutile de vérifier une version dépassée)
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend:
+    name: Backend (style + 106 tests + couverture)
+    runs-on: ubuntu-24.04
+    services:
+      mysql:
+        image: mysql:8.4
+        env:
+          MYSQL_ROOT_PASSWORD: root_ci
+          MYSQL_DATABASE: salon_test
+          MYSQL_USER: salon
+          MYSQL_PASSWORD: salon_ci
+        ports: ['3306:3306']
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -uroot -proot_ci"
+          --health-interval=5s --health-timeout=5s --health-retries=30
+    defaults:
+      run:
+        working-directory: backend
+    env:
+      # Les variables d'environnement l'emportent sur le fichier .env
+      DB_HOST: 127.0.0.1
+      DB_PORT: 3306
+      DB_USERNAME: salon
+      DB_PASSWORD: salon_ci
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: pdo_mysql, mbstring, gd, intl, zip, bcmath
+          coverage: pcov
+      - name: Cache des bibliothèques PHP
+        uses: actions/cache@v4
+        with:
+          path: backend/vendor
+          key: composer-${{ hashFiles('backend/composer.lock') }}
+      - run: composer install --no-interaction --prefer-dist --no-progress
+      - run: cp .env.example .env && php artisan key:generate
+      - name: Style du code (Pint)
+        run: vendor/bin/pint --test
+      - name: Tests PHPUnit, couverture minimale 90 %
+        run: php artisan test --coverage --min=90
+
+  frontend:
+    name: Frontend (ESLint + types + tests + build)
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+      - name: Qualité du code (ESLint)
+        run: npm run lint
+      - name: Vérification des types (TypeScript)
+        run: npm run typecheck
+      - name: Tests unitaires et couverture (Vitest)
+        run: npm run test:coverage
+      - name: Construction pour la production
+        run: npm run build
+
+  e2e:
+    name: Parcours navigateur + concurrence
+    needs: [backend, frontend] # inutile de lancer un navigateur si les tests de base échouent
+    runs-on: ubuntu-24.04
+    services:
+      mysql:
+        image: mysql:8.4
+        env:
+          MYSQL_ROOT_PASSWORD: root_ci
+          MYSQL_DATABASE: salon
+          MYSQL_USER: salon
+          MYSQL_PASSWORD: salon_ci
+        ports: ['3306:3306']
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -uroot -proot_ci"
+          --health-interval=5s --health-timeout=5s --health-retries=30
+    env:
+      DB_HOST: 127.0.0.1
+      DB_PORT: 3306
+      DB_DATABASE: salon
+      DB_USERNAME: salon
+      DB_PASSWORD: salon_ci
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: pdo_mysql, mbstring, gd, intl, zip, bcmath
+          coverage: none
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - name: Installation
+        run: |
+          (cd backend && composer install --no-interaction --prefer-dist --no-progress && cp .env.example .env && php artisan key:generate)
+          (cd frontend && npm ci && npm install --no-save playwright@1.63.0 && npx playwright install --with-deps chromium)
+      - name: Démarrer l'API (8000), l'API multi-processus (8001) et le site (5173)
+        run: |
+          cd backend && php artisan migrate:fresh --seed --force
+          nohup php artisan serve --port=8000 > ../api.log 2>&1 &
+          cd public && PHP_CLI_SERVER_WORKERS=8 API_RATE_LIMIT=100000 CHECKOUT_RATE_LIMIT=100000 \
+            nohup php -S 127.0.0.1:8001 ../vendor/laravel/framework/src/Illuminate/Foundation/resources/server.php > ../../api-workers.log 2>&1 &
+          cd ../../frontend && nohup npx vite --port 5173 --strictPort > ../vite.log 2>&1 &
+          for i in $(seq 1 60); do curl -sf http://localhost:5173/api/v1/categories > /dev/null && break; sleep 1; done
+          curl -sf http://localhost:5173/api/v1/categories > /dev/null
+      - name: Parcours vitrine
+        run: mkdir -p captures && node frontend/e2e/parcours-vitrine.cjs captures
+      - name: Parcours compte client (base remise à zéro)
+        run: (cd backend && php artisan migrate:fresh --seed --force) && node frontend/e2e/parcours-compte.cjs captures
+      - name: Parcours ERP (base remise à zéro)
+        run: (cd backend && php artisan migrate:fresh --seed --force) && node frontend/e2e/parcours-admin.cjs captures
+      - name: Concurrence et charge (base remise à zéro)
+        run: (cd backend && php artisan migrate:fresh --seed --force) && node backend/tests/charge/concurrence.mjs
+      - name: Captures d'écran et journaux (en cas d'échec, pour comprendre)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: captures-et-journaux
+          path: |
+            captures/
+            *.log
+          retention-days: 7

@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { bucketLabel, compact } from './charts'
 
 // Les espaces des nombres français sont insécables : on les normalise pour comparer
-const n = (s: string) => s.replace(/[  ]/g, ' ')
+const n = (s: string) => s.replace(/[\u202f\u00a0]/g, ' ')
 
 describe('compact (graduations des axes)', () => {
   it('abrège les grands montants', () => {
