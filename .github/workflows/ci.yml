@@ -42,7 +42,7 @@ jobs:
         run: npm audit --omit=dev --audit-level=high
 
   backend:
-    name: Backend (style + 106 tests + couverture)
+    name: Backend (style + tests + couverture)
     runs-on: ubuntu-24.04
     services:
       mysql:

@@ -177,7 +177,7 @@ composer require --dev larastan/larastan
 `.github/workflows/ci.yml`. À chaque `git push` sur `main`, GitHub lance trois tâches sur ses serveurs :
 
 ```
-backend  (style + 106 tests + couverture ≥ 90 %) ─┐
+backend  (style + 115 tests + couverture ≥ 90 %) ─┐
                                                   ├─► e2e (3 parcours + concurrence)
 frontend (ESLint + types + 56 tests + build) ─────┘   ← sur Node 22 ET la dernière version de Node
 ```
