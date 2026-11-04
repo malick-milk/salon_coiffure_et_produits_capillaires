@@ -50,7 +50,7 @@ Une erreur se corrige d'autant plus vite qu'elle est attrapée **bas** dans la p
 bash scripts/verifier-tout.sh
 ```
 
-Le script lance le style, les tests, la qualité du code, les types et la construction, puis affiche un résumé `OK` ou `ÉCHEC` par contrôle.
+Le script lance le style, les tests, la qualité du code, les types et la construction, puis affiche un résumé `OK` ou `ÉCHEC` par contrôle. En cas d'échec, il recopie **la fin du message d'erreur** sous le résumé et enregistre tout dans `verification.log`. Avant les tests backend, il vérifie que la base `salon_test` est joignable et, sinon, indique la cause (MySQL arrêté, base absente, mauvais identifiants) et la commande qui corrige.
 
 Les commandes une par une :
 
