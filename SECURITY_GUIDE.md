@@ -74,4 +74,19 @@
 | Mot de passe du propriétaire haché, jamais en clair | ConsoleCommandsTest |
 | Accessibilité vérifiée automatiquement | ESLint jsx-a11y dans l'intégration continue |
 
-_Audit complet : étape 10._
+### Audit de l'étape 10
+Rapport complet, catégorie par catégorie (OWASP Top 10), avec les risques résiduels acceptés : **[docs/10_SECURITE.md](docs/10_SECURITE.md)**.
+
+| Mesure ajoutée | Preuve |
+|---|---|
+| Composants Symfony mis à jour (6 failles publiées le jour de l'audit) | `composer audit` en intégration continue, chaque push et chaque lundi |
+| Redirection après connexion analysée comme le fait le navigateur (`/\pirate.com` refusé) | checkout.test.ts (6 contournements) |
+| En-têtes HTTP : nosniff, anti-iframe, Referrer-Policy, Permissions-Policy, CSP sur l'API, HSTS en HTTPS | SecurityAuditTest |
+| CORS limité à la vitrine | SecurityAuditTest |
+| Mot de passe client : lettre + chiffre ; fuites connues refusées en production | SecurityAuditTest |
+| Journal de sécurité `storage/logs/security-*.log` (emails masqués, jamais de mot de passe) | SecurityAuditTest |
+| Aucun détail technique dans une erreur 500 en production | SecurityAuditTest |
+| Toute route d'administration exige connexion + permission (vérifié sur toutes les routes) | SecurityAuditTest |
+| XSS stocké : attaque réelle dans le planning, affichée comme texte | parcours-admin (et test de mutation) |
+| HTML brut interdit dans React | ESLint (`no-restricted-syntax`) |
+| Contrôle de configuration avant la production | `php artisan app:security-check` |

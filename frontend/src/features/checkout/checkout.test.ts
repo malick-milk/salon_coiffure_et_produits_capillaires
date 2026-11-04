@@ -39,4 +39,11 @@ describe('redirection après connexion (anti « open redirect »)', () => {
     expect(safeRedirect('//site-pirate.com')).toBe('/compte')
     expect(safeRedirect(null)).toBe('/compte')
   })
+  it('refuse les contournements connus (barre oblique inverse, tabulation, retour à la ligne)', () => {
+    for (const trick of ['/\\site-pirate.com', '/\t/site-pirate.com', '/\n/site-pirate.com', '/\\/site-pirate.com', 'javascript:alert(1)', '/%5C%5Csite-pirate.com']) {
+      const result = safeRedirect(trick)
+      expect(new URL(result, window.location.origin).origin, trick).toBe(window.location.origin)
+    }
+    expect(safeRedirect('/compte/commandes?page=2#haut')).toBe('/compte/commandes?page=2#haut') // l'usage normal est préservé
+  })
 })

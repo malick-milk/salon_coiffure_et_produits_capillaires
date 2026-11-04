@@ -18,7 +18,7 @@ vitrine et e-commerce, réservation en ligne, ERP d'administration et tableau de
 | 7 | ERP — [docs/07_ERP.md](docs/07_ERP.md) | Terminée (API d'administration, factures PDF, audit, interface React `/admin`) |
 | 8 | Data Analytics — [docs/08_ANALYTICS.md](docs/08_ANALYTICS.md), [analytics/](analytics/) | Terminée (agrégats quotidiens, tableau de bord BI, exports CSV, prévisions Python) |
 | 9 | Tests — [docs/09_TESTS.md](docs/09_TESTS.md) | Terminée (252 vérifications, couverture backend 95,8 %, concurrence, intégration continue GitHub Actions) |
-| 10 | Audit de sécurité | À faire |
+| 10 | Audit de sécurité — [docs/10_SECURITE.md](docs/10_SECURITE.md) | Terminée (OWASP Top 10 : 3 failles corrigées, 9 renforcements, `app:security-check`) |
 | 11 | Déploiement | À faire |
 
 ## Stack

@@ -8,6 +8,7 @@ use App\Http\Requests\RegisterRequest;
 use App\Http\Resources\UserResource;
 use App\Models\Customer;
 use App\Models\User;
+use App\Support\SecurityLog;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -32,12 +33,15 @@ class AuthController extends Controller
         $key = 'login:'.$email.'|'.$request->ip();
 
         if (RateLimiter::tooManyAttempts($key, self::MAX_ATTEMPTS)) {
+            SecurityLog::event('login.locked', $request, ['email' => SecurityLog::maskEmail($email)]);
+
             return response()->json(['message' => 'Trop de tentatives. Réessayez dans une minute.'], 429);
         }
 
         $credentials = ['email' => $email, 'password' => $request->string('password')->toString(), 'is_active' => true];
         if (! Auth::guard('web')->attempt($credentials, $request->boolean('remember'))) {
             RateLimiter::hit($key, self::LOCK_SECONDS);
+            SecurityLog::event('login.failed', $request, ['email' => SecurityLog::maskEmail($email), 'attempts' => RateLimiter::attempts($key)]);
             // Message VAGUE : on ne révèle pas si l'email existe (anti-énumération des comptes)
             throw ValidationException::withMessages(['email' => 'Ces identifiants ne correspondent à aucun compte.']);
         }
@@ -46,6 +50,9 @@ class AuthController extends Controller
         $request->session()->regenerate(); // nouvel identifiant de session : protection contre la fixation de session
         $user = $request->user();
         $user->forceFill(['last_login_at' => now()])->save();
+        if ($user->getAllPermissions()->isNotEmpty()) { // connexion du PERSONNEL : accès à l'ERP, on la trace
+            SecurityLog::event('login.staff', $request, ['email' => SecurityLog::maskEmail($email)], 'info');
+        }
 
         return new UserResource($user);
     }

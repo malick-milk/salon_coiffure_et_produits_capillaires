@@ -2,6 +2,8 @@
 
 use App\Exceptions\InsufficientStockException;
 use App\Exceptions\SlotUnavailableException;
+use App\Http\Middleware\SecurityHeaders;
+use App\Support\SecurityLog;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -25,6 +27,9 @@ return Application::configure(basePath: dirname(__DIR__))
         // sont authentifiées par cookie de session + protection CSRF (ADR-003)
         $middleware->statefulApi();
 
+        // En-têtes de sécurité sur TOUTES les réponses (étape 10, OWASP A05)
+        $middleware->append(SecurityHeaders::class);
+
         // Middlewares de spatie/laravel-permission : ->middleware('permission:orders.manage') sur une route
         $middleware->alias([
             'permission' => PermissionMiddleware::class,
@@ -45,6 +50,9 @@ return Application::configure(basePath: dirname(__DIR__))
         // Permission manquante (spatie) : 403 au même format que les autres erreurs
         $exceptions->render(function (UnauthorizedException $e, Request $request) {
             if ($request->is('api/*')) {
+                // Un membre du personnel qui tente une action hors de ses droits : à surveiller (OWASP A09)
+                SecurityLog::event('access.denied', $request, ['reason' => 'permission']);
+
                 return response()->json(['message' => 'Vous n’avez pas la permission d’effectuer cette action.'], 403);
             }
         });
@@ -61,6 +69,11 @@ return Application::configure(basePath: dirname(__DIR__))
         $exceptions->render(function (HttpExceptionInterface $e, Request $request) {
             if (! $request->is('api/*')) {
                 return null;
+            }
+
+            // 403 d'une Policy (la commande d'un autre client : tentative d'IDOR) et 429 (abus) : tracés
+            if (in_array($e->getStatusCode(), [403, 429], true)) {
+                SecurityLog::event($e->getStatusCode() === 403 ? 'access.denied' : 'rate.limited', $request, ['reason' => $e->getStatusCode() === 403 ? 'policy' : 'throttle']);
             }
 
             return match ($e->getStatusCode()) {

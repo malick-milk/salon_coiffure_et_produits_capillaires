@@ -17,7 +17,20 @@ export function RequireAuth({ children }: { children: ReactNode }) {
   return <>{children}</>
 }
 
-/** N'accepte que des redirections INTERNES (« /compte »), jamais « https://site-pirate.com » (open redirect) */
+/**
+ * N'accepte que des redirections INTERNES (« /compte »), jamais vers un autre site (OWASP : open redirect).
+ *
+ * On ne compare PAS des chaînes (« commence par / mais pas par // ») : c'est contournable, car le navigateur
+ * lit « /\\pirate.com » comme « //pirate.com » et supprime les tabulations (« /\t/pirate.com »).
+ * On laisse le navigateur INTERPRÉTER l'adresse, exactement comme il le ferait, puis on vérifie l'origine.
+ */
 export function safeRedirect(value: string | null, fallback = '/compte'): string {
-  return value && value.startsWith('/') && !value.startsWith('//') ? value : fallback
+  if (!value || !value.startsWith('/')) return fallback
+  try {
+    const url = new URL(value, window.location.origin)
+    if (url.origin !== window.location.origin) return fallback
+    return url.pathname + url.search + url.hash
+  } catch {
+    return fallback
+  }
 }

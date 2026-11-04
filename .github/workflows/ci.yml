@@ -7,6 +7,9 @@ on:
   push:
     branches: [main]
   pull_request:
+  # Chaque lundi à 6 h (UTC) : une faille peut être publiée dans une bibliothèque SANS que notre code change
+  schedule:
+    - cron: '0 6 * * 1'
 
 permissions:
   contents: read
@@ -17,6 +20,27 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  audit:
+    name: Audit des dépendances (failles connues)
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          coverage: none
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Bibliothèques PHP (composer audit)
+        working-directory: backend
+        run: composer audit --locked
+      - name: Bibliothèques livrées au navigateur (npm audit, niveau élevé ou critique)
+        working-directory: frontend
+        # --omit=dev : seul le code envoyé aux visiteurs doit être irréprochable. Les outils de développement
+        # sont suivis à part (risques acceptés documentés dans docs/10_SECURITE.md).
+        run: npm audit --omit=dev --audit-level=high
+
   backend:
     name: Backend (style + 106 tests + couverture)
     runs-on: ubuntu-24.04

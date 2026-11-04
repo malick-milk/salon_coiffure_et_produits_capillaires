@@ -26,6 +26,12 @@ export default tseslint.config(
       'react-refresh/only-export-components': ['warn', { allowConstantExport: true }],
       // _variable = « je sais qu'elle est inutilisée » (convention)
       '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
+      // Sécurité (OWASP A03, XSS) : React échappe tout le texte affiché ; dangerouslySetInnerHTML est la seule porte
+      // d'entrée pour du HTML brut. Interdit : afficher du HTML venant d'un utilisateur exécuterait ses scripts.
+      'no-restricted-syntax': ['error', {
+        selector: "JSXAttribute[name.name='dangerouslySetInnerHTML']",
+        message: 'Interdit (risque XSS) : affichez du texte, React l’échappe automatiquement.',
+      }],
       // Nos champs maison rendent un vrai <input> : un <label> qui les entoure est donc bien associé
       'jsx-a11y/label-has-associated-control': ['error', { controlComponents: ['Input', 'AdminInput', 'AdminSelect', 'PasswordInput', 'Textarea'], assert: 'either', depth: 3 }],
     },

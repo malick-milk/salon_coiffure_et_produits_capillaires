@@ -132,9 +132,9 @@ Fichiers de configuration à la racine :
 | Partie | Commande | Contenu |
 |---|---|---|
 | Base de données | `bash database/verify.sh` | 25 tests d'intégrité + 17 requêtes KPI |
-| Backend | `cd backend && php artisan test` | 106 tests (PHPUnit) : 17 unitaires sans base (`tests/Unit`) + 89 fonctionnels sur MySQL `salon_test` (`tests/Feature`) ; `--coverage` : 95,8 % |
-| Frontend | `cd frontend && npm run test:run` | 56 tests (Vitest) ; `npm run lint` (ESLint), `npm run typecheck`, `npm run test:coverage` |
-| Parcours navigateur | `node frontend/e2e/parcours-vitrine.cjs ./captures` puis `parcours-compte.cjs` et `parcours-admin.cjs` (base remise à zéro avant chaque parcours : `php artisan migrate:fresh --seed`) | 24 + 27 + 29 vérifications (Playwright) |
+| Backend | `cd backend && php artisan test` | 115 tests (PHPUnit) : 17 unitaires sans base (`tests/Unit`) + 98 fonctionnels sur MySQL `salon_test` (`tests/Feature`) ; `--coverage` : 95,8 % |
+| Frontend | `cd frontend && npm run test:run` | 57 tests (Vitest) ; `npm run lint` (ESLint), `npm run typecheck`, `npm run test:coverage` |
+| Parcours navigateur | `node frontend/e2e/parcours-vitrine.cjs ./captures` puis `parcours-compte.cjs` et `parcours-admin.cjs` (base remise à zéro avant chaque parcours : `php artisan migrate:fresh --seed`) | 24 + 27 + 30 vérifications (Playwright) |
 
 La suite complète (backend, CI) sera mise en place à l'étape 9.
 
@@ -145,6 +145,7 @@ La suite complète (backend, CI) sera mise en place à l'étape 9.
 | `php artisan app:demo-history` | 180 jours d'historique **fictif** (local uniquement), pour l'écran Analyses |
 | `php artisan analytics:snapshot` | Recalcule les agrégats d'hier et d'aujourd'hui (`--all` : tout l'historique) |
 | `php artisan schedule:list` | Tâches planifiées (dont le job nocturne de l'analytique) |
+| `php artisan app:security-check` | Vérifie que la configuration est sûre pour la production (code 1 si point bloquant) |
 
 **Avant chaque `git push`** : `bash scripts/verifier-tout.sh` (mêmes contrôles que l'intégration continue, hors navigateur). Tests de concurrence et CI : [docs/09_TESTS.md](docs/09_TESTS.md).
 

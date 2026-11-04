@@ -7,7 +7,7 @@
 > |---|---:|---|
 > | Tests backend | 106 (17 unitaires + 89 fonctionnels) | PHPUnit |
 > | Tests frontend | 56 | Vitest + Testing Library |
-> | Parcours dans un vrai navigateur | 80 (24 vitrine + 27 compte + 29 ERP) | Playwright |
+> | Parcours dans un vrai navigateur | 81 (24 vitrine + 27 compte + 30 ERP, dont une attaque XSS ajoutée à l'étape 10) | Playwright |
 > | Concurrence et charge | 10 | script Node, serveur PHP multi-processus |
 >
 > **Couverture du backend** : 95,8 % des lignes (92,1 % au début de l'étape). L'intégration continue refuse toute baisse sous 90 %.

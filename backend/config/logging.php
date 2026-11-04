@@ -1,5 +1,6 @@
 <?php
 
+use Monolog\Formatter\JsonFormatter;
 use Monolog\Handler\NullHandler;
 use Monolog\Handler\StreamHandler;
 use Monolog\Handler\SyslogUdpHandler;
@@ -51,6 +52,16 @@ return [
     */
 
     'channels' => [
+
+        // Étape 10 : événements de sécurité, séparés du journal applicatif (App\Support\SecurityLog)
+        'security' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/security.log'),
+            'level' => 'info',
+            'days' => 90,
+            'replace_placeholders' => true,
+            'formatter' => JsonFormatter::class,
+        ],
 
         'stack' => [
             'driver' => 'stack',

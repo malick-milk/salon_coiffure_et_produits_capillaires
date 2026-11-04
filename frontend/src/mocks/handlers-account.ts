@@ -88,6 +88,7 @@ export const accountHandlers = [
     if (!PHONE_SN.test(phone)) errors.phone = ['Numéro mobile invalide.']
     else if (users.some((u) => u.phone === phone)) errors.phone = ['Ce numéro est déjà utilisé.']
     if ((b.password ?? '').length < 8) errors.password = ['8 caractères minimum.']
+    else if (!/\p{L}/u.test(b.password) || !/\d/.test(b.password)) errors.password = ['Le mot de passe doit contenir au moins une lettre et un chiffre.']
     if (b.password !== b.password_confirmation) errors.password_confirmation = ['Les mots de passe ne correspondent pas.']
     if (!b.consent) errors.consent = ['Le consentement est obligatoire.']
     if (Object.keys(errors).length) return invalid(errors)

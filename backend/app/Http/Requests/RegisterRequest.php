@@ -24,7 +24,7 @@ class RegisterRequest extends FormRequest
             'email' => ['required', 'email:rfc', 'max:191', 'unique:users,email'],
             'phone' => ['required', 'string', 'regex:'.Phone::SENEGAL_MOBILE, 'unique:users,phone'],
             // 8 caractères minimum, 72 maximum (limite de bcrypt), confirmation identique
-            'password' => ['required', 'confirmed', 'max:72', Password::min(8)],
+            'password' => ['required', 'confirmed', 'max:72', Password::defaults()], // règle commune : AppServiceProvider
             'consent' => ['accepted'],
         ];
     }

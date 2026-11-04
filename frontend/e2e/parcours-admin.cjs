@@ -92,6 +92,47 @@ async function login(page, email, password) {
   await rdv.getByText('Annulée').waitFor()
   log(true, 'Rendez-vous annulé avec motif')
 
+  // 4 bis. XSS STOCKÉ (étape 10) : une « cliente » glisse du code dans la remarque de sa réservation.
+  // S'il s'exécutait dans le planning, il agirait avec la session du personnel. React doit l'afficher comme du TEXTE.
+  const payload = '<img src=x onerror="window.__xss=1;alert(1)"><script>window.__xss=2</script>'
+  let dialogs = 0
+  page.on('dialog', (d) => { dialogs++; d.dismiss() })
+  const booked = await page.evaluate(async (notes) => {
+    await fetch('/sanctum/csrf-cookie', { credentials: 'include' })
+    const xsrf = decodeURIComponent(document.cookie.split('; ').find((c) => c.startsWith('XSRF-TOKEN='))?.split('=')[1] ?? '')
+    const headers = { Accept: 'application/json', 'Content-Type': 'application/json', 'X-XSRF-TOKEN': xsrf }
+    const services = (await (await fetch('/api/v1/services', { headers })).json()).data
+    const service = services.find((x) => x.slug === 'soin-profond-karite') ?? services[0]
+    for (let d = 1; d < 7; d++) {
+      const date = new Date(Date.now() + d * 86400000).toISOString().slice(0, 10)
+      const slots = (await (await fetch(`/api/v1/availability?service_id=${service.id}&date=${date}`, { headers })).json()).data?.slots ?? []
+      const free = slots.find((x) => x.available)
+      if (!free) continue
+      const res = await fetch('/api/v1/bookings', { method: 'POST', credentials: 'include', headers, body: JSON.stringify({
+        service_id: service.id, stylist_id: null, date, time: free.time, notes, consent: true,
+        customer: { first_name: 'Test', last_name: 'Xss', phone: '771239876', email: null } }) })
+      const json = await res.json().catch(() => null)
+      return { status: res.status, date, reference: json?.data?.reference, body: res.status === 201 ? null : JSON.stringify(json) }
+    }
+    return { status: 0 }
+  }, payload)
+  if (booked.status !== 201) console.log('     réservation de test refusée :', JSON.stringify(booked))
+  // Le planning de la semaine était en cache : on recharge, et on ATTEND les données avant de chercher
+  // (sinon le test passe à la semaine suivante avant même que la semaine en cours soit affichée)
+  const weekLoaded = () => page.waitForResponse((r) => r.url().includes('/admin/bookings') && r.ok())
+  await Promise.all([weekLoaded(), page.reload()])
+  const xssRow = page.locator('li', { hasText: booked.reference ?? 'RDV-introuvable' })
+  for (let i = 0; i < 2 && !(await xssRow.count()); i++) {
+    await Promise.all([weekLoaded(), page.getByRole('button', { name: 'Semaine suivante' }).click()])
+  }
+  await xssRow.waitFor()
+  const shownAsText = (await xssRow.textContent()).includes(payload)
+  const executed = await page.evaluate(() => window.__xss)
+  const injected = await xssRow.locator('img[src="x"], script').count()
+  if (!shownAsText || executed !== undefined || injected) console.log(`     affiché comme texte : ${shownAsText}, script exécuté : ${executed ?? 'non'}, balises injectées : ${injected}, alertes : ${dialogs}`)
+  log(booked.status === 201 && shownAsText && executed === undefined && dialogs === 0 && injected === 0,
+    'XSS stocké : le code glissé dans une remarque s’affiche comme du texte, rien ne s’exécute')
+
   // 5. Produits : prix, perte de stock tracée
   await menu.getByRole('link', { name: 'Produits et stock' }).click()
   const price = page.getByLabel('Prix de Masque capillaire', { exact: false })
