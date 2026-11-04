@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Models\Booking;
 use App\Models\Setting;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -23,7 +24,7 @@ class CustomerBookingResource extends JsonResource
     }
 
     /** RG-RES-04 : annulation en ligne jusqu'à 24 h avant (paramétrable) */
-    public static function canCancel(\App\Models\Booking $booking): bool
+    public static function canCancel(Booking $booking): bool
     {
         $hours = (int) Setting::get('booking.customer_cancel_hours', 24);
 

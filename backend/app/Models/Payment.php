@@ -15,5 +15,8 @@ class Payment extends Model
         return ['method' => PaymentMethod::class, 'provider_payload' => 'array', 'paid_at' => 'datetime', 'amount' => 'integer'];
     }
 
-    public function payable(): MorphTo { return $this->morphTo(); }
+    public function payable(): MorphTo
+    {
+        return $this->morphTo();
+    }
 }

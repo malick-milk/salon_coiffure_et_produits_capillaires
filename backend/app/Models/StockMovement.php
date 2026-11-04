@@ -14,8 +14,18 @@ class StockMovement extends Model
 
     protected $fillable = ['product_id', 'type', 'quantity', 'stock_after', 'unit_cost', 'reference_type', 'reference_id', 'reason', 'user_id'];
 
-    protected function casts(): array { return ['type' => StockMovementType::class, 'quantity' => 'integer', 'stock_after' => 'integer']; }
+    protected function casts(): array
+    {
+        return ['type' => StockMovementType::class, 'quantity' => 'integer', 'stock_after' => 'integer'];
+    }
 
-    public function product(): BelongsTo { return $this->belongsTo(Product::class); }
-    public function reference(): MorphTo { return $this->morphTo(); }
+    public function product(): BelongsTo
+    {
+        return $this->belongsTo(Product::class);
+    }
+
+    public function reference(): MorphTo
+    {
+        return $this->morphTo();
+    }
 }

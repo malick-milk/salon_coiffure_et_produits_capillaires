@@ -23,6 +23,7 @@ use Illuminate\Validation\ValidationException;
 class AuthController extends Controller
 {
     private const MAX_ATTEMPTS = 5; // RG-SEC-02
+
     private const LOCK_SECONDS = 60;
 
     public function login(LoginRequest $request): UserResource|JsonResponse

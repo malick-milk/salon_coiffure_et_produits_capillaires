@@ -20,8 +20,18 @@ class Service extends Model
         return ['duration_minutes' => 'integer', 'buffer_minutes' => 'integer', 'price' => 'integer', 'is_active' => 'boolean'];
     }
 
-    public function category(): BelongsTo { return $this->belongsTo(ServiceCategory::class, 'service_category_id'); }
-    public function stylists(): BelongsToMany { return $this->belongsToMany(Stylist::class); }
+    public function category(): BelongsTo
+    {
+        return $this->belongsTo(ServiceCategory::class, 'service_category_id');
+    }
 
-    public function scopeActive(Builder $query): void { $query->where('is_active', true); }
+    public function stylists(): BelongsToMany
+    {
+        return $this->belongsToMany(Stylist::class);
+    }
+
+    public function scopeActive(Builder $query): void
+    {
+        $query->where('is_active', true);
+    }
 }

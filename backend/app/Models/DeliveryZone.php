@@ -9,8 +9,14 @@ class DeliveryZone extends Model
 {
     protected $fillable = ['name', 'fee', 'is_active'];
 
-    protected function casts(): array { return ['fee' => 'integer', 'is_active' => 'boolean']; }
+    protected function casts(): array
+    {
+        return ['fee' => 'integer', 'is_active' => 'boolean'];
+    }
 
     /** Portée locale : DeliveryZone::active()->get() */
-    public function scopeActive(Builder $query): void { $query->where('is_active', true); }
+    public function scopeActive(Builder $query): void
+    {
+        $query->where('is_active', true);
+    }
 }

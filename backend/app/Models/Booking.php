@@ -6,9 +6,9 @@ use App\Enums\BookingSource;
 use App\Enums\BookingStatus;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Booking extends Model
 {
@@ -35,9 +35,20 @@ class Booking extends Model
         ];
     }
 
-    public function customer(): BelongsTo { return $this->belongsTo(Customer::class); }
-    public function service(): BelongsTo { return $this->belongsTo(Service::class); }
-    public function stylist(): BelongsTo { return $this->belongsTo(Stylist::class); }
+    public function customer(): BelongsTo
+    {
+        return $this->belongsTo(Customer::class);
+    }
+
+    public function service(): BelongsTo
+    {
+        return $this->belongsTo(Service::class);
+    }
+
+    public function stylist(): BelongsTo
+    {
+        return $this->belongsTo(Stylist::class);
+    }
 
     /** Réservations qui BLOQUENT un créneau (en attente ou confirmées) */
     public function scopeActive(Builder $query): void

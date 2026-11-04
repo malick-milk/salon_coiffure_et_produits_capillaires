@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Product;
+use App\Models\Service;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -101,7 +102,7 @@ class CatalogApiTest extends TestCase
     {
         $this->getJson('/api/v1/services')->assertOk()->assertJsonCount(3, 'data')->assertJsonMissingPath('data.0.buffer_minutes');
         // Bineta ne réalise pas les nattes collées
-        $nattes = \App\Models\Service::where('slug', 'nattes-collees')->value('id');
+        $nattes = Service::where('slug', 'nattes-collees')->value('id');
         $this->getJson("/api/v1/stylists?service_id={$nattes}")->assertOk()->assertJsonCount(1, 'data')->assertJsonPath('data.0.display_name', 'Fatou');
         $this->getJson('/api/v1/business-hours')->assertJsonPath('data.0.opens_at', '09:00')->assertJsonPath('data.6.is_closed', true);
         $this->getJson('/api/v1/delivery-zones')->assertJsonPath('data.0', ['id' => 1, 'name' => 'Dakar Plateau', 'fee' => 1000]);

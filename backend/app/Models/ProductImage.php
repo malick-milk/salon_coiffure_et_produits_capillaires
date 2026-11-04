@@ -9,7 +9,13 @@ class ProductImage extends Model
 {
     protected $fillable = ['product_id', 'path', 'alt_text', 'position', 'is_primary'];
 
-    protected function casts(): array { return ['is_primary' => 'boolean']; }
+    protected function casts(): array
+    {
+        return ['is_primary' => 'boolean'];
+    }
 
-    public function product(): BelongsTo { return $this->belongsTo(Product::class); }
+    public function product(): BelongsTo
+    {
+        return $this->belongsTo(Product::class);
+    }
 }

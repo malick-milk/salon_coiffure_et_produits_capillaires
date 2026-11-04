@@ -1,12 +1,15 @@
 <?php
 
-use Illuminate\Foundation\Application;
-use Illuminate\Foundation\Configuration\Exceptions;
-use Illuminate\Foundation\Configuration\Middleware;
 use App\Exceptions\InsufficientStockException;
 use App\Exceptions\SlotUnavailableException;
 use Illuminate\Auth\AuthenticationException;
+use Illuminate\Foundation\Application;
+use Illuminate\Foundation\Configuration\Exceptions;
+use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
+use Spatie\Permission\Exceptions\UnauthorizedException;
+use Spatie\Permission\Middleware\PermissionMiddleware;
+use Spatie\Permission\Middleware\RoleMiddleware;
 use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
@@ -24,8 +27,8 @@ return Application::configure(basePath: dirname(__DIR__))
 
         // Middlewares de spatie/laravel-permission : ->middleware('permission:orders.manage') sur une route
         $middleware->alias([
-            'permission' => \Spatie\Permission\Middleware\PermissionMiddleware::class,
-            'role' => \Spatie\Permission\Middleware\RoleMiddleware::class,
+            'permission' => PermissionMiddleware::class,
+            'role' => RoleMiddleware::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
@@ -40,7 +43,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $exceptions->render(fn (InsufficientStockException $e) => response()->json(['message' => $e->getMessage(), 'items' => $e->items], 409));
 
         // Permission manquante (spatie) : 403 au même format que les autres erreurs
-        $exceptions->render(function (\Spatie\Permission\Exceptions\UnauthorizedException $e, Request $request) {
+        $exceptions->render(function (UnauthorizedException $e, Request $request) {
             if ($request->is('api/*')) {
                 return response()->json(['message' => 'Vous n’avez pas la permission d’effectuer cette action.'], 403);
             }

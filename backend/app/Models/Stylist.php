@@ -15,12 +15,33 @@ class Stylist extends Model
 
     protected $fillable = ['user_id', 'display_name', 'bio', 'photo_path', 'is_active'];
 
-    protected function casts(): array { return ['is_active' => 'boolean']; }
+    protected function casts(): array
+    {
+        return ['is_active' => 'boolean'];
+    }
 
-    public function user(): BelongsTo { return $this->belongsTo(User::class); }
-    public function services(): BelongsToMany { return $this->belongsToMany(Service::class); }
-    public function bookings(): HasMany { return $this->hasMany(Booking::class); }
-    public function timeOff(): HasMany { return $this->hasMany(StylistTimeOff::class); }
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
 
-    public function scopeActive(Builder $query): void { $query->where('is_active', true); }
+    public function services(): BelongsToMany
+    {
+        return $this->belongsToMany(Service::class);
+    }
+
+    public function bookings(): HasMany
+    {
+        return $this->hasMany(Booking::class);
+    }
+
+    public function timeOff(): HasMany
+    {
+        return $this->hasMany(StylistTimeOff::class);
+    }
+
+    public function scopeActive(Builder $query): void
+    {
+        $query->where('is_active', true);
+    }
 }

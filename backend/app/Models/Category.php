@@ -13,9 +13,23 @@ class Category extends Model
 
     protected $fillable = ['parent_id', 'name', 'slug', 'description', 'image_path', 'position', 'is_active'];
 
-    protected function casts(): array { return ['is_active' => 'boolean']; }
+    protected function casts(): array
+    {
+        return ['is_active' => 'boolean'];
+    }
 
-    public function parent(): BelongsTo { return $this->belongsTo(Category::class, 'parent_id'); }
-    public function children(): HasMany { return $this->hasMany(Category::class, 'parent_id'); }
-    public function products(): HasMany { return $this->hasMany(Product::class); }
+    public function parent(): BelongsTo
+    {
+        return $this->belongsTo(Category::class, 'parent_id');
+    }
+
+    public function children(): HasMany
+    {
+        return $this->hasMany(Category::class, 'parent_id');
+    }
+
+    public function products(): HasMany
+    {
+        return $this->hasMany(Product::class);
+    }
 }

@@ -15,6 +15,13 @@ class OrderItem extends Model
         return ['unit_price' => 'integer', 'unit_cost' => 'decimal:2', 'quantity' => 'integer', 'line_total' => 'integer'];
     }
 
-    public function order(): BelongsTo { return $this->belongsTo(Order::class); }
-    public function product(): BelongsTo { return $this->belongsTo(Product::class)->withTrashed(); }
+    public function order(): BelongsTo
+    {
+        return $this->belongsTo(Order::class);
+    }
+
+    public function product(): BelongsTo
+    {
+        return $this->belongsTo(Product::class)->withTrashed();
+    }
 }

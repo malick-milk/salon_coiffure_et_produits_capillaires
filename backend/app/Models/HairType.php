@@ -7,5 +7,6 @@ use Illuminate\Database\Eloquent\Model;
 class HairType extends Model
 {
     public $timestamps = false;
+
     protected $fillable = ['name', 'slug'];
 }

@@ -9,7 +9,13 @@ class Brand extends Model
 {
     protected $fillable = ['name', 'slug', 'logo_path', 'is_house_brand', 'is_active'];
 
-    protected function casts(): array { return ['is_house_brand' => 'boolean', 'is_active' => 'boolean']; }
+    protected function casts(): array
+    {
+        return ['is_house_brand' => 'boolean', 'is_active' => 'boolean'];
+    }
 
-    public function products(): HasMany { return $this->hasMany(Product::class); }
+    public function products(): HasMany
+    {
+        return $this->hasMany(Product::class);
+    }
 }

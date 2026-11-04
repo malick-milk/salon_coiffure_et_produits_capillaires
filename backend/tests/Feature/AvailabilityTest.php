@@ -21,9 +21,13 @@ class AvailabilityTest extends TestCase
     use RefreshDatabase;
 
     private int $tresses;
+
     private int $nattes;
+
     private int $soin;
+
     private int $fatou;
+
     private int $bineta;
 
     protected function setUp(): void

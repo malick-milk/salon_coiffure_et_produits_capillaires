@@ -8,6 +8,7 @@ use App\Enums\OrderStatus;
 use App\Enums\PaymentMethod;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\OrderDetailResource;
+use App\Models\Invoice;
 use App\Models\Order;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -70,7 +71,7 @@ class OrderAdminController extends Controller
     private function detail(Order $order): array
     {
         $order->load(['items.product', 'deliveryZone', 'customer', 'payments']);
-        $invoice = \App\Models\Invoice::query()->where('order_id', $order->id)->where('type', 'invoice')->first();
+        $invoice = Invoice::query()->where('order_id', $order->id)->where('type', 'invoice')->first();
 
         return [
             ...(new OrderDetailResource($order))->resolve(),

@@ -7,11 +7,11 @@ use App\Enums\OrderChannel;
 use App\Enums\OrderStatus;
 use App\Enums\PaymentStatus;
 use Illuminate\Database\Eloquent\Model;
-use Spatie\Activitylog\LogOptions;
-use Spatie\Activitylog\Traits\LogsActivity;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class Order extends Model
 {
@@ -44,10 +44,25 @@ class Order extends Model
         ];
     }
 
-    public function customer(): BelongsTo { return $this->belongsTo(Customer::class); }
-    public function items(): HasMany { return $this->hasMany(OrderItem::class); }
-    public function deliveryZone(): BelongsTo { return $this->belongsTo(DeliveryZone::class); }
-    public function payments(): MorphMany { return $this->morphMany(Payment::class, 'payable'); }
+    public function customer(): BelongsTo
+    {
+        return $this->belongsTo(Customer::class);
+    }
+
+    public function items(): HasMany
+    {
+        return $this->hasMany(OrderItem::class);
+    }
+
+    public function deliveryZone(): BelongsTo
+    {
+        return $this->belongsTo(DeliveryZone::class);
+    }
+
+    public function payments(): MorphMany
+    {
+        return $this->morphMany(Payment::class, 'payable');
+    }
 
     /** Journal d'audit (RG-SEC-01) : qui a modifié quoi, avec les valeurs avant et après */
     public function getActivitylogOptions(): LogOptions

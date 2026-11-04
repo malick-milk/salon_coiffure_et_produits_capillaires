@@ -4,12 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use Spatie\Activitylog\LogOptions;
-use Spatie\Activitylog\Traits\LogsActivity;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 /**
  * Produit. RÈGLE : stock_quantity ne se modifie JAMAIS directement, uniquement via
@@ -39,16 +39,46 @@ class Product extends Model
         ];
     }
 
-    public function category(): BelongsTo { return $this->belongsTo(Category::class); }
-    public function brand(): BelongsTo { return $this->belongsTo(Brand::class); }
-    // Nom de la table pivot explicite : Laravel devinerait « hair_type_product » (ordre alphabétique)
-    public function hairTypes(): BelongsToMany { return $this->belongsToMany(HairType::class, 'product_hair_type'); }
-    public function images(): HasMany { return $this->hasMany(ProductImage::class)->orderBy('position'); }
-    public function stockMovements(): HasMany { return $this->hasMany(StockMovement::class); }
-    public function mainProduct(): BelongsTo { return $this->belongsTo(Product::class, 'variant_of_id'); }
-    public function variants(): HasMany { return $this->hasMany(Product::class, 'variant_of_id'); }
+    public function category(): BelongsTo
+    {
+        return $this->belongsTo(Category::class);
+    }
 
-    public function scopeActive(Builder $query): void { $query->where('is_active', true); }
+    public function brand(): BelongsTo
+    {
+        return $this->belongsTo(Brand::class);
+    }
+
+    // Nom de la table pivot explicite : Laravel devinerait « hair_type_product » (ordre alphabétique)
+    public function hairTypes(): BelongsToMany
+    {
+        return $this->belongsToMany(HairType::class, 'product_hair_type');
+    }
+
+    public function images(): HasMany
+    {
+        return $this->hasMany(ProductImage::class)->orderBy('position');
+    }
+
+    public function stockMovements(): HasMany
+    {
+        return $this->hasMany(StockMovement::class);
+    }
+
+    public function mainProduct(): BelongsTo
+    {
+        return $this->belongsTo(Product::class, 'variant_of_id');
+    }
+
+    public function variants(): HasMany
+    {
+        return $this->hasMany(Product::class, 'variant_of_id');
+    }
+
+    public function scopeActive(Builder $query): void
+    {
+        $query->where('is_active', true);
+    }
 
     /** Le statut public du stock (le chiffre exact n'est jamais exposé) */
     public function stockStatus(): string

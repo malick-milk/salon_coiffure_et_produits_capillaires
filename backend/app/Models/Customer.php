@@ -20,10 +20,25 @@ class Customer extends Model
         return ['customer_type' => CustomerType::class, 'marketing_consent' => 'boolean'];
     }
 
-    public function user(): BelongsTo { return $this->belongsTo(User::class); }
-    public function orders(): HasMany { return $this->hasMany(Order::class); }
-    public function bookings(): HasMany { return $this->hasMany(Booking::class); }
-    public function addresses(): HasMany { return $this->hasMany(Address::class); }
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function orders(): HasMany
+    {
+        return $this->hasMany(Order::class);
+    }
+
+    public function bookings(): HasMany
+    {
+        return $this->hasMany(Booking::class);
+    }
+
+    public function addresses(): HasMany
+    {
+        return $this->hasMany(Address::class);
+    }
 
     public function fullName(): string
     {

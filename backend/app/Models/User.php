@@ -19,10 +19,10 @@ use Spatie\Permission\Traits\HasRoles;
  */
 class User extends Authenticatable
 {
-    use LogsActivity;
-
     /** @use HasFactory<UserFactory> */
     use HasApiTokens, HasFactory, HasRoles, Notifiable, SoftDeletes;
+
+    use LogsActivity;
 
     /** Liste blanche des champs remplissables en masse (protection « mass assignment ») */
     protected $fillable = ['first_name', 'last_name', 'email', 'phone', 'password', 'is_active'];

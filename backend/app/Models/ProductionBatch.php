@@ -3,10 +3,10 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Spatie\Activitylog\LogOptions;
-use Spatie\Activitylog\Traits\LogsActivity;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 /** Lot de fabrication (marque Dabo Hair). unit_cost est une colonne GÉNÉRÉE par MySQL. */
 class ProductionBatch extends Model
@@ -20,8 +20,15 @@ class ProductionBatch extends Model
         return ['produced_on' => 'date', 'expires_on' => 'date', 'unit_cost' => 'decimal:2', 'total_cost' => 'integer'];
     }
 
-    public function product(): BelongsTo { return $this->belongsTo(Product::class); }
-    public function costs(): HasMany { return $this->hasMany(ProductionBatchCost::class); }
+    public function product(): BelongsTo
+    {
+        return $this->belongsTo(Product::class);
+    }
+
+    public function costs(): HasMany
+    {
+        return $this->hasMany(ProductionBatchCost::class);
+    }
 
     /** Journal d'audit (RG-SEC-01) : qui a modifié quoi, avec les valeurs avant et après */
     public function getActivitylogOptions(): LogOptions

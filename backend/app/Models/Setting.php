@@ -10,7 +10,10 @@ class Setting extends Model
 {
     protected $fillable = ['group', 'key', 'value'];
 
-    protected function casts(): array { return ['value' => 'json']; }
+    protected function casts(): array
+    {
+        return ['value' => 'json'];
+    }
 
     /** Setting::get('booking.min_notice_minutes', 120) — mis en cache 10 minutes */
     public static function get(string $key, mixed $default = null): mixed

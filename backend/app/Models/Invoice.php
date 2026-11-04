@@ -15,6 +15,13 @@ class Invoice extends Model
         return ['company_snapshot' => 'array', 'issued_at' => 'datetime', 'subtotal' => 'integer', 'tax_total' => 'integer', 'total' => 'integer'];
     }
 
-    public function order(): BelongsTo { return $this->belongsTo(Order::class); }
-    public function customer(): BelongsTo { return $this->belongsTo(Customer::class); }
+    public function order(): BelongsTo
+    {
+        return $this->belongsTo(Order::class);
+    }
+
+    public function customer(): BelongsTo
+    {
+        return $this->belongsTo(Customer::class);
+    }
 }
