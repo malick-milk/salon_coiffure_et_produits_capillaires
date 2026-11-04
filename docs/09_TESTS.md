@@ -179,7 +179,7 @@ composer require --dev larastan/larastan
 ```
 backend  (style + 106 tests + couverture ≥ 90 %) ─┐
                                                   ├─► e2e (3 parcours + concurrence)
-frontend (ESLint + types + 56 tests + build) ─────┘
+frontend (ESLint + types + 56 tests + build) ─────┘   ← sur Node 22 ET la dernière version de Node
 ```
 
 - **Où voir le résultat** : onglet **Actions** du dépôt sur GitHub. Une coche verte ✓ ou une croix rouge ✗ apparaît aussi à côté de chaque commit.
@@ -217,3 +217,15 @@ public function test_une_perte_superieure_au_stock_est_refusee_sans_rien_ecrire(
 ```
 
 Nommez le test comme une phrase : en cas d'échec, son nom dit déjà ce qui ne va plus.
+
+---
+
+## 9. Bug rencontré après l'étape : Node 25 et `localStorage`
+
+**Symptôme** (sur l'ordinateur de développement, pas sur GitHub) : 8 tests du panier en échec, `Cannot read properties of undefined (reading 'setItem')`.
+
+**Cause** : Node 25 et les versions suivantes ont leur **propre** `localStorage` global. Sans l'option `--localstorage-file`, il est inutilisable, et dans Vitest il masque celui du navigateur simulé (jsdom). Le panier, qui se mémorise dans `localStorage`, ne pouvait plus écrire. GitHub utilisait Node 22, d'où « ça marche chez lui, pas chez moi ».
+
+**Correction** : `frontend/src/test/setup.ts` installe un stockage en mémoire quand celui fourni est inutilisable. L'application elle-même n'était pas touchée : dans un vrai navigateur, `localStorage` fonctionne. Et l'intégration continue teste désormais **deux** versions de Node (22 et la plus récente), pour qu'une différence de ce genre soit attrapée par GitHub, avant d'atteindre un poste de travail.
+
+**Leçon** : quand un test passe à un endroit et échoue à un autre, comparez d'abord les **versions** (`node -v`, `php -v`) avant de soupçonner le code.
