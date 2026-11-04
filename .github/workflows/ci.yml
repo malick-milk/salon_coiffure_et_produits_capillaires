@@ -122,14 +122,19 @@ jobs:
           (cd backend && composer install --no-interaction --prefer-dist --no-progress && cp .env.example .env && php artisan key:generate)
           (cd frontend && npm ci && npm install --no-save playwright@1.63.0 && npx playwright install --with-deps chromium)
       - name: Démarrer l'API (8000), l'API multi-processus (8001) et le site (5173)
+        # Chaque serveur dans sa propre sous-coquille ( … ), lancée depuis la racine du dépôt ; « exec » remplace
+        # la sous-coquille par le serveur et la redirection porte sur tout le groupe (aucune sortie laissée ouverte).
+        # Piège évité : « cd public && commande & » envoie TOUTE la chaîne en arrière-plan, « cd » compris ;
+        # le shell principal ne change alors pas de dossier et les « cd » suivants partent du mauvais endroit.
         run: |
-          cd backend && php artisan migrate:fresh --seed --force
-          nohup php artisan serve --port=8000 > ../api.log 2>&1 &
-          cd public && PHP_CLI_SERVER_WORKERS=8 API_RATE_LIMIT=100000 CHECKOUT_RATE_LIMIT=100000 \
-            nohup php -S 127.0.0.1:8001 ../vendor/laravel/framework/src/Illuminate/Foundation/resources/server.php > ../../api-workers.log 2>&1 &
-          cd ../../frontend && nohup npx vite --port 5173 --strictPort > ../vite.log 2>&1 &
+          (cd backend && php artisan migrate:fresh --seed --force)
+          (cd backend && exec php artisan serve --port=8000) > api.log 2>&1 &
+          (cd backend/public && PHP_CLI_SERVER_WORKERS=8 API_RATE_LIMIT=100000 CHECKOUT_RATE_LIMIT=100000 \
+            exec php -S 127.0.0.1:8001 ../vendor/laravel/framework/src/Illuminate/Foundation/resources/server.php) > api-workers.log 2>&1 &
+          (cd frontend && exec npx vite --port 5173 --strictPort) > vite.log 2>&1 &
           for i in $(seq 1 60); do curl -sf http://localhost:5173/api/v1/categories > /dev/null && break; sleep 1; done
-          curl -sf http://localhost:5173/api/v1/categories > /dev/null
+          curl -sf http://127.0.0.1:8001/api/v1/categories > /dev/null || (cat api-workers.log; exit 1)
+          curl -sf http://localhost:5173/api/v1/categories > /dev/null || (cat vite.log api.log; exit 1)
       - name: Parcours vitrine
         run: mkdir -p captures && node frontend/e2e/parcours-vitrine.cjs captures
       - name: Parcours compte client (base remise à zéro)
