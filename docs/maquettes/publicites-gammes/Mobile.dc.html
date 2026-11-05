@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Accueil Dabo Hair sur téléphone</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Josefin+Sans:wght@300;400&family=Playfair+Display:wght@500;600;700&display=swap">
+<style>
+body{margin:0;background:#0f0f0f}
+a{color:#d4af37}a:hover{color:#e8c95a}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; overflow: hidden; background: #0f0f0f; color: #f8f8f8; font-family: Inter, system-ui, sans-serif; display: flex; flex-direction: column; position: relative">
+  <div style="background: #d4af37; color: #0f0f0f; font-size: 12px; font-weight: 500; text-align: center; padding: 7px 12px">Retrait gratuit · Livraison à Dakar · Paiement à la réception</div>
+  <header style="display: flex; align-items: center; justify-content: space-between; padding: 8px 12px 8px 16px; border-bottom: 1px solid #262626">
+    <a href="MobileMenu.dc.html" aria-label="Ouvrir le menu" style="width: 44px; height: 44px; display: grid; place-items: center; color: #f8f8f8"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"></path></svg></a>
+    <a href="#" aria-label="Dabo Hair, accueil" style="display: flex; align-items: center; gap: 8px; text-decoration: none; color: #d4af37">
+      <svg width="38" height="38" viewBox="0 0 120 120" aria-hidden="true">
+        <circle cx="60" cy="27" r="21" fill="none" stroke="#d4af37" stroke-width="3"></circle>
+        <circle cx="60" cy="25" r="14.5" fill="#d4af37"></circle>
+        <path d="M60 22 q5 1 5 7 q0 4-3 6 l-1 5 h-6 l1-5 q-3-3-2-8 q1-5 6-5z" fill="#0f0f0f"></path>
+        <polygon points="4,50 116,50 60,118" fill="none" stroke="#d4af37" stroke-width="3"></polygon>
+        <text x="60" y="78" text-anchor="middle" font-family="Josefin Sans, sans-serif" font-size="17" letter-spacing="4" fill="#d4af37">DABO</text>
+        <text x="60" y="93" text-anchor="middle" font-family="Josefin Sans, sans-serif" font-size="7.5" letter-spacing="3" fill="#d4af37">· HAIR ·</text>
+      </svg>
+      <span style="font-family: 'Josefin Sans', sans-serif; font-size: 18px; letter-spacing: 4px">DABO HAIR</span>
+    </a>
+    <a href="#" aria-label="Panier, 2 articles" style="width: 44px; height: 44px; display: grid; place-items: center; color: #f8f8f8; position: relative"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M6 7h12l-1 13H7z"></path><path d="M9 7a3 3 0 0 1 6 0"></path></svg><span style="position: absolute; top: 4px; right: 2px; background: #d4af37; color: #0f0f0f; font-size: 11px; font-weight: 700; border-radius: 999px; min-width: 18px; height: 18px; display: grid; place-items: center">2</span></a>
+  </header>
+
+  <section aria-roledescription="carrousel" aria-label="Offres du moment" style="padding: 14px 16px 0; display: flex; flex-direction: column; gap: 14px">
+    <div style="position: relative; border-radius: 22px; overflow: hidden; height: 300px; border: 1px solid #2b2516">
+      <img src="{{slide.image}}" alt="{{slide.alt}}" style="width: 100%; height: 100%; object-fit: cover; object-position: center 80%">
+      <span style="position: absolute; top: 14px; left: 14px; background: #0f0f0f; color: #d4af37; font-size: 12px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; padding: 6px 12px; border-radius: 999px">{{slide.eyebrow}}</span>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 10px">
+      <h1 style="margin: 0; font-family: 'Playfair Display', serif; font-size: 32px; font-weight: 600; line-height: 1.1">{{slide.title}}</h1>
+      <p style="margin: 0; font-size: 15px; line-height: 1.55; color: #c9c4b8">{{slide.text}}</p>
+      <div style="display: flex; align-items: baseline; gap: 8px"><strong style="font-size: 28px; color: #d4af37">{{slide.price}}</strong><span style="font-size: 14px; color: #a3a3a3">{{slide.priceNote}}</span></div>
+      <a href="#" style="background: #d4af37; color: #0f0f0f; text-decoration: none; font-weight: 600; text-align: center; padding: 15px; border-radius: 999px">{{slide.cta}}</a>
+      <div style="display: flex; justify-content: center; gap: 4px; margin-top: 2px">
+        <sc-for list="{{dots}}" as="dot" hint-placeholder-count="3">
+          <button type="button" onClick="{{dot.go}}" aria-label="{{dot.label}}" style="width: 44px; height: 32px; border: 0; background: transparent; display: grid; place-items: center; cursor: pointer; padding: 0"><span style="{{dot.style}}"></span></button>
+        </sc-for>
+      </div>
+    </div>
+  </section>
+
+  <nav aria-label="Navigation rapide" style="position: absolute; left: 0; right: 0; bottom: 0; background: #141414; border-top: 1px solid #262626; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); padding: 6px 4px 10px">
+    <a href="#" style="text-decoration: none; color: #d4af37; display: flex; flex-direction: column; align-items: center; gap: 3px; font-size: 11px; padding: 6px 0"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 11 12 4l8 7v9H4z"></path></svg>Accueil</a>
+    <a href="MobileMenu.dc.html" style="text-decoration: none; color: #f8f8f8; display: flex; flex-direction: column; align-items: center; gap: 3px; font-size: 11px; padding: 6px 0"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="4" y="4" width="7" height="7" rx="1.5"></rect><rect x="13" y="4" width="7" height="7" rx="1.5"></rect><rect x="4" y="13" width="7" height="7" rx="1.5"></rect><rect x="13" y="13" width="7" height="7" rx="1.5"></rect></svg>Gammes</a>
+    <a href="#" style="text-decoration: none; color: #f8f8f8; display: flex; flex-direction: column; align-items: center; gap: 3px; font-size: 11px; padding: 6px 0"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="4" y="5" width="16" height="15" rx="2"></rect><path d="M8 3v4M16 3v4M4 10h16"></path></svg>Réserver</a>
+    <a href="#" style="text-decoration: none; color: #f8f8f8; display: flex; flex-direction: column; align-items: center; gap: 3px; font-size: 11px; padding: 6px 0"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="8" r="4"></circle><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"></path></svg>Compte</a>
+  </nav>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { i: 0 }; }
+  renderVals() {
+    const slides = [
+      { eyebrow: 'Offre coffret', title: 'La routine complète', text: 'Shampooing, crème, sérum et spray hydratant : vos cheveux à l’état pur.', price: '10 000 F CFA', priceNote: 'les 4 produits', cta: 'Commander le coffret', image: '/_blob/6d18d32423e2d549a66ead9a482aa2fc', alt: 'Spray hydratant, crème, sérum et shampooing Dabo Hair' },
+      { eyebrow: 'Offre coffret', title: 'Le trio essentiel', text: 'Shampooing, crème et sérum : la base d’une routine simple.', price: '5 000 F CFA', priceNote: 'les 3 produits', cta: 'Commander le trio', image: '/_blob/7f2ca7d747f7686f61fbd820fe537fad', alt: 'Shampooing, crème et sérum Dabo Hair' },
+      { eyebrow: 'Nouveau', title: 'Masque à la kératine', text: 'Le soin profond de la maison, pour réparer la fibre.', price: '3 000 F CFA', priceNote: 'le pot', cta: 'Découvrir le masque', image: '/_blob/e174ac64d7a92a88bcdbf9043f99a3ae', alt: 'Les soins Dabo Hair devant une plante' }
+    ];
+    const i = this.state.i;
+    return {
+      slide: slides[i],
+      dots: slides.map((s, n) => ({
+        label: 'Publicité ' + (n + 1) + ' : ' + s.title,
+        go: () => this.setState({ i: n }),
+        style: 'display: block; height: 8px; border-radius: 999px; ' + (n === i ? 'width: 24px; background: #d4af37' : 'width: 8px; background: #4a4335')
+      }))
+    };
+  }
+}
+</script>
+</body>
+</html>

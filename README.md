@@ -20,6 +20,7 @@ vitrine et e-commerce, réservation en ligne, ERP d'administration et tableau de
 | 9 | Tests — [docs/09_TESTS.md](docs/09_TESTS.md) | Terminée (252 vérifications, couverture backend 95,8 %, concurrence, intégration continue GitHub Actions) |
 | 10 | Audit de sécurité — [docs/10_SECURITE.md](docs/10_SECURITE.md) | Terminée (OWASP Top 10 : 3 failles corrigées, 9 renforcements, `app:security-check`) |
 | 11 | Déploiement — [docs/11_DEPLOIEMENT.md](docs/11_DEPLOIEMENT.md), [deploy/](deploy/) | Prête (scripts testés sur Ubuntu 24.04 ; reste : acheter le domaine et le serveur) |
+| 12 | Publicités de l'accueil et « Nos gammes » — [docs/12_PUBLICITES_ET_GAMMES.md](docs/12_PUBLICITES_ET_GAMMES.md), [maquette](https://claude.ai/artifact/NpExLjgNGZiUutFi51EtZL) | Maquette en attente de validation |
 
 ## Stack
 - Frontend : React + TypeScript + Vite + Tailwind CSS + shadcn/ui + Lucide React
@@ -44,6 +45,7 @@ Le script vérifie le modèle de données sur une base de test séparée. Guide 
 |---|---|
 | [docs/GUIDE_MODIFIER_LE_SITE.md](docs/GUIDE_MODIFIER_LE_SITE.md) | **Commencer ici pour modifier le site** : où est quoi, trouver un fichier, détecter les erreurs |
 | [docs/APPRENDRE_UBUNTU.md](docs/APPRENDRE_UBUNTU.md) | Apprendre Ubuntu pour gérer le serveur (programme de 4 semaines, répétition générale dans WSL) |
+| [docs/COMPTES_ET_DONNEES.md](docs/COMPTES_ET_DONNEES.md) | Lancer le site, comptes de test et vraies données, signaler un bug |
 | [DEVELOPER_GUIDE.md](DEVELOPER_GUIDE.md) | Installer, coder, conventions |
 | [ARCHITECTURE.md](ARCHITECTURE.md) | Organisation technique du projet |
 | [DATABASE.md](DATABASE.md) | Modèle de données |

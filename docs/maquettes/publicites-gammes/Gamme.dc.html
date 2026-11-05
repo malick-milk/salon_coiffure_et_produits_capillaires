@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Gamme La routine complète</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Josefin+Sans:wght@300;400&family=Playfair+Display:wght@500;600;700&display=swap">
+<style>
+body{margin:0;background:#0f0f0f}
+a{color:#d4af37}a:hover{color:#e8c95a}
+</style>
+</helmet>
+<div style="width: 100%; min-width: 1200px; min-height: 1500px; background: #0f0f0f; color: #f8f8f8; font-family: Inter, system-ui, sans-serif">
+  <header style="display: flex; align-items: center; justify-content: space-between; padding: 18px 64px; border-bottom: 1px solid #262626">
+    <span style="font-family: 'Josefin Sans', sans-serif; font-size: 20px; letter-spacing: 5px; color: #d4af37">DABO HAIR</span>
+    <nav style="display: flex; gap: 32px; font-size: 15px"><span style="color: #d4af37; font-weight: 600">Nos gammes</span><span>Boutique</span><span>Prestations</span><span>Le salon</span></nav>
+    <span style="border: 1px solid #d4af37; color: #d4af37; padding: 10px 18px; border-radius: 999px; font-size: 14px">Panier (2)</span>
+  </header>
+
+  <div style="padding: 20px 64px 0; font-size: 14px; color: #a3a3a3"><a href="#" style="color: #a3a3a3; text-decoration: none">Accueil</a> / <a href="#" style="color: #a3a3a3; text-decoration: none">Nos gammes</a> / <span style="color: #f8f8f8">La routine complète</span></div>
+
+  <section style="display: grid; grid-template-columns: 1.05fr 1fr; gap: 56px; padding: 28px 64px 56px; align-items: center">
+    <div style="border-radius: 24px; overflow: hidden; height: 520px; border: 1px solid #2b2516">
+      <img src="/_blob/6d18d32423e2d549a66ead9a482aa2fc" alt="Spray hydratant, crème, sérum et shampooing Dabo Hair" style="width: 100%; height: 100%; object-fit: cover; object-position: center 85%">
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 18px">
+      <span style="align-self: flex-start; border: 1px solid #d4af37; color: #d4af37; font-size: 12px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; padding: 6px 12px; border-radius: 999px">Coffret · 4 produits</span>
+      <h1 style="margin: 0; font-family: 'Playfair Display', serif; font-size: 52px; font-weight: 600; line-height: 1.05">La routine complète</h1>
+      <p style="margin: 0; font-size: 17px; line-height: 1.65; color: #c9c4b8">Les quatre gestes Dabo Hair, dans l'ordre : laver en douceur, nourrir, stimuler la pousse, hydrater chaque jour.</p>
+      <div style="display: flex; align-items: baseline; gap: 14px">
+        <strong style="font-size: 40px; color: #d4af37">10 000 F CFA</strong>
+        <span style="font-size: 18px; color: #a3a3a3; text-decoration: line-through">14 000 F</span>
+        <span style="background: #2b2516; color: #e8c95a; font-size: 13px; font-weight: 600; padding: 5px 10px; border-radius: 999px">4 000 F d'économie</span>
+      </div>
+      <div style="display: flex; align-items: center; gap: 14px; margin-top: 4px">
+        <div style="display: flex; align-items: center; border: 1px solid #333; border-radius: 999px">
+          <button type="button" onClick="{{less}}" aria-label="Retirer un coffret" style="width: 48px; height: 48px; background: transparent; border: 0; color: #f8f8f8; font-size: 20px; cursor: pointer">−</button>
+          <span style="min-width: 28px; text-align: center; font-weight: 600">{{qty}}</span>
+          <button type="button" onClick="{{more}}" aria-label="Ajouter un coffret" style="width: 48px; height: 48px; background: transparent; border: 0; color: #f8f8f8; font-size: 20px; cursor: pointer">+</button>
+        </div>
+        <button type="button" onClick="{{add}}" style="flex: 1; background: #d4af37; color: #0f0f0f; border: 0; font: inherit; font-weight: 600; font-size: 16px; padding: 16px; border-radius: 999px; cursor: pointer">{{addLabel}}</button>
+      </div>
+      <sc-if value="{{added}}" hint-placeholder-val="false">
+        <div role="status" style="border: 1px solid #3d5a3a; background: #16201a; color: #cfe8c9; padding: 12px 16px; border-radius: 14px; font-size: 14px">Coffret ajouté au panier : les 4 produits apparaissent groupés, avec la remise appliquée. <a href="#">Voir le panier</a></div>
+      </sc-if>
+      <ul style="margin: 6px 0 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 8px; font-size: 14px; color: #c9c4b8">
+        <li>Retrait gratuit au salon ou livraison à Dakar</li>
+        <li>Paiement à la réception, Wave ou Orange Money</li>
+        <li>Stock vérifié pour les 4 produits avant validation</li>
+      </ul>
+    </div>
+  </section>
+
+  <section style="padding: 48px 64px; border-top: 1px solid #262626">
+    <h2 style="margin: 0 0 6px; font-family: 'Playfair Display', serif; font-size: 34px; font-weight: 600">La routine, étape par étape</h2>
+    <p style="margin: 0 0 28px; color: #a3a3a3">Chaque produit s'achète aussi seul.</p>
+    <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 20px">
+      <sc-for list="{{steps}}" as="st" hint-placeholder-count="4">
+        <div style="background: #141414; border: 1px solid #262626; border-radius: 20px; padding: 24px; display: flex; flex-direction: column; gap: 10px">
+          <span style="width: 36px; height: 36px; border-radius: 999px; border: 1px solid #d4af37; color: #d4af37; display: grid; place-items: center; font-weight: 600">{{st.n}}</span>
+          <span style="font-size: 12px; letter-spacing: 1.5px; text-transform: uppercase; color: #a3a3a3">{{st.when}}</span>
+          <strong style="font-size: 18px">{{st.name}}</strong>
+          <span style="font-size: 14px; line-height: 1.6; color: #c9c4b8">{{st.text}}</span>
+          <span style="margin-top: auto; padding-top: 8px; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #262626"><span style="color: #d4af37; font-weight: 600">{{st.price}}</span><a href="#" style="font-size: 14px">Voir le produit</a></span>
+        </div>
+      </sc-for>
+    </div>
+  </section>
+
+  <section style="padding: 40px 64px 64px; display: grid; grid-template-columns: 1fr 1fr; gap: 24px">
+    <div style="background: #141414; border: 1px solid #262626; border-radius: 20px; padding: 28px">
+      <h3 style="margin: 0 0 10px; font-size: 18px">Pour qui ?</h3>
+      <p style="margin: 0; color: #c9c4b8; line-height: 1.65">Cheveux naturels, crépus à frisés, secs ou cassants. Idéal pour démarrer une routine complète ou entretenir des twists.</p>
+    </div>
+    <div style="background: #141414; border: 1px solid #262626; border-radius: 20px; padding: 28px; display: flex; justify-content: space-between; align-items: center; gap: 20px">
+      <div><h3 style="margin: 0 0 6px; font-size: 18px">Plus simple pour commencer ?</h3><p style="margin: 0; color: #c9c4b8">Le trio essentiel : shampooing, crème, sérum.</p></div>
+      <a href="#" style="white-space: nowrap; border: 1px solid #d4af37; padding: 12px 18px; border-radius: 999px; text-decoration: none">Le trio · 5 000 F</a>
+    </div>
+  </section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1500}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { qty: 1, added: false }; }
+  renderVals() {
+    const q = this.state.qty;
+    return {
+      qty: q,
+      added: this.state.added,
+      addLabel: 'Ajouter les 4 produits · ' + (10000 * q).toLocaleString('fr-FR') + ' F CFA',
+      less: () => this.setState({ qty: Math.max(1, q - 1) }),
+      more: () => this.setState({ qty: Math.min(10, q + 1) }),
+      add: () => this.setState({ added: true }),
+      steps: [
+        { n: 1, when: 'Lavage', name: 'Shampooing sans sulfate', text: 'Nettoie sans dessécher le cuir chevelu.', price: '3 000 F' },
+        { n: 2, when: 'Après lavage', name: 'Crème capillaire', text: 'Nourrit et assouplit les longueurs.', price: '3 000 F' },
+        { n: 3, when: 'Sur le cuir chevelu', name: 'Sérum Activ’Pousse 30 ml', text: 'Quelques gouttes, en massage, pour stimuler la pousse.', price: '3 000 F' },
+        { n: 4, when: 'Chaque jour', name: 'Spray hydratant', text: 'Réhydrate et ravive les boucles entre deux lavages.', price: '5 000 F' }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>
