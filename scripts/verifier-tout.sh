@@ -5,7 +5,7 @@
 #
 # Le détail complet de chaque contrôle est enregistré dans verification.log (à envoyer en cas de souci).
 set -u
-cd "$(dirname "$0")/.."
+cd "$(dirname "$0")/.." || exit 1
 LOG="verification.log"
 : > "$LOG"
 results=()
@@ -28,6 +28,7 @@ step() { # step "nom" commande…
 }
 
 # Avant les tests backend : la base de TEST est-elle joignable ? (cause n° 1 des échecs sur un poste)
+# shellcheck disable=SC1112  # apostrophes typographiques dans les messages PHP : voulues
 check_test_database() {
   (cd backend && php -r '
     $e = @parse_ini_file(".env", false, INI_SCANNER_RAW);
@@ -54,7 +55,7 @@ step "Backend : base de test joignable"          check_test_database
 if [[ "${results[-1]}" == OK* ]]; then
   step "Backend : tests PHPUnit"                 bash -c 'cd backend && php artisan test'
 else
-  results+=("—     Backend : tests PHPUnit (non lancés : corrigez d’abord l’accès à la base)")
+  results+=("—     Backend : tests PHPUnit (non lancés : corrigez d'abord l'accès à la base)")
 fi
 step "Frontend : qualité du code (ESLint)"       bash -c 'cd frontend && npm run lint'
 step "Frontend : types (TypeScript)"             bash -c 'cd frontend && npm run typecheck'
@@ -66,7 +67,7 @@ printf '%s\n' "${results[@]}"
 if [ ${#failed_details[@]} -gt 0 ]; then
   printf '\n\033[1mPourquoi ça échoue\033[0m\n'
   printf '%s\n\n' "${failed_details[@]}"
-  printf 'Détail complet : %s (à m’envoyer si besoin). Corrigez avant de pousser.\n' "$LOG"
+  printf "Détail complet : %s (à m'envoyer si besoin). Corrigez avant de pousser.\n" "$LOG"
   exit 1
 fi
 printf '\nTout est vert : vous pouvez faire git push.\n'

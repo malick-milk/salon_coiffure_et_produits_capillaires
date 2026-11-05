@@ -19,7 +19,7 @@ vitrine et e-commerce, réservation en ligne, ERP d'administration et tableau de
 | 8 | Data Analytics — [docs/08_ANALYTICS.md](docs/08_ANALYTICS.md), [analytics/](analytics/) | Terminée (agrégats quotidiens, tableau de bord BI, exports CSV, prévisions Python) |
 | 9 | Tests — [docs/09_TESTS.md](docs/09_TESTS.md) | Terminée (252 vérifications, couverture backend 95,8 %, concurrence, intégration continue GitHub Actions) |
 | 10 | Audit de sécurité — [docs/10_SECURITE.md](docs/10_SECURITE.md) | Terminée (OWASP Top 10 : 3 failles corrigées, 9 renforcements, `app:security-check`) |
-| 11 | Déploiement | À faire |
+| 11 | Déploiement — [docs/11_DEPLOIEMENT.md](docs/11_DEPLOIEMENT.md), [deploy/](deploy/) | Prête (scripts testés sur Ubuntu 24.04 ; reste : acheter le domaine et le serveur) |
 
 ## Stack
 - Frontend : React + TypeScript + Vite + Tailwind CSS + shadcn/ui + Lucide React

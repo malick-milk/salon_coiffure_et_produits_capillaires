@@ -6,6 +6,13 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { App } from './app/App'
+// Polices hébergées SUR NOTRE SERVEUR (étape 11) et non chez Google Fonts : aucune adresse IP de visiteur
+// envoyée à un tiers (données personnelles), une connexion réseau de moins depuis Dakar, et une politique
+// de sécurité (CSP) qui n'autorise que notre propre domaine.
+import '@fontsource-variable/inter'
+import '@fontsource/playfair-display/500.css'
+import '@fontsource/playfair-display/600.css'
+import '@fontsource/playfair-display/700.css'
 import './index.css'
 
 async function enableMocks() {

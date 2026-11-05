@@ -63,6 +63,13 @@ class SecurityAuditTest extends TestCase
 
     // ---------- A01 : contrôle d'accès ----------
 
+    public function test_route_protegee_sans_en_tete_json_repond_401_et_non_500(): void
+    {
+        // Un robot ou une adresse tapée dans le navigateur n'envoie pas « Accept: application/json »
+        $this->get('/api/v1/admin/dashboard')->assertUnauthorized()->assertJsonPath('message', 'Non authentifié.');
+        $this->get('/api/v1/me/orders')->assertUnauthorized();
+    }
+
     public function test_chaque_route_d_administration_exige_une_connexion_et_une_permission(): void
     {
         $admin = collect(Route::getRoutes()->getRoutes())->filter(fn ($r) => str_starts_with($r->uri(), 'api/v1/admin'));

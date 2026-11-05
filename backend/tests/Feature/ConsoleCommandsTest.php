@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\Setting;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
@@ -45,5 +46,16 @@ class ConsoleCommandsTest extends TestCase
 
         $this->artisan('analytics:snapshot', ['--from' => '2026-03-24', '--to' => '2026-03-20'])->assertFailed();
         $this->artisan('analytics:snapshot', ['--all' => true])->expectsOutputToContain('2026-03-20')->assertSuccessful(); // depuis le 1er mouvement
+    }
+
+    public function test_identite_legale_de_l_entreprise_pour_les_factures(): void
+    {
+        $this->artisan('app:company')->expectsOutputToContain('[À RENSEIGNER]')->assertSuccessful();
+        $this->artisan('app:company', ['--ninea' => '00123456 2G3', '--rccm' => 'SN-DKR-2026-A-12345'])
+            ->expectsOutputToContain('SN-DKR-2026-A-12345')->assertSuccessful();
+
+        $identity = Setting::where('key', 'company.identity')->first()->value;
+        $this->assertSame('00123456 2G3', $identity['ninea']);
+        $this->assertSame('Dabo Hair', $identity['name']); // les autres champs sont conservés
     }
 }

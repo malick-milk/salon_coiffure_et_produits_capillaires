@@ -6,6 +6,7 @@ backend/vendor/
 .env
 .env.*
 !.env.example
+!.env.production.example
 
 # Builds et caches
 frontend/dist/

@@ -78,8 +78,10 @@ class DaboHairCatalogSeeder extends Seeder
         }
         $products['DAB-SAP-015']->update(['variant_of_id' => $products['DAB-SAP-030']->id]);
 
-        // Vente en gros RÉELLE (capture du client) : 36 douzaines, 1 374 000 F CFA
-        if (Order::where('reference', 'CMD-2026-000009')->exists()) {
+        // Vente en gros RÉELLE (capture du client) : 36 douzaines, 1 374 000 F CFA.
+        // PAS en production : le nom du revendeur n'est pas encore renseigné ([REVENDEUR] [NOM]) ; le stock réel
+        // se saisit le premier jour par un inventaire dans l'ERP (docs/11_DEPLOIEMENT.md, « Jour 1 »).
+        if (app()->isProduction() || Order::where('reference', 'CMD-2026-000009')->exists()) {
             return;
         }
         $reseller = Customer::updateOrCreate(['phone' => '770000099'], [

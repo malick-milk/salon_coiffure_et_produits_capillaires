@@ -32,6 +32,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+      - name: Scripts de déploiement et de vérification (ShellCheck)
+        run: shellcheck -S warning deploy/*.sh scripts/*.sh
       - name: Bibliothèques PHP (composer audit)
         working-directory: backend
         run: composer audit --locked
@@ -42,11 +44,16 @@ jobs:
         run: npm audit --omit=dev --audit-level=high
 
   backend:
-    name: Backend (style + tests + couverture)
+    name: Backend, MySQL ${{ matrix.mysql }} (style + tests + couverture)
     runs-on: ubuntu-24.04
+    # 8.4 : la version de développement ; 8.0 : celle d'Ubuntu 24.04, donc du serveur de production
+    strategy:
+      fail-fast: false
+      matrix:
+        mysql: ['8.4', '8.0']
     services:
       mysql:
-        image: mysql:8.4
+        image: mysql:${{ matrix.mysql }}
         env:
           MYSQL_ROOT_PASSWORD: root_ci
           MYSQL_DATABASE: salon_test

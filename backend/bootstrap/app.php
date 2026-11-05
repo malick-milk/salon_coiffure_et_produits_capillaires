@@ -27,6 +27,11 @@ return Application::configure(basePath: dirname(__DIR__))
         // sont authentifiées par cookie de session + protection CSRF (ADR-003)
         $middleware->statefulApi();
 
+        // Visiteur non connecté sur une route protégée : jamais de redirection vers une page « login » (elle n'existe
+        // pas dans l'API ; Laravel plantait en 500 quand la requête n'envoyait pas « Accept: application/json »,
+        // par exemple un robot ou une adresse tapée dans le navigateur). Réponse 401 en JSON à la place.
+        $middleware->redirectGuestsTo(fn (Request $request) => $request->is('api/*') ? null : '/connexion');
+
         // En-têtes de sécurité sur TOUTES les réponses (étape 10, OWASP A05)
         $middleware->append(SecurityHeaders::class);
 

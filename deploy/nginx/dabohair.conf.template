@@ -1,0 +1,90 @@
+# Nginx — site Dabo Hair. Modèle : provision.sh remplace __DOMAIN__ et __APP_DIR__, puis certbot ajoute le HTTPS.
+#
+# Une seule adresse pour tout (https://__DOMAIN__) :
+#   /api/…, /sanctum/…, /up  -> Laravel (PHP-FPM)        /          -> site React déjà construit (fichiers statiques)
+# Même origine pour le site et l'API : pas de CORS, cookies de session simples, une seule configuration HTTPS.
+
+# www.__DOMAIN__ -> __DOMAIN__ (une seule adresse officielle, meilleure pour Google)
+server {
+    listen 80;
+    listen [::]:80;
+    server_name www.__DOMAIN__;
+    return 301 https://__DOMAIN__$request_uri;
+}
+
+server {
+    listen 80;
+    listen [::]:80;
+    server_name __DOMAIN__;
+
+    root __APP_DIR__/current/frontend/dist;
+    index index.html;
+    charset utf-8;
+    server_tokens off;            # ne pas annoncer la version de Nginx
+    client_max_body_size 2m;      # aucune requête légitime n'est plus grosse (pas de téléversement)
+
+    # ---------- En-têtes de sécurité du SITE (ceux de l'API sont posés par Laravel, middleware SecurityHeaders) ----------
+    # CSP : le navigateur n'exécute que les scripts de NOTRE domaine. 'unsafe-inline' pour les STYLES seulement,
+    # car React et les graphiques posent des attributs style="…" ; aucun script inline n'est autorisé.
+    set $csp "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'";
+    add_header Content-Security-Policy $csp always;
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header X-Frame-Options "DENY" always;
+    add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+    add_header Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=()" always;
+    add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+
+    # ---------- Compression : moins de données à transférer, précieux en 4G ----------
+    gzip on;
+    gzip_comp_level 5;
+    gzip_min_length 1024;
+    gzip_types text/css application/javascript application/json image/svg+xml text/plain;
+
+    # ---------- API Laravel ----------
+    location ~ ^/(api|sanctum|up)(/|$) {
+        root __APP_DIR__/current/backend/public;
+        try_files $uri /index.php?$query_string;
+    }
+    location = /index.php {
+        # Un add_header ICI coupe l'héritage des en-têtes du site : l'API garde ceux posés par Laravel
+        # (CSP stricte pour le JSON, aucune pour le PDF de facture, que le lecteur du navigateur doit pouvoir ouvrir)
+        add_header X-Robots-Tag "noindex, nofollow" always;
+        root __APP_DIR__/current/backend/public;
+        include fastcgi_params;
+        fastcgi_param SCRIPT_FILENAME $realpath_root$fastcgi_script_name;
+        fastcgi_param DOCUMENT_ROOT $realpath_root;   # $realpath_root : suit le lien « current » -> nouvelle version
+        fastcgi_pass unix:/run/php/php8.3-fpm.sock;
+        fastcgi_hide_header X-Powered-By;
+        fastcgi_read_timeout 60s;
+        internal;                                     # jamais appelable directement depuis l'extérieur
+    }
+
+    # ---------- Fichiers du site React ----------
+    # Les fichiers de /assets ont un nom qui change à chaque version (inter-latin-Dx4kXJAl.woff2) : cache 1 an
+    location /assets/ {
+        expires 1y;
+        add_header Cache-Control "public, immutable" always;
+        add_header X-Content-Type-Options "nosniff" always;
+        try_files $uri =404;
+    }
+    # Toute autre adresse (/boutique, /admin/commandes…) : c'est React qui affiche la bonne page
+    location / {
+        try_files $uri $uri/ /index.html;
+        add_header Cache-Control "no-cache" always;   # index.html toujours frais : il pointe vers les nouveaux fichiers
+        add_header Content-Security-Policy $csp always;
+        add_header X-Content-Type-Options "nosniff" always;
+        add_header X-Frame-Options "DENY" always;
+        add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+        add_header Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=()" always;
+        add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+    }
+
+    # Fichiers cachés (.env, .git…) : jamais servis
+    location ~ /\.(?!well-known) {
+        deny all;
+        return 404;
+    }
+
+    access_log /var/log/nginx/dabohair.access.log;
+    error_log /var/log/nginx/dabohair.error.log warn;
+}
