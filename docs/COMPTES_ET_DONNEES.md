@@ -18,6 +18,13 @@ cd frontend
 npm run dev
 ```
 
+**Après chaque `git pull`**, mettez les dépendances à jour, sinon un paquet ajouté entre-temps manquera :
+
+```bash
+cd backend && composer install && php artisan migrate
+cd ../frontend && npm ci
+```
+
 Puis ouvrez **http://localhost:5173** (écrivez `localhost` et pas `127.0.0.1`, sinon la connexion ne tient pas).
 
 | Message | Cause | Solution |
@@ -25,6 +32,7 @@ Puis ouvrez **http://localhost:5173** (écrivez `localhost` et pas `127.0.0.1`, 
 | « Une erreur est survenue » ou « Erreur réseau » | La fenêtre 1 est fermée | Relancer `php artisan serve` |
 | Pastille brune « Faux serveur (MSW) actif » | `frontend/.env.local` contient `VITE_ENABLE_MOCKS=true` | Mettre `false`, puis relancer `npm run dev` |
 | `vendor/autoload.php` introuvable | Dépendances PHP absentes | `composer install` dans `backend/` |
+| `Failed to resolve import "@fontsource-variable/inter"` (ou un autre paquet) | Un `git pull` a apporté un nouveau paquet npm, pas encore installé | Arrêter Vite (Ctrl + C), `npm ci` dans `frontend/`, puis `npm run dev` |
 | Un compte de test est refusé | Base remplie avant la création du compte | `php artisan migrate:fresh --seed` dans `backend/` |
 
 ## 2. Deux bases de données séparées
