@@ -46,6 +46,7 @@ Le script vérifie le modèle de données sur une base de test séparée. Guide 
 | [docs/GUIDE_MODIFIER_LE_SITE.md](docs/GUIDE_MODIFIER_LE_SITE.md) | **Commencer ici pour modifier le site** : où est quoi, trouver un fichier, détecter les erreurs |
 | [docs/APPRENDRE_UBUNTU.md](docs/APPRENDRE_UBUNTU.md) | Apprendre Ubuntu pour gérer le serveur (programme de 4 semaines, répétition générale dans WSL) |
 | [docs/COMPTES_ET_DONNEES.md](docs/COMPTES_ET_DONNEES.md) | Lancer le site, comptes de test et vraies données, signaler un bug |
+| [docs/charte-graphique/](docs/charte-graphique/) | Logo (SVG et PNG), couleurs, polices, règles d'usage |
 | [DEVELOPER_GUIDE.md](DEVELOPER_GUIDE.md) | Installer, coder, conventions |
 | [ARCHITECTURE.md](ARCHITECTURE.md) | Organisation technique du projet |
 | [DATABASE.md](DATABASE.md) | Modèle de données |
