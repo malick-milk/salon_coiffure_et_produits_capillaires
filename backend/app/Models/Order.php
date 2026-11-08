@@ -22,7 +22,10 @@ class Order extends Model
         'shipping_name', 'shipping_phone', 'shipping_city', 'shipping_district', 'shipping_address', 'shipping_landmark',
         'subtotal', 'discount_total', 'shipping_fee', 'tax_rate', 'tax_total', 'total', 'customer_notes', 'cancellation_reason',
         'placed_at', 'confirmed_at', 'shipped_at', 'delivered_at', 'paid_at', 'cancelled_at',
+        'pickup_point_id', 'pickup_code', 'handover_token_hash', 'picked_up_at', 'consignment_statement_id',
     ];
+
+    protected $hidden = ['handover_token_hash'];
 
     protected function casts(): array
     {
@@ -35,6 +38,7 @@ class Order extends Model
             'confirmed_at' => 'datetime',
             'shipped_at' => 'datetime',
             'delivered_at' => 'datetime',
+            'picked_up_at' => 'datetime',
             'paid_at' => 'datetime',
             'cancelled_at' => 'datetime',
             'subtotal' => 'integer',
@@ -42,6 +46,12 @@ class Order extends Model
             'shipping_fee' => 'integer',
             'total' => 'integer',
         ];
+    }
+
+    /** Étape 14 : point de retrait partenaire choisi par la cliente */
+    public function pickupPoint(): BelongsTo
+    {
+        return $this->belongsTo(PickupPoint::class);
     }
 
     public function customer(): BelongsTo

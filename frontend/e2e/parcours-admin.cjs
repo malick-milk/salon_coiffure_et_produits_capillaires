@@ -233,6 +233,25 @@ async function login(page, email, password) {
   log(csv.status() === 200 && body.includes('CMD-2026-000102') && !body.includes('Mariama'), 'Export CSV : la commande y est, le nom de la cliente non (minimisation)')
   await page.screenshot({ path: `${SHOTS}/47b-erp-analyses.png`, fullPage: true })
 
+  // 9 bis. Points de retrait (étape 14), APRÈS les analyses : le versement ajoute des ventes encaissées : relevé du mois chez le partenaire de Thiès, puis versement
+  await menu.getByRole('link', { name: 'Points de retrait' }).click()
+  await page.getByRole('heading', { name: 'Points de retrait partenaires' }).waitFor()
+  await page.getByRole('link', { name: 'Boutique de Moussa Diop' }).click()
+  await page.getByRole('tab', { name: 'Relevé du mois' }).click()
+  await page.getByLabel(/^Compté : Sérum Activ/).fill('8') // 12 confiés, 8 restants : 4 vendus au comptoir
+  await page.getByRole('button', { name: 'Calculer le relevé' }).click()
+  await page.getByText('À verser avant le 5').waitFor()
+  const releve = (await page.locator('dl').last().textContent()).replace(/[\u202f\u00a0]/g, ' ')
+  log(/12 000 F CFA/.test(releve) && /10 800 F CFA/.test(releve), 'Relevé : 4 sérums vendus = 12 000 F, commission 10 % = 1 200 F, à verser 10 800 F')
+  await page.getByRole('button', { name: 'Valider le relevé' }).click()
+  await page.getByRole('button', { name: 'Versement reçu' }).click()
+  await page.getByText('Payé', { exact: true }).waitFor()
+  log(true, 'Versement enregistré : relevé payé, factures émises')
+  const releveHref = await page.getByRole('link', { name: 'PDF' }).first().getAttribute('href')
+  const relevePdf = await page.request.get(BASE + releveHref, { headers: { Referer: BASE + '/admin' } })
+  log(relevePdf.headers()['content-type'] === 'application/pdf', 'Relevé PDF téléchargeable')
+  await page.screenshot({ path: `${SHOTS}/49-erp-points-de-retrait.png`, fullPage: true })
+
   // 10. Le caissier : menu réduit, pas de chiffre d'affaires, pages interdites
   await ctx.clearCookies()
   const p2 = await (await browser.newContext({ viewport: { width: 1440, height: 900 } })).newPage()

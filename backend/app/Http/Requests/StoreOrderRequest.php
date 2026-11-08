@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use App\Support\Phone;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 /** Une commande ne contient AUCUN prix : seulement des identifiants et des quantités (RG-COM-04) */
 class StoreOrderRequest extends FormRequest
@@ -23,7 +24,8 @@ class StoreOrderRequest extends FormRequest
             'items' => ['required', 'array', 'min:1', 'max:50'],
             'items.*.product_id' => ['required', 'integer', 'distinct'],
             'items.*.quantity' => ['required', 'integer', 'min:1', 'max:99'],
-            'fulfillment_method' => ['required', 'in:pickup,delivery'],
+            'fulfillment_method' => ['required', 'in:pickup,delivery,pickup_point'],
+            'pickup_point_id' => ['required_if:fulfillment_method,pickup_point', 'nullable', 'integer', Rule::exists('pickup_points', 'id')->where('is_active', true)],
             'delivery_zone_id' => ['nullable', $delivery, 'integer', 'exists:delivery_zones,id'],
             'customer.first_name' => ['required', 'string', 'min:2', 'max:100'],
             'customer.last_name' => ['required', 'string', 'min:2', 'max:100'],

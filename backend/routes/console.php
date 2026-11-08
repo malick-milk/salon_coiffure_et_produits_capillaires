@@ -20,3 +20,6 @@ Schedule::command('surveys:send')->dailyAt('10:00')->withoutOverlapping();
 // --stop-when-empty : le processus s'arrête dès que la file est vide (pas de service à surveiller,
 // et chaque mise à jour du site est prise en compte au passage suivant).
 Schedule::command('queue:work --stop-when-empty --tries=3 --max-time=50')->everyMinute()->withoutOverlapping();
+
+// Étape 14 : rappel mensuel aux points de retrait partenaires (relevé, versement avant le 5)
+Schedule::command('partners:remind')->monthlyOn(1, '09:00')->withoutOverlapping();

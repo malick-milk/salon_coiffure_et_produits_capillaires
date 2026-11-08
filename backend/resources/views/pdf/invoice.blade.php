@@ -51,7 +51,11 @@
   </td>
   <td class="right">
     <div class="muted" style="font-size: 9px; text-transform: uppercase;">Réception</div>
-    <div>{{ $order->fulfillment_method->value === 'pickup' ? 'Retrait en boutique' : 'Livraison · '.($order->deliveryZone?->name ?? '') }}</div>
+    <div>{{ match ($order->fulfillment_method->value) {
+        'pickup' => 'Retrait en boutique',
+        'pickup_point' => 'Point de retrait · '.($order->pickupPoint?->name ?? ''),
+        default => 'Livraison · '.($order->deliveryZone?->name ?? ''),
+    } }}</div>
     @foreach ($order->payments as $payment)
       <div class="muted">Payé le {{ $payment->paid_at?->format('d/m/Y') }} · {{ $payment->method->label() }}</div>
     @endforeach

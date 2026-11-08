@@ -167,6 +167,7 @@ export const accountHandlers = [
   }),
 
   http.get(`${API}/delivery-zones`, async () => HttpResponse.json({ data: deliveryZones })),
+  http.get(`${API}/pickup-points`, async () => HttpResponse.json({ data: [] })), // étape 14 : aucun point dans le faux serveur
 
   http.post(`${API}/orders`, async ({ request }) => {
     await delay(600)
@@ -197,6 +198,7 @@ export const accountHandlers = [
     const order: MockOrder = {
       user_id: u?.id ?? null,
       reference: `CMD-2026-${String(db.nextOrderNumber++).padStart(6, '0')}`,
+      pickup_point: null, pickup_code: null, // le faux serveur ne gère pas les points de retrait (étape 14)
       status: 'pending',
       payment_status: 'unpaid',
       fulfillment_method: b.fulfillment_method,

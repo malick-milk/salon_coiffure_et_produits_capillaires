@@ -22,6 +22,7 @@ vitrine et e-commerce, réservation en ligne, ERP d'administration et tableau de
 | 11 | Déploiement — [docs/11_DEPLOIEMENT.md](docs/11_DEPLOIEMENT.md), [deploy/](deploy/) | Prête (scripts testés sur Ubuntu 24.04 ; reste : acheter le domaine et le serveur) |
 | 12 | Publicités de l'accueil et « Nos gammes » — [docs/12_PUBLICITES_ET_GAMMES.md](docs/12_PUBLICITES_ET_GAMMES.md), [maquette](https://claude.ai/artifact/NpExLjgNGZiUutFi51EtZL) | Maquette en attente de validation |
 | 13 | Messages aux clientes et satisfaction — [docs/13_NOTIFICATIONS_ET_AVIS.md](docs/13_NOTIFICATIONS_ET_AVIS.md) | Terminée (SMS + e-mail, motif d'annulation obligatoire, enquête de satisfaction, avis publics, NPS ; reste : choisir les fournisseurs d'envoi) |
+| 14 | Points de retrait partenaires — [docs/14_POINTS_DE_RETRAIT.md](docs/14_POINTS_DE_RETRAIT.md) | Terminée (dépôt-vente mensuel, retrait avec code, bon de dépôt et relevé PDF, versement avant le 5) |
 
 ## Stack
 - Frontend : React + TypeScript + Vite + Tailwind CSS + shadcn/ui + Lucide React

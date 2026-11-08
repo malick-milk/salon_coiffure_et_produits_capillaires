@@ -25,6 +25,11 @@ class OrderDetailResource extends OrderSummaryResource
             'discount_total' => $this->discount_total,
             'shipping_fee' => $this->shipping_fee,
             'delivery_zone' => $this->deliveryZone?->name,
+            // Étape 14 : point de retrait partenaire ; le code n'est montré qu'une fois la commande prête
+            'pickup_point' => $this->pickup_point_id ? (fn ($p) => [
+                'name' => $p->name, 'address' => $p->address, 'city' => $p->city, 'opening_hours' => $p->opening_hours,
+            ])($this->resource->loadMissing('pickupPoint')->pickupPoint) : null,
+            'pickup_code' => $this->status === OrderStatus::Ready ? $this->pickup_code : null,
             'shipping_address' => $this->shipping_address ? [
                 'city' => $this->shipping_city,
                 'district' => $this->shipping_district,

@@ -70,7 +70,7 @@ class OrderAdminController extends Controller
     /** Détail ERP : le détail client + qui est le client, paiements, facture, transitions possibles */
     private function detail(Order $order): array
     {
-        $order->load(['items.product', 'deliveryZone', 'customer', 'payments']);
+        $order->load(['items.product', 'deliveryZone', 'customer', 'payments', 'pickupPoint']);
         $invoice = Invoice::query()->where('order_id', $order->id)->where('type', 'invoice')->first();
 
         return [
@@ -79,6 +79,7 @@ class OrderAdminController extends Controller
             'channel' => $order->channel->value,
             'customer_notes' => $order->customer_notes,
             'cancellation_reason' => $order->cancellation_reason,
+            'picked_up_at' => $order->picked_up_at?->format('Y-m-d\TH:i:s'), // étape 14 : remise confirmée par le partenaire
             'payments' => $order->payments->map(fn ($p) => ['method' => $p->method->value, 'amount' => $p->amount, 'paid_at' => $p->paid_at?->format('Y-m-d\TH:i:s'), 'provider_reference' => $p->provider_reference]),
             'invoice_number' => $invoice?->number,
             'allowed_transitions' => array_map(fn (OrderStatus $s) => $s->value, $order->status->transitions($order->fulfillment_method)),

@@ -3,7 +3,7 @@ import { registerSchema } from '@/features/auth/schema'
 import { checkoutSchema } from './schema'
 
 const base = {
-  fulfillment_method: 'pickup' as const, delivery_zone_id: '', first_name: 'Awa', last_name: 'Ndiaye', phone: '77 123 45 67', email: '',
+  fulfillment_method: 'pickup' as const, delivery_zone_id: '', pickup_point_id: '', first_name: 'Awa', last_name: 'Ndiaye', phone: '77 123 45 67', email: '',
   city: 'Dakar', district: '', address_line: '', landmark: '', notes: '', consent: true as const,
 }
 
@@ -45,5 +45,11 @@ describe('redirection après connexion (anti « open redirect »)', () => {
       expect(new URL(result, window.location.origin).origin, trick).toBe(window.location.origin)
     }
     expect(safeRedirect('/compte/commandes?page=2#haut')).toBe('/compte/commandes?page=2#haut') // l'usage normal est préservé
+  })
+  it('point de retrait (étape 14) : le point est obligatoire, l’adresse ne l’est pas', () => {
+    const r = checkoutSchema.safeParse({ ...base, fulfillment_method: 'pickup_point' })
+    expect(r.success).toBe(false)
+    if (!r.success) expect(r.error.issues.map((i) => i.path[0])).toEqual(['pickup_point_id'])
+    expect(checkoutSchema.safeParse({ ...base, fulfillment_method: 'pickup_point', pickup_point_id: '2' }).success).toBe(true)
   })
 })

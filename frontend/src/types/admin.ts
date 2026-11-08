@@ -48,6 +48,7 @@ export interface AdminOrderDetail extends OrderDetail {
   channel: 'online' | 'store'
   customer_notes: string | null
   cancellation_reason: string | null
+  picked_up_at?: string | null // étape 14 : remise confirmée par le partenaire
   payments: { method: PaymentMethod; amount: Money; paid_at: string | null; provider_reference: string | null }[]
   invoice_number: string | null
   allowed_transitions: OrderStatus[] // la machine à états du serveur dit quels boutons afficher
@@ -202,4 +203,84 @@ export interface SurveyStats {
   by_stylist: SurveyGroupStat[]
   by_month: (Omit<SurveyGroupStat, 'label'> & { month: string })[]
   counts: { to_moderate: number; follow_up: number }
+}
+
+// ---------- Étape 14 : points de retrait partenaires ----------
+export interface AdminPickupPoint {
+  id: number
+  name: string
+  owner_name: string
+  phone: string
+  email: string | null
+  regions: string[]
+  city: string
+  address: string
+  opening_hours: string | null
+  commission_rate: number
+  is_active: boolean
+  notes: string | null
+}
+
+export type StatementPaymentState = 'paid' | 'due' | 'overdue'
+
+export interface ConsignmentStatementRow {
+  id: number
+  number: string
+  period: string // AAAA-MM
+  sold_qty: number
+  damaged_qty: number
+  counter_sales_total: number
+  online_sales_total: number
+  sales_total: number
+  commission_gross: number
+  damaged_value: number
+  commission_net: number
+  amount_due: number
+  due_date: string
+  payment_state: StatementPaymentState
+  paid_at: string | null
+  payment_method: string | null
+  declared_sold: number | null
+  gap_note: string | null
+}
+
+export interface PickupPointRow extends AdminPickupPoint {
+  stock_units: number
+  stock_value: number
+  orders_to_hand_over: number
+  last_statement: ConsignmentStatementRow | null
+  needs_investigation: boolean
+}
+
+export interface PickupPointsIndex {
+  data: PickupPointRow[]
+  summary: { active: number; regions_covered: string[]; regions: string[]; amount_to_collect: number; overdue: number; investigations: number }
+}
+
+export interface PickupPointDetail extends AdminPickupPoint {
+  needs_investigation: boolean
+  stock: { product_id: number; name: string; price: number; quantity: number }[]
+  orders_to_hand_over: { reference: string; customer_name: string; total: number; placed_at: string }[]
+  deliveries: { id: number; number: string; delivered_on: string; total_quantity: number; total_value: number }[]
+  statements: ConsignmentStatementRow[]
+}
+
+export interface StatementPreviewLine {
+  product_id: number
+  product_name: string
+  unit_price: number
+  expected_qty: number
+  counted_qty: number
+  damaged_qty: number
+  counter_sold_qty: number
+  online_qty: number
+  line_total: number
+}
+
+export interface StatementPreview {
+  lines: StatementPreviewLine[]
+  totals: {
+    counter_sales_total: number; online_sales_total: number; sales_total: number; commission_rate: number
+    commission_gross: number; damaged_value: number; commission_net: number; amount_due: number; sold_qty: number; damaged_qty: number
+  }
 }

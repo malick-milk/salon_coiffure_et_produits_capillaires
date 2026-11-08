@@ -10,10 +10,12 @@ use App\Enums\StockMovementType;
 use App\Exceptions\InsufficientStockException;
 use App\Models\DeliveryZone;
 use App\Models\Order;
+use App\Models\PickupPoint;
 use App\Models\Product;
 use App\Models\User;
 use App\Services\Customers\CustomerResolver;
 use App\Services\Inventory\StockService;
+use App\Services\PickupPoints\PickupPointService;
 use App\Services\Support\ReferenceGenerator;
 use Illuminate\Support\Facades\DB;
 
@@ -30,6 +32,7 @@ class PlaceOrderAction
         private StockService $stock,
         private CustomerResolver $customers,
         private ReferenceGenerator $references,
+        private PickupPointService $pickupPoints,
     ) {}
 
     /** @param array{items:list<array{product_id:int,quantity:int}>,fulfillment_method:string,delivery_zone_id:?int,customer:array,shipping_address:?array,notes:?string} $data */
@@ -39,15 +42,17 @@ class PlaceOrderAction
         $wanted = collect($data['items'])->groupBy('product_id')->map(fn ($lines) => $lines->sum('quantity'));
         $method = FulfillmentMethod::from($data['fulfillment_method']);
         $zone = $method === FulfillmentMethod::Delivery ? DeliveryZone::query()->active()->findOrFail($data['delivery_zone_id']) : null;
+        // Étape 14 : retrait dans une boutique partenaire, servi depuis le stock confié à ce partenaire
+        $point = $method === FulfillmentMethod::PickupPoint ? PickupPoint::query()->active()->findOrFail($data['pickup_point_id']) : null;
 
-        return DB::transaction(function () use ($data, $user, $wanted, $method, $zone) {
+        return DB::transaction(function () use ($data, $user, $wanted, $method, $zone, $point) {
             // Verrou sur les produits, toujours dans le même ordre (par id) pour éviter les interblocages
             $products = Product::query()->active()->whereIn('id', $wanted->keys())->orderBy('id')->lockForUpdate()->get()->keyBy('id');
             if ($products->count() !== $wanted->count()) {
                 abort(422, 'Un produit du panier n’existe plus ou n’est plus en vente.');
             }
 
-            $conflicts = $wanted->filter(fn ($qty, $id) => $qty > $products[$id]->stock_quantity)
+            $conflicts = $point ? [] : $wanted->filter(fn ($qty, $id) => $qty > $products[$id]->stock_quantity)
                 ->map(fn ($qty, $id) => ['product_id' => (int) $id, 'name' => $products[$id]->displayName(), 'requested' => $qty, 'available' => $products[$id]->stock_quantity])
                 ->values()->all();
             if ($conflicts !== []) {
@@ -68,6 +73,7 @@ class PlaceOrderAction
                 'payment_status' => PaymentStatus::Unpaid,
                 'fulfillment_method' => $method,
                 'delivery_zone_id' => $zone?->id,
+                'pickup_point_id' => $point?->id,
                 'shipping_name' => $address ? trim($data['customer']['first_name'].' '.$data['customer']['last_name']) : null,
                 'shipping_phone' => $address ? $customer->phone : null,
                 'shipping_city' => $address['city'] ?? null,
@@ -95,10 +101,15 @@ class PlaceOrderAction
                     'quantity' => $qty,
                     'line_total' => $product->price * $qty,
                 ]);
-                $this->stock->record($product, StockMovementType::Sale, -$qty, $order, userId: $user?->id);
+                if (! $point) {
+                    $this->stock->record($product, StockMovementType::Sale, -$qty, $order, userId: $user?->id);
+                }
+            }
+            if ($point) {
+                $this->pickupPoints->reserveForOrder($point, $order, $wanted, $products); // refusé si le partenaire n'en a pas assez
             }
 
-            return $order->load('items.product', 'deliveryZone');
+            return $order->load('items.product', 'deliveryZone', 'pickupPoint');
         });
     }
 }

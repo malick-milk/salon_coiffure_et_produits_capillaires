@@ -9,7 +9,7 @@ import { StatusBadge } from '@/components/common/StatusBadge'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useCan } from '@/features/auth/permissions'
-import { formatPrice } from '@/lib/format'
+import { formatPrice, fulfillmentLabel } from '@/lib/format'
 import { apiErrorMessage, type ValidationErrorBody } from '@/lib/http'
 import type { OrderStatus } from '@/types/api'
 import type { PaymentMethod } from '@/types/admin'
@@ -78,7 +78,7 @@ export function OrdersPage() {
                   <td><Link to={`/admin/commandes/${o.reference}`} className="font-semibold underline-offset-4 hover:underline">{o.reference}</Link></td>
                   <td className="whitespace-nowrap">{dateTime(o.placed_at)}</td>
                   <td>{o.customer_name}{o.customer_type === 'reseller' && <span className="ml-1.5 rounded-full bg-[#f4f4f5] px-2 py-0.5 text-xs">revendeur</span>}<br /><span className="text-xs text-[#52525b]">{o.customer_phone}</span></td>
-                  <td>{o.fulfillment_method === 'pickup' ? 'Retrait' : 'Livraison'}</td>
+                  <td>{fulfillmentLabel(o.fulfillment_method)}</td>
                   <td>{o.items_count}</td>
                   <td><StatusBadge kind="order" status={o.status} /></td>
                   <td><StatusBadge kind="payment" status={o.payment_status} /></td>
@@ -152,7 +152,9 @@ export function OrderDetailPage() {
           <Card title="Client">
             <p className="text-sm"><strong>{o.customer.name}</strong>{o.customer.type === 'reseller' && ' (revendeur)'}<br />{o.customer.phone}{o.customer.email && <><br />{o.customer.email}</>}</p>
             <p className="text-sm">
-              <strong>{o.fulfillment_method === 'pickup' ? 'Retrait en boutique' : `Livraison · ${o.delivery_zone}`}</strong>
+              <strong>{o.fulfillment_method === 'delivery' ? `Livraison · ${o.delivery_zone}` : o.pickup_point ? `Point de retrait · ${o.pickup_point.name} (${o.pickup_point.city})` : 'Retrait au salon'}</strong>
+              {o.pickup_code && <><br />Code de retrait de la cliente : <strong>{o.pickup_code}</strong></>}
+              {o.picked_up_at && <><br />Remise confirmée par le partenaire le {dateTime(o.picked_up_at)}</>}
               {o.shipping_address && <><br />{o.shipping_address.address_line}{o.shipping_address.district && `, ${o.shipping_address.district}`}, {o.shipping_address.city}{o.shipping_address.landmark && <><br />Repère : {o.shipping_address.landmark}</>}</>}
             </p>
             {o.customer_notes && <p className="rounded-lg bg-[#f4f4f5] p-3 text-sm">« {o.customer_notes} »</p>}

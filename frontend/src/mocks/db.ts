@@ -151,13 +151,13 @@ function seedOrders(): MockOrder[] {
   return [
     order({
       user_id: 3, reference: 'CMD-2026-000102', status: 'confirmed', payment_status: 'unpaid', fulfillment_method: 'pickup',
-      placed_at: relDay(-2, '18:20'), subtotal: 6000, discount_total: 0, shipping_fee: 0, delivery_zone: null, shipping_address: null,
+      placed_at: relDay(-2, '18:20'), subtotal: 6000, discount_total: 0, shipping_fee: 0, delivery_zone: null, shipping_address: null, pickup_point: null, pickup_code: null,
       items: [{ product_slug: 'creme-capillaire', product_name: 'Crème capillaire', unit_price: 3000, quantity: 2, line_total: 6000 }],
       invoice_available: false, can_cancel: false,
     }),
     order({
       user_id: 3, reference: 'CMD-2026-000101', status: 'delivered', payment_status: 'paid', fulfillment_method: 'delivery',
-      placed_at: relDay(-25, '10:15'), subtotal: 11000, discount_total: 0, shipping_fee: 1000, delivery_zone: 'Dakar Plateau',
+      placed_at: relDay(-25, '10:15'), subtotal: 11000, discount_total: 0, shipping_fee: 1000, delivery_zone: 'Dakar Plateau', pickup_point: null, pickup_code: null,
       shipping_address: { city: 'Dakar', district: 'Plateau', address_line: 'Rue 10', landmark: 'Près de la pharmacie' },
       items: [
         { product_slug: 'serum-activ-pousse-30-ml', product_name: 'Sérum Activ’Pousse 30 ml', unit_price: 3000, quantity: 2, line_total: 6000 },

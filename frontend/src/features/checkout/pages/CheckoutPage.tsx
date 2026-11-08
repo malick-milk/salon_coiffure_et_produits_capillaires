@@ -5,7 +5,7 @@
  */
 import { zodResolver } from '@hookform/resolvers/zod'
 import axios from 'axios'
-import { Check, Store, Truck } from 'lucide-react'
+import { Check, MapPin, Store, Truck } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
 import { Link, Navigate } from 'react-router'
@@ -19,7 +19,7 @@ import { formatPrice } from '@/lib/format'
 import { apiErrorMessage, apiErrorStatus, type ValidationErrorBody } from '@/lib/http'
 import { cn } from '@/lib/utils'
 import type { OrderDetail, StockConflict } from '@/types/api'
-import { useDeliveryZones, usePlaceOrder } from '../api'
+import { useDeliveryZones, usePickupPoints, usePlaceOrder } from '../api'
 import { checkoutSchema, type CheckoutInput, type CheckoutValues } from '../schema'
 
 const FORM_ID = 'checkout-form'
@@ -32,6 +32,7 @@ export function CheckoutPage() {
   const subtotal = useCartSubtotal()
   const { data: user } = useMe()
   const zones = useDeliveryZones()
+  const points = usePickupPoints()
   const placeOrder = usePlaceOrder()
   const [confirmed, setConfirmed] = useState<OrderDetail | null>(null)
   const [conflict, setConflict] = useState<StockConflict | null>(null)
@@ -39,7 +40,7 @@ export function CheckoutPage() {
   const { register, handleSubmit, control, setError, reset, formState: { errors } } = useForm<CheckoutInput, unknown, CheckoutValues>({
     resolver: zodResolver(checkoutSchema),
     defaultValues: {
-      fulfillment_method: 'pickup', delivery_zone_id: '', first_name: '', last_name: '', phone: '', email: '',
+      fulfillment_method: 'pickup', delivery_zone_id: '', pickup_point_id: '', first_name: '', last_name: '', phone: '', email: '',
       city: 'Dakar', district: '', address_line: '', landmark: '', notes: '', consent: false as unknown as true,
     },
     mode: 'onTouched',
@@ -54,6 +55,8 @@ export function CheckoutPage() {
   const method = useWatch({ control, name: 'fulfillment_method' })
   const zoneId = useWatch({ control, name: 'delivery_zone_id' })
   const zone = zones.data?.find((z) => String(z.id) === zoneId)
+  const pointId = useWatch({ control, name: 'pickup_point_id' })
+  const point = points.data?.find((p) => String(p.id) === pointId)
   const shippingFee = method === 'delivery' ? (zone?.fee ?? 0) : 0
 
   if (confirmed) return <OrderConfirmation order={confirmed} isGuest={!user} />
@@ -66,6 +69,7 @@ export function CheckoutPage() {
         items: items.map((i) => ({ product_id: i.productId, quantity: i.quantity })), // AUCUN prix envoyé
         fulfillment_method: v.fulfillment_method,
         delivery_zone_id: v.fulfillment_method === 'delivery' ? Number(v.delivery_zone_id) : null,
+        pickup_point_id: v.fulfillment_method === 'pickup_point' ? Number(v.pickup_point_id) : null,
         customer: { first_name: v.first_name, last_name: v.last_name, phone: v.phone, email: v.email || null },
         shipping_address: v.fulfillment_method === 'delivery' ? { city: v.city, district: v.district || null, address_line: v.address_line, landmark: v.landmark || null } : null,
         notes: v.notes || null,
@@ -123,10 +127,12 @@ export function CheckoutPage() {
             <fieldset className="flex flex-col gap-4 rounded-[20px] border border-ink-line bg-ink-soft p-5 sm:p-7">
               <legend className="sr-only">Mode de réception</legend>
               <h2 className="font-display text-2xl font-semibold" aria-hidden="true">1. Mode de réception</h2>
-              <div className="grid gap-3 sm:grid-cols-2">
+              <div className={cn('grid gap-3', points.data?.length ? 'sm:grid-cols-3' : 'sm:grid-cols-2')}>
                 {([
-                  ['pickup', Store, 'Retrait en boutique', 'Gratuit · prêt sous 24 h'],
+                  ['pickup', Store, 'Retrait au salon', 'Dakar · gratuit, prêt sous 24 h'],
                   ['delivery', Truck, 'Livraison', 'Dakar et environs · frais selon la zone'],
+                  // Étape 14 : affiché seulement s'il existe au moins un point de retrait partenaire actif
+                  ...(points.data?.length ? [['pickup_point', MapPin, 'Point de retrait', 'Dans votre région · gratuit'] as const] : []),
                 ] as const).map(([value, Icon, title, hint]) => (
                   <label key={value} className={cn('flex cursor-pointer items-start gap-3 rounded-2xl border-2 p-4', method === value ? 'border-gold bg-gold-soft' : 'border-[#2a2a2a]')}>
                     <input type="radio" value={value} className="mt-1 size-[18px] accent-gold" {...register('fulfillment_method')} />
@@ -134,6 +140,26 @@ export function CheckoutPage() {
                   </label>
                 ))}
               </div>
+              {method === 'pickup_point' && (
+                <div className="flex flex-col gap-3 pt-2">
+                  <Field label="Point de retrait de votre région *" error={errors.pickup_point_id?.message}>
+                    {(id, d) => (
+                      <select id={id} aria-invalid={!!errors.pickup_point_id} aria-describedby={d} className="min-h-12 rounded-[10px] border border-[#3a3a3a] bg-ink px-3.5" {...register('pickup_point_id')}>
+                        <option value="">Choisir votre région…</option>
+                        {points.data?.map((p) => <option key={p.id} value={p.id}>{p.regions.join(', ')} — {p.city}</option>)}
+                      </select>
+                    )}
+                  </Field>
+                  {point && (
+                    <div className="flex flex-col gap-1 rounded-2xl border border-gold-dark bg-ink p-4 text-sm">
+                      <strong className="text-[15px]">{point.name}</strong>
+                      <span>{point.address}, {point.city}</span>
+                      {point.opening_hours && <span className="text-muted">{point.opening_hours}</span>}
+                      <span className="pt-1 text-muted">Quand votre commande est prête, vous recevez un SMS avec un code de retrait à donner au partenaire. Paiement sur place (espèces ou Wave), au prix du site.</span>
+                    </div>
+                  )}
+                </div>
+              )}
               {method === 'delivery' && (
                 <div className="grid gap-5 pt-2 sm:grid-cols-2">
                   <Field label="Zone de livraison *" error={errors.delivery_zone_id?.message}>
@@ -186,7 +212,7 @@ export function CheckoutPage() {
             </ul>
             <dl className="flex flex-col gap-2 text-[15px]">
               <div className="flex justify-between"><dt className="text-[#52525b]">Sous-total</dt><dd>{formatPrice(subtotal)}</dd></div>
-              <div className="flex justify-between"><dt className="text-[#52525b]">Livraison</dt><dd>{method === 'pickup' ? 'Gratuite' : zone ? formatPrice(shippingFee) : 'Choisir une zone'}</dd></div>
+              <div className="flex justify-between"><dt className="text-[#52525b]">Livraison</dt><dd>{method !== 'delivery' ? 'Gratuite' : zone ? formatPrice(shippingFee) : 'Choisir une zone'}</dd></div>
               <div className="flex justify-between border-t border-[#e4e4e7] pt-3 text-lg"><dt>Total</dt><dd className="font-semibold">{formatPrice(subtotal + shippingFee)}</dd></div>
             </dl>
             <p className="text-[13px] leading-relaxed text-[#52525b]">Paiement à la réception : espèces, Wave, Orange Money ou Free Money. Montant définitif confirmé par le serveur.</p>
@@ -208,7 +234,8 @@ function OrderConfirmation({ order, isGuest }: { order: OrderDetail; isGuest: bo
         <h1 className="font-display text-4xl font-semibold">Commande enregistrée</h1>
         <p className="leading-relaxed text-muted">
           {order.items_count} article{order.items_count > 1 ? 's' : ''} · <span className="text-ivory">{formatPrice(order.total)}</span>
-          {order.fulfillment_method === 'pickup' ? ' · retrait en boutique' : ` · livraison ${order.delivery_zone}`}. Nous vous prévenons par SMS.
+          {order.fulfillment_method === 'pickup' ? ' · retrait au salon' : order.fulfillment_method === 'pickup_point' ? ` · retrait chez ${order.pickup_point?.name ?? 'notre partenaire'}, ${order.pickup_point?.city ?? ''}` : ` · livraison ${order.delivery_zone}`}.
+          {order.fulfillment_method === 'pickup_point' ? ' Vous recevrez votre code de retrait par SMS dès que la commande sera prête.' : ' Nous vous prévenons par SMS.'}
         </p>
         <div className="flex flex-col gap-1 rounded-2xl border border-dashed border-gold px-7 py-4">
           <span className="text-[13px] text-muted">Référence de commande</span>

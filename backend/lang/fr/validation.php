@@ -21,6 +21,7 @@ return [
         'string' => ':Attribute doit contenir entre :min et :max caractères.',
     ],
     'distinct' => ':Attribute contient une valeur en double.',
+    'digits' => 'Le champ :attribute doit contenir :digits chiffres.',
     'email' => ':Attribute doit être une adresse email valide.',
     'exists' => ':Attribute est invalide ou n’existe plus.',
     'gt' => [
@@ -56,6 +57,18 @@ return [
     ],
 
     'attributes' => [
+        // Étape 14 : points de retrait partenaires
+        'code' => 'le code de retrait',
+        'commission_rate' => 'le taux de commission',
+        'counts.*.counted' => 'la quantité comptée',
+        'counts.*.damaged' => 'la quantité abîmée',
+        'counts.*.product_id' => 'le produit',
+        'declared_sold' => 'la quantité déclarée',
+        'delivered_on' => 'la date de livraison',
+        'gap_note' => 'l’explication de l’écart',
+        'opening_hours' => 'les horaires',
+        'period' => 'le mois',
+        'pickup_point_id' => 'le point de retrait',
         // Étape 13 : enquêtes de satisfaction et avis
         'rating' => 'la note',
         'nps' => 'la recommandation',

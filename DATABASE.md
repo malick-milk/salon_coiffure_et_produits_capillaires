@@ -493,6 +493,18 @@ Table `satisfaction_surveys` (migration `2026_11_09_100000`) : **une ligne par p
 
 `bookings.reminder_sent_at` (prévue dès l'étape 3) marque le rappel de la veille. La table `product_reviews` (avis par produit) reste disponible pour une évolution future.
 
+## 10 ter. Étape 14 : points de retrait partenaires (dépôt-vente)
+
+| Table | Rôle |
+|---|---|
+| `pickup_points` | Boutique partenaire : responsable, téléphone, `regions` (JSON, plusieurs régions possibles), adresse, horaires, `commission_rate` |
+| `pickup_point_stocks` | Stock confié, par point et par produit (clé primaire composée, `quantity` UNSIGNED : jamais négatif) |
+| `pickup_point_movements` | Grand livre de ce stock : `delivery`, `online_order`, `online_order_cancelled`, `counter_sale`, `damaged` (quantité signée, solde après) |
+| `consignment_deliveries` + `_items` | Bons de dépôt (numéro BD-, prix du site figé au jour de la livraison) |
+| `consignment_statements` + `_items` | Relevés mensuels (numéro REL-, un seul par point et par mois) : attendu, compté, abîmés, vendus au comptoir, remis en ligne, commission, montant dû, échéance au 5 |
+
+Colonnes ajoutées à `orders` : `pickup_point_id`, `pickup_code` (4 chiffres), `handover_token_hash` (empreinte SHA-256 du lien du partenaire), `picked_up_at`, `consignment_statement_id`. Nouvelles valeurs : `fulfillment_method = pickup_point`, `channel = partner`, `stock_movements.type = consignment_out`. La contrainte `orders_delivery_chk` devient : retrait au salon, OU point de retrait renseigné, OU livraison avec adresse.
+
 ## 11. Évolutions prévues
 | Évolution | Impact sur le schéma |
 |---|---|

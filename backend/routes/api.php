@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\V1\Admin\CatalogAdminController;
 use App\Http\Controllers\Api\V1\Admin\CustomerAdminController;
 use App\Http\Controllers\Api\V1\Admin\DashboardController;
 use App\Http\Controllers\Api\V1\Admin\OrderAdminController;
+use App\Http\Controllers\Api\V1\Admin\PickupPointAdminController;
 use App\Http\Controllers\Api\V1\Admin\SurveyAdminController;
 use App\Http\Controllers\Api\V1\Admin\TeamAdminController;
 use App\Http\Controllers\Api\V1\AuthController;
@@ -14,6 +15,7 @@ use App\Http\Controllers\Api\V1\CatalogController;
 use App\Http\Controllers\Api\V1\InvoiceController;
 use App\Http\Controllers\Api\V1\Me\AccountController;
 use App\Http\Controllers\Api\V1\OrderController;
+use App\Http\Controllers\Api\V1\PickupPointController;
 use App\Http\Controllers\Api\V1\ReviewController;
 use App\Http\Controllers\Api\V1\SalonController;
 use App\Http\Controllers\Api\V1\SurveyController;
@@ -45,6 +47,11 @@ Route::prefix('v1')->middleware('throttle:api')->group(function () {
     Route::get('reviews', [ReviewController::class, 'index']);
     Route::get('surveys/{token}', [SurveyController::class, 'show'])->where('token', '[A-Za-z0-9]{40}');
     Route::post('surveys/{token}', [SurveyController::class, 'answer'])->where('token', '[A-Za-z0-9]{40}')->middleware('throttle:checkout');
+
+    // Étape 14 : points de retrait (choix au panier) et remise par le partenaire (lien personnel + code de la cliente)
+    Route::get('pickup-points', [PickupPointController::class, 'index']);
+    Route::get('handover/{token}', [PickupPointController::class, 'handover'])->where('token', '[A-Za-z0-9]{40}');
+    Route::post('handover/{token}', [PickupPointController::class, 'confirmHandover'])->where('token', '[A-Za-z0-9]{40}')->middleware('throttle:checkout');
 
     // Authentification (la limite des 5 essais est gérée dans le contrôleur, par email + IP)
     Route::post('auth/login', [AuthController::class, 'login']);
@@ -98,6 +105,20 @@ Route::prefix('v1')->middleware('throttle:api')->group(function () {
                 Route::get('roles', [TeamAdminController::class, 'roles']);
             });
             Route::get('audit', [TeamAdminController::class, 'audit'])->middleware('permission:audit.view');
+
+            // Étape 14 : points de retrait partenaires (dépôt-vente mensuel)
+            Route::middleware('permission:partners.manage')->group(function () {
+                Route::get('pickup-points', [PickupPointAdminController::class, 'index']);
+                Route::post('pickup-points', [PickupPointAdminController::class, 'store']);
+                Route::get('pickup-points/{pickupPoint}', [PickupPointAdminController::class, 'show']);
+                Route::patch('pickup-points/{pickupPoint}', [PickupPointAdminController::class, 'update']);
+                Route::post('pickup-points/{pickupPoint}/deliveries', [PickupPointAdminController::class, 'deliver']);
+                Route::post('pickup-points/{pickupPoint}/statements/preview', [PickupPointAdminController::class, 'preview']);
+                Route::post('pickup-points/{pickupPoint}/statements', [PickupPointAdminController::class, 'validateStatement']);
+                Route::post('consignment-statements/{statement}/payment', [PickupPointAdminController::class, 'recordPayment']);
+                Route::get('consignment-deliveries/{delivery}/pdf', [PickupPointAdminController::class, 'deliveryPdf']);
+                Route::get('consignment-statements/{statement}/pdf', [PickupPointAdminController::class, 'statementPdf']);
+            });
 
             // Étape 13 : avis clients et satisfaction
             Route::middleware('permission:reviews.manage')->group(function () {

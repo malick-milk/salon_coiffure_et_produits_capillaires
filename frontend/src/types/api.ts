@@ -171,7 +171,17 @@ export interface RegisterRequest {
 // ---------- Commandes ----------
 export type OrderStatus = 'pending' | 'confirmed' | 'preparing' | 'ready' | 'shipped' | 'delivered' | 'cancelled'
 export type PaymentStatus = 'unpaid' | 'paid' | 'refunded'
-export type FulfillmentMethod = 'pickup' | 'delivery'
+export type FulfillmentMethod = 'pickup' | 'delivery' | 'pickup_point' // pickup_point : boutique partenaire (étape 14)
+
+/** Point de retrait partenaire, dans une région (étape 14) */
+export interface PickupPointPublic {
+  id: number
+  name: string
+  regions: string[]
+  city: string
+  address: string
+  opening_hours: string | null
+}
 
 export interface DeliveryZone {
   id: number
@@ -191,6 +201,7 @@ export interface CheckoutRequest {
   items: { product_id: number; quantity: number }[]
   fulfillment_method: FulfillmentMethod
   delivery_zone_id: number | null
+  pickup_point_id?: number | null
   customer: { first_name: string; last_name: string; phone: string; email: string | null }
   shipping_address: ShippingAddress | null
   notes: string | null
@@ -228,6 +239,8 @@ export interface OrderDetail extends OrderSummary {
   shipping_fee: Money
   delivery_zone: string | null
   shipping_address: ShippingAddress | null
+  pickup_point: { name: string; address: string; city: string; opening_hours: string | null } | null
+  pickup_code: string | null // code de retrait, affiché quand la commande est prête
   invoice_available: boolean // facture PDF disponible une fois la commande payée (RG-FAC-01)
   can_cancel: boolean // le client peut annuler tant que la commande est « en attente » (RG-COM-05)
 }

@@ -24,8 +24,8 @@ enum OrderStatus: string
         return match ($this) {
             self::Pending => [self::Confirmed, self::Cancelled],
             self::Confirmed => [self::Preparing, self::Cancelled],
-            // Retrait : « prête à retirer » ; livraison : « en livraison »
-            self::Preparing => [$method === FulfillmentMethod::Pickup ? self::Ready : self::Shipped, self::Cancelled],
+            // Retrait (salon ou point partenaire) : « prête à retirer » ; livraison : « en livraison »
+            self::Preparing => [$method === FulfillmentMethod::Delivery ? self::Shipped : self::Ready, self::Cancelled],
             self::Ready, self::Shipped => [self::Delivered],
             self::Delivered, self::Cancelled => [], // états finaux
         };

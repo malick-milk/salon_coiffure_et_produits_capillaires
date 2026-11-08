@@ -15,7 +15,7 @@ import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useMe } from '@/features/auth/hooks'
 import { normalizePhone, SENEGAL_MOBILE } from '@/features/booking/schema'
-import { formatDuration, formatLongDate, formatPrice } from '@/lib/format'
+import { formatDuration, formatLongDate, formatPrice, fulfillmentLabel } from '@/lib/format'
 import { apiErrorMessage, apiErrorStatus, type ValidationErrorBody } from '@/lib/http'
 import type { CustomerBooking, OrderSummary } from '@/types/api'
 import { useCancelBooking, useMyBookings, useMyOrder, useMyOrders, useUpdateProfile } from '../hooks'
@@ -103,7 +103,7 @@ function OrderRow({ order: o }: { order: OrderSummary }) {
       <Link to={`/compte/commandes/${o.reference}`} className="flex flex-wrap items-center gap-x-6 gap-y-2 rounded-2xl border border-ink-line bg-ink-soft p-5 hover:border-gold">
         <div className="flex min-w-48 flex-1 flex-col gap-1">
           <strong>{o.reference}</strong>
-          <span className="text-sm text-muted">{shortDate(o.placed_at)} · {o.fulfillment_method === 'pickup' ? 'Retrait en boutique' : 'Livraison'} · {o.items_count} article{o.items_count > 1 ? 's' : ''}</span>
+          <span className="text-sm text-muted">{shortDate(o.placed_at)} · {fulfillmentLabel(o.fulfillment_method)} · {o.items_count} article{o.items_count > 1 ? 's' : ''}</span>
         </div>
         <StatusBadge kind="order" status={o.status} />
         <strong className="w-32 text-right">{formatPrice(o.total)}</strong>
@@ -157,8 +157,15 @@ export function OrderDetailPage() {
             </dl>
           </Card>
           <Card>
-            <h2 className="mb-2 font-display text-2xl">{order.data.fulfillment_method === 'pickup' ? 'Retrait en boutique' : `Livraison · ${order.data.delivery_zone}`}</h2>
-            {order.data.shipping_address ? (
+            <h2 className="mb-2 font-display text-2xl">{order.data.fulfillment_method === 'delivery' ? `Livraison · ${order.data.delivery_zone}` : order.data.pickup_point ? `Point de retrait · ${order.data.pickup_point.city}` : 'Retrait au salon'}</h2>
+            {order.data.pickup_point ? (
+              <div className="flex flex-col gap-1 text-[#d9d9d9]">
+                <p>{order.data.pickup_point.name}, {order.data.pickup_point.address}{order.data.pickup_point.opening_hours && ` · ${order.data.pickup_point.opening_hours}`}</p>
+                {order.data.pickup_code
+                  ? <p className="mt-2 text-ivory">Code de retrait à donner au partenaire : <strong className="text-2xl tracking-[0.2em] text-gold">{order.data.pickup_code}</strong></p>
+                  : <p>Vous recevrez votre code de retrait par SMS dès que la commande sera prête.</p>}
+              </div>
+            ) : order.data.shipping_address ? (
               <p className="text-[#d9d9d9]">{order.data.shipping_address.address_line}{order.data.shipping_address.district && `, ${order.data.shipping_address.district}`}, {order.data.shipping_address.city}{order.data.shipping_address.landmark && ` — repère : ${order.data.shipping_address.landmark}`}</p>
             ) : <p className="text-[#d9d9d9]">Nous vous prévenons par SMS dès que la commande est prête.</p>}
           </Card>

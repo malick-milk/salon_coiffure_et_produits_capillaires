@@ -15,4 +15,5 @@ enum StockMovementType: string
     case CustomerReturn = 'customer_return';
     case Loss = 'loss';
     case Adjustment = 'adjustment';
+    case ConsignmentOut = 'consignment_out'; // étape 14 : confié à un point de retrait (reste à Dabo Hair)
 }

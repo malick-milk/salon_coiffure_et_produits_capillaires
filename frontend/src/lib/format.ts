@@ -38,3 +38,8 @@ export function formatDozens(units: number): string {
   const dozens = units / 12
   return `${dozens} douzaine${dozens > 1 ? 's' : ''} (${units})`
 }
+
+/** Libellé court du mode de réception (étape 14 : point de retrait partenaire) */
+export function fulfillmentLabel(method: 'pickup' | 'delivery' | 'pickup_point'): string {
+  return { pickup: 'Retrait au salon', delivery: 'Livraison', pickup_point: 'Point de retrait' }[method]
+}

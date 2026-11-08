@@ -47,6 +47,8 @@ export const router = createBrowserRouter([
       // Étape 13 : avis clients publics et enquête de satisfaction (lien reçu par SMS)
       { path: 'avis', lazy: async () => ({ Component: (await import('@/features/reviews/pages/ReviewsPage')).ReviewsPage }) },
       { path: 'avis/:token', lazy: async () => ({ Component: (await import('@/features/reviews/pages/SurveyPage')).SurveyPage }) },
+      // Étape 14 : page du partenaire pour remettre une commande (lien reçu par SMS)
+      { path: 'retrait/:token', lazy: async () => ({ Component: (await import('@/features/pickup/pages/HandoverPage')).HandoverPage }) },
       { path: '*', element: <NotFoundPage /> },
     ],
   },
@@ -69,6 +71,8 @@ export const router = createBrowserRouter([
       { path: 'equipe', lazy: async () => ({ Component: (await admin()).TeamPage }) },
       { path: 'audit', lazy: async () => ({ Component: (await admin()).AuditPage }) },
       { path: 'avis', lazy: async () => ({ Component: (await admin()).ReviewsAdminPage }) },
+      { path: 'points-de-retrait', lazy: async () => ({ Component: (await admin()).PickupPointsPage }) },
+      { path: 'points-de-retrait/:id', lazy: async () => ({ Component: (await admin()).PickupPointDetailPage }) },
     ],
   },
 ])

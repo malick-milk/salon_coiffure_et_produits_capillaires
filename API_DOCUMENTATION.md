@@ -118,6 +118,23 @@ Détail : [docs/13_NOTIFICATIONS_ET_AVIS.md](docs/13_NOTIFICATIONS_ET_AVIS.md).
 
 Changements liés : `PATCH /admin/bookings/{ref}/status` exige `reason` (5 caractères au moins) pour annuler ; `GET /me/bookings` renvoie `cancelled_by` et `cancellation_reason` (le motif, seulement quand le salon a annulé).
 
+## Points de retrait partenaires (étape 14)
+
+Détail : [docs/14_POINTS_DE_RETRAIT.md](docs/14_POINTS_DE_RETRAIT.md). `POST /orders` accepte `fulfillment_method: "pickup_point"` avec `pickup_point_id` ; le stock réservé est celui du partenaire (409 s'il en manque). `GET /me/orders/{ref}` renvoie `pickup_point` et `pickup_code` (le code, seulement quand la commande est prête).
+
+| Méthode | URL | Accès | Paramètres | Réponse |
+|---|---|---|---|---|
+| GET | `/pickup-points` | public | — | `{ data: [{ id, name, regions, city, address, opening_hours }] }` (points actifs) |
+| GET | `/handover/{jeton}` | lien envoyé au partenaire | — | `{ data: { reference, pickup_point, customer_first_name, items, total, state: ready \| handed_over \| unavailable } }` |
+| POST | `/handover/{jeton}` | lien du partenaire | `code` (4 chiffres, donné par la cliente) | `{ data: { state: "handed_over", total } }` ; 422 code faux ; 429 après 5 erreurs (15 min) ; 409 déjà remise |
+| GET / POST | `/admin/pickup-points` | `partners.manage` | création : `name`, `owner_name`, `phone`, `email`, `regions[]` (14 régions), `city`, `address`, `opening_hours`, `commission_rate` | liste avec stock, dernier relevé, alertes + `summary` |
+| GET / PATCH | `/admin/pickup-points/{id}` | `partners.manage` | champs ci-dessus, `is_active` | fiche : stock, commandes à remettre, livraisons, relevés |
+| POST | `/admin/pickup-points/{id}/deliveries` | `partners.manage` | `items: [{ product_id, quantity }]`, `delivered_on` | bon de dépôt ; 409 si le stock du salon manque |
+| POST | `/admin/pickup-points/{id}/statements/preview` | `partners.manage` | `counts: [{ product_id, counted, damaged }]` | `{ data: { lines, totals } }` sans rien enregistrer ; 422 si compté + abîmés > attendu |
+| POST | `/admin/pickup-points/{id}/statements` | `partners.manage` | `period` (AAAA-MM), `counts`, `declared_sold`, `gap_note` (obligatoire en cas d'écart) | relevé (un seul par mois) |
+| POST | `/admin/consignment-statements/{id}/payment` | `partners.manage` | `method` | relevé payé ; chaque commande du relevé est encaissée et facturée |
+| GET | `/admin/consignment-deliveries/{id}/pdf`, `/admin/consignment-statements/{id}/pdf` | `partners.manage` | — | PDF |
+
 ## Endpoints analytics
 
 Permission `analytics.view` (propriétaire). Détail des formules : [docs/08_ANALYTICS.md](docs/08_ANALYTICS.md) §3.

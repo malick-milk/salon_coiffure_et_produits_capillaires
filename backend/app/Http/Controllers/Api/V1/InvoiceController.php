@@ -31,7 +31,7 @@ class InvoiceController extends Controller
 
     private function pdf(Invoice $invoice, Order $order): Response
     {
-        $order->load(['items', 'payments', 'deliveryZone']);
+        $order->load(['items', 'payments', 'deliveryZone', 'pickupPoint']);
 
         return Pdf::loadView('pdf.invoice', ['invoice' => $invoice, 'order' => $order])
             ->setPaper('a4')

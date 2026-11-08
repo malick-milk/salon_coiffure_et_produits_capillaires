@@ -17,4 +17,12 @@ final class Check
         }
         DB::statement("ALTER TABLE `{$table}` ADD CONSTRAINT `{$name}` CHECK ({$expression})");
     }
+
+    public static function drop(string $table, string $name): void
+    {
+        if (DB::getDriverName() !== 'mysql') {
+            return;
+        }
+        DB::statement("ALTER TABLE `{$table}` DROP CHECK `{$name}`");
+    }
 }

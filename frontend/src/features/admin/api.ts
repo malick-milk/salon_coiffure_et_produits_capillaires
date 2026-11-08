@@ -4,7 +4,7 @@ import { http } from '@/lib/http'
 import type { BookingStatus, OrderStatus } from '@/types/api'
 import type {
   AdminBooking, AdminCustomer, AdminOrderDetail, AdminOrderRow, AdminProduct, AuditEntry, CostCategory, Dashboard,
-  AdminSurvey, PageMeta, PaymentMethod, ProductionBatch, RoleWithPermissions, StaffRole, StaffUser, StockMovementRow, SurveyFilter, SurveyStats,
+  AdminPickupPoint, AdminSurvey, PageMeta, PickupPointDetail, PickupPointsIndex, StatementPreview, PaymentMethod, ProductionBatch, RoleWithPermissions, StaffRole, StaffUser, StockMovementRow, SurveyFilter, SurveyStats,
 } from '@/types/admin'
 import type { Analytics, ExportDataset } from '@/types/analytics'
 
@@ -140,3 +140,37 @@ export const useModerateReview = () =>
 
 export const useFollowUp = () =>
   useAdminMutation((v: { id: number; note: string }) => http.patch(`${A}/surveys/${v.id}/follow-up`, { note: v.note }), [['admin', 'surveys']])
+
+// ---------- Étape 14 : points de retrait partenaires ----------
+export const usePickupPointsAdmin = () =>
+  useQuery({ queryKey: ['admin', 'pickup-points'], queryFn: async () => (await http.get<PickupPointsIndex>(`${A}/pickup-points`)).data })
+
+export const usePickupPointAdmin = (id: number) =>
+  useQuery({ queryKey: ['admin', 'pickup-point', id], queryFn: () => get<PickupPointDetail>(`${A}/pickup-points/${id}`) })
+
+type PointInput = Omit<AdminPickupPoint, 'id' | 'is_active' | 'commission_rate'> & { commission_rate?: number; is_active?: boolean }
+
+export const useCreatePickupPoint = () =>
+  useAdminMutation((v: PointInput) => http.post<{ data: AdminPickupPoint }>(`${A}/pickup-points`, v), [['admin', 'pickup-points']])
+
+export const useUpdatePickupPoint = (id: number) =>
+  useAdminMutation((v: Partial<PointInput>) => http.patch(`${A}/pickup-points/${id}`, v), [['admin', 'pickup-points'], ['admin', 'pickup-point']])
+
+const pointKeys = () => [['admin', 'pickup-points'], ['admin', 'pickup-point'], ['admin', 'products'], ['admin', 'dashboard']]
+
+export const useDeliverToPoint = (id: number) =>
+  useAdminMutation((v: { delivered_on?: string; items: { product_id: number; quantity: number }[] }) =>
+    http.post<{ data: { id: number; number: string } }>(`${A}/pickup-points/${id}/deliveries`, v).then((r) => r.data.data), pointKeys())
+
+export const fetchStatementPreview = async (id: number, counts: { product_id: number; counted: number; damaged: number }[]) =>
+  (await http.post<{ data: StatementPreview }>(`${A}/pickup-points/${id}/statements/preview`, { counts })).data.data
+
+export const useValidateStatement = (id: number) =>
+  useAdminMutation((v: { period: string; counts: { product_id: number; counted: number; damaged: number }[]; declared_sold: number | null; gap_note: string | null }) =>
+    http.post(`${A}/pickup-points/${id}/statements`, v), pointKeys())
+
+export const useStatementPayment = () =>
+  useAdminMutation((v: { statementId: number; method: PaymentMethod }) => http.post(`${A}/consignment-statements/${v.statementId}/payment`, { method: v.method }), [...pointKeys(), ['admin', 'orders']])
+
+export const deliveryPdfUrl = (deliveryId: number) => `/api/v1${A}/consignment-deliveries/${deliveryId}/pdf`
+export const statementPdfUrl = (statementId: number) => `/api/v1${A}/consignment-statements/${statementId}/pdf`
