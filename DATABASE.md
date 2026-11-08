@@ -477,6 +477,22 @@ DB::statement('ALTER TABLE stock_movements ADD CONSTRAINT stock_movements_quanti
 
 ---
 
+## 10 bis. Étape 13 : enquêtes de satisfaction et avis
+
+Table `satisfaction_surveys` (migration `2026_11_09_100000`) : **une ligne par prestation terminée ou commande livrée**, qui porte à la fois l'enquête, la réponse et, si la cliente l'accepte, l'avis publié.
+
+| Colonne | Rôle |
+|---|---|
+| `token_hash` (unique) | Empreinte SHA-256 du lien envoyé par SMS. Le lien en clair n'existe que dans le message : une fuite de la base ne permet pas de répondre à la place des clientes |
+| `customer_id`, `booking_id` (unique), `order_id` (unique), `kind` | Qui, et à propos de quoi : une seule enquête par rendez-vous ou par commande |
+| `subject_label`, `service_id`, `stylist_id` | Instantanés pour les statistiques par prestation et par coiffeuse |
+| `sent_at`, `expires_at`, `answered_at` | Cycle de vie : envoyée, valable 14 jours, répondue une seule fois |
+| `rating` (1-5), `nps` (0-10), `comment` | La réponse |
+| `publish_consent`, `review_status` (`none`, `pending`, `approved`, `rejected`), `reject_reason`, `reply`, `moderated_by`, `moderated_at` | Publication : accord de la cliente, puis modération par le salon |
+| `follow_up_done_at`, `follow_up_note` | Note de 3 étoiles ou moins : la cliente a été rappelée, et ce qui a été fait |
+
+`bookings.reminder_sent_at` (prévue dès l'étape 3) marque le rappel de la veille. La table `product_reviews` (avis par produit) reste disponible pour une évolution future.
+
 ## 11. Évolutions prévues
 | Évolution | Impact sur le schéma |
 |---|---|

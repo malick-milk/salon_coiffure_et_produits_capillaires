@@ -170,7 +170,7 @@ function seedOrders(): MockOrder[] {
 
 function seedCustomerBookings(): MockCustomerBooking[] {
   const b = (reference: string, status: BookingStatus, service_name: string, days: number, time: string, duration_minutes: number, price: number): MockCustomerBooking =>
-    ({ user_id: 3, reference, status, service_name, stylist_name: 'Fatou', starts_at: relDay(days, time), duration_minutes, price, can_cancel: false })
+    ({ user_id: 3, reference, status, service_name, stylist_name: 'Fatou', starts_at: relDay(days, time), duration_minutes, price, can_cancel: false, cancelled_by: null, cancellation_reason: null })
   return [
     b('RDV-2026-000201', 'confirmed', 'Tresses africaines', 10, '10:00', 180, 25000),
     b('RDV-2026-000105', 'completed', 'Soin profond au karité', -30, '16:00', 60, 8000),

@@ -215,6 +215,9 @@ function BookingRow({ booking: b, confirming, pending, onAsk, onAbort, onConfirm
       <div className="flex min-w-48 flex-1 flex-col gap-1">
         <strong>{b.service_name}</strong>
         <span className="text-sm text-muted">{time(b.starts_at)} · {formatDuration(b.duration_minutes)} · {b.stylist_name} · {formatPrice(b.price)} · {b.reference}</span>
+        {b.status === 'cancelled' && b.cancellation_reason && (
+          <span className="text-sm text-[#fca5a5]">Annulé par le salon · Motif : {b.cancellation_reason}. <Link to="/reserver" className="font-semibold text-gold underline">Choisir un autre créneau</Link></span>
+        )}
       </div>
       <StatusBadge kind="booking" status={b.status} />
       {b.can_cancel && !confirming && <Button variant="outline" size="sm" onClick={onAsk}>Annuler</Button>}

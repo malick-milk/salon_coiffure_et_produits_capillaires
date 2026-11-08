@@ -21,6 +21,7 @@ vitrine et e-commerce, réservation en ligne, ERP d'administration et tableau de
 | 10 | Audit de sécurité — [docs/10_SECURITE.md](docs/10_SECURITE.md) | Terminée (OWASP Top 10 : 3 failles corrigées, 9 renforcements, `app:security-check`) |
 | 11 | Déploiement — [docs/11_DEPLOIEMENT.md](docs/11_DEPLOIEMENT.md), [deploy/](deploy/) | Prête (scripts testés sur Ubuntu 24.04 ; reste : acheter le domaine et le serveur) |
 | 12 | Publicités de l'accueil et « Nos gammes » — [docs/12_PUBLICITES_ET_GAMMES.md](docs/12_PUBLICITES_ET_GAMMES.md), [maquette](https://claude.ai/artifact/NpExLjgNGZiUutFi51EtZL) | Maquette en attente de validation |
+| 13 | Messages aux clientes et satisfaction — [docs/13_NOTIFICATIONS_ET_AVIS.md](docs/13_NOTIFICATIONS_ET_AVIS.md) | Terminée (SMS + e-mail, motif d'annulation obligatoire, enquête de satisfaction, avis publics, NPS ; reste : choisir les fournisseurs d'envoi) |
 
 ## Stack
 - Frontend : React + TypeScript + Vite + Tailwind CSS + shadcn/ui + Lucide React

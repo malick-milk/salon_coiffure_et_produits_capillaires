@@ -41,7 +41,30 @@ function categoryAndChildren(slug: string): number[] {
 
 const PHONE_SN = /^(\+221)?7[05678]\d{7}$/
 
+// Étape 13 : avis publiés et une enquête de démonstration (lien /avis/ + 40 « d »)
+const mockReviews = [
+  { id: 1, author: 'Aïssatou D.', kind: 'booking', subject_label: 'Micro twist', rating: 5, comment: 'Travail très soigné, mes twists ont tenu six semaines.', reply: 'Merci Aïssatou, à très bientôt !', date: '2026-11-05' },
+  { id: 2, author: 'Fatou S.', kind: 'order', subject_label: 'Commande en ligne', rating: 5, comment: 'Le sérum Activ’Pousse a vraiment changé mes bords en un mois.', reply: null, date: '2026-11-02' },
+  { id: 3, author: 'Mame B.', kind: 'booking', subject_label: 'Soin et brushing', rating: 4, comment: 'Très bon soin, un peu d’attente malgré le rendez-vous.', reply: 'Merci pour votre retour.', date: '2026-10-29' },
+] as const
+const MOCK_SURVEY_TOKEN = 'd'.repeat(40)
+let mockSurveyAnswered = false
+
 export const handlers = [
+  http.get(`${API}/reviews`, async () => HttpResponse.json({
+    data: mockReviews,
+    summary: { average: 4.6, answered_count: 5, published_count: 3, distribution: { 5: 3, 4: 1, 3: 0, 2: 1, 1: 0 } },
+    meta: { current_page: 1, last_page: 1, total: 3 },
+  })),
+  http.get(`${API}/surveys/:token`, async ({ params }) => params.token === MOCK_SURVEY_TOKEN
+    ? HttpResponse.json({ data: { kind: 'booking', subject_label: 'Micro twist', first_name: 'Mariama', state: mockSurveyAnswered ? 'answered' : 'open' } })
+    : HttpResponse.json({ message: 'Lien d’enquête introuvable.' }, { status: 404 })),
+  http.post(`${API}/surveys/:token`, async ({ request }) => {
+    const body = (await request.json()) as { rating: number }
+    mockSurveyAnswered = true
+    return HttpResponse.json({ data: { state: 'answered', follow_up: body.rating <= 3 } }, { status: 201 })
+  }),
+
   http.get(`${API}/categories`, async () => {
     await delay(150)
     return HttpResponse.json({ data: categories })
@@ -194,7 +217,7 @@ export const handlers = [
       db.customerBookings.push({
         user_id: user.id, reference: confirmation.reference, status: 'pending', service_name: service.name,
         stylist_name: confirmation.stylist_name, starts_at: confirmation.starts_at, duration_minutes: service.duration_minutes,
-        price: service.price, can_cancel: true,
+        price: service.price, can_cancel: true, cancelled_by: null, cancellation_reason: null,
       })
     }
     persistDb()

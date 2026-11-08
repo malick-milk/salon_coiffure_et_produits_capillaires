@@ -244,4 +244,45 @@ export interface CustomerBooking {
   duration_minutes: number
   price: Money
   can_cancel: boolean // jusqu'à 24 h avant (RG-RES-04)
+  cancelled_by: 'customer' | 'staff' | 'system' | null
+  cancellation_reason: string | null // motif donné par le salon (étape 13)
+}
+
+// ---------- Étape 13 : avis clients et enquête de satisfaction ----------
+export interface PublicReview {
+  id: number
+  author: string // « Aïssatou D. » : jamais le nom complet
+  kind: 'booking' | 'order'
+  subject_label: string
+  rating: number // 1 à 5
+  comment: string | null
+  reply: string | null // réponse publique du salon
+  date: string // AAAA-MM-JJ
+}
+
+export interface ReviewsSummary {
+  average: number | null // moyenne de TOUTES les réponses, publiées ou non
+  answered_count: number
+  published_count: number
+  distribution: Record<'1' | '2' | '3' | '4' | '5', number>
+}
+
+export interface ReviewsResponse {
+  data: PublicReview[]
+  summary: ReviewsSummary
+  meta: { current_page: number; last_page: number; total: number }
+}
+
+export interface SurveyInfo {
+  kind: 'booking' | 'order'
+  subject_label: string
+  first_name: string | null
+  state: 'open' | 'answered' | 'expired'
+}
+
+export interface SurveyAnswer {
+  rating: number
+  nps: number | null
+  comment: string | null
+  publish_consent: boolean
 }

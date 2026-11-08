@@ -44,6 +44,9 @@ export const router = createBrowserRouter([
           { path: 'profil', lazy: async () => ({ Component: (await import('@/features/account/pages/AccountPages')).ProfilePage }) },
         ],
       },
+      // Étape 13 : avis clients publics et enquête de satisfaction (lien reçu par SMS)
+      { path: 'avis', lazy: async () => ({ Component: (await import('@/features/reviews/pages/ReviewsPage')).ReviewsPage }) },
+      { path: 'avis/:token', lazy: async () => ({ Component: (await import('@/features/reviews/pages/SurveyPage')).SurveyPage }) },
       { path: '*', element: <NotFoundPage /> },
     ],
   },
@@ -65,6 +68,7 @@ export const router = createBrowserRouter([
       { path: 'fabrication', lazy: async () => ({ Component: (await admin()).ProductionPage }) },
       { path: 'equipe', lazy: async () => ({ Component: (await admin()).TeamPage }) },
       { path: 'audit', lazy: async () => ({ Component: (await admin()).AuditPage }) },
+      { path: 'avis', lazy: async () => ({ Component: (await admin()).ReviewsAdminPage }) },
     ],
   },
 ])

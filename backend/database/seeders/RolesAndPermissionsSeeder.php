@@ -14,6 +14,7 @@ class RolesAndPermissionsSeeder extends Seeder
         'products.view', 'products.manage', 'stock.view', 'stock.adjust', 'production.manage',
         'orders.view', 'orders.manage', 'bookings.view', 'bookings.manage', 'customers.view', 'customers.manage',
         'invoices.view', 'invoices.manage', 'analytics.view', 'users.manage', 'roles.manage', 'settings.manage', 'audit.view',
+        'reviews.manage', // étape 13 : avis clients et satisfaction
     ];
 
     public function run(): void

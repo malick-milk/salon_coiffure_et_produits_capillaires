@@ -10,6 +10,7 @@ import { homeContent } from '@/content/home'
 import { useBusinessHours, useServices } from '@/features/booking/hooks'
 import { ProductCard } from '@/features/catalog/components/ProductCard'
 import { useProducts } from '@/features/catalog/hooks'
+import { ReviewsSection } from '@/features/reviews/components/ReviewsSection'
 import { formatDuration, formatPrice } from '@/lib/format'
 import { apiErrorMessage } from '@/lib/http'
 import type { BusinessHour } from '@/types/api'
@@ -137,6 +138,8 @@ export function HomePage() {
           )}
         </div>
       </section>
+
+      <ReviewsSection />
 
       <section id="salon" className="scroll-mt-24 px-4 py-20 sm:px-6">
         <div className="mx-auto flex max-w-7xl flex-col gap-12 lg:flex-row">

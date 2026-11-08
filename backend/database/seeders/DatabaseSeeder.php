@@ -14,6 +14,7 @@ class DatabaseSeeder extends Seeder
             ReferenceDataSeeder::class,
             DaboHairCatalogSeeder::class,
             DemoAccountsSeeder::class,
+            DemoReviewsSeeder::class,
         ]);
     }
 }

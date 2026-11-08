@@ -54,6 +54,9 @@ return [
 
     'url' => env('APP_URL', 'http://localhost'),
 
+    // Adresse du site React : liens envoyés dans les e-mails et SMS (étape 13)
+    'frontend_url' => rtrim((string) env('FRONTEND_URL', 'http://localhost:5173'), '/'),
+
     /*
     |--------------------------------------------------------------------------
     | Application Timezone

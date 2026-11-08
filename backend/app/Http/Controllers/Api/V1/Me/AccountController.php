@@ -11,6 +11,8 @@ use App\Http\Resources\OrderSummaryResource;
 use App\Http\Resources\UserResource;
 use App\Models\Booking;
 use App\Models\Order;
+use App\Notifications\BookingCancelledByCustomer;
+use App\Support\Notify;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Gate;
@@ -54,6 +56,7 @@ class AccountController extends Controller
 
         // Passer à « annulée » libère automatiquement le créneau (colonne générée active_slot = NULL)
         $booking->update(['status' => BookingStatus::Cancelled, 'cancelled_at' => now(), 'cancelled_by' => 'customer']);
+        Notify::customer($booking->customer, new BookingCancelledByCustomer($booking));
 
         return new CustomerBookingResource($booking);
     }

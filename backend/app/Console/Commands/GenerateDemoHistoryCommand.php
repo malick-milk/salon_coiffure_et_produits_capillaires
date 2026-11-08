@@ -24,6 +24,7 @@ use Carbon\CarbonImmutable;
 use Illuminate\Console\Command;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Notification;
 
 /**
  * HISTORIQUE FICTIF pour apprendre l'analyse de données (local uniquement).
@@ -74,6 +75,8 @@ class GenerateDemoHistoryCommand extends Command
 
             return self::FAILURE;
         }
+        // Historique fictif : aucun SMS ni e-mail ne doit partir vers les clientes de démonstration
+        Notification::fake();
         if (Customer::where('notes', self::MARKER)->exists()) {
             $this->error('Historique déjà généré. Pour repartir de zéro : php artisan migrate:fresh --seed');
 

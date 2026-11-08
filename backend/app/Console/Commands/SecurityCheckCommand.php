@@ -35,6 +35,9 @@ class SecurityCheckCommand extends Command
             [false, config('logging.channels.single.level') !== 'debug' && config('logging.channels.daily.level') !== 'debug', 'Journaux sans niveau « debug »', 'LOG_LEVEL=warning (le niveau debug peut écrire des données personnelles).'],
             [false, config('app.rate_limits.checkout') <= 20 && config('app.rate_limits.api') <= 120, 'Limites anti-abus aux valeurs par défaut', 'Ne pas relever API_RATE_LIMIT / CHECKOUT_RATE_LIMIT en production.'],
             [false, ! in_array('*', (array) config('cors.allowed_origins'), true), 'CORS limité à la vitrine', 'CORS_ALLOWED_ORIGINS=https://votre-domaine'],
+            // Étape 13 : sans fournisseur, les messages sont seulement écrits dans les journaux
+            [false, config('services.sms.driver') !== 'log', 'SMS réellement envoyés', 'SMS_DRIVER=log : les SMS sont écrits dans storage/logs/sms-*.log, aucune cliente ne les reçoit.'],
+            [false, ! in_array(config('mail.default'), ['log', 'array'], true), 'E-mails réellement envoyés', 'MAIL_MAILER=log : configurez un service d’envoi (SMTP), voir docs/13_NOTIFICATIONS_ET_AVIS.md.'],
         ];
 
         $blocking = 0;

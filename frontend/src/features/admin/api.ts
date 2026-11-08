@@ -4,7 +4,7 @@ import { http } from '@/lib/http'
 import type { BookingStatus, OrderStatus } from '@/types/api'
 import type {
   AdminBooking, AdminCustomer, AdminOrderDetail, AdminOrderRow, AdminProduct, AuditEntry, CostCategory, Dashboard,
-  PageMeta, PaymentMethod, ProductionBatch, RoleWithPermissions, StaffRole, StaffUser, StockMovementRow,
+  AdminSurvey, PageMeta, PaymentMethod, ProductionBatch, RoleWithPermissions, StaffRole, StaffUser, StockMovementRow, SurveyFilter, SurveyStats,
 } from '@/types/admin'
 import type { Analytics, ExportDataset } from '@/types/analytics'
 
@@ -122,3 +122,21 @@ export function useAnalytics(from: string, to: string) {
 /** Lien de téléchargement : le navigateur envoie le cookie de session, le serveur vérifie analytics.view */
 export const analyticsExportUrl = (dataset: ExportDataset, from: string, to: string) =>
   `/api/v1${A}/analytics/export/${dataset}?${new URLSearchParams({ from, to })}`
+
+// ---------- Étape 13 : avis clients et satisfaction ----------
+type SurveyPage = Page<AdminSurvey> & { counts: { to_moderate: number; follow_up: number } }
+
+export const useAdminSurveys = (filter: SurveyFilter, page = 1) =>
+  useQuery({ queryKey: ['admin', 'surveys', filter, page], queryFn: async () => (await http.get<SurveyPage>(`${A}/surveys`, { params: { filter, page } })).data, placeholderData: keepPreviousData })
+
+export const useSurveyStats = () => useQuery({ queryKey: ['admin', 'surveys', 'stats'], queryFn: () => get<SurveyStats>(`${A}/surveys/stats`) })
+
+export const useModerateReview = () =>
+  useAdminMutation(
+    (v: { id: number; decision: 'approve' | 'reject' | 'reply'; reply?: string; reject_reason?: string }) =>
+      http.patch(`${A}/surveys/${v.id}/review`, { decision: v.decision, reply: v.reply, reject_reason: v.reject_reason }),
+    [['admin', 'surveys'], ['reviews']],
+  )
+
+export const useFollowUp = () =>
+  useAdminMutation((v: { id: number; note: string }) => http.patch(`${A}/surveys/${v.id}/follow-up`, { note: v.note }), [['admin', 'surveys']])

@@ -56,6 +56,16 @@ return [
     ],
 
     'attributes' => [
+        // Étape 13 : enquêtes de satisfaction et avis
+        'rating' => 'la note',
+        'nps' => 'la recommandation',
+        'comment' => 'le commentaire',
+        'publish_consent' => 'l’accord de publication',
+        'decision' => 'la décision',
+        'reply' => 'la réponse',
+        'reject_reason' => 'le motif du refus',
+        'note' => 'le compte rendu',
+        'filter' => 'le filtre',
         'category' => 'la catégorie', 'search' => 'la recherche', 'min_price' => 'le prix minimum', 'max_price' => 'le prix maximum',
         'in_stock' => 'le filtre « en stock »', 'featured' => 'le filtre « produits phares »', 'sort' => 'le tri', 'page' => 'la page',
         'service_id' => 'la prestation', 'stylist_id' => 'le coiffeur', 'date' => 'la date', 'time' => 'l’heure',

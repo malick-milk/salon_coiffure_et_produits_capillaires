@@ -86,7 +86,7 @@ async function login(page, email, password) {
   await rdv.waitFor()
   log(true, 'Planning : navigation par semaine jusqu’au rendez-vous de Mariama')
   await rdv.getByRole('button', { name: 'Annuler…' }).click()
-  await rdv.getByLabel('Motif (prévenir le client)').fill('Coiffeuse malade, client prévenu')
+  await rdv.getByLabel('Motif (envoyé à la cliente par SMS et e-mail)').fill('Coiffeuse malade, client prévenu')
   await page.screenshot({ path: `${SHOTS}/43-erp-planning.png` })
   await rdv.getByRole('button', { name: 'Confirmer l’annulation' }).click()
   await rdv.getByText('Annulée').waitFor()
@@ -178,6 +178,23 @@ async function login(page, email, password) {
   // 12 000 (commande livrée) + 6 000 (encaissée à l'étape 3) + prestation terminée : la valeur vie client suit les paiements
   const spent = (await mariama.first().locator('td', { hasText: 'F CFA' }).textContent()).replace(/[\u202f\u00a0]/g, ' ').trim()
   log(spent === '26 000 F CFA', `Clients : valeur vie client de Mariama à jour après l’encaissement (${spent})`)
+
+  // 7 bis. Avis clients (étape 13) : publier un avis avec une réponse, rappeler une cliente mécontente
+  await menu.getByRole('link', { name: 'Avis clients' }).click()
+  await page.getByRole('heading', { name: 'Avis clients' }).waitFor()
+  await page.getByText('Recommandation (NPS)').waitFor()
+  const pending = page.locator('section, div', { hasText: 'Khady Ndour' }).filter({ has: page.getByRole('button', { name: 'Publier' }) }).last()
+  await pending.getByLabel('Réponse publique du salon (facultative)').fill('Merci Khady, à très vite !')
+  await pending.getByRole('button', { name: 'Publier' }).click()
+  await page.getByText('Rien à traiter ici pour le moment.').waitFor()
+  const published = await (await page.request.get(BASE + '/api/v1/reviews?per_page=24')).json()
+  log(published.data.some((r) => r.author === 'Khady N.' && r.reply === 'Merci Khady, à très vite !'), 'Avis publié avec la réponse du salon, sous « Khady N. » (jamais le nom complet)')
+  await page.getByRole('tab', { name: /À rappeler/ }).click()
+  await page.getByLabel('Ce qui a été fait').fill('Rappelée : livraison offerte sur la prochaine commande')
+  await page.getByRole('button', { name: 'Marquer comme rappelée' }).click()
+  await page.getByText('Rien à traiter ici pour le moment.').waitFor()
+  log(true, 'Cliente mécontente rappelée et suivi noté')
+  await page.screenshot({ path: `${SHOTS}/48-erp-avis.png`, fullPage: true })
 
   // 8. Équipe : création d'un caissier
   await menu.getByRole('link', { name: 'Équipe et rôles' }).click()

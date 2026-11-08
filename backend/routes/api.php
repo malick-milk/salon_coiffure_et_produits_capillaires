@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\V1\Admin\CatalogAdminController;
 use App\Http\Controllers\Api\V1\Admin\CustomerAdminController;
 use App\Http\Controllers\Api\V1\Admin\DashboardController;
 use App\Http\Controllers\Api\V1\Admin\OrderAdminController;
+use App\Http\Controllers\Api\V1\Admin\SurveyAdminController;
 use App\Http\Controllers\Api\V1\Admin\TeamAdminController;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\BookingController;
@@ -13,7 +14,9 @@ use App\Http\Controllers\Api\V1\CatalogController;
 use App\Http\Controllers\Api\V1\InvoiceController;
 use App\Http\Controllers\Api\V1\Me\AccountController;
 use App\Http\Controllers\Api\V1\OrderController;
+use App\Http\Controllers\Api\V1\ReviewController;
 use App\Http\Controllers\Api\V1\SalonController;
+use App\Http\Controllers\Api\V1\SurveyController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -37,6 +40,11 @@ Route::prefix('v1')->middleware('throttle:api')->group(function () {
     // Réservations et commandes : avec ou sans compte, avec une limite anti-abus plus stricte (RG-RES-07)
     Route::post('bookings', [BookingController::class, 'store'])->middleware('throttle:checkout');
     Route::post('orders', [OrderController::class, 'store'])->middleware('throttle:checkout');
+
+    // Étape 13 : avis clients publics et enquête de satisfaction (lien personnel, sans compte)
+    Route::get('reviews', [ReviewController::class, 'index']);
+    Route::get('surveys/{token}', [SurveyController::class, 'show'])->where('token', '[A-Za-z0-9]{40}');
+    Route::post('surveys/{token}', [SurveyController::class, 'answer'])->where('token', '[A-Za-z0-9]{40}')->middleware('throttle:checkout');
 
     // Authentification (la limite des 5 essais est gérée dans le contrôleur, par email + IP)
     Route::post('auth/login', [AuthController::class, 'login']);
@@ -90,6 +98,14 @@ Route::prefix('v1')->middleware('throttle:api')->group(function () {
                 Route::get('roles', [TeamAdminController::class, 'roles']);
             });
             Route::get('audit', [TeamAdminController::class, 'audit'])->middleware('permission:audit.view');
+
+            // Étape 13 : avis clients et satisfaction
+            Route::middleware('permission:reviews.manage')->group(function () {
+                Route::get('surveys', [SurveyAdminController::class, 'index']);
+                Route::get('surveys/stats', [SurveyAdminController::class, 'stats']);
+                Route::patch('surveys/{survey}/review', [SurveyAdminController::class, 'review']);
+                Route::patch('surveys/{survey}/follow-up', [SurveyAdminController::class, 'followUp']);
+            });
 
             // Étape 8 : tableau de bord décisionnel (BI) et exports CSV, réservés au propriétaire
             Route::middleware('permission:analytics.view')->group(function () {

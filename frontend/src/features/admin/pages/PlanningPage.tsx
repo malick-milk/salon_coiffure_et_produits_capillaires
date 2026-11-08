@@ -82,7 +82,7 @@ export function PlanningPage() {
                   </div>
                   {cancelling === b.reference && (
                     <form className="flex flex-wrap items-end gap-2" onSubmit={(e) => { e.preventDefault(); act(b, 'cancelled', reason) }}>
-                      <label className="flex min-w-56 flex-1 flex-col gap-1 text-sm font-semibold">Motif (prévenir le client)<AdminInput value={reason} onChange={(e) => setReason(e.target.value)} required minLength={3} /></label>
+                      <label className="flex min-w-56 flex-1 flex-col gap-1 text-sm font-semibold">Motif (envoyé à la cliente par SMS et e-mail)<AdminInput value={reason} onChange={(e) => setReason(e.target.value)} required minLength={5} maxLength={255} placeholder="Ex. : coiffeuse absente, fermeture exceptionnelle" /></label>
                       <Button type="submit" size="sm" variant="danger">Confirmer l’annulation</Button>
                       <Button type="button" size="sm" variant="subtle" onClick={() => setCancelling(null)}>Retour</Button>
                     </form>

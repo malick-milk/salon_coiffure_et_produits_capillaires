@@ -20,6 +20,9 @@ class CustomerBookingResource extends JsonResource
             'duration_minutes' => $this->duration_minutes,
             'price' => $this->price,
             'can_cancel' => self::canCancel($this->resource), // calculé à la lecture : dépend de l'heure
+            // Étape 13 : la cliente voit qui a annulé et pourquoi (le motif du salon lui est aussi envoyé)
+            'cancelled_by' => $this->cancelled_by,
+            'cancellation_reason' => $this->cancelled_by === 'staff' ? $this->cancellation_reason : null,
         ];
     }
 

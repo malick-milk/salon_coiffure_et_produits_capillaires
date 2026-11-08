@@ -35,4 +35,11 @@ return [
         ],
     ],
 
+    // Étape 13 : envoi des SMS. « log » écrit les messages dans storage/logs/sms-AAAA-MM-JJ.log
+    // (aucun envoi réel) tant qu'un fournisseur n'est pas choisi (docs/13_NOTIFICATIONS_ET_AVIS.md).
+    'sms' => [
+        'driver' => env('SMS_DRIVER', 'log'),
+        'sender' => env('SMS_SENDER', 'DABO HAIR'),
+    ],
+
 ];

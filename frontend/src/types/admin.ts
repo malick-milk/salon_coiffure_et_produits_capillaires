@@ -159,3 +159,47 @@ export interface AuditEntry {
   changes: { old?: Record<string, unknown>; attributes?: Record<string, unknown>; [key: string]: unknown } | []
   created_at: string | null
 }
+
+// ---------- Étape 13 : avis clients et satisfaction ----------
+export type ReviewStatus = 'none' | 'pending' | 'approved' | 'rejected'
+export type SurveyFilter = 'to_moderate' | 'follow_up' | 'answered' | 'published'
+export const REJECT_REASONS = ['insultes', 'données personnelles', 'publicité', 'hors sujet'] as const
+
+export interface AdminSurvey {
+  id: number
+  kind: 'booking' | 'order'
+  subject_label: string
+  customer_name: string | null
+  customer_phone: string | null
+  public_author: string
+  stylist_name: string | null
+  sent_at: string
+  answered_at: string | null
+  rating: number | null
+  nps: number | null
+  comment: string | null
+  publish_consent: boolean
+  review_status: ReviewStatus
+  reject_reason: string | null
+  reply: string | null
+  needs_follow_up: boolean
+  follow_up_done_at: string | null
+  follow_up_note: string | null
+}
+
+export interface SurveyGroupStat { label: string; answered: number; average: number; nps: number | null }
+
+export interface SurveyStats {
+  period: { from: string; to: string }
+  sent: number
+  answered: number
+  response_rate: number | null
+  average_rating: number | null
+  nps: number | null // de −100 à +100
+  nps_answers: number
+  by_service: SurveyGroupStat[]
+  orders: { answered: number; average: number | null } | null
+  by_stylist: SurveyGroupStat[]
+  by_month: (Omit<SurveyGroupStat, 'label'> & { month: string })[]
+  counts: { to_moderate: number; follow_up: number }
+}

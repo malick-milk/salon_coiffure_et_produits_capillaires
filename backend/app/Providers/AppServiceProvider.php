@@ -2,18 +2,25 @@
 
 namespace App\Providers;
 
+use App\Services\Sms\LogSmsSender;
+use App\Services\Sms\SmsSender;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
+use InvalidArgumentException;
 
 class AppServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        //
+        // Fournisseur de SMS choisi par SMS_DRIVER (étape 13). Ajouter un fournisseur = une ligne ici.
+        $this->app->singleton(SmsSender::class, fn () => match (config('services.sms.driver')) {
+            'log' => new LogSmsSender,
+            default => throw new InvalidArgumentException('SMS_DRIVER inconnu : '.config('services.sms.driver')),
+        });
     }
 
     public function boot(): void

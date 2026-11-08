@@ -17,7 +17,7 @@ class Booking extends Model
     protected $fillable = [
         'reference', 'customer_id', 'service_id', 'stylist_id', 'source', 'status', 'starts_at', 'ends_at',
         'service_name', 'duration_minutes', 'price', 'customer_notes', 'admin_notes', 'cancellation_reason',
-        'cancelled_by', 'confirmed_at', 'completed_at', 'cancelled_at',
+        'cancelled_by', 'confirmed_at', 'completed_at', 'cancelled_at', 'reminder_sent_at',
     ];
 
     protected function casts(): array
@@ -30,6 +30,7 @@ class Booking extends Model
             'confirmed_at' => 'datetime',
             'completed_at' => 'datetime',
             'cancelled_at' => 'datetime',
+            'reminder_sent_at' => 'datetime',
             'price' => 'integer',
             'duration_minutes' => 'integer',
         ];

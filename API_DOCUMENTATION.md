@@ -102,6 +102,22 @@ Tous exigent d'être connecté **et** de détenir une permission précise (403 s
 
 `GET /auth/me` renvoie `permissions` (tableau de chaînes, vide pour un client) : l'interface s'en sert pour masquer ce qui est interdit, le serveur reste seul juge. `GET /admin/audit` renvoie `subject` (technique) et `subject_label` (lisible, `null` si l'objet a été supprimé).
 
+## Avis clients et satisfaction (étape 13)
+
+Détail : [docs/13_NOTIFICATIONS_ET_AVIS.md](docs/13_NOTIFICATIONS_ET_AVIS.md).
+
+| Méthode | URL | Accès | Paramètres | Réponse |
+|---|---|---|---|---|
+| GET | `/reviews` | public | `page`, `per_page` (1 à 24, 6 par défaut) | `{ data: [{ id, author, kind, subject_label, rating, comment, reply, date }], summary: { average, answered_count, published_count, distribution }, meta }` — seuls les avis **publiés** ; `average` porte sur **toutes** les réponses |
+| GET | `/surveys/{jeton}` | lien personnel (40 caractères) | — | `{ data: { kind, subject_label, first_name, state: open \| answered \| expired } }` ; 404 si inconnu |
+| POST | `/surveys/{jeton}` | lien personnel, 20 par minute | `rating` (1-5, obligatoire), `nps` (0-10), `comment` (1 000 caractères), `publish_consent` (booléen) | 201 `{ data: { state, follow_up } }` ; 409 déjà répondu ; 410 expiré |
+| GET | `/admin/surveys` | `reviews.manage` | `filter` : `to_moderate` (défaut), `follow_up`, `answered`, `published` ; `page` | liste paginée (20) + `counts: { to_moderate, follow_up }` ; contient le téléphone de la cliente (rappel) |
+| PATCH | `/admin/surveys/{id}/review` | `reviews.manage` | `decision` : `approve`, `reject` ou `reply` ; `reply` ; `reject_reason` (`insultes`, `données personnelles`, `publicité`, `hors sujet`) | l'enquête à jour ; 422 si la cliente n'a pas donné son accord |
+| PATCH | `/admin/surveys/{id}/follow-up` | `reviews.manage` | `note` (5 à 500 caractères) | l'enquête à jour |
+| GET | `/admin/surveys/stats` | `reviews.manage` | `from`, `to` (90 derniers jours par défaut) | `{ data: { sent, answered, response_rate, average_rating, nps, nps_answers, by_service, orders, by_stylist, by_month, counts } }` |
+
+Changements liés : `PATCH /admin/bookings/{ref}/status` exige `reason` (5 caractères au moins) pour annuler ; `GET /me/bookings` renvoie `cancelled_by` et `cancellation_reason` (le motif, seulement quand le salon a annulé).
+
 ## Endpoints analytics
 
 Permission `analytics.view` (propriétaire). Détail des formules : [docs/08_ANALYTICS.md](docs/08_ANALYTICS.md) §3.

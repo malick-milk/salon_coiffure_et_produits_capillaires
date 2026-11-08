@@ -53,6 +53,15 @@ return [
 
     'channels' => [
 
+        // Étape 13 : SMS « envoyés » par le pilote log (avant le choix d'un fournisseur)
+        'sms' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/sms.log'),
+            'level' => 'info',
+            'days' => 30,
+            'replace_placeholders' => true,
+        ],
+
         // Étape 10 : événements de sécurité, séparés du journal applicatif (App\Support\SecurityLog)
         'security' => [
             'driver' => 'daily',

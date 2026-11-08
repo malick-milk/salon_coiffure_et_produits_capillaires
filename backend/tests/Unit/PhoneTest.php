@@ -34,4 +34,17 @@ class PhoneTest extends TestCase
         $this->assertSame('+221771234567', Phone::normalize('+221 77-123.45 67'));
         $this->assertSame('', Phone::normalize(null));
     }
+
+    /** Étape 13 : format international exigé par les fournisseurs de SMS */
+    public function test_format_international_pour_les_sms(): void
+    {
+        $this->assertSame('+221771234567', Phone::toE164('77 123 45 67'));
+        $this->assertSame('+221701234567', Phone::toE164('+221 70.123.45.67'));
+        $this->assertSame('+221781234567', Phone::toE164('00221781234567'));
+        $this->assertNull(Phone::toE164('33 823 45 67'));  // fixe : pas de SMS
+        $this->assertNull(Phone::toE164('06 12 34 56 78')); // étranger
+        $this->assertNull(Phone::toE164(null));
+        $this->assertSame('+22177***4567', Phone::mask('+221771234567'));
+        $this->assertNull(Phone::mask(null));
+    }
 }
