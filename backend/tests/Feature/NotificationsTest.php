@@ -17,6 +17,7 @@ use App\Notifications\BookingReminder;
 use App\Notifications\Channels\SmsChannel;
 use App\Notifications\SatisfactionSurveyRequest;
 use App\Services\Sms\SmsSender;
+use Database\Seeders\SalonTestScenarioSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
@@ -32,6 +33,7 @@ class NotificationsTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+        $this->seed(SalonTestScenarioSeeder::class); // deux coiffeuses, pause de midi, dimanche fermé
         $this->travelTo(Carbon::parse('2026-11-08 10:00:00', 'UTC'));
     }
 

@@ -20,7 +20,7 @@ class DemoReviewsSeeder extends Seeder
         if (! app()->environment('local')) {
             return;
         }
-        $fatou = Stylist::where('display_name', 'Fatou')->value('id');
+        $stylist = Stylist::where('display_name', ReferenceDataSeeder::STYLIST_NAME)->value('id');
         $reviews = [
             ['Aïssatou', 'Diallo', '770000011', 5, 10, 'Travail très soigné, mes twists ont tenu six semaines. Accueil chaleureux, je reviens le mois prochain.', 'approved', 'Merci Aïssatou, à très bientôt !', 3],
             ['Fatou', 'Sarr', '770000012', 5, 9, 'Le sérum Activ’Pousse a vraiment changé mes bords en un mois. Livraison rapide à Pikine.', 'approved', null, 6, 'order'],
@@ -35,8 +35,8 @@ class DemoReviewsSeeder extends Seeder
             SatisfactionSurvey::updateOrCreate(['customer_id' => $customer->id], [
                 'token_hash' => SatisfactionSurvey::hashToken(Str::random(40)),
                 'kind' => $kind,
-                'subject_label' => $kind === 'booking' ? ['Micro twist', 'Soin et brushing', 'Twist simple'][$i % 3] : 'Commande CMD-2026-0000'.(20 + $i),
-                'stylist_id' => $kind === 'booking' ? $fatou : null,
+                'subject_label' => $kind === 'booking' ? ['Micro twist long', 'Mini twist', 'Twist simple'][$i % 3] : 'Commande CMD-2026-0000'.(20 + $i),
+                'stylist_id' => $kind === 'booking' ? $stylist : null,
                 'sent_at' => now()->subDays($daysAgo + 1), 'expires_at' => now()->addDays(13 - $daysAgo),
                 'answered_at' => now()->subDays($daysAgo), 'rating' => $rating, 'nps' => $nps, 'comment' => $comment,
                 'publish_consent' => $status !== 'none', 'review_status' => $status, 'reply' => $reply,

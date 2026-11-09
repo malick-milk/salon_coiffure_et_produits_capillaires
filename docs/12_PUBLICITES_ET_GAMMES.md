@@ -46,26 +46,34 @@
 | Par besoin | Pousse et fortification, Hydratation, Anti-chute, Soin réparateur à la kératine |
 | Par produit | Shampoings, Crèmes et hydratants, Sérums, Soins traitants |
 
-### Prestations (d'après les affiches du salon)
+### Prestations (en place dans le site depuis le 9 novembre 2026)
 
-| Famille | Prestation | Prix |
-|---|---|---|
-| Twists | Twist simple | à partir de 5 000 F |
-| | Resserrage twist | 5 000 F |
-| | Mini twist | **8 000 F ou 10 000 F ?** (les deux affiches diffèrent) |
-| | Micro twist | 10 000 F |
-| Soin + twist | Soin, shampooing et twist | 8 000 F |
-| | Soin, shampooing, bain d'huile et twist | 10 000 F |
-| Brushing | Brushing | 3 000 F |
-| | Soin et brushing | 5 000 F |
+Une seule coiffeuse, **ouverte tous les jours de 9 h à 19 h**. Une prestation n'est proposée en ligne que si sa durée est connue : sinon, la réservation proposerait de faux créneaux.
+
+| Prestation | Durée | Prix | En ligne |
+|---|---|---|---|
+| Twist simple | 2 h | 5 000 F | Oui |
+| Mini twist | 4 h | 10 000 F | Oui |
+| Micro twist court | 8 h | 20 000 F | Oui |
+| Micro twist mi-long | 8 h | 25 000 F | Oui |
+| Micro twist long | 8 h | 30 000 F | Oui |
+| Resserrage twist | ? | 5 000 F | Non : durée à confirmer |
+| Soin, shampooing et twist | ? | 8 000 F | Non : durée à confirmer |
+| Soin, shampooing, bain d'huile et twist | ? | 10 000 F | Non : durée à confirmer |
+| Brushing | ? | 3 000 F | Non : durée à confirmer |
+| Soin et brushing | ? | 5 000 F | Non : durée à confirmer |
+
+Ces données sont dans `backend/database/seeders/ReferenceDataSeeder.php`. Pour activer une prestation, on indique sa durée et on passe `false` à `true`. Les tests de calcul des créneaux utilisent un scénario plus riche (deux coiffeuses, une pause, un jour de fermeture) : `SalonTestScenarioSeeder`, qui n'est jamais chargé en production.
 
 ## 5. À confirmer par Dabo Hair
 
 - [ ] Les noms des gammes « par besoin » et des deux coffrets
-- [ ] Le prix du Mini twist : 8 000 F ou 10 000 F
-- [ ] La **durée** de chaque prestation (indispensable pour proposer des créneaux en ligne)
+- [x] Le prix du Mini twist : **10 000 F** (confirmé le 9 novembre)
+- [x] Durées des twists (2 h, 4 h, 8 h) et horaires (tous les jours, 9 h – 19 h)
+- [ ] Durées du resserrage, des soins + twist et des brushings
+- [ ] Le prénom de la coiffeuse (affichée pour l'instant « Coiffeuse Dabo Hair »)
 - [ ] Afficher ou non le prix barré du coffret (14 000 F = somme des 4 produits séparés)
-- [ ] Le fichier original du logo (PNG transparent ou SVG)
+- [x] Le logo : redessiné en vectoriel, validé et intégré au site
 - [ ] Les photos des produits (voir §6)
 
 ## 6. Refaire les photos des produits

@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\Product;
 use App\Models\Service;
+use Database\Seeders\SalonTestScenarioSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -98,13 +99,30 @@ class CatalogApiTest extends TestCase
             ->assertJsonValidationErrors(['sort']);
     }
 
-    public function test_salon_prestations_coiffeurs_horaires_et_zones(): void
+    public function test_salon_reel_prestations_coiffeuse_et_horaires(): void
     {
-        $this->getJson('/api/v1/services')->assertOk()->assertJsonCount(3, 'data')->assertJsonMissingPath('data.0.buffer_minutes');
+        // Données réelles du salon (9 novembre 2026) : seules les prestations dont la durée est connue sont proposées
+        $this->getJson('/api/v1/services')->assertOk()->assertJsonCount(5, 'data')->assertJsonMissingPath('data.0.buffer_minutes')
+            ->assertJsonPath('data.0.name', 'Twist simple')->assertJsonPath('data.0.duration_minutes', 120)->assertJsonPath('data.0.price', 5000)
+            ->assertJsonPath('data.1.name', 'Mini twist')->assertJsonPath('data.1.price', 10000)
+            ->assertJsonPath('data.4.name', 'Micro twist long')->assertJsonPath('data.4.duration_minutes', 480)->assertJsonPath('data.4.price', 30000);
+        $this->assertSame(['brushing', 'resserrage-twist', 'soin-brushing', 'soin-shampooing-bain-huile-twist', 'soin-shampooing-twist'],
+            Service::where('is_active', false)->orderBy('slug')->pluck('slug')->all()); // durée à confirmer : masquées
+        $this->getJson('/api/v1/stylists')->assertOk()->assertJsonCount(1, 'data');
+        $hours = $this->getJson('/api/v1/business-hours')->json('data');
+        $this->assertCount(7, $hours);
+        foreach ($hours as $h) {
+            $this->assertSame([false, '09:00', '19:00', null], [$h['is_closed'], $h['opens_at'], $h['closes_at'], $h['break_start']]);
+        }
+        $this->getJson('/api/v1/delivery-zones')->assertJsonPath('data.0', ['id' => 1, 'name' => 'Dakar Plateau', 'fee' => 1000]);
+    }
+
+    public function test_une_coiffeuse_ne_propose_que_ses_prestations(): void
+    {
+        $this->seed(SalonTestScenarioSeeder::class);
         // Bineta ne réalise pas les nattes collées
         $nattes = Service::where('slug', 'nattes-collees')->value('id');
         $this->getJson("/api/v1/stylists?service_id={$nattes}")->assertOk()->assertJsonCount(1, 'data')->assertJsonPath('data.0.display_name', 'Fatou');
-        $this->getJson('/api/v1/business-hours')->assertJsonPath('data.0.opens_at', '09:00')->assertJsonPath('data.6.is_closed', true);
-        $this->getJson('/api/v1/delivery-zones')->assertJsonPath('data.0', ['id' => 1, 'name' => 'Dakar Plateau', 'fee' => 1000]);
+        $this->getJson('/api/v1/business-hours')->assertJsonPath('data.6.is_closed', true);
     }
 }

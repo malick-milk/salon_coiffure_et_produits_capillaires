@@ -175,9 +175,9 @@ async function login(page, email, password) {
   await page.getByRole('button', { name: 'Rechercher' }).click()
   const mariama = page.locator('tr', { hasText: 'Mariama' })
   await mariama.first().waitFor()
-  // 12 000 (commande livrée) + 6 000 (encaissée à l'étape 3) + prestation terminée : la valeur vie client suit les paiements
+  // 12 000 (commande livrée) + 6 000 (encaissée à l'étape 3) + 5 000 (twist simple terminé) : la valeur vie client suit les paiements
   const spent = (await mariama.first().locator('td', { hasText: 'F CFA' }).textContent()).replace(/[\u202f\u00a0]/g, ' ').trim()
-  log(spent === '26 000 F CFA', `Clients : valeur vie client de Mariama à jour après l’encaissement (${spent})`)
+  log(spent === '23 000 F CFA', `Clients : valeur vie client de Mariama à jour après l’encaissement (${spent})`)
 
   // 7 bis. Avis clients (étape 13) : publier un avis avec une réponse, rappeler une cliente mécontente
   await menu.getByRole('link', { name: 'Avis clients' }).click()

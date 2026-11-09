@@ -191,7 +191,7 @@ class AdminApiTest extends TestCase
     {
         // Mariama : commande payée 12 000 + prestation terminée 8 000
         $this->actingAs($this->admin)->getJson('/api/v1/admin/customers?search=Mariama')->assertOk()
-            ->assertJsonPath('data.0.total_spent', 20000)->assertJsonPath('data.0.has_account', true);
+            ->assertJsonPath('data.0.total_spent', 17000)->assertJsonPath('data.0.has_account', true); // 12 000 (commande) + 5 000 (twist simple terminé)
         $this->getJson('/api/v1/admin/customers?type=reseller')->assertJsonPath('meta.total', 1);
     }
 

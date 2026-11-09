@@ -55,8 +55,8 @@ async function main() {
   // ---------- A. Le même créneau, 30 fois en même temps ----------
   const services = (await visitor.get('/services')).body.data
   const stylists = (await visitor.get('/stylists')).body.data
-  const service = services.find((s) => s.slug === 'soin-profond-karite') ?? services[0]
-  const fatou = stylists.find((s) => s.display_name === 'Fatou') ?? stylists[0]
+  const service = services.find((s) => s.slug === 'twist-simple') ?? services[0]
+  const fatou = stylists[0] // une seule coiffeuse dans le vrai salon
   let slot = null
   for (let d = 2; d < 30 && !slot; d++) {
     const date = new Date(Date.now() + d * 86_400_000).toISOString().slice(0, 10)

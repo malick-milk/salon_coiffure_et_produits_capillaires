@@ -7,6 +7,7 @@ use App\Models\Customer;
 use App\Models\Service;
 use App\Models\Stylist;
 use App\Models\User;
+use Database\Seeders\SalonTestScenarioSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
 use Tests\TestCase;
@@ -19,6 +20,7 @@ class BookingApiTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+        $this->seed(SalonTestScenarioSeeder::class); // deux coiffeuses, pause de midi, dimanche fermé
         $this->travelTo(Carbon::parse('2026-11-08 10:00:00', 'UTC'));
     }
 

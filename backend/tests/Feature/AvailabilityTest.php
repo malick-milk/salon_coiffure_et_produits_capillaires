@@ -8,6 +8,7 @@ use App\Models\Customer;
 use App\Models\Service;
 use App\Models\Stylist;
 use App\Models\StylistTimeOff;
+use Database\Seeders\SalonTestScenarioSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
 use Tests\TestCase;
@@ -33,6 +34,7 @@ class AvailabilityTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+        $this->seed(SalonTestScenarioSeeder::class); // deux coiffeuses, pause de midi, dimanche fermé
         $this->travelTo(Carbon::parse('2026-11-08 10:00:00', 'UTC'));
         $this->tresses = Service::where('slug', 'tresses-africaines')->value('id');
         $this->nattes = Service::where('slug', 'nattes-collees')->value('id');

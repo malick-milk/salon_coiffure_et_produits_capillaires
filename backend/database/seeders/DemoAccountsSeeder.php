@@ -72,14 +72,14 @@ class DemoAccountsSeeder extends Seeder
         ]);
         $pending->items()->create(['product_id' => $creme->id, 'product_name' => $creme->displayName(), 'sku' => $creme->sku, 'unit_price' => 3000, 'unit_cost' => $creme->cost_price, 'quantity' => 2, 'line_total' => 6000]);
 
-        $fatou = Stylist::where('display_name', 'Fatou')->value('id');
+        $stylist = Stylist::where('display_name', ReferenceDataSeeder::STYLIST_NAME)->value('id');
         foreach ([
-            ['RDV-2026-000201', BookingStatus::Confirmed, 'tresses-africaines', now()->addDays(10)->setTime(10, 0)],
-            ['RDV-2026-000105', BookingStatus::Completed, 'soin-profond-karite', now()->subDays(30)->setTime(16, 0)],
+            ['RDV-2026-000201', BookingStatus::Confirmed, 'micro-twist-long', now()->addDays(10)->setTime(10, 0)],
+            ['RDV-2026-000105', BookingStatus::Completed, 'twist-simple', now()->subDays(30)->setTime(16, 0)],
         ] as [$reference, $status, $slug, $start]) {
             $service = Service::where('slug', $slug)->first();
             Booking::create([
-                'reference' => $reference, 'customer_id' => $mariama->id, 'service_id' => $service->id, 'stylist_id' => $fatou,
+                'reference' => $reference, 'customer_id' => $mariama->id, 'service_id' => $service->id, 'stylist_id' => $stylist,
                 'status' => $status, 'starts_at' => $start, 'ends_at' => $start->copy()->addMinutes($service->duration_minutes + $service->buffer_minutes),
                 'service_name' => $service->name, 'duration_minutes' => $service->duration_minutes, 'price' => $service->price,
             ]);

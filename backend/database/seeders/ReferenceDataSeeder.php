@@ -14,42 +14,50 @@ use Illuminate\Database\Seeder;
 /** Données de référence : zones de livraison, prestations, coiffeurs, horaires, paramètres */
 class ReferenceDataSeeder extends Seeder
 {
+    /** Nom affiché de la coiffeuse (provisoire : à remplacer par son prénom) */
+    public const STYLIST_NAME = 'Coiffeuse Dabo Hair';
+
     public function run(): void
     {
         foreach ([['Dakar Plateau', 1000], ['Parcelles Assainies', 1500], ['Rufisque', 2500]] as [$name, $fee]) {
             DeliveryZone::updateOrCreate(['name' => $name], ['fee' => $fee]);
         }
 
-        $tresses = ServiceCategory::updateOrCreate(['slug' => 'tresses'], ['name' => 'Tresses', 'position' => 1]);
-        $soins = ServiceCategory::updateOrCreate(['slug' => 'soins'], ['name' => 'Soins', 'position' => 2]);
+        // ---- Le salon RÉEL (renseigné le 9 novembre 2026) ----
+        // Prix et durées donnés par Dabo Hair. buffer_minutes = 0 : pas de battement entre deux clientes.
+        $twists = ServiceCategory::updateOrCreate(['slug' => 'twists'], ['name' => 'Twists', 'position' => 1]);
+        $soinTwist = ServiceCategory::updateOrCreate(['slug' => 'soin-et-twist'], ['name' => 'Soin et twist', 'position' => 2]);
+        $brushing = ServiceCategory::updateOrCreate(['slug' => 'brushing'], ['name' => 'Brushing', 'position' => 3]);
         $services = [
-            ['tresses-africaines', 'Tresses africaines', $tresses, 180, 15, 25000],
-            ['nattes-collees', 'Nattes collées', $tresses, 90, 15, 12000],
-            ['soin-profond-karite', 'Soin profond au karité', $soins, 60, 10, 8000],
+            // [slug, nom, catégorie, durée (min), prix, active ?, description]
+            ['twist-simple', 'Twist simple', $twists, 120, 5000, true, 'Twists sur cheveux naturels.'],
+            ['mini-twist', 'Mini twist', $twists, 240, 10000, true, 'Twists fins, longue tenue.'],
+            ['micro-twist-court', 'Micro twist court', $twists, 480, 20000, true, 'Twists très fins. Le prix dépend de la longueur des twists.'],
+            ['micro-twist-mi-long', 'Micro twist mi-long', $twists, 480, 25000, true, 'Twists très fins. Le prix dépend de la longueur des twists.'],
+            ['micro-twist-long', 'Micro twist long', $twists, 480, 30000, true, 'Twists très fins. Le prix dépend de la longueur des twists.'],
+            // Durée encore inconnue : la prestation reste MASQUÉE (is_active = false) tant qu'elle n'est pas confirmée,
+            // sinon la réservation proposerait de faux créneaux. 60 min est une valeur d'attente, jamais affichée.
+            ['resserrage-twist', 'Resserrage twist', $twists, 60, 5000, false, 'Entretien des racines.'],
+            ['soin-shampooing-twist', 'Soin, shampooing et twist', $soinTwist, 60, 8000, false, 'Le soin complet avant la coiffure.'],
+            ['soin-shampooing-bain-huile-twist', 'Soin, shampooing, bain d’huile et twist', $soinTwist, 60, 10000, false, 'Pour les cheveux très secs.'],
+            ['brushing', 'Brushing', $brushing, 60, 3000, false, 'Lissage au séchoir.'],
+            ['soin-brushing', 'Soin et brushing', $brushing, 60, 5000, false, 'Soin profond puis brushing.'],
         ];
-        foreach ($services as $i => [$slug, $name, $category, $duration, $buffer, $price]) {
+        foreach ($services as $i => [$slug, $name, $category, $duration, $price, $active, $description]) {
             Service::updateOrCreate(['slug' => $slug], [
                 'name' => $name, 'service_category_id' => $category->id, 'duration_minutes' => $duration,
-                'buffer_minutes' => $buffer, 'price' => $price, 'position' => $i,
+                'buffer_minutes' => 0, 'price' => $price, 'is_active' => $active, 'position' => $i, 'description' => $description,
             ]);
         }
 
-        // Coiffeurs de DÉMONSTRATION. Bineta ne réalise pas les nattes collées (table service_stylist).
-        $fatou = Stylist::updateOrCreate(['display_name' => 'Fatou'], []);
-        $bineta = Stylist::updateOrCreate(['display_name' => 'Bineta'], []);
-        $fatou->services()->sync(Service::pluck('id'));
-        $bineta->services()->sync(Service::whereIn('slug', ['tresses-africaines', 'soin-profond-karite'])->pluck('id'));
+        // Une seule coiffeuse pour l'instant ; d'autres pourront être ajoutées au recrutement.
+        $stylist = Stylist::updateOrCreate(['display_name' => self::STYLIST_NAME], ['is_active' => true]);
+        $stylist->services()->sync(Service::whereIn('slug', array_column($services, 0))->pluck('id'));
 
-        $week = [
-            1 => ['09:00', '19:00', '13:00', '14:00'], 2 => ['09:00', '19:00', '13:00', '14:00'],
-            3 => ['09:00', '19:00', '13:00', '14:00'], 4 => ['09:00', '19:00', '13:00', '14:00'],
-            5 => ['09:00', '19:00', '13:00', '15:00'], 6 => ['09:00', '20:00', null, null],
-        ];
+        // Ouvert tous les jours, de 9 h à 19 h, sans pause déclarée
         for ($day = 1; $day <= 7; $day++) {
-            [$open, $close, $breakStart, $breakEnd] = $week[$day] ?? [null, null, null, null];
             BusinessHour::updateOrCreate(['day_of_week' => $day], [
-                'is_closed' => ! isset($week[$day]), 'opens_at' => $open, 'closes_at' => $close,
-                'break_start' => $breakStart, 'break_end' => $breakEnd,
+                'is_closed' => false, 'opens_at' => '09:00', 'closes_at' => '19:00', 'break_start' => null, 'break_end' => null,
             ]);
         }
 
