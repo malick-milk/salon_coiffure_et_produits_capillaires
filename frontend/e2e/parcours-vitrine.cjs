@@ -26,8 +26,8 @@ const log = (ok, msg) => { if (!ok) failures++; console.log(`${ok ? 'OK  ' : 'FA
   await page.getByRole('heading', { name: 'Produits phares' }).waitFor()
   await page.locator('article').first().waitFor()
   // Attendre les prestations elles-mêmes (elles arrivent par une requête distincte de celle des produits)
-  await page.locator('#prestations article').nth(4).waitFor({ timeout: 10000 }).catch(() => {})
-  log((await page.locator('#prestations article').count()) === 5, 'Accueil : les 5 prestations dont la durée est connue sont affichées')
+  await page.locator('#prestations article').nth(7).waitFor({ timeout: 10000 }).catch(() => {})
+  log((await page.locator('#prestations article').count()) === 8, 'Accueil : les 8 prestations dont la durée et le prix sont connus sont affichées')
   // Étape 13 : la section « Avis clients » affiche la note moyenne et les avis publiés
   const avis = page.locator('section[aria-labelledby="avis-titre"]')
   log(!(await avis.count()) || (await avis.getByRole('img', { name: /étoiles? sur 5/ }).count()) > 0, 'Accueil : avis clients avec note accessible (ou section masquée sans avis)')

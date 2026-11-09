@@ -13,6 +13,7 @@ use App\Models\Category;
 use App\Models\Customer;
 use App\Models\Order;
 use App\Models\Product;
+use App\Models\ProductImage;
 use App\Models\ProductionBatch;
 use App\Services\Inventory\StockService;
 use Illuminate\Database\Seeder;
@@ -24,6 +25,13 @@ use Illuminate\Support\Carbon;
  */
 class DaboHairCatalogSeeder extends Seeder
 {
+    /** Photos des produits, reçues le 10 novembre 2026 (recadrées en 4:5, WebP 800 × 1000) */
+    private const PHOTOS = [
+        'DAB-MAS-001' => [['masque-capillaire-1.webp', 'Pot de masque capillaire Dabo Hair, étiquette noire et or'], ['masque-capillaire-2.webp', 'Masque capillaire Dabo Hair vu de côté']],
+        'DAB-SPH-250' => [['spray-hydratant-1.webp', 'Flacon de spray hydratant Dabo Hair 250 ml'], ['spray-hydratant-2.webp', 'Spray hydratant Dabo Hair : couleur du produit']],
+        'DAB-SHA-001' => [['shampooing-1.webp', 'Flacon de shampooing sans sulfate Dabo Hair']],
+    ];
+
     public function run(StockService $stock): void
     {
         $root = Category::updateOrCreate(['slug' => 'soins-capillaires'], ['name' => 'Soins capillaires', 'position' => 1]);
@@ -53,6 +61,13 @@ class DaboHairCatalogSeeder extends Seeder
                 'brand_id' => $dabo->id, 'is_featured' => $featured, 'low_stock_threshold' => $threshold,
             ]);
             $products[$sku] = $product;
+
+            // Photos réelles (frontend/public/images/produits/) : la première est l'image principale
+            foreach (self::PHOTOS[$sku] ?? [] as $i => [$file, $alt]) {
+                ProductImage::updateOrCreate(['product_id' => $product->id, 'path' => "/images/produits/{$file}"], [
+                    'alt_text' => $alt, 'position' => $i, 'is_primary' => $i === 0,
+                ]);
+            }
 
             if ($product->stockMovements()->exists()) {
                 continue; // seeder relancé : on ne refabrique pas

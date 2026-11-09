@@ -102,12 +102,12 @@ class CatalogApiTest extends TestCase
     public function test_salon_reel_prestations_coiffeuse_et_horaires(): void
     {
         // Données réelles du salon (9 novembre 2026) : seules les prestations dont la durée est connue sont proposées
-        $this->getJson('/api/v1/services')->assertOk()->assertJsonCount(5, 'data')->assertJsonMissingPath('data.0.buffer_minutes')
+        $this->getJson('/api/v1/services')->assertOk()->assertJsonCount(8, 'data')->assertJsonMissingPath('data.0.buffer_minutes')
             ->assertJsonPath('data.0.name', 'Twist simple')->assertJsonPath('data.0.duration_minutes', 120)->assertJsonPath('data.0.price', 5000)
             ->assertJsonPath('data.1.name', 'Mini twist')->assertJsonPath('data.1.price', 10000)
             ->assertJsonPath('data.4.name', 'Micro twist long')->assertJsonPath('data.4.duration_minutes', 480)->assertJsonPath('data.4.price', 30000);
-        $this->assertSame(['brushing', 'resserrage-twist', 'soin-brushing', 'soin-shampooing-bain-huile-twist', 'soin-shampooing-twist'],
-            Service::where('is_active', false)->orderBy('slug')->pluck('slug')->all()); // durée à confirmer : masquées
+        $this->assertSame(['resserrage-micro-twist', 'soin-brushing', 'soin-shampooing-bain-huile-twist'],
+            Service::where('is_active', false)->orderBy('slug')->pluck('slug')->all()); // prix ou durée à confirmer : masquées
         $this->getJson('/api/v1/stylists')->assertOk()->assertJsonCount(1, 'data');
         $hours = $this->getJson('/api/v1/business-hours')->json('data');
         $this->assertCount(7, $hours);
