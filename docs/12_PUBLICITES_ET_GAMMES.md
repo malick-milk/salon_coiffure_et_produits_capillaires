@@ -48,7 +48,7 @@
 
 ### Prestations (en place dans le site depuis le 9 novembre 2026)
 
-Une seule coiffeuse, **ouverte tous les jours de 9 h à 19 h**. Une prestation n'est proposée en ligne que si sa durée est connue : sinon, la réservation proposerait de faux créneaux.
+Une seule coiffeuse, **Awa Dabo**, tous les jours de 9 h à 19 h sans pause. Twists **uniquement sur les cheveux de la cliente, sans mèches**. Salon : Cité Almadies 2, ZAC Mbao (Extension Jaxaay), Dakar · 77 602 62 00. Une prestation n'est proposée en ligne que si sa durée est connue : sinon, la réservation proposerait de faux créneaux.
 
 | Prestation | Durée | Prix | En ligne |
 |---|---|---|---|
@@ -71,7 +71,7 @@ Ces données sont dans `backend/database/seeders/ReferenceDataSeeder.php`. Pour 
 - [x] Le prix du Mini twist : **10 000 F** (confirmé le 9 novembre)
 - [x] Durées des twists (2 h, 4 h, 8 h) et horaires (tous les jours, 9 h – 19 h)
 - [ ] Durées du resserrage, des soins + twist et des brushings
-- [ ] Le prénom de la coiffeuse (affichée pour l'instant « Coiffeuse Dabo Hair »)
+- [x] La coiffeuse : Awa Dabo ; pas de pause ; adresse et téléphone du salon
 - [ ] Afficher ou non le prix barré du coffret (14 000 F = somme des 4 produits séparés)
 - [x] Le logo : redessiné en vectoriel, validé et intégré au site
 - [ ] Les photos des produits (voir §6)

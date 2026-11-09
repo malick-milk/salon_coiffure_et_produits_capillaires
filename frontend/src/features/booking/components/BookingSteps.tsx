@@ -62,6 +62,7 @@ export function ServiceStep({ services, selectedId, onSelect }: { services: Serv
         <ChoiceCard key={s.id} selected={s.id === selectedId} onSelect={() => onSelect(s.id)} className="min-h-[150px]">
           <span className="text-[13px] text-muted">{s.category}</span>
           <span className="font-display text-[21px]">{s.name}</span>
+          {s.description && <span className="text-sm leading-relaxed text-muted">{s.description}</span>}
           <span className="mt-auto flex items-center gap-1.5 text-[15px] text-[#d9d9d9]">
             <Clock className="size-4" aria-hidden="true" />
             {formatDuration(s.duration_minutes)} · <strong className="text-ivory">{formatPrice(s.price)}</strong>

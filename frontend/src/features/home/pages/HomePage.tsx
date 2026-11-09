@@ -7,6 +7,7 @@ import { Eyebrow, QueryError } from '@/components/common/States'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { homeContent } from '@/content/home'
+import { salon, salonMapsUrl } from '@/content/salon'
 import { useBusinessHours, useServices } from '@/features/booking/hooks'
 import { ProductCard } from '@/features/catalog/components/ProductCard'
 import { useProducts } from '@/features/catalog/hooks'
@@ -41,6 +42,12 @@ export function HomePage() {
   return (
     <>
       <Seo title="Salon de coiffure et soins capillaires" description="Soins capillaires Dabo Hair fabriqués par nos soins et réservation en ligne au salon, à Dakar." />
+      {/* Fiche « commerce local » lue par Google : adresse, téléphone, horaires (aide à apparaître dans les recherches « salon Dakar ») */}
+      <script type="application/ld+json">{JSON.stringify({
+        '@context': 'https://schema.org', '@type': 'HairSalon', name: salon.name, telephone: salon.phoneE164,
+        address: { '@type': 'PostalAddress', streetAddress: salon.address, addressLocality: salon.city, addressCountry: 'SN' },
+        openingHours: 'Mo-Su 09:00-19:00',
+      })}</script>
 
       <section className="px-4 pt-14 pb-20 sm:px-6 sm:pt-[72px]">
         <div className="mx-auto flex max-w-7xl flex-col gap-12 lg:flex-row lg:items-center">
@@ -114,7 +121,7 @@ export function HomePage() {
           <div className="flex max-w-2xl flex-col gap-2.5">
             <Eyebrow light>Le salon</Eyebrow>
             <h2 className="font-display text-4xl font-semibold">Nos prestations</h2>
-            <p className="text-[17px] leading-relaxed text-[#3f3f46]">Durée et prix affichés à l'avance. Choisissez votre coiffeur ou laissez-nous vous proposer le premier disponible.</p>
+            <p className="text-[17px] leading-relaxed text-[#3f3f46]">Durée et prix affichés à l'avance. Réservez en ligne avec Awa Dabo, tous les jours de 9 h à 19 h. Twists uniquement sur vos propres cheveux, sans mèches.</p>
           </div>
           {services.isError ? (
             <QueryError message={apiErrorMessage(services.error)} onRetry={() => services.refetch()} />
@@ -127,6 +134,7 @@ export function HomePage() {
                       <span className="flex size-[52px] items-center justify-center rounded-[14px] bg-ink text-gold"><Scissors className="size-6" aria-hidden="true" /></span>
                       <p className="text-[13px] font-medium text-[#52525b]">{s.category}</p>
                       <h3 className="font-display text-2xl font-semibold">{s.name}</h3>
+                      {s.description && <p className="text-[15px] leading-relaxed text-[#3f3f46]">{s.description}</p>}
                       <p className="flex gap-5 text-[15px] text-[#3f3f46]">
                         <span className="inline-flex items-center gap-1.5"><Clock className="size-4" aria-hidden="true" />{formatDuration(s.duration_minutes)}</span>
                         <strong className="text-ink">{formatPrice(s.price)}</strong>
@@ -161,8 +169,9 @@ export function HomePage() {
               <Skeleton className="h-72" />
             )}
             <ul className="flex flex-col gap-3.5 text-[#d9d9d9]">
-              <li className="flex items-center gap-3"><MapPin className="size-5 text-gold" aria-hidden="true" />[Adresse du salon], Dakar</li>
-              <li className="flex items-center gap-3"><Phone className="size-5 text-gold" aria-hidden="true" />[Téléphone]</li>
+              <li className="flex items-start gap-3"><MapPin className="mt-0.5 size-5 shrink-0 text-gold" aria-hidden="true" />
+                <a href={salonMapsUrl} target="_blank" rel="noopener noreferrer" className="underline-offset-4 hover:underline">{salon.address}, {salon.city}</a></li>
+              <li className="flex items-center gap-3"><Phone className="size-5 text-gold" aria-hidden="true" /><a href={`tel:${salon.phoneE164}`} className="underline-offset-4 hover:underline">{salon.phoneDisplay}</a></li>
             </ul>
           </div>
           <ImagePlaceholder label="Carte ou photo du salon" className="min-h-[380px] flex-1 rounded-3xl" />
