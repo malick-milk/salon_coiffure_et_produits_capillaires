@@ -19,16 +19,3 @@ export function ImagePlaceholder({ label, hint, className }: { label: string; hi
     </div>
   )
 }
-
-export function Logo({ className }: { className?: string }) {
-  return (
-    <span
-      className={cn(
-        'flex h-12 w-40 items-center justify-center rounded-lg border border-dashed border-gold font-display text-lg font-semibold tracking-wide text-gold',
-        className,
-      )}
-    >
-      Dabo Hair
-    </span>
-  )
-}

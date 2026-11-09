@@ -28,6 +28,8 @@
 <div class="header">
   <table class="cols"><tr>
     <td>
+      {{-- Logo officiel en une couleur (lisible imprimé en noir et blanc), intégré au PDF : aucun appel réseau --}}
+      <img src="data:image/png;base64,{{ base64_encode(file_get_contents(resource_path('images/logo-pdf.png'))) }}" alt="Dabo Hair" style="height: 80px; margin-bottom: 6px;">
       <div class="brand">{{ $company['name'] ?? 'Dabo Hair' }}</div>
       <div class="muted">{{ $company['address'] ?? '' }}</div>
       <div class="muted">NINEA : {{ $company['ninea'] ?? '—' }} · RCCM : {{ $company['rccm'] ?? '—' }}</div>

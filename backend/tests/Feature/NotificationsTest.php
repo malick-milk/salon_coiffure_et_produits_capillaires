@@ -124,7 +124,8 @@ class NotificationsTest extends TestCase
     public function test_rappel_de_la_veille_envoye_une_seule_fois(): void
     {
         Notification::fake();
-        $this->travelTo(now()->addDays(9)->setTime(17, 0)); // la veille du rendez-vous RDV-2026-000201
+        // La veille du rendez-vous RDV-2026-000201, quelle que soit la date du jour (les données de démo sont relatives)
+        $this->travelTo(Booking::where('reference', 'RDV-2026-000201')->value('starts_at')->copy()->subDay()->setTime(17, 0));
         $this->artisan('bookings:remind')->expectsOutput('1 rappel(s) envoyé(s).')->assertSuccessful();
         $this->artisan('bookings:remind')->expectsOutput('0 rappel(s) envoyé(s).');
         Notification::assertSentToTimes($this->mariama(), BookingReminder::class, 1);

@@ -27,7 +27,7 @@ Exemples : le prix du sérum se change dans l'ERP. Le titre « L'art du soin cap
 | Les photos elles-mêmes | les déposer dans `frontend/public/images/` |
 | Le reste de la page d'accueil (sections produits, prestations, horaires) | `frontend/src/features/home/pages/HomePage.tsx` |
 | Le menu du haut, le bandeau doré, le pied de page | `frontend/src/app/layouts/PublicLayout.tsx` |
-| Le logo (provisoire) | `frontend/src/components/common/Placeholder.tsx`, fonction `Logo` |
+| Le logo | `frontend/src/components/common/Logo.tsx` ; fichiers dans `frontend/public/brand/` (sources : `docs/charte-graphique/`) |
 | Les couleurs de la marque | `frontend/src/index.css`, bloc `@theme` |
 | Le titre de l'onglet et la description Google d'une page | la balise `<Seo title=… description=…>` en haut de chaque page |
 | Une page de la boutique | `frontend/src/features/catalog/pages/` |

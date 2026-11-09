@@ -163,7 +163,7 @@ frontend/
     ├── app/                 # App (providers), router, layouts, page d'erreur
     ├── components/
     │   ├── ui/              # button, badge, input, skeleton (style shadcn/ui)
-    │   └── common/          # Seo, Placeholder/Logo, états (erreur, vide)
+    │   └── common/          # Seo, Logo, Placeholder, états (erreur, vide)
     ├── features/
     │   ├── home/            # page d'accueil
     │   ├── catalog/         # api.ts → hooks.ts → components/ → pages/

@@ -1,6 +1,6 @@
 import { CalendarDays, House, LayoutDashboard, Search, ShoppingBag, Store, User } from 'lucide-react'
 import { Link, NavLink, Outlet, ScrollRestoration } from 'react-router'
-import { Logo } from '@/components/common/Placeholder'
+import { Logo } from '@/components/common/Logo'
 import { useMe } from '@/features/auth/hooks'
 import { isStaff } from '@/features/auth/permissions'
 import { useCartCount } from '@/features/cart/store'
@@ -32,7 +32,7 @@ export function PublicLayout() {
       <header className="sticky top-0 z-40 border-b border-ink-line bg-ink/95 px-4 backdrop-blur sm:px-6">
         <div className="mx-auto flex min-h-[72px] max-w-7xl items-center justify-between gap-4">
           <Link to="/" aria-label="Dabo Hair, accueil">
-            <Logo className="h-11 w-36" />
+            <Logo className="h-14" />
           </Link>
 
           <nav aria-label="Navigation principale" className="hidden gap-8 text-[15px] font-medium md:flex">
