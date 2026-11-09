@@ -75,7 +75,7 @@ Ces données sont dans `backend/database/seeders/ReferenceDataSeeder.php`. Pour 
 - [x] La coiffeuse : Awa Dabo ; pas de pause ; adresse et téléphone du salon
 - [ ] Afficher ou non le prix barré du coffret (14 000 F = somme des 4 produits séparés)
 - [x] Le logo : redessiné en vectoriel, validé et intégré au site
-- [ ] Les photos des produits (voir §6) : masque, spray hydratant et shampooing reçus et en ligne ; restent la crème, les sérums, l'hydratant 100 ml et le spray anti-chute
+- [ ] Les photos des produits (voir §6) : masque, spray hydratant et shampooing reçus ; conception sur fond uni à valider AVANT la mise en ligne ; restent la crème, les sérums, l'hydratant 100 ml et le spray anti-chute
 
 ## 6. Refaire les photos des produits
 
