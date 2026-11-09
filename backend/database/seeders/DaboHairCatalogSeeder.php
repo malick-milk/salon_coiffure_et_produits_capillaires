@@ -29,7 +29,9 @@ class DaboHairCatalogSeeder extends Seeder
     private const PHOTOS = [
         'DAB-MAS-001' => [['masque-capillaire-1.webp', 'Pot de masque capillaire Dabo Hair, étiquette noire et or'], ['masque-capillaire-2.webp', 'Masque capillaire Dabo Hair vu de côté']],
         'DAB-SPH-250' => [['spray-hydratant-1.webp', 'Flacon de spray hydratant Dabo Hair 250 ml'], ['spray-hydratant-2.webp', 'Spray hydratant Dabo Hair : couleur du produit']],
-        'DAB-SHA-001' => [['shampooing-1.webp', 'Flacon de shampooing sans sulfate Dabo Hair']],
+        'DAB-SHA-001' => [['shampooing-1.webp', 'Flacon de shampooing sans sulfate Dabo Hair'], ['shampooing-2.webp', 'Shampooing Dabo Hair : couleur du produit']],
+        // Étiquette « Sérum » sans nom précis : rattachée provisoirement au sérum Activ’Pousse 30 ml (à confirmer)
+        'DAB-SAP-030' => [['serum-1.webp', 'Flacon compte-gouttes de sérum Dabo Hair, bouchon doré'], ['serum-2.webp', 'Sérum Dabo Hair : flacon en verre et compte-gouttes']],
     ];
 
     public function run(StockService $stock): void

@@ -39,13 +39,11 @@ class ReferenceDataSeeder extends Seeder
             ['micro-twist-mi-long', 'Micro twist mi-long', $twists, 480, 25000, true, 'Twists très fins, cheveux de 12 à 15 cm.'.$own],
             ['micro-twist-long', 'Micro twist long', $twists, 480, 30000, true, 'Twists très fins, cheveux de 18 à 20 cm.'.$own],
             ['resserrage-twist', 'Resserrage twist simple', $twists, 90, 5000, true, 'Entretien des racines.'.$own],
-            ['soin-shampooing-twist', 'Soin, shampooing et twist', $soinTwist, 90, 8000, true, 'Le soin complet avant la coiffure.'.$own],
+            ['soin-shampooing-twist', 'Soin, shampooing et twist', $soinTwist, 120, 8000, true, 'Le soin complet avant la coiffure.'.$own],
             ['brushing', 'Brushing', $brushing, 60, 3000, true, 'Lissage au séchoir.'],
-            // Encore une information manquante : la prestation reste MASQUÉE (is_active = false), sinon la réservation
-            // proposerait de faux créneaux ou un faux prix. Les valeurs ci-dessous sont des valeurs d'attente, jamais affichées.
-            ['resserrage-micro-twist', 'Resserrage micro twist', $twists, 120, 5000, false, 'Entretien des racines des micro twists.'.$own], // prix à confirmer
-            ['soin-shampooing-bain-huile-twist', 'Soin, shampooing, bain d’huile et twist', $soinTwist, 90, 10000, false, 'Pour les cheveux très secs.'.$own], // durée à confirmer
-            ['soin-brushing', 'Soin et brushing', $brushing, 60, 5000, false, 'Soin profond puis brushing.'], // durée à confirmer
+            ['resserrage-micro-twist', 'Resserrage micro twist', $twists, 120, 10000, true, 'Entretien des racines des micro twists.'.$own],
+            ['soin-shampooing-bain-huile-twist', 'Soin, shampooing, bain d’huile et twist', $soinTwist, 150, 10000, true, 'Pour les cheveux très secs.'.$own],
+            ['soin-brushing', 'Soin et brushing', $brushing, 105, 5000, true, 'Soin profond puis brushing.'],
         ];
         foreach ($services as $i => [$slug, $name, $category, $duration, $price, $active, $description]) {
             Service::updateOrCreate(['slug' => $slug], [

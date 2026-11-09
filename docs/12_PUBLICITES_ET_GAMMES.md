@@ -58,11 +58,11 @@ Une seule coiffeuse, **Awa Dabo**, tous les jours de 9 h à 19 h sans pause. Twi
 | Micro twist mi-long (12 à 15 cm) | 8 h | 25 000 F | Oui |
 | Micro twist long (18 à 20 cm) | 8 h | 30 000 F | Oui |
 | Resserrage twist simple | 1 h 30 | 5 000 F | Oui |
-| Resserrage micro twist | 2 h | ? | Non : prix à confirmer |
-| Soin, shampooing et twist | 1 h 30 | 8 000 F | Oui |
-| Soin, shampooing, bain d'huile et twist | ? | 10 000 F | Non : durée à confirmer |
+| Resserrage micro twist | 2 h | 10 000 F | Oui |
+| Soin, shampooing et twist | 2 h | 8 000 F | Oui |
+| Soin, shampooing, bain d'huile et twist | 2 h 30 | 10 000 F | Oui |
 | Brushing | 1 h | 3 000 F | Oui |
-| Soin et brushing | ? | 5 000 F | Non : durée à confirmer |
+| Soin et brushing | 1 h 45 | 5 000 F | Oui |
 
 Ces données sont dans `backend/database/seeders/ReferenceDataSeeder.php`. Pour activer une prestation, on indique sa durée et on passe `false` à `true`. Les tests de calcul des créneaux utilisent un scénario plus riche (deux coiffeuses, une pause, un jour de fermeture) : `SalonTestScenarioSeeder`, qui n'est jamais chargé en production.
 
