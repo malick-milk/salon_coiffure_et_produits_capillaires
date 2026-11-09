@@ -194,6 +194,8 @@ bash /var/www/dabohair/current/deploy/sante.sh
    Sans option, la commande affiche les valeurs actuelles.
 5. **Surveillance.** Créez un compte gratuit sur [UptimeRobot](https://uptimerobot.com), avec un moniteur HTTPS sur `https://dabohair.com/up` toutes les 5 minutes. Vous recevrez un email si le site tombe.
 6. **Restauration.** Testez une restauration (§6.2) : elle doit marcher **avant** le jour où vous en aurez besoin.
+7. **Deux utilisateurs MySQL (décidé le 9 novembre).** Le site n'utilise qu'un utilisateur limité aux lignes (`SELECT, INSERT, UPDATE, DELETE`). Un second utilisateur, réservé à `deploy.sh`, applique les migrations. Ainsi, une faille dans le site ne pourrait jamais supprimer une table. Explication : [10_SECURITE.md §7](10_SECURITE.md). Nous le faisons ensemble, au moment de préparer le serveur.
+8. **Envoi réel des messages.** Choisissez le service d'e-mails et le fournisseur de SMS, puis vérifiez que `php artisan app:security-check` n'affiche plus les deux « CONSEIL » sur les SMS et les e-mails ([13_NOTIFICATIONS_ET_AVIS.md §5](13_NOTIFICATIONS_ET_AVIS.md)).
 
 ---
 
