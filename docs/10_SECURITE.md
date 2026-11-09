@@ -186,3 +186,26 @@ Un audit honnête dit aussi ce qui **n'est pas** corrigé, et pourquoi.
 - Les secrets de production (mot de passe de la base, `APP_KEY`) seront générés sur le serveur, jamais versionnés.
 - `app:security-check` sera lancé à chaque déploiement.
 - Sauvegardes chiffrées de la base, et test de restauration.
+
+## 7. Liste de contrôle avant la mise en ligne (9 novembre 2026)
+
+Test automatique : `backend/tests/Feature/SecurityChecklistTest.php`, lancé à chaque envoi sur GitHub. Pour vérifier que ces tests servent vraiment, chaque contrôle a été « cassé » volontairement une fois : le test a bien échoué à chaque fois, puis la modification a été annulée.
+
+| Point de la liste | Comment c'est garanti ici | Test | Faille simulée → détectée |
+|---|---|---|---|
+| **Les clés restent sur le serveur** | Les secrets sont seulement dans `backend/.env`, jamais publié. Le navigateur ne reçoit que `VITE_ENABLE_MOCKS`. L'API ne renvoie jamais de mot de passe ni d'empreinte de jeton | `test_1a`, `test_1b`, `test_1c` (recherche de fichiers `.env` et de 5 types de clés dans tout ce qui est publié) | — |
+| **RLS activée** | La RLS (*Row Level Security*) est une fonction de PostgreSQL et Supabase. **MySQL n'en a pas.** Ici, l'équivalent est appliqué par le serveur : chaque route privée exige une connexion, et chaque requête est filtrée sur l'utilisateur connecté (`whereHas('customer' … user_id)`), avec des règles d'accès (`OrderPolicy`, `BookingPolicy`) | `test_2` | Page « ERP » sans connexion → échec |
+| **À qui appartient chaque donnée** | Commandes, factures et rendez-vous sont vérifiés avec la règle « propriétaire seulement » (403). Les références se suivent (CMD-2026-000102…), cette vérification est donc indispensable. Le profil ne peut changer ni l'e-mail, ni le rôle, ni le compte d'un autre | `test_3a`, `test_3b` | Vérification du propriétaire retirée → échec |
+| **Admin derrière une connexion** | Les ~45 routes de l'ERP répondent 401 à un visiteur et 403 à une cliente. Chacune exige une **permission** précise (test de l'étape 10) | `test_4` | Page « ERP » sans connexion → échec |
+| **Limites à l'inscription** | Inscription : 20 par heure et par adresse. Connexion : blocage après 5 échecs. API : 120 requêtes par minute | `test_5a`, `test_5b` | Limite d'inscription retirée → échec |
+| **Webhooks vérifiés** | **Aucun webhook aujourd'hui** : les paiements sont enregistrés à la main et les SMS sont écrits dans le journal. Garde-fou : toute route d'écriture publique doit figurer dans une liste revue. Un futur webhook (Wave, Orange Money, fournisseur de SMS) fera échouer le test tant que la vérification de sa **signature** (HMAC) n'aura pas été ajoutée et testée | `test_6` | Webhook ajouté sans vérification → échec |
+
+### Point à améliorer avant la mise en ligne : l'utilisateur MySQL
+
+`deploy/provision.sh` donne **tous les droits** sur la base à l'utilisateur `dabohair`, celui qu'utilise le site. C'est pratique, parce que les mises à jour de structure (migrations) passent par lui. Mais si quelqu'un trouvait une faille dans le site, il pourrait aussi supprimer des tables.
+
+La meilleure pratique (moindre privilège) consiste à utiliser **deux utilisateurs** :
+- `dabohair`, pour le site : lire, ajouter, modifier et supprimer des lignes (`SELECT, INSERT, UPDATE, DELETE`) ;
+- `dabohair_migrations`, pour `deploy.sh` seulement : modifier la structure des tables.
+
+À faire avec l'étape de mise en ligne, en même temps que la création du serveur.
