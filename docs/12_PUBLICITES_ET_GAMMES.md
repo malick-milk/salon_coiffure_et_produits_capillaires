@@ -54,9 +54,9 @@ Une seule coiffeuse, **Awa Dabo**, tous les jours de 9 h à 19 h sans pause. Twi
 |---|---|---|---|
 | Twist simple | 2 h | 5 000 F | Oui |
 | Mini twist | 4 h | 10 000 F | Oui |
-| Micro twist court | 8 h | 20 000 F | Oui |
-| Micro twist mi-long | 8 h | 25 000 F | Oui |
-| Micro twist long | 8 h | 30 000 F | Oui |
+| Micro twist court (cheveux de 8 à 10 cm) | 8 h | 20 000 F | Oui |
+| Micro twist mi-long (12 à 15 cm) | 8 h | 25 000 F | Oui |
+| Micro twist long (18 à 20 cm) | 8 h | 30 000 F | Oui |
 | Resserrage twist | ? | 5 000 F | Non : durée à confirmer |
 | Soin, shampooing et twist | ? | 8 000 F | Non : durée à confirmer |
 | Soin, shampooing, bain d'huile et twist | ? | 10 000 F | Non : durée à confirmer |

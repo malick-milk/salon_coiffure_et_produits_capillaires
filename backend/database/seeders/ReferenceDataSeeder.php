@@ -27,6 +27,7 @@ class ReferenceDataSeeder extends Seeder
         // Prix et durées donnés par Dabo Hair. buffer_minutes = 0 : pas de battement entre deux clientes.
         // Le salon ne pose PAS de mèches : les twists se font uniquement sur les cheveux de la cliente.
         $own = ' Uniquement sur vos propres cheveux, sans mèches.';
+        // Micro twist : le prix dépend de la longueur des cheveux (court 8-10, mi-long 12-15, long 18-20 ; en centimètres)
         $twists = ServiceCategory::updateOrCreate(['slug' => 'twists'], ['name' => 'Twists', 'position' => 1]);
         $soinTwist = ServiceCategory::updateOrCreate(['slug' => 'soin-et-twist'], ['name' => 'Soin et twist', 'position' => 2]);
         $brushing = ServiceCategory::updateOrCreate(['slug' => 'brushing'], ['name' => 'Brushing', 'position' => 3]);
@@ -34,9 +35,9 @@ class ReferenceDataSeeder extends Seeder
             // [slug, nom, catégorie, durée (min), prix, active ?, description]
             ['twist-simple', 'Twist simple', $twists, 120, 5000, true, 'Twists sur cheveux naturels.'.$own],
             ['mini-twist', 'Mini twist', $twists, 240, 10000, true, 'Twists fins, longue tenue.'.$own],
-            ['micro-twist-court', 'Micro twist court', $twists, 480, 20000, true, 'Twists très fins. Le prix dépend de la longueur des twists.'.$own],
-            ['micro-twist-mi-long', 'Micro twist mi-long', $twists, 480, 25000, true, 'Twists très fins. Le prix dépend de la longueur des twists.'.$own],
-            ['micro-twist-long', 'Micro twist long', $twists, 480, 30000, true, 'Twists très fins. Le prix dépend de la longueur des twists.'.$own],
+            ['micro-twist-court', 'Micro twist court', $twists, 480, 20000, true, 'Twists très fins, cheveux de 8 à 10 cm.'.$own],
+            ['micro-twist-mi-long', 'Micro twist mi-long', $twists, 480, 25000, true, 'Twists très fins, cheveux de 12 à 15 cm.'.$own],
+            ['micro-twist-long', 'Micro twist long', $twists, 480, 30000, true, 'Twists très fins, cheveux de 18 à 20 cm.'.$own],
             // Durée encore inconnue : la prestation reste MASQUÉE (is_active = false) tant qu'elle n'est pas confirmée,
             // sinon la réservation proposerait de faux créneaux. 60 min est une valeur d'attente, jamais affichée.
             ['resserrage-twist', 'Resserrage twist', $twists, 60, 5000, false, 'Entretien des racines.'.$own],
