@@ -6,17 +6,19 @@
  * - Pas de défilement automatique : une publicité qui change pendant la lecture gêne tout le monde,
  *   et surtout les personnes qui lisent lentement ou utilisent un lecteur d'écran (WCAG 2.2.2).
  *   La visiteuse change de publicité avec les flèches ou les points (de vrais boutons : accessibles au clavier).
+ * - Promotion (maquette validée le 10 novembre 2026) : prix barré, économie, et compteur « Plus que N »
+ *   seulement s'il vient du vrai stock (une fausse urgence fait perdre la confiance des clientes).
  */
 import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react'
 import { useState } from 'react'
 import { Link } from 'react-router'
 import { Button } from '@/components/ui/button'
-import { homeContent } from '@/content/home'
+import type { Ad } from '@/content/home'
+import { currentAds } from '@/features/home/currentAds'
 import { cn } from '@/lib/utils'
 
-export type Ad = (typeof homeContent.ads)[number]
-
-export function AdCarousel({ ads }: { ads: readonly Ad[] }) {
+export function AdCarousel({ ads: allAds }: { ads: readonly Ad[] }) {
+  const ads = currentAds(allAds)
   const [index, setIndex] = useState(0)
   const count = ads.length
   const ad = ads[Math.min(index, count - 1)]
@@ -45,7 +47,29 @@ export function AdCarousel({ ads }: { ads: readonly Ad[] }) {
                 {ad.tags.map((t) => <li key={t} className="rounded-full border border-[#333] px-3 py-1.5 text-sm text-[#e6e1d6]">{t}</li>)}
               </ul>
             )}
-            {ad.price && <p className="text-[30px] font-bold text-gold sm:text-[34px]">{ad.price}</p>}
+            {ad.price && (
+              <div className="flex flex-col gap-2.5">
+                <p className="flex flex-wrap items-baseline gap-x-3.5 gap-y-1">
+                  <span className={cn('font-bold text-gold', ad.promo ? 'text-[28px] sm:text-[40px]' : 'text-[30px] sm:text-[34px]')}>{ad.price}</span>
+                  {ad.promo && (
+                    <>
+                      {/* <s> n'est pas lu par les lecteurs d'écran : on dit « au lieu de » en texte masqué */}
+                      <s className="text-base text-[#8a857b] sm:text-xl"><span className="sr-only">au lieu de </span>{ad.promo.oldPrice}</s>
+                      <span className="rounded-full bg-gold px-2.5 py-1 text-xs font-bold text-ink sm:text-[13px]">{ad.promo.saving}</span>
+                    </>
+                  )}
+                </p>
+                {ad.promo && ad.promo.remaining !== null && (
+                  <div className="flex max-w-[420px] flex-col gap-1.5">
+                    <p className="text-[13px] font-semibold text-[#e6e1d6] sm:text-sm">Plus que {ad.promo.remaining} gammes sur {ad.promo.limit}</p>
+                    <div aria-hidden="true" className="h-1.5 overflow-hidden rounded-full bg-[#2b2516]">
+                      <div className="h-full bg-gold" style={{ width: `${Math.min(100, (ad.promo.remaining / ad.promo.limit) * 100)}%` }} />
+                    </div>
+                  </div>
+                )}
+                {ad.note && <p className="hidden text-sm text-[#c9c4b8] sm:block">{ad.note}</p>}
+              </div>
+            )}
             <div className="flex flex-col gap-3 sm:flex-row">
               <Button asChild className="min-h-[52px]"><Link to={ad.primary.to}>{ad.primary.label} <ArrowRight aria-hidden="true" /></Link></Button>
               {ad.secondary && <Button asChild variant="outline" className="hidden min-h-[52px] sm:inline-flex"><Link to={ad.secondary.to}>{ad.secondary.label}</Link></Button>}
@@ -58,7 +82,8 @@ export function AdCarousel({ ads }: { ads: readonly Ad[] }) {
             <picture>
               <source media="(max-width: 1023px)" srcSet={ad.imageTall} width={1200} height={1600} />
               <img src={ad.imageWide} alt={ad.imageAlt} width={1600} height={1200} fetchPriority={index === 0 ? 'high' : 'auto'}
-                className="aspect-[4/5] max-h-[330px] w-full object-cover sm:max-h-[460px] object-[center_64%] sm:aspect-[4/3] lg:aspect-auto lg:h-full lg:max-h-[600px] lg:object-[55%_58%]" />
+                className={cn('aspect-[4/5] w-full object-cover sm:max-h-[460px] object-[center_64%] sm:aspect-[4/3] lg:aspect-auto lg:h-full lg:max-h-[600px] lg:object-[55%_58%]',
+                  ad.promo ? 'max-h-[280px]' : 'max-h-[330px]')} />
             </picture>
             {ad.badge && <span className="absolute bottom-4 left-4 rounded-[10px] bg-ink/85 px-3 py-2 text-[13px]">{ad.badge}</span>}
           </div>
@@ -69,7 +94,7 @@ export function AdCarousel({ ads }: { ads: readonly Ad[] }) {
             <span className="text-sm text-muted" aria-live="polite">{index + 1} / {count}</span>
             <div className="flex items-center gap-1">
               {ads.map((a, i) => (
-                <button key={a.title} type="button" onClick={() => go(i)} aria-label={`Publicité ${i + 1} : ${a.title}`} aria-current={i === index}
+                <button key={i} type="button" onClick={() => go(i)} aria-label={`Publicité ${i + 1} : ${a.eyebrow}`} aria-current={i === index}
                   className="flex h-11 w-9 items-center justify-center">
                   <span className={cn('block h-2 rounded-full transition-all', i === index ? 'w-7 bg-gold' : 'w-2 bg-[#4a4335]')} />
                 </button>

@@ -74,6 +74,7 @@ Ces données sont dans `backend/database/seeders/ReferenceDataSeeder.php`. Pour 
 - [ ] Durées du resserrage, des soins + twist et des brushings
 - [x] La coiffeuse : Awa Dabo ; pas de pause ; adresse et téléphone du salon
 - [x] Prix de la gamme complète (6 produits) : **15 000 F** (confirmé le 10 novembre), affiché sur la publicité de l’accueil
+- [x] Promotion « 20 gammes à 10 000 F au lieu de 15 000 F » : maquette validée et implémentée le 10 novembre, **masquée** tant que la gamme n'est pas un produit du panier (`visible: false` dans `home.ts`). L'acompte de 5 000 F est remplacé par le paiement à la réception
 - [ ] Afficher ou non le prix barré du coffret (14 000 F = somme des 4 produits séparés)
 - [x] Le logo : redessiné en vectoriel, validé et intégré au site
 - [ ] Les photos des produits (voir §6) : masque, spray hydratant et shampooing reçus et en ligne ; restent la crème, les sérums, l'hydratant 100 ml et le spray anti-chute

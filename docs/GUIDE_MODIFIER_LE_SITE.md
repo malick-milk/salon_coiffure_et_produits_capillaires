@@ -66,15 +66,14 @@ php artisan db:seed --class=ReferenceDataSeeder
 
 Les publicités du haut de l'accueil sont dans `frontend/src/content/home.ts`, dans la liste `ads`. Chaque publicité est un bloc `{ … }`.
 
-**Afficher le prix de la gamme** : remplacez
-```ts
-price: null as string | null,
-```
-par
-```ts
-price: '15 000 F CFA' as string | null,
-```
-Avec `null`, aucun prix n'est affiché.
+**Changer le prix** : modifiez la ligne `price: '15 000 F CFA',`. Avec `price: null,`, aucun prix n'est affiché.
+
+**Lancer ou arrêter la promotion « 20 gammes à 10 000 F »** : elle est déjà prête, c'est le premier bloc de la liste. Pour l'afficher, changez `visible: false,` en `visible: true,`. Elle passe alors en premier ; la publicité normale à 15 000 F reste en 2e position.
+- **Dates** : `startsAt: '2026-11-15',` et `endsAt: '2026-11-30',` (format année-mois-jour) la font apparaître et disparaître toute seule. Avec `null`, aucune date.
+- **Le compteur « Plus que 12 gammes sur 20 »** : `remaining: 12`. Écrivez toujours le **vrai** nombre de gammes restantes, jamais un chiffre pour pousser à l'achat. Avec `null`, le compteur est masqué. À `0`, la publicité disparaît.
+- L'ancien prix barré et l'économie se règlent dans `promo: { oldPrice: '15 000 F', saving: '−5 000 F', … }`.
+
+**Attention, avant d'afficher un prix promotionnel** : le prix de la publicité est un texte. Il ne change PAS le prix facturé dans le panier. Tant que la gamme n'existe pas comme produit dans la boutique, la cliente qui clique paie les produits un par un, au prix de chaque produit. Vérifiez que le panier facture bien le prix annoncé avant de mettre `visible: true`.
 
 **Changer les photos** :
 1. Préparez **deux photos** au format `.webp` ou `.jpg`, de moins de 300 Ko chacune : une **horizontale** pour ordinateur (environ 1600 × 1200 px) et une **verticale** pour téléphone (environ 1200 × 1600 px). Pour réduire une photo, l'outil gratuit https://squoosh.app fonctionne dans le navigateur.
