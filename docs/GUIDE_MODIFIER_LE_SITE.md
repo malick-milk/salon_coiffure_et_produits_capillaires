@@ -23,7 +23,7 @@ Exemples : le prix du sérum se change dans l'ERP. Le titre « L'art du soin cap
 ### 2.1 Les textes et photos des pages (code)
 | Je veux changer… | Fichier |
 |---|---|
-| **Le hero** (titre, phrase, boutons, photo), les 4 engagements, la bannière promo | `frontend/src/content/home.ts`, le fichier prévu pour ça (§3) |
+| **Les publicités du haut de l'accueil** (titre, texte, prix, boutons, photos), les 4 engagements, la bannière promo | `frontend/src/content/home.ts`, le fichier prévu pour ça (§3) |
 | Les photos elles-mêmes | les déposer dans `frontend/public/images/` |
 | Le reste de la page d'accueil (sections produits, prestations, horaires) | `frontend/src/features/home/pages/HomePage.tsx` |
 | Le menu du haut, le bandeau doré, le pied de page | `frontend/src/app/layouts/PublicLayout.tsx` |
@@ -62,24 +62,35 @@ php artisan db:seed --class=ReferenceDataSeeder
 
 ---
 
-## 3. Exemple complet : mettre la vraie photo du hero
+## 3. Exemple complet : changer ou ajouter une publicité de l'accueil
 
-1. **Préparez la photo** : verticale (environ 1200 × 1400 px), au format `.webp` ou `.jpg`, moins de 300 Ko. Pour réduire une photo, l'outil gratuit https://squoosh.app fonctionne dans le navigateur.
-2. **Nommez-la simplement**, sans espace ni accent : `hero.webp`.
-3. **Déposez-la** dans `frontend/public/images/`.
-4. **Ouvrez** `frontend/src/content/home.ts` et remplacez la ligne :
+Les publicités du haut de l'accueil sont dans `frontend/src/content/home.ts`, dans la liste `ads`. Chaque publicité est un bloc `{ … }`.
+
+**Afficher le prix de la gamme** : remplacez
+```ts
+price: null as string | null,
+```
+par
+```ts
+price: '15 000 F CFA' as string | null,
+```
+Avec `null`, aucun prix n'est affiché.
+
+**Changer les photos** :
+1. Préparez **deux photos** au format `.webp` ou `.jpg`, de moins de 300 Ko chacune : une **horizontale** pour ordinateur (environ 1600 × 1200 px) et une **verticale** pour téléphone (environ 1200 × 1600 px). Pour réduire une photo, l'outil gratuit https://squoosh.app fonctionne dans le navigateur.
+2. Nommez-les simplement, sans espace ni accent : `tabaski-horizontale.webp`, `tabaski-verticale.webp`.
+3. Déposez-les dans `frontend/public/images/publicites/`.
+4. Dans `home.ts`, indiquez leurs chemins :
    ```ts
-   image: null as string | null,
-   ```
-   par :
-   ```ts
-   image: '/images/hero.webp' as string | null,
+   imageWide: '/images/publicites/tabaski-horizontale.webp',
+   imageTall: '/images/publicites/tabaski-verticale.webp',
    ```
    Le chemin commence par `/images/` : tout ce qui est dans `public/` est servi à la racine du site.
-5. **Adaptez la description** `imageAlt`. Elle est lue aux personnes malvoyantes et sert au référencement Google.
-6. **Enregistrez** avec Ctrl + S. Si `npm run dev` tourne, la page se met à jour toute seule.
+5. Adaptez la description `imageAlt`. Elle est lue aux personnes malvoyantes et sert au référencement Google.
 
-Pour **changer un texte** du hero, c'est le même fichier : modifiez le texte entre apostrophes, puis enregistrez.
+**Ajouter une 2e ou une 3e publicité** : copiez tout le bloc `{ … }` d'une publicité, collez-le juste après (en gardant la virgule entre les deux), puis changez les textes et les images. Les flèches et les points pour passer d'une publicité à l'autre apparaissent tout seuls. 3 publicités au maximum : au-delà, presque personne ne voit les suivantes.
+
+Enregistrez avec Ctrl + S. Si `npm run dev` tourne, la page se met à jour toute seule.
 
 **Le piège n° 1 : l'apostrophe.** Ce texte casse la page :
 ```ts
@@ -201,7 +212,7 @@ git add -A
 ```
 
 ```bash
-git commit -m "Accueil : vraie photo du hero"
+git commit -m "Accueil : nouvelle publicité"
 ```
 
 ```bash

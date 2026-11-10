@@ -10,6 +10,7 @@ import { homeContent } from '@/content/home'
 import { salon, salonMapsUrl } from '@/content/salon'
 import { useBusinessHours, useServices } from '@/features/booking/hooks'
 import { ProductCard } from '@/features/catalog/components/ProductCard'
+import { AdCarousel } from '@/features/home/components/AdCarousel'
 import { useProducts } from '@/features/catalog/hooks'
 import { ReviewsSection } from '@/features/reviews/components/ReviewsSection'
 import { formatDuration, formatPrice } from '@/lib/format'
@@ -18,7 +19,7 @@ import type { BusinessHour } from '@/types/api'
 
 // Une icône par engagement (dans l'ordre de homeContent.commitments)
 const COMMITMENT_ICONS = [CalendarDays, ShoppingBag, Truck, Check]
-const { hero, promoBanner: promo } = homeContent
+const { promoBanner: promo } = homeContent
 
 function PromoBanner({ image, alt, link }: { image: string; alt: string; link: string | null }) {
   const img = <img src={image} alt={alt} width={1280} height={320} loading="lazy" className="mx-auto w-full max-w-7xl rounded-3xl object-cover" />
@@ -49,27 +50,7 @@ export function HomePage() {
         openingHours: 'Mo-Su 09:00-19:00',
       })}</script>
 
-      <section className="px-4 pt-14 pb-20 sm:px-6 sm:pt-[72px]">
-        <div className="mx-auto flex max-w-7xl flex-col gap-12 lg:flex-row lg:items-center">
-          <div className="flex flex-1 flex-col gap-7 motion-safe:animate-fade-up">
-            <Eyebrow>{hero.eyebrow}</Eyebrow>
-            <h1 className="font-display text-[40px] leading-[1.05] font-semibold sm:text-6xl">{hero.title}</h1>
-            <p className="max-w-xl text-lg leading-relaxed text-muted">{hero.subtitle}</p>
-            <div className="flex flex-wrap gap-3.5">
-              <Button asChild className="min-h-[52px]"><Link to="/reserver">{hero.primaryButton} <ArrowRight aria-hidden="true" /></Link></Button>
-              <Button asChild variant="outline" className="min-h-[52px]"><Link to="/boutique">{hero.secondaryButton}</Link></Button>
-            </div>
-          </div>
-          {hero.image ? (
-            // Image la plus visible de la page : chargée en priorité (fetchPriority) et jamais en différé.
-            // width/height réservent la place avant le chargement : la page ne « saute » pas.
-            <img src={hero.image} alt={hero.imageAlt} width={1200} height={1400} fetchPriority="high"
-              className="aspect-[6/7] max-h-[620px] w-full flex-1 rounded-3xl object-cover lg:w-auto" />
-          ) : (
-            <ImagePlaceholder label="Image hero" hint="1200 × 1400 px · à déposer dans public/images, puis src/content/home.ts" className="aspect-[6/7] max-h-[620px] flex-1 rounded-3xl" />
-          )}
-        </div>
-      </section>
+      <AdCarousel ads={homeContent.ads} />
 
       <section aria-label="Nos engagements" className="border-y border-ink-line px-4 py-7 sm:px-6">
         <ul className="mx-auto grid max-w-7xl gap-6 sm:grid-cols-2 lg:grid-cols-4">

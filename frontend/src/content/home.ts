@@ -12,18 +12,29 @@
  * données (ERP ou seeders), voir docs/GUIDE_MODIFIER_LE_SITE.md.
  */
 export const homeContent = {
-  hero: {
-    eyebrow: 'Salon de coiffure et soins capillaires',
-    title: 'L’art du soin capillaire, au salon comme chez vous',
-    subtitle: 'Réservez votre prestation en quelques clics et découvrez les soins Dabo Hair, fabriqués par nos soins.',
-    primaryButton: 'Réserver une prestation',
-    secondaryButton: 'Découvrir la boutique',
-    /** Photo verticale, environ 1200 × 1400 px, format .webp ou .jpg, moins de 300 Ko */
-    image: null as string | null,
-    /** Description de la photo pour les personnes malvoyantes et pour Google (obligatoire si image) */
-    imageAlt: 'Coiffure réalisée au salon Dabo Hair',
-  },
-  /** Bandeau des 4 engagements sous le hero */
+  /**
+   * PUBLICITÉS du haut de l'accueil (carrousel). Une publicité = une image, un message, un prix, un bouton.
+   * Pour en ajouter une : copier un bloc { … } et le coller à la suite (3 au maximum : au-delà, presque
+   * personne ne voit les suivantes). Avec une seule publicité, les flèches et les points sont masqués.
+   * Images : imageWide pour ordinateur (environ 1600 × 1200 px), imageTall pour téléphone (1200 × 1600 px).
+   */
+  ads: [
+    {
+      eyebrow: 'Nouveau · Gamme complète',
+      title: 'Six soins pour des cheveux à l’état pur',
+      text: 'Toute la routine Dabo Hair, fabriquée à Dakar : laver, nourrir, hydrater et faire pousser.',
+      tags: ['Shampooing', 'Masque', 'Leave In', 'Crème', 'Sérum', 'Spray hydratant'],
+      /** Prix affiché tel quel, par exemple '15 000 F CFA'. null = pas de prix affiché (en attente du prix de la gamme) */
+      price: null as string | null,
+      primary: { label: 'Commander la gamme', to: '/boutique' },
+      secondary: { label: 'Voir les 6 produits', to: '/boutique' } as { label: string; to: string } | null,
+      imageWide: '/images/publicites/gamme-horizontale.webp',
+      imageTall: '/images/publicites/gamme-verticale.webp',
+      imageAlt: 'Les six soins Dabo Hair sur une table : Leave In, sérum, masque, crème, spray hydratant et shampooing',
+      badge: 'Fabrication maison · Dakar',
+    },
+  ],
+  /** Bandeau des 4 engagements sous les publicités */
   commitments: [
     'Réservation en ligne, sans compte',
     'Retrait gratuit en boutique',
