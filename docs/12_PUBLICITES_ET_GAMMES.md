@@ -73,6 +73,7 @@ Ces données sont dans `backend/database/seeders/ReferenceDataSeeder.php`. Pour 
 - [x] Durées des twists (2 h, 4 h, 8 h) et horaires (tous les jours, 9 h – 19 h)
 - [ ] Durées du resserrage, des soins + twist et des brushings
 - [x] La coiffeuse : Awa Dabo ; pas de pause ; adresse et téléphone du salon
+- [x] Prix de la gamme complète (6 produits) : **15 000 F** (confirmé le 10 novembre), affiché sur la publicité de l’accueil
 - [ ] Afficher ou non le prix barré du coffret (14 000 F = somme des 4 produits séparés)
 - [x] Le logo : redessiné en vectoriel, validé et intégré au site
 - [ ] Les photos des produits (voir §6) : masque, spray hydratant et shampooing reçus et en ligne ; restent la crème, les sérums, l'hydratant 100 ml et le spray anti-chute

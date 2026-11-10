@@ -25,7 +25,7 @@ export const homeContent = {
       text: 'Toute la routine Dabo Hair, fabriquée à Dakar : laver, nourrir, hydrater et faire pousser.',
       tags: ['Shampooing', 'Masque', 'Leave In', 'Crème', 'Sérum', 'Spray hydratant'],
       /** Prix affiché tel quel, par exemple '15 000 F CFA'. null = pas de prix affiché (en attente du prix de la gamme) */
-      price: null as string | null,
+      price: '15 000 F CFA' as string | null,
       primary: { label: 'Commander la gamme', to: '/boutique' },
       secondary: { label: 'Voir les 6 produits', to: '/boutique' } as { label: string; to: string } | null,
       imageWide: '/images/publicites/gamme-horizontale.webp',

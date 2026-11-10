@@ -34,12 +34,13 @@ describe('Publicités de l’accueil', () => {
   })
 
   it('le prix n’apparaît que lorsqu’il est renseigné', () => {
+    homeContent.ads[0]!.price = null
     const { unmount } = renderHome()
     expect(screen.queryByText(/F CFA/)).not.toBeInTheDocument()
     unmount()
-    homeContent.ads[0]!.price = '15 000 F CFA'
+    homeContent.ads[0]!.price = '12 345 F CFA'
     renderHome()
-    expect(screen.getByText('15 000 F CFA')).toBeInTheDocument()
+    expect(screen.getByText('12 345 F CFA')).toBeInTheDocument()
   })
 
   it('une seule publicité : pas de flèches ; plusieurs : on passe de l’une à l’autre', async () => {
