@@ -29,6 +29,7 @@ class DaboHairCatalogSeeder extends Seeder
     private const PHOTOS = [
         'DAB-MAS-001' => [['masque-capillaire-1.webp', 'Pot de masque capillaire Dabo Hair, étiquette noire et or'], ['masque-capillaire-2.webp', 'Masque capillaire Dabo Hair vu de côté']],
         'DAB-SPH-250' => [['spray-hydratant-1.webp', 'Flacon de spray hydratant Dabo Hair 250 ml'], ['spray-hydratant-2.webp', 'Spray hydratant Dabo Hair : couleur du produit']],
+        'DAB-LEA-250' => [['leave-in-1.webp', 'Flacon pompe de Leave In Dabo Hair 250 ml, étiquette noire et or'], ['leave-in-2.webp', 'Leave In Dabo Hair : flacon blanc vu de dos']],
         'DAB-SHA-001' => [['shampooing-1.webp', 'Flacon de shampooing sans sulfate Dabo Hair'], ['shampooing-2.webp', 'Shampooing Dabo Hair : couleur du produit']],
         // Étiquette « Sérum » sans nom précis : rattachée provisoirement au sérum Activ’Pousse 30 ml (à confirmer)
         'DAB-SAP-030' => [['serum-1.webp', 'Flacon compte-gouttes de sérum Dabo Hair, bouchon doré'], ['serum-2.webp', 'Sérum Dabo Hair : flacon en verre et compte-gouttes']],
@@ -54,6 +55,8 @@ class DaboHairCatalogSeeder extends Seeder
             ['DAB-SAC-001', 'Spray anti-chute', 'spray-anti-chute', null, 5000, 'soins-traitants', false, 6, 96, null],
             ['DAB-MAS-001', 'Masque capillaire', 'masque-capillaire', null, 3000, 'soins-traitants', false, 6, 48, 18400],
             ['DAB-SHA-001', 'Shampooing sans sulfate', 'shampooing-sans-sulfate', null, 3000, 'shampoings', true, 12, 96, 38400],
+            // Leave In (soin sans rinçage), confirmé le 10 novembre 2026 : 5 000 F, 250 ml, 20 en stock ; coût à compléter
+            ['DAB-LEA-250', 'Leave In', 'leave-in-250-ml', '250 ml', 5000, 'hydratants-et-cremes', false, 6, 20, null],
         ];
 
         $products = [];

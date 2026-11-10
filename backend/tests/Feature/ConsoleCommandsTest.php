@@ -42,7 +42,7 @@ class ConsoleCommandsTest extends TestCase
         $this->artisan('analytics:snapshot', ['--from' => '2026-03-20', '--to' => '2026-03-24'])
             ->expectsOutputToContain('5 jour(s) calculé(s), du 2026-03-20 au 2026-03-24.')->assertSuccessful();
         $this->assertSame(5, DB::table('daily_sales_snapshots')->count());
-        $this->assertSame(5 * 9, DB::table('daily_product_stats')->count()); // 9 produits × 5 jours
+        $this->assertSame(5 * 10, DB::table('daily_product_stats')->count()); // 10 produits × 5 jours
 
         $this->artisan('analytics:snapshot', ['--from' => '2026-03-24', '--to' => '2026-03-20'])->assertFailed();
         $this->artisan('analytics:snapshot', ['--all' => true])->expectsOutputToContain('2026-03-20')->assertSuccessful(); // depuis le 1er mouvement

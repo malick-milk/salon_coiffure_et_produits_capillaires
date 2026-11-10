@@ -17,7 +17,7 @@ class CatalogApiTest extends TestCase
     {
         $this->getJson('/api/v1/categories')->assertOk()
             ->assertJsonPath('data.0.slug', 'soins-capillaires')
-            ->assertJsonPath('data.0.product_count', 9)
+            ->assertJsonPath('data.0.product_count', 10)
             ->assertJsonPath('data.1.slug', 'serums')
             ->assertJsonPath('data.1.product_count', 3);
     }
@@ -25,8 +25,8 @@ class CatalogApiTest extends TestCase
     public function test_la_liste_respecte_le_format_pagine_du_contrat(): void
     {
         $this->getJson('/api/v1/products')->assertOk()
-            ->assertJsonCount(9, 'data')
-            ->assertJsonPath('meta', ['current_page' => 1, 'last_page' => 1, 'per_page' => 12, 'total' => 9])
+            ->assertJsonCount(10, 'data')
+            ->assertJsonPath('meta', ['current_page' => 1, 'last_page' => 1, 'per_page' => 12, 'total' => 10])
             ->assertJsonStructure(['data' => [['id', 'slug', 'sku', 'name', 'brand', 'unit_size', 'price', 'stock_status', 'stock_left', 'category', 'image_url']]]);
     }
 
@@ -46,7 +46,7 @@ class CatalogApiTest extends TestCase
             ->assertJsonPath('data.0.unit_size', '15 ml')
             ->assertJsonPath('data.0.price', 1500);
 
-        $this->getJson('/api/v1/products?category=soins-capillaires')->assertJsonPath('meta.total', 9);
+        $this->getJson('/api/v1/products?category=soins-capillaires')->assertJsonPath('meta.total', 10);
     }
 
     public function test_la_recherche_ignore_les_accents_et_les_majuscules(): void
@@ -66,7 +66,7 @@ class CatalogApiTest extends TestCase
     {
         // Crème : 96 fabriquées, 96 vendues au revendeur
         $this->getJson('/api/v1/products/creme-capillaire')->assertJsonPath('data.stock_status', 'out_of_stock');
-        $this->getJson('/api/v1/products?in_stock=1')->assertJsonPath('meta.total', 8);
+        $this->getJson('/api/v1/products?in_stock=1')->assertJsonPath('meta.total', 9);
 
         // Masque : 24 en stock, seuil d'alerte relevé à 30 -> stock faible, avec le nombre restant
         Product::where('sku', 'DAB-MAS-001')->update(['low_stock_threshold' => 30]);
@@ -89,7 +89,7 @@ class CatalogApiTest extends TestCase
 
         $this->getJson('/api/v1/products/spray-anti-chute')->assertNotFound()->assertExactJson(['message' => 'Ressource introuvable.']);
         $this->getJson('/api/v1/products/inexistant')->assertNotFound();
-        $this->getJson('/api/v1/products')->assertJsonPath('meta.total', 8);
+        $this->getJson('/api/v1/products')->assertJsonPath('meta.total', 9);
     }
 
     public function test_les_filtres_invalides_sont_refuses_avec_un_message_en_francais(): void

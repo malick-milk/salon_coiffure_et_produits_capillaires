@@ -77,7 +77,8 @@ Ces données sont dans `backend/database/seeders/ReferenceDataSeeder.php`. Pour 
 - [x] Promotion « 20 gammes à 10 000 F au lieu de 15 000 F » : maquette validée et implémentée le 10 novembre, **masquée** tant que la gamme n'est pas un produit du panier (`visible: false` dans `home.ts`). L'acompte de 5 000 F est remplacé par le paiement à la réception
 - [ ] Afficher ou non le prix barré du coffret (14 000 F = somme des 4 produits séparés)
 - [x] Le logo : redessiné en vectoriel, validé et intégré au site
-- [ ] Les photos des produits (voir §6) : masque, spray hydratant et shampooing reçus et en ligne ; restent la crème, les sérums, l'hydratant 100 ml et le spray anti-chute
+- [x] Le Leave In : **5 000 F, 250 ml, 20 en stock** (confirmé le 10 novembre), ajouté au catalogue avec ses 2 photos (coût de fabrication à compléter)
+- [ ] Les photos des produits (voir §6) : masque, spray hydratant, shampooing, sérum et Leave In reçus et en ligne ; restent la crème, les sérums, l'hydratant 100 ml et le spray anti-chute
 
 ## 6. Refaire les photos des produits
 
