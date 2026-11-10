@@ -36,7 +36,7 @@ const log = (ok, msg) => { if (!ok) failures++; console.log(`${ok ? 'OK  ' : 'FA
 
   // 2. Catalogue + filtre dans l'URL
   await page.goto(BASE + '/boutique')
-  await page.getByText('9 produits').waitFor()
+  await page.getByText('10 produits').waitFor()
   log(true, 'Catalogue : 9 produits')
   await page.getByRole('complementary', { name: 'Filtres' }).getByRole('button', { name: /Sérums/ }).click()
   await page.getByText('3 produits').waitFor()
@@ -47,7 +47,7 @@ const log = (ok, msg) => { if (!ok) failures++; console.log(`${ok ? 'OK  ' : 'FA
   await page.getByText('Aucun produit ne correspond').waitFor()
   log(true, 'Catalogue : recherche « creme » dans Sérums = aucun résultat (filtres combinés)')
   await page.getByRole('button', { name: 'Tout effacer' }).click()
-  await page.getByText('9 produits').waitFor() // attendre la fin de la réinitialisation
+  await page.getByText('10 produits').waitFor() // attendre la fin de la réinitialisation
   await page.fill('#catalog-search', 'creme')
   await page.press('#catalog-search', 'Enter')
   await page.getByText('1 produit', { exact: true }).waitFor()
