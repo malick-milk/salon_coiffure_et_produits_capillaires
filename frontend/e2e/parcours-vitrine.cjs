@@ -37,7 +37,7 @@ const log = (ok, msg) => { if (!ok) failures++; console.log(`${ok ? 'OK  ' : 'FA
   // 2. Catalogue + filtre dans l'URL
   await page.goto(BASE + '/boutique')
   await page.getByText('10 produits').waitFor()
-  log(true, 'Catalogue : 9 produits')
+  log(true, 'Catalogue : 10 produits')
   await page.getByRole('complementary', { name: 'Filtres' }).getByRole('button', { name: /Sérums/ }).click()
   await page.getByText('3 produits').waitFor()
   log(page.url().includes('category=serums'), `Catalogue : filtre Sérums dans l'URL (${page.url().replace(BASE, '')})`)
