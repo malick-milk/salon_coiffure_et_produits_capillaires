@@ -135,11 +135,13 @@ export function HomePage() {
                       <p className="text-[13px] font-medium text-[#52525b]">{s.category}</p>
                       <h3 className="font-display text-2xl font-semibold">{s.name}</h3>
                       {s.description && <p className="text-[15px] leading-relaxed text-[#3f3f46]">{s.description}</p>}
-                      <p className="flex gap-5 text-[15px] text-[#3f3f46]">
+                      {/* mt-auto : durée, prix et bouton collés au bas de la carte, alignés d'une carte à l'autre
+                          quelle que soit la longueur de la description */}
+                      <p className="mt-auto flex gap-5 pt-1 text-[15px] text-[#3f3f46]">
                         <span className="inline-flex items-center gap-1.5"><Clock className="size-4" aria-hidden="true" />{formatDuration(s.duration_minutes)}</span>
                         <strong className="text-ink">{formatPrice(s.price)}</strong>
                       </p>
-                      <Button asChild variant="dark" className="mt-1.5"><Link to="/reserver">Réserver</Link></Button>
+                      <Button asChild variant="dark"><Link to="/reserver">Réserver</Link></Button>
                     </article>
                   ))}
             </div>
