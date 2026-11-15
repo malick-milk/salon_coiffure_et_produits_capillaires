@@ -100,4 +100,12 @@ describe('Publicités de l’accueil', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Publicité suivante' })) // revient à la première
     expect(screen.getByRole('heading', { level: 1, name: standard().title })).toBeInTheDocument()
   })
+
+  it('bannière promotionnelle : image du fichier de contenu, texte alternatif et lien', () => {
+    renderHome()
+    const { promoBanner } = homeContent
+    const img = screen.getByRole('img', { name: promoBanner.imageAlt })
+    expect(img).toHaveAttribute('src', promoBanner.image)
+    expect(img.closest('a')).toHaveAttribute('href', promoBanner.link)
+  })
 })

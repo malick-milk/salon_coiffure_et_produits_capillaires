@@ -4,6 +4,7 @@
 > **Nouveau (étape 5)** : le site React se teste aussi, voir le Test 3 en fin de document.
 > **Nouveau (étape 7)** : l'ERP d'administration, voir le Test 4.
 > **Nouveau (étape 8)** : le tableau de bord d'analyses, voir le Test 5.
+> **Nouveau (novembre)** : publicités de l'accueil, bannière, Leave In, vraies prestations, voir le Test 6.
 
 Durée : environ 30 minutes la première fois (installations comprises), puis 2 minutes.
 
@@ -229,7 +230,7 @@ Ouvrez http://localhost:5173. Par défaut (`VITE_ENABLE_MOCKS=false` dans `.env.
 | Crème capillaire | En rupture (96 fabriquées, 96 vendues au revendeur) : bouton désactivé |
 | Fiche du sérum 30 ml → « 15 ml » | Le prix passe à 1 500 F CFA |
 | Panier → Valider la commande → Livraison | Zone et adresse deviennent obligatoires ; les frais s'ajoutent au total |
-| Réserver → Nattes collées | Bineta n'est pas proposée |
+| Réserver → Micro twist long | Seule Awa Dabo est proposée ; premiers créneaux à 9 h 00, derniers à 11 h 00 (8 h de travail avant la fermeture de 19 h) |
 | Connexion `mariama@client.test` / `demo-dabo-2026` | Accès à l'espace client : commandes, réservations, profil |
 | 6 connexions ratées de suite | La 6e est bloquée pendant 1 minute |
 
@@ -329,3 +330,40 @@ python prevision_ventes.py ventes_par_jour.csv produits_par_jour.csv
 ```
 
 Le script compare 4 modèles de prévision et écrit `forecasts.csv`. Explication : [docs/08_ANALYTICS.md](08_ANALYTICS.md) §6.
+
+---
+
+## Test 6 — Accueil, bannière et catalogue (novembre 2026)
+
+Mêmes fenêtres que le Test 4 : Docker allumé, `php artisan serve` et `npm run dev` lancés.
+
+**Avant de tester, récupérez tout :** à la racine du projet, `git status` puis `git pull origin main`, puis dans `backend/` : `php artisan db:seed --class=DaboHairCatalogSeeder` (ajoute le Leave In et les photos sans toucher au reste ; peut être relancée sans risque). Rechargez ensuite le navigateur avec Ctrl + Maj + R.
+
+| À essayer | Résultat attendu |
+|---|---|
+| Accueil sur ordinateur | Publicité de la gamme : texte à gauche, photo horizontale à droite, prix **15 000 F CFA**, boutons « Commander la gamme » et « Voir les 6 produits » |
+| Accueil en largeur téléphone (F12, icône téléphone) | Photo **verticale** au-dessus du texte ; le bouton « Commander la gamme » reste visible au-dessus de la barre du bas |
+| Flèches ou points sous la publicité | Absents : il n'y a qu'une publicité affichée (la promotion à 10 000 F est préparée mais masquée, `visible: false`) |
+| Bannière dorée « Twists sur vos cheveux » (plus bas sur l'accueil) | Cliquer dessus mène à `/reserver` |
+| Prestations de l'accueil | 11 prestations, regroupées par famille ; les boutons « Réserver » sont alignés |
+| Réserver → Micro twist long | Seule Awa Dabo ; créneaux de 9 h 00 à 11 h 00 |
+| Boutique | **10 produits**, dont le Leave In 250 ml à 5 000 F, avec sa photo |
+| Fiche du Leave In (`/produits/leave-in-250-ml`) | 2 photos, « En stock » |
+| Ouvrir directement http://localhost:5173/images/publicites/gamme-horizontale.webp | La photo s'affiche (sinon le fichier manque : voir le tableau ci-dessous) |
+
+**Exercice : afficher la promotion.** Dans `frontend/src/content/home.ts`, passez la première publicité à `visible: true` et enregistrez. Attendu : elle passe en premier avec **10 000 F CFA**, ~~15 000 F~~ barré et « −5 000 F » ; les flèches et les points apparaissent (2 publicités). Écrivez `remaining: 12` : « Plus que 12 gammes sur 20 » s'affiche ; avec `remaining: 0`, la publicité disparaît. **Remettez ensuite `visible: false` et `remaining: null`**, puis vérifiez avec `git status` que `home.ts` n'est plus modifié (sinon `git restore frontend/src/content/home.ts`).
+
+**Tests automatiques de ces écrans** (dans `frontend/`) : `npx vitest run src/features/home` → 8 tests verts (publicités, prix, promotion, dates, bannière).
+
+**Une image ou un produit ne s'affiche pas ?**
+
+| Symptôme | Cause | Solution |
+|---|---|---|
+| Boutique vide, ou « Erreur réseau » ; dans la fenêtre de `php artisan serve` ou dans `backend/storage/logs/laravel.log` : `SQLSTATE[HY000] [2002] Connection refused` | Docker n'est pas allumé : MySQL ne répond pas | Lancer Docker Desktop, puis `docker compose up -d` à la racine |
+| Photo de la publicité absente ; `ls frontend/public/images/publicites` répond « No such file or directory » | Le code n'est pas à jour | `git status` : si un fichier est modifié (souvent `home.ts`), `git pull` refuse de l'écraser. Regarder la modification (`git diff`), la mettre de côté ou l'annuler (`git restore <fichier>`), puis `git pull origin main` |
+| `git log --oneline -1` ne montre pas le dernier commit de GitHub | Même cause : mise à jour bloquée ou pas faite | Même solution |
+| Photos des produits absentes, mais fichiers bien présents | La base a été remplie avant l'ajout des photos | Dans `backend/` : `php artisan db:seed --class=DaboHairCatalogSeeder` |
+| Image cassée alors que le chemin semble juste | Le champ `image` contient autre chose qu'un chemin (par exemple un prix) | Un champ `image` commence toujours par `/images/` ; un prix va dans `price` |
+| `git push` : `rejected … non-fast-forward` | GitHub a des commits que vous n'avez pas | `git pull --rebase --autostash origin main`, puis `git push origin main` |
+| `git add` : `pathspec … did not match any files` | Le fichier n'est pas à cet endroit, ou porte un autre nom | Vérifier avec `ls` le dossier et le nom exact |
+
