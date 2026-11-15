@@ -93,10 +93,9 @@ export const homeContent = {
     'Paiement à la réception',
   ],
   /** Bannière promotionnelle : image large, environ 1280 × 320 px. null = emplacement provisoire */
-  promoBanner: {
-    image: null as string | null,
-    imageAlt: '',
-    /** Lien facultatif quand on clique sur la bannière, par exemple '/boutique?category=serums' */
-    link: null as string | null,
+    promoBanner: {
+    image: '/images/publicites/banniere-twists.webp',
+    imageAlt: 'Twists sur vos propres cheveux dès 5 000 F, réservez en ligne',
+    link: '/reserver',
   },
 }
