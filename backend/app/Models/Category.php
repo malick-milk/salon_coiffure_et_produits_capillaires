@@ -6,7 +6,16 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 
+/**
+ * Types pour l'analyse statique (Larastan) : colonnes converties et dates.
+ *
+ * @property bool $is_active
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read int $product_count calculé par la requête (withCount, withSum ou AVG … AS)
+ */
 class Category extends Model
 {
     use SoftDeletes;

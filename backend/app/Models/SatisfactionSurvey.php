@@ -5,10 +5,30 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
 
-/** Enquête de satisfaction et, si la cliente l'accepte, avis public (docs/13_NOTIFICATIONS_ET_AVIS.md) */
+/**
+ * Enquête de satisfaction et, si la cliente l'accepte, avis public (docs/13_NOTIFICATIONS_ET_AVIS.md)
+ *
+ * Types pour l'analyse statique (Larastan) : colonnes converties et dates.
+ *
+ * @property Carbon $sent_at
+ * @property Carbon $expires_at
+ * @property Carbon|null $answered_at
+ * @property Carbon|null $moderated_at
+ * @property Carbon|null $follow_up_done_at
+ * @property int|null $rating
+ * @property int|null $nps
+ * @property bool $publish_consent
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read int $answered calculé par la requête (withCount, withSum ou AVG … AS)
+ * @property-read float|string|null $average calculé par la requête (withCount, withSum ou AVG … AS)
+ * @property-read string $label calculé par la requête (withCount, withSum ou AVG … AS)
+ * @property-read int $nps_answers calculé par la requête (withCount, withSum ou AVG … AS)
+ */
 class SatisfactionSurvey extends Model
 {
     use LogsActivity;
@@ -76,7 +96,7 @@ class SatisfactionSurvey extends Model
         $c = $this->customer;
         $initial = mb_strtoupper(mb_substr((string) $c?->last_name, 0, 1));
 
-        return trim(($c?->first_name ?? 'Cliente').($initial !== '' ? " {$initial}." : ''));
+        return trim(($c->first_name ?? 'Cliente').($initial !== '' ? " {$initial}." : ''));
     }
 
     public function scopeAnswered(Builder $query): void

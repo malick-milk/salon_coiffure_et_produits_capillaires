@@ -67,7 +67,9 @@ class PickupPointController extends Controller
     {
         $order = Order::query()->with(['pickupPoint', 'customer', 'items'])->where('handover_token_hash', hash('sha256', $token))
             ->where('fulfillment_method', FulfillmentMethod::PickupPoint)->first();
-        abort_unless($order, 404, 'Lien de remise introuvable.');
+        if (! $order) {
+            abort(404, 'Lien de remise introuvable.');
+        }
 
         return $order;
     }

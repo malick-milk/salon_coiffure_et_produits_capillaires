@@ -7,7 +7,15 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 
-/** Ligne du grand livre de stock : immuable (pas d'updated_at) */
+/**
+ * Ligne du grand livre de stock : immuable (pas d'updated_at)
+ *
+ * Types pour l'analyse statique (Larastan) : colonnes converties et dates.
+ *
+ * @property StockMovementType $type
+ * @property int $quantity
+ * @property int $stock_after
+ */
 class StockMovement extends Model
 {
     const UPDATED_AT = null;

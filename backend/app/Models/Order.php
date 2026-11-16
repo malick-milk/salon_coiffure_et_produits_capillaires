@@ -32,6 +32,8 @@ use Spatie\Activitylog\Traits\LogsActivity;
  * @property int $discount_total
  * @property int $shipping_fee
  * @property int $total
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  */
 class Order extends Model
 {

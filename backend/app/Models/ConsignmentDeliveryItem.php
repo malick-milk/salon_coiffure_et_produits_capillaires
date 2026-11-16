@@ -4,6 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * Types pour l'analyse statique (Larastan) : colonnes converties et dates.
+ *
+ * @property int $unit_price
+ * @property int $quantity
+ * @property int $line_total
+ */
 class ConsignmentDeliveryItem extends Model
 {
     public $timestamps = false;

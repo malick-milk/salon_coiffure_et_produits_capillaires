@@ -31,7 +31,7 @@ class ProductSummaryResource extends JsonResource
             'stock_left' => $status === 'low_stock' ? $this->stock_quantity : null, // « Plus que 4 en stock »
             'is_featured' => $this->is_featured,
             'category' => ['id' => $this->category->id, 'name' => $this->category->name, 'slug' => $this->category->slug],
-            'image_url' => $this->images->firstWhere('is_primary', true)?->path ?? $this->images->first()?->path,
+            'image_url' => $this->images->firstWhere('is_primary', true)->path ?? $this->images->first()->path ?? null,
         ];
     }
 }

@@ -30,6 +30,7 @@ class CsvExporter
             'daily_sales' => $this->dailySales($from, $to),
             'product_daily' => $this->productDaily($from, $to),
             'order_lines' => $this->orderLines($from, $to),
+            default => throw new \InvalidArgumentException("Jeu de données inconnu : {$dataset}"), // le contrôleur ne laisse passer que DATASETS
         };
         $filename = "dabo-hair_{$dataset}_{$from->toDateString()}_{$to->toDateString()}.csv";
 

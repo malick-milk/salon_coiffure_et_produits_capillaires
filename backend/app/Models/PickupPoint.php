@@ -8,10 +8,21 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Carbon;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
 
-/** Point de retrait partenaire : une boutique existante qui garde un stock confié (étape 14) */
+/**
+ * Point de retrait partenaire : une boutique existante qui garde un stock confié (étape 14)
+ *
+ * Types pour l'analyse statique (Larastan) : colonnes converties et dates.
+ *
+ * @property array<array-key, mixed> $regions
+ * @property string $commission_rate
+ * @property bool $is_active
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ */
 class PickupPoint extends Model
 {
     use LogsActivity, Notifiable;
@@ -68,7 +79,7 @@ class PickupPoint extends Model
     /** Pour les messages : « Bonjour Moussa » */
     public function getFirstNameAttribute(): string
     {
-        return explode(' ', trim($this->owner_name))[0] ?? $this->owner_name;
+        return explode(' ', trim($this->owner_name))[0];
     }
 
     public function getActivitylogOptions(): LogOptions

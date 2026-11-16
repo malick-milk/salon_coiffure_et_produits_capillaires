@@ -4,7 +4,15 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 
+/**
+ * Types pour l'analyse statique (Larastan) : colonnes converties et dates.
+ *
+ * @property bool $is_default
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ */
 class Address extends Model
 {
     protected $fillable = ['customer_id', 'delivery_zone_id', 'label', 'recipient_name', 'phone', 'city', 'district', 'address_line', 'landmark', 'is_default'];

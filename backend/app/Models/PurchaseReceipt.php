@@ -4,10 +4,23 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
 
-/** Réception d'achat d'un produit revendu (fournisseur, quantité, prix d'achat, frais du lot) */
+/**
+ * Réception d'achat d'un produit revendu (fournisseur, quantité, prix d'achat, frais du lot)
+ *
+ * Types pour l'analyse statique (Larastan) : colonnes converties et dates.
+ *
+ * @property Carbon $received_on
+ * @property int $quantity
+ * @property int $unit_price
+ * @property int $extra_costs
+ * @property string $unit_cost
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ */
 class PurchaseReceipt extends Model
 {
     use LogsActivity;

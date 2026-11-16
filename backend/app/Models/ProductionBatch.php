@@ -5,10 +5,22 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Carbon;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
 
-/** Lot de fabrication (marque Dabo Hair). unit_cost est une colonne GÉNÉRÉE par MySQL. */
+/**
+ * Lot de fabrication (marque Dabo Hair). unit_cost est une colonne GÉNÉRÉE par MySQL.
+ *
+ * Types pour l'analyse statique (Larastan) : colonnes converties et dates.
+ *
+ * @property Carbon $produced_on
+ * @property Carbon|null $expires_on
+ * @property string|null $unit_cost
+ * @property int|null $total_cost
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ */
 class ProductionBatch extends Model
 {
     use LogsActivity;

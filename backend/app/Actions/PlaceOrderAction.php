@@ -35,7 +35,7 @@ class PlaceOrderAction
         private PickupPointService $pickupPoints,
     ) {}
 
-    /** @param array{items:list<array{product_id:int,quantity:int}>,fulfillment_method:string,delivery_zone_id:?int,customer:array,shipping_address:?array,notes:?string} $data */
+    /** @param array{items:list<array{product_id:int,quantity:int}>,fulfillment_method:string,delivery_zone_id:?int,pickup_point_id?:?int,customer:array,shipping_address:?array,notes:?string} $data */
     public function execute(array $data, ?User $user): Order
     {
         // Regrouper un produit envoyé deux fois
@@ -60,7 +60,7 @@ class PlaceOrderAction
             }
 
             $subtotal = $wanted->map(fn ($qty, $id) => $products[$id]->price * $qty)->sum();
-            $shippingFee = $zone?->fee ?? 0;
+            $shippingFee = $zone->fee ?? 0; // « ?? » couvre aussi $zone = null (retrait)
             $address = $method === FulfillmentMethod::Delivery ? $data['shipping_address'] : null;
             $customer = $this->customers->resolve($user, $data['customer']);
 

@@ -11,6 +11,7 @@ use App\Models\User;
 use App\Support\Phone;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
@@ -83,8 +84,8 @@ class TeamAdminController extends Controller
                 'id' => $a->id, 'log' => $a->log_name, 'event' => $a->event, 'description' => $a->description,
                 'subject' => $a->subject_type ? class_basename($a->subject_type).' #'.$a->subject_id : null,
                 'subject_label' => $this->subjectLabel($a->subject),
-                'causer' => $a->causer ? trim($a->causer->first_name.' '.$a->causer->last_name) : 'Système',
-                'changes' => $a->properties, 'created_at' => $a->created_at?->format('Y-m-d\TH:i:s'),
+                'causer' => $a->causer instanceof User ? trim($a->causer->first_name.' '.$a->causer->last_name) : 'Système',
+                'changes' => $a->properties, 'created_at' => Carbon::make($a->created_at)?->format('Y-m-d\TH:i:s'),
             ]),
             'meta' => ['current_page' => $page->currentPage(), 'last_page' => $page->lastPage(), 'per_page' => $page->perPage(), 'total' => $page->total()],
         ]);

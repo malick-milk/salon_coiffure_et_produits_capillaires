@@ -38,7 +38,9 @@ class SurveyController extends Controller
         return DB::transaction(function () use ($token, $data) {
             // Verrou : deux envois simultanés du même formulaire ne créent pas deux réponses
             $survey = SatisfactionSurvey::query()->where('token_hash', SatisfactionSurvey::hashToken($token))->lockForUpdate()->first();
-            abort_unless($survey, 404, 'Lien d’enquête introuvable.');
+            if (! $survey) {
+                abort(404, 'Lien d’enquête introuvable.');
+            }
             abort_if($survey->isAnswered(), 409, 'Vous avez déjà répondu : merci !');
             abort_if($survey->isExpired(), 410, 'Ce lien a expiré.');
 
@@ -63,7 +65,9 @@ class SurveyController extends Controller
     private function find(string $token): SatisfactionSurvey
     {
         $survey = SatisfactionSurvey::query()->with('customer')->where('token_hash', SatisfactionSurvey::hashToken($token))->first();
-        abort_unless($survey, 404, 'Lien d’enquête introuvable.');
+        if (! $survey) {
+            abort(404, 'Lien d’enquête introuvable.');
+        }
 
         return $survey;
     }

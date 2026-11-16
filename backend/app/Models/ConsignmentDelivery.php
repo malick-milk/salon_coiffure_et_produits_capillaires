@@ -15,6 +15,8 @@ use Illuminate\Support\Carbon;
  * @property Carbon $delivered_on
  * @property int $total_quantity
  * @property int $total_value
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  */
 class ConsignmentDelivery extends Model
 {

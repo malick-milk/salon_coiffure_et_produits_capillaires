@@ -12,6 +12,8 @@ use Illuminate\Support\Carbon;
  *
  * @property ProductionCostCategory $category
  * @property Carbon|null $spent_on
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  */
 class ProductionBatchCost extends Model
 {

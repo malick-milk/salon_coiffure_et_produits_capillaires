@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
 
@@ -26,6 +27,8 @@ use Spatie\Activitylog\Traits\LogsActivity;
  * @property bool $is_active
  * @property bool $is_featured
  * @property ProductOrigin $origin
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  */
 class Product extends Model
 {

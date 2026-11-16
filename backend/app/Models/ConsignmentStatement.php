@@ -5,10 +5,29 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Carbon;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
 
-/** Relevé mensuel d'un point de retrait : comptage, ventes, commission, montant à verser avant le 5 */
+/**
+ * Relevé mensuel d'un point de retrait : comptage, ventes, commission, montant à verser avant le 5
+ *
+ * Types pour l'analyse statique (Larastan) : colonnes converties et dates.
+ *
+ * @property int $counter_sales_total
+ * @property int $online_sales_total
+ * @property int $sales_total
+ * @property string $commission_rate
+ * @property int $commission_gross
+ * @property int $damaged_value
+ * @property int $commission_net
+ * @property int $amount_due
+ * @property int|null $declared_sold
+ * @property Carbon $due_date
+ * @property Carbon|null $paid_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ */
 class ConsignmentStatement extends Model
 {
     use LogsActivity;

@@ -57,6 +57,7 @@ class SurveyAdminController extends Controller
             'approve' => ['review_status' => 'approved', 'reject_reason' => null, 'reply' => $reply ?? $survey->reply],
             'reject' => ['review_status' => 'rejected', 'reject_reason' => $data['reject_reason'], 'reply' => null],
             'reply' => ['reply' => $reply],
+            default => abort(422, 'Décision inconnue.'), // impossible : la validation n'accepte que ces trois valeurs
         } + ['moderated_by' => $request->user()->id, 'moderated_at' => now()]);
 
         return response()->json(['data' => $this->row($survey->fresh(['customer', 'stylist']))]);

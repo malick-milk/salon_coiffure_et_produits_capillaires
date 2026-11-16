@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Carbon;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
@@ -16,6 +17,15 @@ use Spatie\Permission\Traits\HasRoles;
 /**
  * Compte qui peut SE CONNECTER (client inscrit ou personnel).
  * HasRoles (spatie) : $user->hasPermissionTo('orders.update') — on vérifie des PERMISSIONS (ADR-004).
+ *
+ * Types pour l'analyse statique (Larastan) : colonnes converties et dates.
+ *
+ * @property Carbon|null $email_verified_at
+ * @property Carbon|null $last_login_at
+ * @property string $password
+ * @property bool $is_active
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  */
 class User extends Authenticatable
 {

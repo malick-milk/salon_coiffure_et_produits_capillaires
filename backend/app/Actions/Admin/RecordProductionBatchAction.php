@@ -17,7 +17,7 @@ class RecordProductionBatchAction
 {
     public function __construct(private StockService $stock) {}
 
-    /** @param array{product_id:int,batch_number:string,quantity_produced:int,produced_on:string,expires_on:?string,notes:?string,costs:list<array{category:string,label:string,amount:int}>} $data */
+    /** @param array{product_id:int,batch_number:string,quantity_produced:int,produced_on:string,expires_on:?string,notes:?string,costs?:list<array{category:string,label:string,amount:int}>|null} $data */
     public function execute(array $data, User $by): ProductionBatch
     {
         return DB::transaction(function () use ($data, $by) {

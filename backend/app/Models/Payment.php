@@ -14,6 +14,8 @@ use Illuminate\Support\Carbon;
  * @property array<string, mixed>|null $provider_payload
  * @property Carbon|null $paid_at
  * @property int $amount
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  */
 class Payment extends Model
 {

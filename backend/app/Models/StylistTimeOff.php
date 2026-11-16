@@ -4,7 +4,16 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 
+/**
+ * Types pour l'analyse statique (Larastan) : colonnes converties et dates.
+ *
+ * @property Carbon $starts_at
+ * @property Carbon $ends_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ */
 class StylistTimeOff extends Model
 {
     protected $table = 'stylist_time_off';

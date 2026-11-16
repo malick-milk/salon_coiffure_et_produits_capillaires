@@ -23,7 +23,7 @@ class AnalyticsService
     public function overview(CarbonImmutable $from, CarbonImmutable $to): array
     {
         $this->ensureSnapshots($from, $to);
-        $days = $from->diffInDays($to) + 1;
+        $days = (int) $from->diffInDays($to) + 1; // Carbon 3 renvoie un nombre décimal
         $prevTo = $from->subDay();
         $prevFrom = $prevTo->subDays($days - 1);
         $this->ensureSnapshots($prevFrom, $prevTo);
@@ -122,7 +122,7 @@ class AnalyticsService
     /** Q01 : CA par jour, semaine ISO ou mois ; les périodes sans vente valent 0 (grâce au calendrier) */
     private function series(CarbonImmutable $from, CarbonImmutable $to): array
     {
-        $bucket = match ($this->granularity($from->diffInDays($to) + 1)) {
+        $bucket = match ($this->granularity((int) $from->diffInDays($to) + 1)) {
             'day' => 'c.date',
             'week' => 'DATE_SUB(c.date, INTERVAL (c.day_of_week - 1) DAY)', // lundi de la semaine
             default => "DATE_FORMAT(c.date, '%Y-%m-01')",

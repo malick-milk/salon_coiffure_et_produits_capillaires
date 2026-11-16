@@ -3,9 +3,18 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
 
-/** Paramètres modifiables depuis l'ERP (délai de réservation, TVA, coordonnées…) */
+/**
+ * Paramètres modifiables depuis l'ERP (délai de réservation, TVA, coordonnées…)
+ *
+ * Types pour l'analyse statique (Larastan) : colonnes converties et dates.
+ *
+ * @property array<array-key, mixed> $value
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ */
 class Setting extends Model
 {
     protected $fillable = ['group', 'key', 'value'];

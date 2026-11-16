@@ -9,8 +9,21 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Carbon;
 
-/** Client MÉTIER : inscrit (user_id) ou invité (user_id NULL). DATABASE.md §3.1 */
+/**
+ * Client MÉTIER : inscrit (user_id) ou invité (user_id NULL). DATABASE.md §3.1
+ *
+ * Types pour l'analyse statique (Larastan) : colonnes converties et dates.
+ *
+ * @property CustomerType $customer_type
+ * @property bool $marketing_consent
+ * @property bool $resserrage_opt_out
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read int|string|null $orders_spent calculé par la requête (withCount, withSum ou AVG … AS)
+ * @property-read int|string|null $bookings_spent calculé par la requête (withCount, withSum ou AVG … AS)
+ */
 class Customer extends Model
 {
     use Notifiable, SoftDeletes;

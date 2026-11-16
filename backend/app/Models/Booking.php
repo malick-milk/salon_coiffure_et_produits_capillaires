@@ -26,6 +26,8 @@ use Spatie\Activitylog\Traits\LogsActivity;
  * @property Carbon|null $resserrage_snoozed_at
  * @property int $price
  * @property int $duration_minutes
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  */
 class Booking extends Model
 {

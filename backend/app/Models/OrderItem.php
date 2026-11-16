@@ -4,8 +4,20 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 
-/** Ligne de commande : prix et nom FIGÉS au moment de l'achat (RG-COM-03) */
+/**
+ * Ligne de commande : prix et nom FIGÉS au moment de l'achat (RG-COM-03)
+ *
+ * Types pour l'analyse statique (Larastan) : colonnes converties et dates.
+ *
+ * @property int $unit_price
+ * @property string|null $unit_cost
+ * @property int $quantity
+ * @property int $line_total
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ */
 class OrderItem extends Model
 {
     protected $fillable = ['order_id', 'product_id', 'product_name', 'sku', 'unit_price', 'unit_cost', 'quantity', 'line_total'];
