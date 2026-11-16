@@ -1,11 +1,13 @@
-import { CalendarDays, LayoutDashboard, LogOut, Package, UserRound } from 'lucide-react'
+import { Bell, CalendarDays, LayoutDashboard, LogOut, Package, UserRound } from 'lucide-react'
 import { NavLink, Outlet, useNavigate } from 'react-router'
 import { RequireAuth } from '@/features/auth/components/RequireAuth'
 import { useLogout, useMe } from '@/features/auth/hooks'
 import { cn } from '@/lib/utils'
+import { useMyNotifications } from './hooks'
 
 const LINKS = [
   { to: '/compte', label: 'Vue d’ensemble', Icon: LayoutDashboard, end: true },
+  { to: '/compte/notifications', label: 'Notifications', Icon: Bell, end: false },
   { to: '/compte/commandes', label: 'Mes commandes', Icon: Package, end: false },
   { to: '/compte/reservations', label: 'Mes réservations', Icon: CalendarDays, end: false },
   { to: '/compte/profil', label: 'Profil', Icon: UserRound, end: false },
@@ -24,6 +26,7 @@ function AccountShell() {
   const { data: user } = useMe()
   const logout = useLogout()
   const navigate = useNavigate()
+  const unread = useMyNotifications().data?.meta.unread ?? 0
   return (
     <div className="px-4 pt-10 pb-24 sm:px-6">
       <div className="mx-auto flex max-w-6xl flex-col gap-8 lg:flex-row lg:items-start">
@@ -33,6 +36,9 @@ function AccountShell() {
             <NavLink key={to} to={to} end={end} className={({ isActive }) => cn('flex min-h-12 shrink-0 items-center gap-3 rounded-[10px] px-3.5 whitespace-nowrap', isActive ? 'bg-gold-soft font-semibold text-gold' : 'hover:bg-ink')}>
               <Icon className="size-5" aria-hidden="true" />
               {label}
+              {to === '/compte/notifications' && unread > 0 && (
+                <span className="ml-auto rounded-full bg-gold px-2 text-xs font-bold text-ink" aria-label={`${unread} non lue${unread > 1 ? 's' : ''}`}>{unread}</span>
+              )}
             </NavLink>
           ))}
           <button

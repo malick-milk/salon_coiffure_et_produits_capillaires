@@ -21,4 +21,14 @@ class BookingConfirmed extends BookingNotification
             ->action('Gérer mon rendez-vous', self::link('compte/reservations'))
             ->line("Référence : {$this->reference}");
     }
+
+    protected function inboxTitle(): string
+    {
+        return 'Rendez-vous confirmé';
+    }
+
+    protected function inboxPath(): ?string
+    {
+        return '/compte/reservations';
+    }
 }

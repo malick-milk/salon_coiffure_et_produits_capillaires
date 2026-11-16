@@ -51,6 +51,7 @@ Exemples : le prix du sérum se change dans l'ERP. Le titre « L'art du soin cap
 | Photos d'un produit (ajouter, choisir la principale, supprimer) | ERP → **Produits et stock** → bouton **Photos** |
 | Nom d'un produit existant | pas encore d'écran : `backend/database/seeders/DaboHairCatalogSeeder.php` |
 | Prestations du salon et leurs prix, coiffeuses, horaires, zones et frais de livraison | pas encore d'écran : `backend/database/seeders/ReferenceDataSeeder.php` |
+| Délai avant le rappel de resserrage, pour chaque twist | `backend/database/seeders/ReferenceDataSeeder.php`, constante `RESSERRAGE` (en jours) |
 
 Après une modification d'un fichier **seeder**, appliquez-la sans effacer les commandes, depuis `backend/` :
 

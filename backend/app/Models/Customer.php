@@ -15,11 +15,11 @@ class Customer extends Model
 {
     use Notifiable, SoftDeletes;
 
-    protected $fillable = ['user_id', 'customer_type', 'first_name', 'last_name', 'phone', 'email', 'marketing_consent', 'notes'];
+    protected $fillable = ['user_id', 'customer_type', 'first_name', 'last_name', 'phone', 'email', 'marketing_consent', 'resserrage_opt_out', 'notes'];
 
     protected function casts(): array
     {
-        return ['customer_type' => CustomerType::class, 'marketing_consent' => 'boolean'];
+        return ['customer_type' => CustomerType::class, 'marketing_consent' => 'boolean', 'resserrage_opt_out' => 'boolean'];
     }
 
     public function user(): BelongsTo

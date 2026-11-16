@@ -211,6 +211,7 @@ class SecurityChecklistTest extends TestCase
             'POST api/v1/auth/register' => 'inscription : limite de 20/heure',
             'POST api/v1/surveys/{token}' => 'enquête : lien personnel de 40 caractères (empreinte SHA-256)',
             'POST api/v1/handover/{token}' => 'remise : lien personnel + code de la cliente, 5 essais',
+            'POST api/v1/reminders/unsubscribe/{customer}' => 'désinscription des rappels : URL signée (HMAC), limite de 20/heure',
         ];
         $public = collect(Route::getRoutes()->getRoutes())
             ->filter(fn (RouteDefinition $r) => str_starts_with($r->uri(), 'api/'))

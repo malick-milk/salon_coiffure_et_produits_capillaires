@@ -110,6 +110,7 @@ const log = (ok, msg) => { if (!ok) failures++; console.log(`${ok ? 'OK  ' : 'FA
   await page.getByText('Demande de rendez-vous envoyée').waitFor()
   const ref = await page.getByText(/RDV-2026-\d{6}/).textContent()
   log(/RDV-2026-000011/.test(ref), `Réservation : confirmée avec le code ${ref}`)
+  log((await page.getByRole('heading', { name: 'Ne ratez pas votre resserrage' }).count()) === 1, 'Réservation sans compte (twist) : invitation à créer un compte pour les rappels de resserrage')
   await page.screenshot({ path: `${SHOTS}/07-reservation-confirmee.png`, fullPage: true })
 
   // Le créneau réservé n'est plus disponible

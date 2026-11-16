@@ -19,4 +19,14 @@ class BookingCancelledByCustomer extends BookingNotification
             ->line("Votre rendez-vous pour **{$this->service}** du **{$this->whenText()}** est bien annulé.")
             ->action('Réserver un autre créneau', self::link('reserver'));
     }
+
+    protected function inboxTitle(): string
+    {
+        return 'Rendez-vous annulé';
+    }
+
+    protected function inboxPath(): ?string
+    {
+        return '/reserver';
+    }
 }

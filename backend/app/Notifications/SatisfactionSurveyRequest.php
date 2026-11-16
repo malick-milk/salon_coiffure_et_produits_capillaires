@@ -43,4 +43,13 @@ class SatisfactionSurveyRequest extends CustomerNotification
             ->action('Donner mon avis', $this->url())
             ->line('Ce lien est personnel et valable 14 jours.');
     }
+
+    /**
+     * Dans le profil : PAS le lien personnel de l'enquête. Son secret n'est gardé en base que sous forme
+     * d'empreinte (étape 13) ; le recopier ici le remettrait en clair dans la table des notifications.
+     */
+    public function toArray(object $notifiable): array
+    {
+        return ['kind' => 'message', 'title' => 'Votre avis compte', 'text' => 'Comment s’est passée votre visite ? Le lien de l’enquête est dans votre SMS ou votre e-mail.', 'url' => null];
+    }
 }

@@ -4,16 +4,17 @@
  * action, et renvoie le nouvel état. Toutes les transitions sont au même endroit, donc faciles
  * à lire et à tester.
  */
-import { CalendarCheck, Check } from 'lucide-react'
-import { useReducer, useState } from 'react'
-import { Link } from 'react-router'
+import { Bell, CalendarCheck, Check } from 'lucide-react'
+import { useEffect, useReducer, useState } from 'react'
+import { Link, useSearchParams } from 'react-router'
 import { Seo } from '@/components/common/Seo'
 import { QueryError } from '@/components/common/States'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { formatLongDate, formatPrice } from '@/lib/format'
 import { apiErrorMessage, apiErrorStatus, type ValidationErrorBody } from '@/lib/http'
-import type { BookingConfirmation } from '@/types/api'
+import { useMe } from '@/features/auth/hooks'
+import type { BookingConfirmation, Service } from '@/types/api'
 import { BookingSummary, DateTimeStep, ServiceStep, Stepper, StylistStep } from '../components/BookingSteps'
 import { ContactStep, type ContactSetError } from '../components/ContactStep'
 import { useBusinessHours, useCreateBooking, useServices, useStylists } from '../hooks'
@@ -77,7 +78,16 @@ const CONTACT_FORM_ID = 'booking-contact-form'
 export function BookingPage() {
   const [state, dispatch] = useReducer(bookingReducer, initialState)
   const [conflictMessage, setConflictMessage] = useState<string | null>(null)
+  const [contact, setContact] = useState<ContactValues | null>(null)
   const services = useServices()
+
+  // ?prestation=resserrage-micro-twist : lien d'un rappel de resserrage, la prestation est déjà choisie
+  const [params] = useSearchParams()
+  const wanted = params.get('prestation')
+  useEffect(() => {
+    const match = wanted && services.data?.find((s) => s.slug === wanted)
+    if (match && state.serviceId === null) dispatch({ type: 'service', id: match.id })
+  }, [wanted, services.data]) // eslint-disable-line react-hooks/exhaustive-deps
   const stylists = useStylists(state.serviceId)
   const hours = useBusinessHours()
   const createBooking = useCreateBooking()
@@ -89,6 +99,7 @@ export function BookingPage() {
   const submit = (values: ContactValues, setError: ContactSetError) => {
     if (!state.serviceId || !state.date || !state.time) return
     setConflictMessage(null)
+    setContact(values)
     createBooking.mutate(
       {
         service_id: state.serviceId,
@@ -119,7 +130,7 @@ export function BookingPage() {
   }
 
   if (state.step === 5 && state.confirmation) {
-    return <Confirmation confirmation={state.confirmation} onRestart={() => dispatch({ type: 'reset' })} />
+    return <Confirmation confirmation={state.confirmation} service={service} contact={contact} onRestart={() => dispatch({ type: 'reset' })} />
   }
 
   const loading = services.isPending || hours.isPending
@@ -193,8 +204,10 @@ export function BookingPage() {
   )
 }
 
-function Confirmation({ confirmation, onRestart }: { confirmation: BookingConfirmation; onRestart: () => void }) {
+function Confirmation({ confirmation, service, contact, onRestart }: { confirmation: BookingConfirmation; service: Service | null; contact: ContactValues | null; onRestart: () => void }) {
   const [date, time] = confirmation.starts_at.split('T') as [string, string]
+  const { data: user } = useMe()
+  // Invitation à créer un compte : seulement pour une cliente sans compte, et une prestation qui a un rappel
   return (
     <div className="px-4 py-16 sm:px-6">
       <Seo title="Demande de rendez-vous envoyée" />
@@ -210,6 +223,14 @@ function Confirmation({ confirmation, onRestart }: { confirmation: BookingConfir
           <strong className="text-2xl tracking-[0.08em] text-gold">{confirmation.reference}</strong>
         </div>
         <p className="text-sm text-muted">Annulation possible jusqu'à 24 h avant le rendez-vous avec ce code.</p>
+        {!user && service?.resserrage_reminder && (
+          <section aria-labelledby="invitation-compte" className="flex w-full flex-col gap-3 rounded-[18px] border-2 border-gold bg-[#1d1810] p-5 text-left">
+            <h2 id="invitation-compte" className="flex items-center gap-2.5 text-lg font-semibold"><Bell className="size-5 text-gold" aria-hidden="true" />Ne ratez pas votre resserrage</h2>
+            <p className="text-[15px] leading-relaxed text-[#c9c4b8]">Créez votre compte en 30 secondes : nous vous rappellerons le bon moment pour le resserrage, dans votre espace client et par e-mail.</p>
+            <Button asChild><Link to="/inscription" state={{ prefill: contact && { first_name: contact.first_name, last_name: contact.last_name, phone: contact.phone, email: contact.email } }}>Créer mon compte</Link></Button>
+            <p className="text-center text-xs text-muted">Vos informations de réservation sont déjà remplies.</p>
+          </section>
+        )}
         <div className="flex flex-wrap justify-center gap-3">
           <Button asChild variant="outline"><Link to="/">Retour à l'accueil</Link></Button>
           <Button onClick={onRestart}><CalendarCheck aria-hidden="true" />Nouvelle réservation</Button>

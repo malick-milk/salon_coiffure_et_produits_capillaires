@@ -1,8 +1,8 @@
 /** Pages de l'espace client (EF-CLI-06 à 11) */
 import { zodResolver } from '@hookform/resolvers/zod'
 import axios from 'axios'
-import { ArrowRight, CalendarDays, Check, ChevronLeft, FileText, Package } from 'lucide-react'
-import { useState } from 'react'
+import { ArrowRight, Bell, CalendarDays, Check, ChevronLeft, FileText, Package, type LucideIcon } from 'lucide-react'
+import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { Link, useParams } from 'react-router'
 import { z } from 'zod'
@@ -17,8 +17,9 @@ import { useMe } from '@/features/auth/hooks'
 import { normalizePhone, SENEGAL_MOBILE } from '@/features/booking/schema'
 import { formatDuration, formatLongDate, formatPrice, fulfillmentLabel } from '@/lib/format'
 import { apiErrorMessage, apiErrorStatus, type ValidationErrorBody } from '@/lib/http'
-import type { CustomerBooking, OrderSummary } from '@/types/api'
-import { useCancelBooking, useMyBookings, useMyOrder, useMyOrders, useUpdateProfile } from '../hooks'
+import type { AccountNotification, CustomerBooking, OrderSummary } from '@/types/api'
+import { ResserrageCard } from '../components/ResserrageCard'
+import { useCancelBooking, useMarkNotificationsRead, useMyBookings, useMyNotifications, useMyOrder, useMyOrders, useUpdateProfile } from '../hooks'
 
 const shortDate = (iso: string) => new Intl.DateTimeFormat('fr-FR', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' }).format(new Date(`${iso.slice(0, 19)}Z`))
 const time = (iso: string) => iso.slice(11, 16)
@@ -40,11 +41,16 @@ export function AccountOverviewPage() {
     ?.filter((b) => (b.status === 'pending' || b.status === 'confirmed') && b.starts_at >= new Date().toISOString().slice(0, 19))
     .sort((a, b) => a.starts_at.localeCompare(b.starts_at))[0]
   const current = orders.data?.find((o) => !['delivered', 'cancelled'].includes(o.status))
+  // Rappel de resserrage du dernier mois : en tête de la vue d'ensemble (maquette du 16 novembre 2026),
+  // même déjà lu, tant que la cliente ne l'a ni reporté ni remplacé par une réservation
+  const monthAgo = new Date(Date.now() - 30 * 86_400_000).toISOString()
+  const reminder = useMyNotifications().data?.data.find((n) => n.kind === 'resserrage' && n.created_at >= monthAgo)
 
   return (
     <div className="flex flex-col gap-7">
       <Seo title="Mon compte" />
       <PageTitle>Bonjour {user?.first_name}</PageTitle>
+      {reminder && <ResserrageCard notification={reminder} />}
       <div className="grid gap-4 md:grid-cols-2">
         <Card className="border-gold-dark bg-gold-soft">
           <p className="text-[13px] font-semibold tracking-[0.14em] text-gold uppercase">Prochain rendez-vous</p>
@@ -75,6 +81,61 @@ export function AccountOverviewPage() {
       </div>
     </div>
   )
+}
+
+// ---------- Notifications (rappels de resserrage, messages du salon) ----------
+const NOTIF_ICONS: Record<string, LucideIcon> = { '/compte/reservations': CalendarDays, '/reserver': CalendarDays, '/compte/commandes': Package }
+
+export function NotificationsPage() {
+  const notifications = useMyNotifications()
+  const markRead = useMarkNotificationsRead()
+  const unread = notifications.data?.meta.unread ?? 0
+  // Ouvrir la rubrique vaut lecture : la pastille de la cloche disparaît (les cartes restent « Nouveau » jusqu'au prochain affichage)
+  useEffect(() => {
+    if (unread > 0 && !markRead.isPending) markRead.mutate()
+  }, [unread]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  const items = notifications.data?.data ?? []
+  const reminders = items.filter((n) => n.kind === 'resserrage')
+  const others = items.filter((n) => n.kind !== 'resserrage')
+
+  return (
+    <div className="flex flex-col gap-6">
+      <Seo title="Mes notifications" />
+      <PageTitle>Notifications</PageTitle>
+      {notifications.isError ? <QueryError message={apiErrorMessage(notifications.error)} onRetry={() => notifications.refetch()} />
+        : notifications.isPending ? <Skeleton className="h-40" />
+          : items.length === 0 ? (
+            <EmptyState title="Aucune notification"><p className="text-muted">Les rappels de resserrage et les messages du salon apparaîtront ici.</p></EmptyState>
+          ) : (
+            <>
+              {reminders.map((n) => <ResserrageCard key={n.id} notification={n} />)}
+              {others.length > 0 && (
+                <section aria-labelledby="notif-anciennes" className="flex flex-col gap-3">
+                  <h2 id="notif-anciennes" className="text-[13px] font-semibold tracking-[0.14em] text-muted uppercase">{reminders.length ? 'Autres messages' : 'Messages du salon'}</h2>
+                  <ul className="flex flex-col gap-2.5">{others.map((n) => <NotificationItem key={n.id} notification={n} />)}</ul>
+                </section>
+              )}
+            </>
+          )}
+    </div>
+  )
+}
+
+function NotificationItem({ notification: n }: { notification: AccountNotification }) {
+  const Icon = (n.url && NOTIF_ICONS[n.url]) || Bell
+  const body = (
+    <>
+      <span className={`grid size-10 shrink-0 place-items-center rounded-full ${n.read ? 'bg-ink' : 'bg-gold-soft'}`}><Icon className={`size-[18px] ${n.read ? 'text-muted' : 'text-gold'}`} aria-hidden="true" /></span>
+      <span className="flex min-w-0 flex-1 flex-col gap-1">
+        <span className="flex items-start justify-between gap-2"><strong>{n.title}</strong>{!n.read && <span className="mt-1.5 size-2.5 shrink-0 rounded-full bg-gold"><span className="sr-only">Non lue</span></span>}</span>
+        <span className="text-[15px] leading-snug text-[#c9c4b8]">{n.text}</span>
+        <span className="text-xs text-muted">{shortDate(n.created_at)}</span>
+      </span>
+    </>
+  )
+  const cls = `flex gap-3 rounded-2xl border p-4 ${n.read ? 'border-ink-line' : 'border-[#4a4335] bg-[#1d1810]'}`
+  return <li>{n.url ? <Link to={n.url} className={`${cls} hover:border-gold`}>{body}</Link> : <div className={cls}>{body}</div>}</li>
 }
 
 // ---------- Commandes ----------

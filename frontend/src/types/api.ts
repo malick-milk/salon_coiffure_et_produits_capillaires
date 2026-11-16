@@ -92,6 +92,7 @@ export interface Service {
   description: string | null
   duration_minutes: number
   price: Money
+  resserrage_reminder?: boolean // un rappel de resserrage existe pour cette prestation (délai fixé par Awa)
 }
 
 export interface Stylist {
@@ -298,4 +299,21 @@ export interface SurveyAnswer {
   nps: number | null
   comment: string | null
   publish_consent: boolean
+}
+
+// ---------- Notifications du profil (rappels de resserrage, messages du salon) ----------
+export interface AccountNotification {
+  id: string
+  kind: 'resserrage' | 'message'
+  title: string
+  text: string
+  url: string | null
+  read: boolean
+  created_at: string
+  // Rappel de resserrage seulement
+  booking_reference?: string
+  twist?: string
+  done_on?: string
+  advised_on?: string
+  resserrage?: { slug: string; name: string; price: Money; duration_minutes: number }
 }

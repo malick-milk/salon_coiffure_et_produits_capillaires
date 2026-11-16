@@ -31,4 +31,14 @@ class BookingCancelledBySalon extends BookingNotification
             ->action('Choisir un nouveau créneau', self::link('reserver'))
             ->line("Référence : {$this->reference}");
     }
+
+    protected function inboxTitle(): string
+    {
+        return 'Rendez-vous annulé par le salon';
+    }
+
+    protected function inboxPath(): ?string
+    {
+        return '/reserver';
+    }
 }

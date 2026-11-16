@@ -116,6 +116,39 @@ Ce branchement se fera ensemble, une fois le fournisseur choisi : ses tarifs et 
 
 Pour tester l'enquête : `php artisan migrate:fresh --seed` crée 5 avis de démonstration (local uniquement), visibles sur l'accueil et dans l'ERP « Avis clients ».
 
+## 6 bis. Rappels de resserrage et rubrique « Notifications » (16 novembre 2026)
+
+Maquette validée le 16 novembre (canevas, « Rappels de resserrage »). **Pas de SMS** pour ces rappels : leur coût sera présenté plus tard.
+
+**Ce que voit la cliente**
+- une **cloche** dans l'en-tête, avec le nombre de messages non lus ;
+- la rubrique **Notifications** de son espace client : le rappel « Votre resserrage approche » en tête, puis les autres messages du salon (rendez-vous confirmé, commande prête…) ;
+- la même carte en tête de la **vue d'ensemble** pendant un mois ;
+- un **e-mail** si son adresse est connue, aux couleurs de la boutique, avec un lien « Ne plus recevoir les rappels de resserrage ».
+
+**Les règles** (`app/Services/Salon/ResserrageReminderService.php`, commande `bookings:resserrage`, chaque jour à 9 h 30)
+
+| Règle | Pourquoi |
+|---|---|
+| Un rappel part X jours après un twist **terminé** (statut mis dans l'ERP) | Le délai dépend du twist : il est fixé par Awa |
+| Délai vide = aucun rappel | Pas de conseil inventé tant qu'Awa n'a pas donné ses délais |
+| Un seul rappel par twist | Un rappel qui revient tous les jours fait fuir |
+| Rien si la cliente a déjà réservé un resserrage depuis | Le rappel n'aurait plus de sens |
+| « Me le rappeler dans 1 semaine » : une seule fois | Le rappel revient 7 jours plus tard, puis plus jamais |
+| « Réserver mon resserrage » ouvre `/reserver?prestation=…` avec le bon resserrage déjà choisi | Un clic de moins |
+| Lien de désinscription **signé** dans chaque e-mail | Obligatoire ; la signature empêche de désinscrire une autre cliente en changeant le numéro dans l'adresse |
+| Cliente sans compte : invitation à créer un compte après sa réservation, formulaire pré-rempli | Sans compte, pas de profil ; à l'inscription, ses réservations passées sont rattachées (même téléphone) |
+
+**Saisir les délais d'Awa** : dans `backend/database/seeders/ReferenceDataSeeder.php`, la constante `RESSERRAGE` (par exemple `'micro-twist-long' => ['resserrage-micro-twist', 28]` pour 4 semaines), puis :
+
+```bash
+php artisan db:seed --class=ReferenceDataSeeder
+```
+
+**Les autres messages arrivent aussi dans le profil** (canal `database` de Laravel, table `notifications`) quand la cliente a un compte. Exception volontaire : le message de l'enquête de satisfaction n'y recopie **pas** le lien personnel. Son secret n'est gardé en base que sous forme d'empreinte (§3). Le recopier en clair dans la table des notifications annulerait cette protection.
+
+**En local** : la démo donne à Mariama un twist fait il y a 30 jours et un délai de 4 semaines (seulement hors production). Connectez-vous avec `mariama@client.test` : la cloche affiche 1. Les e-mails s'affichent dans Mailpit, http://localhost:8025.
+
 ## 7. Tests
 
 | Fichier | Ce qui est vérifié |

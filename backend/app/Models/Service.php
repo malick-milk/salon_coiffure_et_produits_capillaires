@@ -13,7 +13,7 @@ class Service extends Model
 {
     use SoftDeletes;
 
-    protected $fillable = ['service_category_id', 'name', 'slug', 'description', 'duration_minutes', 'buffer_minutes', 'price', 'image_path', 'is_active', 'position'];
+    protected $fillable = ['service_category_id', 'name', 'slug', 'description', 'duration_minutes', 'buffer_minutes', 'price', 'image_path', 'is_active', 'position', 'resserrage_service_id', 'resserrage_after_days'];
 
     protected function casts(): array
     {
@@ -33,5 +33,11 @@ class Service extends Model
     public function scopeActive(Builder $query): void
     {
         $query->where('is_active', true);
+    }
+
+    /** Le resserrage qui correspond à ce twist (rappels de resserrage, 16 novembre 2026) */
+    public function resserrageService(): BelongsTo
+    {
+        return $this->belongsTo(self::class, 'resserrage_service_id');
     }
 }

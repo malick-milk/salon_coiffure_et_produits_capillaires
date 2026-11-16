@@ -45,6 +45,23 @@ const log = (ok, msg) => { if (!ok) failures++; console.log(`${ok ? 'OK  ' : 'FA
   log((await page.getByRole('button', { name: 'Annuler' }).count()) === 0, 'Réservation annulée (plus de bouton « Annuler »)')
   await page.screenshot({ path: `${SHOTS}/11-mes-reservations.png`, fullPage: true })
 
+  // 4 bis. Rappel de resserrage (démo : twist simple il y a 30 jours, délai de 4 semaines) — maquette du 16 novembre
+  log((await page.getByRole('link', { name: 'Notifications, 1 non lue' }).count()) === 1, 'Cloche : 1 notification non lue')
+  await page.goto(BASE + '/compte')
+  await page.getByRole('heading', { name: 'Votre resserrage approche' }).waitFor()
+  log((await page.getByText(/Votre twist simple a été fait le/).count()) === 1, 'Vue d’ensemble : la carte « Votre resserrage approche » est en tête')
+  await page.screenshot({ path: `${SHOTS}/11b-rappel-resserrage.png`, fullPage: true })
+  await page.getByRole('link', { name: /Réserver mon resserrage/ }).click()
+  await page.waitForURL('**/reserver?prestation=resserrage-twist')
+  await page.locator('aside').getByText('Resserrage twist simple').waitFor() // attendre le chargement des prestations
+  log(await page.getByRole('button', { name: 'Continuer' }).isEnabled(), 'Réserver : le « Resserrage twist simple » est déjà choisi (Continuer actif)')
+  await page.goto(BASE + '/compte/notifications')
+  await page.getByRole('link', { name: 'Notifications', exact: true }).first().waitFor()
+  log((await page.getByRole('link', { name: /non lue/ }).count()) === 0, 'Rubrique ouverte : la pastille de la cloche disparaît')
+  await page.getByRole('button', { name: 'Me le rappeler dans 1 semaine' }).click()
+  await page.getByText('Aucune notification').waitFor()
+  log(true, '« Me le rappeler dans 1 semaine » : le rappel disparaît jusqu’au report')
+
   // 5. Commandes : liste puis détail avec prix figés
   await page.getByRole('link', { name: 'Mes commandes' }).click()
   await page.getByRole('link', { name: /CMD-2026-000101/ }).click()

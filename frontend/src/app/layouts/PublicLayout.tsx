@@ -1,6 +1,7 @@
-import { CalendarDays, House, LayoutDashboard, Search, ShoppingBag, Store, User } from 'lucide-react'
+import { Bell, CalendarDays, House, LayoutDashboard, Search, ShoppingBag, Store, User } from 'lucide-react'
 import { Link, NavLink, Outlet, ScrollRestoration } from 'react-router'
 import { Logo } from '@/components/common/Logo'
+import { useMyNotifications } from '@/features/account/hooks'
 import { useMe } from '@/features/auth/hooks'
 import { isStaff } from '@/features/auth/permissions'
 import { useCartCount } from '@/features/cart/store'
@@ -56,6 +57,7 @@ export function PublicLayout() {
                 <LayoutDashboard className="size-[18px]" aria-hidden="true" />ERP
               </Link>
             )}
+            {user && <NotificationsBell />}
             <Link
               to={user ? '/compte' : '/connexion'}
               aria-label={user ? `Mon compte (${user.first_name})` : 'Se connecter'}
@@ -137,3 +139,21 @@ function FooterNav({ title, links }: { title: string; links: [string, string][] 
     </nav>
   )
 }
+
+/** Cloche des notifications (rappels de resserrage, messages du salon) : pastille = nombre de non lues */
+function NotificationsBell() {
+  const unread = useMyNotifications().data?.meta.unread ?? 0
+  return (
+    <Link
+      to="/compte/notifications"
+      aria-label={unread ? `Notifications, ${unread} non lue${unread > 1 ? 's' : ''}` : 'Notifications'}
+      className="relative flex size-11 items-center justify-center rounded-full hover:bg-ink-soft"
+    >
+      <Bell className="size-[22px]" aria-hidden="true" />
+      {unread > 0 && (
+        <span className="absolute top-1 right-0.5 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-gold px-1 text-[11px] font-bold text-ink">{unread}</span>
+      )}
+    </Link>
+  )
+}
+

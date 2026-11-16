@@ -42,12 +42,15 @@ export const router = createBrowserRouter([
           { path: 'commandes/:reference', lazy: async () => ({ Component: (await import('@/features/account/pages/AccountPages')).OrderDetailPage }) },
           { path: 'reservations', lazy: async () => ({ Component: (await import('@/features/account/pages/AccountPages')).BookingsPage }) },
           { path: 'profil', lazy: async () => ({ Component: (await import('@/features/account/pages/AccountPages')).ProfilePage }) },
+          { path: 'notifications', lazy: async () => ({ Component: (await import('@/features/account/pages/AccountPages')).NotificationsPage }) },
         ],
       },
       // Étape 13 : avis clients publics et enquête de satisfaction (lien reçu par SMS)
       { path: 'avis', lazy: async () => ({ Component: (await import('@/features/reviews/pages/ReviewsPage')).ReviewsPage }) },
       { path: 'avis/:token', lazy: async () => ({ Component: (await import('@/features/reviews/pages/SurveyPage')).SurveyPage }) },
       // Étape 14 : page du partenaire pour remettre une commande (lien reçu par SMS)
+      // Lien « Ne plus recevoir les rappels de resserrage » des e-mails (URL signée)
+      { path: 'rappels/desinscription/:customer', lazy: async () => ({ Component: (await import('@/features/account/pages/UnsubscribePage')).UnsubscribePage }) },
       { path: 'retrait/:token', lazy: async () => ({ Component: (await import('@/features/pickup/pages/HandoverPage')).HandoverPage }) },
       { path: '*', element: <NotFoundPage /> },
     ],

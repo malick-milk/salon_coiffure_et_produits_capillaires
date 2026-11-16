@@ -18,6 +18,8 @@ class ServiceResource extends JsonResource
             'description' => $this->description,
             'duration_minutes' => $this->duration_minutes,
             'price' => $this->price,
+            // Rappel de resserrage proposé pour cette prestation (délai fixé par Awa) : affiche l'invitation à créer un compte
+            'resserrage_reminder' => $this->resserrage_after_days !== null && $this->resserrage_service_id !== null,
         ];
     }
 }

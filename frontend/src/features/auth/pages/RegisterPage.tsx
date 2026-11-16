@@ -1,7 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import axios from 'axios'
 import { useForm } from 'react-hook-form'
-import { Link, Navigate, useNavigate, useSearchParams } from 'react-router'
+import { Link, Navigate, useLocation, useNavigate, useSearchParams } from 'react-router'
 import { applyServerErrors, Field } from '@/components/common/FormField'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -18,9 +18,14 @@ export function RegisterPage() {
   const navigate = useNavigate()
   const me = useMe()
   const registerUser = useRegister()
+  // Venue de la confirmation d'une réservation : les coordonnées déjà saisies sont reprises
+  const prefill = (useLocation().state as { prefill?: Partial<Record<'first_name' | 'last_name' | 'phone' | 'email', string>> } | null)?.prefill
   const { register, handleSubmit, setError, formState: { errors } } = useForm<RegisterInput, unknown, RegisterValues>({
     resolver: zodResolver(registerSchema),
-    defaultValues: { first_name: '', last_name: '', email: '', phone: '', password: '', password_confirmation: '', consent: false as unknown as true },
+    defaultValues: {
+      first_name: prefill?.first_name ?? '', last_name: prefill?.last_name ?? '', email: prefill?.email ?? '', phone: prefill?.phone ?? '',
+      password: '', password_confirmation: '', consent: false as unknown as true,
+    },
     mode: 'onTouched',
   })
 

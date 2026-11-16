@@ -141,6 +141,9 @@ export const accountHandlers = [
     return HttpResponse.json({ data: toDetail(o) })
   }),
 
+  // Rappels de resserrage : le faux serveur n'en a pas (la vraie API Laravel, si)
+  http.get(`${API}/me/notifications`, () => HttpResponse.json({ data: [], meta: { unread: 0 } })),
+  http.post(`${API}/me/notifications/read`, () => HttpResponse.json({ meta: { unread: 0 } })),
   http.get(`${API}/me/bookings`, async () => {
     await delay(250)
     const u = currentUser()

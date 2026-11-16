@@ -14,7 +14,9 @@ use App\Models\Product;
 use App\Models\Service;
 use App\Models\Stylist;
 use App\Models\User;
+use App\Services\Salon\ResserrageReminderService;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -83,6 +85,15 @@ class DemoAccountsSeeder extends Seeder
                 'status' => $status, 'starts_at' => $start, 'ends_at' => $start->copy()->addMinutes($service->duration_minutes + $service->buffer_minutes),
                 'service_name' => $service->name, 'duration_minutes' => $service->duration_minutes, 'price' => $service->price,
             ]);
+        }
+
+        // DÉMO SEULEMENT (jamais en production) : un délai de 4 semaines sur les twists pour VOIR un rappel de
+        // resserrage. Le twist simple de Mariama date de 30 jours : le rappel apparaît dans son espace client.
+        // En production, le délai reste vide tant qu'Awa ne l'a pas donné (ReferenceDataSeeder).
+        if (! app()->isProduction()) {
+            Service::whereNotNull('resserrage_service_id')->update(['resserrage_after_days' => 28]);
+            app(ResserrageReminderService::class)->run();
+            Artisan::call('queue:work', ['--stop-when-empty' => true]); // la notification part tout de suite (file d'attente)
         }
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Notifications;
 
+use App\Models\Customer;
 use App\Models\Setting;
 use App\Notifications\Channels\SmsChannel;
 use App\Notifications\Channels\SmsMessage;
@@ -40,7 +41,41 @@ abstract class CustomerNotification extends Notification implements ShouldQueue
         return array_values(array_filter([
             $notifiable->routeNotificationFor('sms', $this) ? SmsChannel::class : null,
             $notifiable->routeNotificationFor('mail', $this) ? 'mail' : null,
+            self::hasAccount($notifiable) ? 'database' : null,
         ]));
+    }
+
+    /**
+     * Rubrique « Notifications » du profil (canal « database ») : seulement pour une cliente qui a un compte.
+     * Par défaut, le texte du SMS sans le préfixe « Dabo Hair : » ; une notification peut l'enrichir.
+     *
+     * @return array<string, mixed>
+     */
+    public function toArray(object $notifiable): array
+    {
+        return [
+            'kind' => 'message',
+            'title' => $this->inboxTitle(),
+            'text' => (string) preg_replace('/^Dabo Hair : /u', '', $this->toSms($notifiable)->text),
+            'url' => $this->inboxPath(),
+        ];
+    }
+
+    /** Titre court dans la liste des notifications */
+    protected function inboxTitle(): string
+    {
+        return 'Message de Dabo Hair';
+    }
+
+    /** Page du site ouverte depuis la notification (null = aucune) */
+    protected function inboxPath(): ?string
+    {
+        return null;
+    }
+
+    protected static function hasAccount(object $notifiable): bool
+    {
+        return $notifiable instanceof Customer && $notifiable->user_id !== null;
     }
 
     abstract public function toSms(object $notifiable): SmsMessage;
@@ -54,7 +89,8 @@ abstract class CustomerNotification extends Notification implements ShouldQueue
 
         return (new MailMessage)->subject($subject)
             ->greeting('Bonjour '.($notifiable->first_name ?: '').',')
-            ->salutation("À bientôt,\nL’équipe Dabo Hair".($phone ? "\n{$phone}" : ''));
+            // Deux espaces avant le retour à la ligne : saut de ligne en Markdown (sinon tout tient sur une ligne)
+            ->salutation("À bientôt,  \nL’équipe Dabo Hair".($phone ? "  \n{$phone}" : ''));
     }
 
     protected static function when(CarbonInterface $date): string

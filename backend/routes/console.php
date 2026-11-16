@@ -15,6 +15,8 @@ Schedule::command('analytics:snapshot')->dailyAt('00:30')->withoutOverlapping();
 // Étape 13 : messages aux clientes (Dakar est à l'heure UTC, comme le serveur)
 Schedule::command('bookings:remind')->dailyAt('17:00')->withoutOverlapping();
 Schedule::command('surveys:send')->dailyAt('10:00')->withoutOverlapping();
+// Rappels de resserrage : le matin, quand les clientes consultent leur téléphone (espace client + e-mail)
+Schedule::command('bookings:resserrage')->dailyAt('09:30')->withoutOverlapping();
 
 // File d'attente des SMS et e-mails, traitée chaque minute par le planificateur déjà appelé par cron.
 // --stop-when-empty : le processus s'arrête dès que la file est vide (pas de service à surveiller,

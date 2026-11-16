@@ -366,6 +366,19 @@ Mêmes fenêtres que le Test 4 : Docker allumé, `php artisan serve` et `npm run
 | Fabrication → liste des produits | Le produit revendu n'y figure pas (son stock entre par les réceptions) |
 | Se connecter en caissier | Pas de bouton « Nouveau produit », pas de formulaire de réception (lecture seule) |
 
+**Rappels de resserrage** (après `php artisan migrate:fresh --seed` ; Mailpit lancé par `docker compose up -d`) :
+
+| À essayer | Résultat attendu |
+|---|---|
+| Se connecter avec `mariama@client.test` / `demo-dabo-2026` | Cloche avec **1** dans l'en-tête ; « Notifications 1 » dans le menu du compte |
+| Vue d'ensemble | Carte « Votre resserrage approche » en tête : twist simple fait il y a 30 jours |
+| « Réserver mon resserrage » | La réservation s'ouvre avec le « Resserrage twist simple » déjà choisi |
+| Rubrique Notifications | La pastille disparaît ; « Me le rappeler dans 1 semaine » retire le rappel |
+| http://localhost:8025 (Mailpit) | E-mail « Mariama, votre resserrage approche » : en-tête noir avec le logo, bouton doré, lien de désinscription |
+| Cliquer « Ne plus recevoir les rappels » dans l'e-mail, puis confirmer | « C’est noté » |
+| Se déconnecter, réserver un twist sans compte | Après l'envoi : encadré « Ne ratez pas votre resserrage » ; « Créer mon compte » ouvre l'inscription déjà remplie |
+| Réserver un brushing sans compte | Pas d'encadré (pas de rappel pour un brushing) |
+
 **Exercice : afficher la promotion.** Dans `frontend/src/content/home.ts`, passez la première publicité à `visible: true` et enregistrez. Attendu : elle passe en premier avec **10 000 F CFA**, ~~15 000 F~~ barré et « −5 000 F » ; les flèches et les points apparaissent (2 publicités). Écrivez `remaining: 12` : « Plus que 12 gammes sur 20 » s'affiche ; avec `remaining: 0`, la publicité disparaît. **Remettez ensuite `visible: false` et `remaining: null`**, puis vérifiez avec `git status` que `home.ts` n'est plus modifié (sinon `git restore frontend/src/content/home.ts`).
 
 **Tests automatiques de ces écrans** (dans `frontend/`) : `npx vitest run src/features/home src/features/admin` → 21 tests verts (publicités, bannière, nouveau produit, calcul des réceptions).

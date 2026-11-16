@@ -21,4 +21,14 @@ class BookingReceived extends BookingNotification
             ->action('Voir mes rendez-vous', self::link('compte/reservations'))
             ->line("Référence : {$this->reference}");
     }
+
+    protected function inboxTitle(): string
+    {
+        return 'Demande de rendez-vous reçue';
+    }
+
+    protected function inboxPath(): ?string
+    {
+        return '/compte/reservations';
+    }
 }

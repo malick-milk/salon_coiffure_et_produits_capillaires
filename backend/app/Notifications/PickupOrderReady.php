@@ -42,4 +42,14 @@ class PickupOrderReady extends CustomerNotification
             ->line('Montant à régler sur place (espèces ou Wave) : **'.number_format($this->total, 0, ',', ' ').' F CFA**.')
             ->action('Voir ma commande', self::link('compte/commandes'));
     }
+
+    protected function inboxTitle(): string
+    {
+        return 'Commande prête';
+    }
+
+    protected function inboxPath(): ?string
+    {
+        return '/compte/commandes';
+    }
 }

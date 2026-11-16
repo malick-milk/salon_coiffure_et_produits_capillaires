@@ -23,4 +23,14 @@ class BookingReminder extends BookingNotification
             ->line('En cas d’empêchement, merci de nous prévenir : le créneau profitera à une autre cliente.')
             ->action('Voir mon rendez-vous', self::link('compte/reservations'));
     }
+
+    protected function inboxTitle(): string
+    {
+        return 'Rendez-vous demain';
+    }
+
+    protected function inboxPath(): ?string
+    {
+        return '/compte/reservations';
+    }
 }

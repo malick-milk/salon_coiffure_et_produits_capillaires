@@ -15,6 +15,22 @@ use Illuminate\Database\Seeder;
 class ReferenceDataSeeder extends Seeder
 {
     /** La coiffeuse du salon (une seule pour l'instant) */
+    /**
+     * RAPPELS DE RESSERRAGE (16 novembre 2026) : twist => [resserrage proposé, délai en JOURS après le twist].
+     * À REMPLIR avec les délais conseillés par Awa (par exemple 28 pour 4 semaines), puis, dans backend/ :
+     *   php artisan db:seed --class=ReferenceDataSeeder
+     * null = pas de rappel pour ce twist.
+     */
+    public const RESSERRAGE = [
+        'twist-simple' => ['resserrage-twist', null],
+        'mini-twist' => ['resserrage-twist', null],
+        'soin-shampooing-twist' => ['resserrage-twist', null],
+        'soin-shampooing-bain-huile-twist' => ['resserrage-twist', null],
+        'micro-twist-court' => ['resserrage-micro-twist', null],
+        'micro-twist-mi-long' => ['resserrage-micro-twist', null],
+        'micro-twist-long' => ['resserrage-micro-twist', null],
+    ];
+
     public const STYLIST_NAME = 'Awa Dabo';
 
     public function run(): void
@@ -50,6 +66,13 @@ class ReferenceDataSeeder extends Seeder
                 'name' => $name, 'service_category_id' => $category->id, 'duration_minutes' => $duration,
                 'buffer_minutes' => 0, 'price' => $price, 'is_active' => $active, 'position' => $i, 'description' => $description,
             ]);
+        }
+
+        // Rappels de resserrage : quel resserrage pour quel twist, et après combien de JOURS (self::RESSERRAGE).
+        // Délai null = aucun rappel pour ce twist (pas de conseil inventé tant qu'Awa ne l'a pas donné).
+        $resserrage = Service::whereIn('slug', ['resserrage-twist', 'resserrage-micro-twist'])->pluck('id', 'slug');
+        foreach (self::RESSERRAGE as $twist => [$target, $days]) {
+            Service::where('slug', $twist)->update(['resserrage_service_id' => $resserrage[$target], 'resserrage_after_days' => $days]);
         }
 
         // Une seule coiffeuse pour l'instant ; d'autres pourront être ajoutées au recrutement.

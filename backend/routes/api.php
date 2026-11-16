@@ -16,6 +16,7 @@ use App\Http\Controllers\Api\V1\BookingController;
 use App\Http\Controllers\Api\V1\CatalogController;
 use App\Http\Controllers\Api\V1\InvoiceController;
 use App\Http\Controllers\Api\V1\Me\AccountController;
+use App\Http\Controllers\Api\V1\Me\NotificationController;
 use App\Http\Controllers\Api\V1\OrderController;
 use App\Http\Controllers\Api\V1\PickupPointController;
 use App\Http\Controllers\Api\V1\ReviewController;
@@ -55,6 +56,10 @@ Route::prefix('v1')->middleware('throttle:api')->group(function () {
     Route::get('handover/{token}', [PickupPointController::class, 'handover'])->where('token', '[A-Za-z0-9]{40}');
     Route::post('handover/{token}', [PickupPointController::class, 'confirmHandover'])->where('token', '[A-Za-z0-9]{40}')->middleware('throttle:checkout');
 
+    // Désinscription des rappels de resserrage : lien SIGNÉ reçu par e-mail (impossible de viser une autre cliente)
+    Route::post('reminders/unsubscribe/{customer}', [NotificationController::class, 'unsubscribe'])
+        ->middleware(['signed:relative', 'throttle:checkout'])->name('reminders.unsubscribe');
+
     // Authentification (la limite des 5 essais est gérée dans le contrôleur, par email + IP)
     Route::post('auth/login', [AuthController::class, 'login']);
     Route::post('auth/register', [AuthController::class, 'register'])->middleware('throttle:checkout');
@@ -69,6 +74,10 @@ Route::prefix('v1')->middleware('throttle:api')->group(function () {
         Route::get('me/bookings', [AccountController::class, 'bookings']);
         Route::post('me/bookings/{reference}/cancel', [AccountController::class, 'cancelBooking']);
         Route::patch('me/profile', [AccountController::class, 'updateProfile']);
+        // Rappels de resserrage et messages du salon : rubrique « Notifications » du profil
+        Route::get('me/notifications', [NotificationController::class, 'index']);
+        Route::post('me/notifications/read', [NotificationController::class, 'markAllRead']);
+        Route::post('me/notifications/{id}/snooze', [NotificationController::class, 'snooze'])->whereUuid('id');
         Route::get('me/orders/{reference}/invoice', [InvoiceController::class, 'forCustomer']);
 
         /*
