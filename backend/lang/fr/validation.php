@@ -50,6 +50,12 @@ return [
     'required_if' => ':Attribute est obligatoire quand :other vaut :value.',
     'string' => ':Attribute doit être un texte.',
     'unique' => ':Attribute est déjà utilisé.',
+    'url' => ':Attribute doit être une adresse web valide.',
+    // Photos envoyées depuis l'ERP
+    'file' => ':Attribute doit être un fichier.',
+    'image' => ':Attribute doit être une image.',
+    'mimes' => ':Attribute doit être un fichier de type : :values.',
+    'dimensions' => 'Les dimensions de :attribute ne sont pas valides.',
     'password' => [
         'letters' => ':Attribute doit contenir au moins une lettre.',
         'numbers' => ':Attribute doit contenir au moins un chiffre.',
@@ -57,6 +63,11 @@ return [
     ],
 
     'attributes' => [
+        // Nouveau produit et réceptions d'achat (16 novembre 2026)
+        'origin' => 'l’origine du produit', 'name' => 'le nom', 'brand_id' => 'la marque', 'category_id' => 'la catégorie',
+        'unit_size' => 'la contenance', 'image' => 'la photo', 'supplier_name' => 'le fournisseur',
+        'supplier_invoice' => 'le numéro de facture du fournisseur', 'received_on' => 'la date de réception',
+        'unit_price' => 'le prix d’achat unitaire', 'extra_costs' => 'les frais du lot',
         // Étape 14 : points de retrait partenaires
         'code' => 'le code de retrait',
         'commission_rate' => 'le taux de commission',

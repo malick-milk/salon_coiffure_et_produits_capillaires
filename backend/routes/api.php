@@ -7,6 +7,8 @@ use App\Http\Controllers\Api\V1\Admin\CustomerAdminController;
 use App\Http\Controllers\Api\V1\Admin\DashboardController;
 use App\Http\Controllers\Api\V1\Admin\OrderAdminController;
 use App\Http\Controllers\Api\V1\Admin\PickupPointAdminController;
+use App\Http\Controllers\Api\V1\Admin\ProductAdminController;
+use App\Http\Controllers\Api\V1\Admin\PurchaseReceiptAdminController;
 use App\Http\Controllers\Api\V1\Admin\SurveyAdminController;
 use App\Http\Controllers\Api\V1\Admin\TeamAdminController;
 use App\Http\Controllers\Api\V1\AuthController;
@@ -95,6 +97,20 @@ Route::prefix('v1')->middleware('throttle:api')->group(function () {
             Route::post('products/{product}/stock-adjustments', [CatalogAdminController::class, 'adjustStock'])->middleware('permission:stock.adjust');
             Route::get('production-batches', [CatalogAdminController::class, 'batches'])->middleware('permission:stock.view');
             Route::post('production-batches', [CatalogAdminController::class, 'storeBatch'])->middleware('permission:production.manage');
+
+            // Ajouter un produit depuis l'ERP : fiche, marque, photos (16 novembre 2026)
+            Route::middleware('permission:products.manage')->group(function () {
+                Route::post('products', [ProductAdminController::class, 'store']);
+                Route::get('brands', [ProductAdminController::class, 'brands']);
+                Route::post('brands', [ProductAdminController::class, 'storeBrand']);
+                Route::get('categories', [ProductAdminController::class, 'categories']);
+                Route::post('products/{product}/images', [ProductAdminController::class, 'storeImage'])->middleware('throttle:30,1');
+                Route::delete('products/{product}/images/{image}', [ProductAdminController::class, 'destroyImage'])->scopeBindings();
+                Route::patch('products/{product}/images/{image}/primary', [ProductAdminController::class, 'primaryImage'])->scopeBindings();
+            });
+            // Réceptions d'achat des produits revendus
+            Route::get('purchase-receipts', [PurchaseReceiptAdminController::class, 'index'])->middleware('permission:stock.view');
+            Route::post('purchase-receipts', [PurchaseReceiptAdminController::class, 'store'])->middleware('permission:purchases.manage');
 
             Route::get('customers', [CustomerAdminController::class, 'index'])->middleware('permission:customers.view');
 

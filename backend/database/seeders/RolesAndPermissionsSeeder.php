@@ -16,6 +16,7 @@ class RolesAndPermissionsSeeder extends Seeder
         'invoices.view', 'invoices.manage', 'analytics.view', 'users.manage', 'roles.manage', 'settings.manage', 'audit.view',
         'reviews.manage', // étape 13 : avis clients et satisfaction
         'partners.manage', // étape 14 : points de retrait partenaires
+        'purchases.manage', // réceptions d'achat des produits revendus (16 novembre 2026)
     ];
 
     public function run(): void
@@ -31,7 +32,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'manager' => array_values(array_diff(self::PERMISSIONS, ['analytics.view', 'users.manage', 'roles.manage', 'audit.view'])),
             'cashier' => ['products.view', 'stock.view', 'orders.view', 'orders.manage', 'customers.view', 'invoices.view'],
             'stylist' => ['bookings.view'],
-            'stock_keeper' => ['products.view', 'stock.view', 'stock.adjust', 'production.manage'],
+            'stock_keeper' => ['products.view', 'stock.view', 'stock.adjust', 'production.manage', 'purchases.manage'],
             'customer' => [],
         ];
         foreach ($roles as $role => $permissions) {

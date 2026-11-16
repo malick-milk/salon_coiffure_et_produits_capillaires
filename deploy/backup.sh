@@ -6,6 +6,8 @@
 # 2. gzip : environ 10 fois plus petit
 # 3. openssl AES-256 : illisible sans la clé /etc/dabohair/backup.key (à conserver AUSSI hors du serveur)
 # 4. 14 jours conservés sur le serveur ; copie hors du serveur si BACKUP_REMOTE est défini (rclone)
+# 5. Photos des produits envoyées depuis l'ERP (shared/storage/app/public) : elles n'existent QUE sur le serveur
+#    (pas sur GitHub), elles sont donc sauvegardées aussi. Archive non chiffrée : ces photos sont publiques.
 set -euo pipefail
 APP_DIR="${APP_DIR:-/var/www/dabohair}"
 BACKUP_DIR="${BACKUP_DIR:-/var/backups/dabohair}"
@@ -28,7 +30,16 @@ mysqldump --defaults-extra-file="$CNF" --single-transaction --routines --no-tabl
 [ -s "$FILE" ] || { echo "Sauvegarde vide : échec."; rm -f "$FILE"; exit 1; }
 echo "$(date -u '+%F %T') sauvegarde : $FILE ($(du -h "$FILE" | cut -f1))"
 
-find "$BACKUP_DIR" -name '*.sql.gz.enc' -mtime +14 -delete
+PHOTOS_SRC="$APP_DIR/shared/storage/app/public"
+PHOTOS=""
+if [ -d "$PHOTOS_SRC" ] && [ -n "$(ls -A "$PHOTOS_SRC" 2>/dev/null)" ]; then
+  PHOTOS="$BACKUP_DIR/photos-$(date -u +%Y%m%d-%H%M%S).tar.gz"
+  tar -czf "$PHOTOS" -C "$PHOTOS_SRC" .
+  echo "$(date -u '+%F %T') photos : $PHOTOS ($(du -h "$PHOTOS" | cut -f1))"
+fi
+
+find "$BACKUP_DIR" \( -name '*.sql.gz.enc' -o -name 'photos-*.tar.gz' \) -mtime +14 -delete
 if [ -n "${BACKUP_REMOTE:-}" ]; then
   rclone copy "$FILE" "$BACKUP_REMOTE" && echo "   copie hors du serveur : $BACKUP_REMOTE"
+  if [ -n "$PHOTOS" ]; then rclone copy "$PHOTOS" "$BACKUP_REMOTE"; fi
 fi

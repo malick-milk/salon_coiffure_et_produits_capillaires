@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\ProductOrigin;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -21,7 +22,7 @@ class Product extends Model
 
     // stock_quantity est volontairement ABSENT : impossible de le modifier par « mass assignment »
     protected $fillable = [
-        'category_id', 'brand_id', 'variant_of_id', 'sku', 'name', 'slug', 'short_description', 'description',
+        'category_id', 'brand_id', 'variant_of_id', 'origin', 'sku', 'name', 'slug', 'short_description', 'description',
         'unit_size', 'price', 'compare_at_price', 'cost_price', 'low_stock_threshold', 'is_active', 'is_featured',
         'meta_title', 'meta_description',
     ];
@@ -36,6 +37,7 @@ class Product extends Model
             'low_stock_threshold' => 'integer',
             'is_active' => 'boolean',
             'is_featured' => 'boolean',
+            'origin' => ProductOrigin::class,
         ];
     }
 
@@ -53,6 +55,11 @@ class Product extends Model
     public function hairTypes(): BelongsToMany
     {
         return $this->belongsToMany(HairType::class, 'product_hair_type');
+    }
+
+    public function purchaseReceipts(): HasMany
+    {
+        return $this->hasMany(PurchaseReceipt::class);
     }
 
     public function images(): HasMany

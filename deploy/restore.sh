@@ -35,3 +35,8 @@ openssl enc -d -aes-256-cbc -pbkdf2 -iter 200000 -pass "file:$KEY" -in "$FILE" |
 echo "Restauré dans « $TARGET » depuis $(basename "$FILE"). Contrôle :"
 "${MYSQL[@]}" -N "$TARGET" -e "SELECT CONCAT('   ', (SELECT COUNT(*) FROM products), ' produits, ', (SELECT COUNT(*) FROM orders), ' commandes, ', (SELECT COUNT(*) FROM bookings), ' rendez-vous, ', (SELECT COUNT(*) FROM users), ' utilisateurs')"
 [ "$PROD" -eq 1 ] || echo "   Base d'essai : supprimez-la après vérification ->  sudo mysql -e 'DROP DATABASE $TARGET'"
+LAST_PHOTOS="$(ls -1t "$BACKUP_DIR"/photos-*.tar.gz 2>/dev/null | head -n 1 || true)"
+if [ -n "$LAST_PHOTOS" ]; then
+  echo "   Photos des produits (ERP) : dernière archive $(basename "$LAST_PHOTOS"). Pour les remettre en place :"
+  echo "   tar -xzf $LAST_PHOTOS -C $APP_DIR/shared/storage/app/public"
+fi

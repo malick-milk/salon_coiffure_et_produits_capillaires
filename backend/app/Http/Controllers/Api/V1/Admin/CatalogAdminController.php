@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1\Admin;
 
 use App\Actions\Admin\RecordProductionBatchAction;
 use App\Enums\ProductionCostCategory;
+use App\Enums\ProductOrigin;
 use App\Enums\StockMovementType;
 use App\Http\Controllers\Controller;
 use App\Models\Product;
@@ -20,9 +21,9 @@ class CatalogAdminController extends Controller
 {
     public function products(): JsonResponse
     {
-        $products = Product::query()->with(['category', 'brand'])->orderBy('name')->orderBy('unit_size')->get();
+        $products = Product::query()->with(['category', 'brand', 'images'])->orderBy('name')->orderBy('unit_size')->get();
 
-        return response()->json(['data' => $products->map(fn (Product $p) => $this->productRow($p))]);
+        return response()->json(['data' => $products->map(fn (Product $p) => self::row($p))]);
     }
 
     public function updateProduct(Request $request, Product $product): JsonResponse
@@ -43,9 +44,13 @@ class CatalogAdminController extends Controller
         if ($compareAt !== null && $compareAt <= $price) {
             throw ValidationException::withMessages(['compare_at_price' => "Le prix barré doit être supérieur au prix de vente ({$price} F)."]);
         }
+        // Publier (brouillon -> en vente) exige une photo : une fiche sans photo ne vend pas
+        if (($data['is_active'] ?? false) && ! $product->is_active && ! $product->images()->exists()) {
+            throw ValidationException::withMessages(['is_active' => 'Ajoutez au moins une photo avant de publier ce produit.']);
+        }
         $product->update($data); // tracé dans le journal d'audit (valeurs avant / après)
 
-        return response()->json(['data' => $this->productRow($product->fresh(['category', 'brand']))]);
+        return response()->json(['data' => self::row($product->fresh(['category', 'brand', 'images']))]);
     }
 
     public function movements(Product $product): JsonResponse
@@ -79,7 +84,7 @@ class CatalogAdminController extends Controller
             ->withProperties(['type' => $type->value, 'quantity' => $quantity, 'stock_after' => $movement->stock_after, 'reason' => $data['reason']])
             ->event('adjusted')->log('stock adjusted');
 
-        return response()->json(['data' => $this->productRow($product->fresh(['category', 'brand']))], 201);
+        return response()->json(['data' => self::row($product->fresh(['category', 'brand', 'images']))], 201);
     }
 
     public function batches(): JsonResponse
@@ -111,15 +116,20 @@ class CatalogAdminController extends Controller
             'costs.*.label' => ['required', 'string', 'max:150'],
             'costs.*.amount' => ['required', 'integer', 'min:1', 'max:100000000'],
         ], ['batch_number.unique' => 'Ce numéro de lot existe déjà.']);
+        if (Product::query()->find($data['product_id'])?->origin === ProductOrigin::Resold) {
+            throw ValidationException::withMessages(['product_id' => "Ce produit est acheté et revendu : son stock entre par une réception d'achat."]);
+        }
         $batch = $record->execute($data, $request->user());
 
         return response()->json(['data' => ['id' => $batch->id, 'batch_number' => $batch->batch_number, 'unit_cost' => $batch->unit_cost !== null ? (float) $batch->unit_cost : null]], 201);
     }
 
-    private function productRow(Product $p): array
+    /** Ligne « produit » de l'ERP (coût de revient visible : personnel autorisé uniquement) */
+    public static function row(Product $p): array
     {
         return [
-            'id' => $p->id, 'sku' => $p->sku, 'name' => $p->name, 'unit_size' => $p->unit_size, 'slug' => $p->slug,
+            'id' => $p->id, 'sku' => $p->sku, 'origin' => $p->origin->value, 'brand_id' => $p->brand_id, 'category_id' => $p->category_id,
+            'images' => $p->images->map(fn ($i) => ['id' => $i->id, 'url' => $i->path, 'alt' => $i->alt_text, 'is_primary' => $i->is_primary])->values(), 'name' => $p->name, 'unit_size' => $p->unit_size, 'slug' => $p->slug,
             'category' => $p->category->name, 'brand' => $p->brand?->name, 'price' => $p->price, 'compare_at_price' => $p->compare_at_price,
             'cost_price' => $p->cost_price !== null ? (float) $p->cost_price : null,
             'margin_rate' => $p->cost_price !== null && $p->price > 0 ? round(100 * ($p->price - (float) $p->cost_price) / $p->price, 1) : null,

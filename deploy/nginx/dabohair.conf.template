@@ -21,7 +21,7 @@ server {
     index index.html;
     charset utf-8;
     server_tokens off;            # ne pas annoncer la version de Nginx
-    client_max_body_size 2m;      # aucune requête légitime n'est plus grosse (pas de téléversement)
+    client_max_body_size 2m;      # le plus gros envoi légitime : une photo de produit, déjà réduite par le navigateur (< 2 Mo)
 
     # ---------- En-têtes de sécurité du SITE (ceux de l'API sont posés par Laravel, middleware SecurityHeaders) ----------
     # CSP : le navigateur n'exécute que les scripts de NOTRE domaine. 'unsafe-inline' pour les STYLES seulement,
@@ -57,6 +57,16 @@ server {
         fastcgi_hide_header X-Powered-By;
         fastcgi_read_timeout 60s;
         internal;                                     # jamais appelable directement depuis l'extérieur
+    }
+
+    # ---------- Photos des produits envoyées depuis l'ERP ----------
+    # Dossier « shared » : il survit aux déploiements. ^~ : prioritaire sur les autres règles.
+    # Aucun PHP n'est exécuté ici : seules des images WebP ré-encodées par le serveur y sont écrites.
+    location ^~ /storage/produits/ {
+        alias __APP_DIR__/shared/storage/app/public/produits/;
+        expires 30d;
+        add_header Cache-Control "public" always;
+        add_header X-Content-Type-Options "nosniff" always;
     }
 
     # ---------- Fichiers du site React ----------
