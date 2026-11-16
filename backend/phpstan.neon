@@ -1,6 +1,7 @@
+# Analyse statique (Larastan) : lit le code sans l'exécuter. Niveau 5 sur 10 ; aucune erreur tolérée
+# (les 285 erreurs de départ ont été corrigées le 16 novembre 2026 : plus de liste d'exceptions).
 includes:
     - vendor/larastan/larastan/extension.neon
-    - phpstan-baseline.neon
 
 parameters:
     paths:

@@ -91,9 +91,9 @@ jobs:
         run: vendor/bin/pint --test
       - name: Analyse statique (Larastan, niveau 5)
         # Lit le code SANS l'exécuter : propriété inexistante, valeur peut-être nulle, mauvais type…
-        # Les erreurs déjà connues sont dans phpstan-baseline.neon : seule une NOUVELLE erreur fait échouer.
+        # Aucune erreur tolérée : une erreur ajoutée au code fait échouer la vérification.
         run: vendor/bin/phpstan analyse --memory-limit=1G --no-progress --error-format=raw
-      - name: Liste à jour des erreurs restantes (seulement si l'analyse échoue)
+      - name: Liste complète des erreurs (seulement si l'analyse échoue)
         if: failure()
         run: vendor/bin/phpstan analyse --memory-limit=1G --no-progress --generate-baseline=phpstan-baseline-a-jour.neon --allow-empty-baseline || true; cat phpstan-baseline-a-jour.neon
       - name: Tests PHPUnit, couverture minimale 90 %
