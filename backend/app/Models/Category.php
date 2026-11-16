@@ -14,7 +14,7 @@ use Illuminate\Support\Carbon;
  * @property bool $is_active
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
- * @property-read int $product_count calculé par la requête (withCount, withSum ou AVG … AS)
+ * @property int $product_count calculé par la requête (withCount), puis additionné aux catégories parentes
  */
 class Category extends Model
 {
