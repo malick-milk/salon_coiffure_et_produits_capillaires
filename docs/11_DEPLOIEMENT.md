@@ -170,6 +170,8 @@ sudo cat /etc/dabohair/backup.key
 
 Copiez-la dans un gestionnaire de mots de passe (Bitwarden, par exemple), ou imprimez-la et rangez-la. Ne la laissez jamais **seulement** sur le serveur.
 
+**Les photos des produits** envoyées depuis l'ERP sont aussi sauvegardées chaque nuit, dans une archive `photos-AAAAMMJJ-hhmmss.tar.gz` à côté de la base (non chiffrée : ces photos sont publiques). Elles n'existent pas sur GitHub : sans cette archive, un disque perdu les effacerait. `restore.sh` affiche la commande pour les remettre en place.
+
 ### 3.6 Vérifier
 
 Ouvrez **https://dabohair.com** : le cadenas doit apparaître. Connectez-vous à l'ERP, puis lancez le bilan de santé :

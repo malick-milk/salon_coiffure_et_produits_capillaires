@@ -92,6 +92,43 @@ C'est ici que vous saisirez le coût du **spray anti-chute** et les lots de l'**
 - une perte est **toujours une sortie**, même si l'on tape « 2 » ;
 - chaque opération est enregistrée dans le journal d'audit.
 
+### 5 bis. Ajouter un produit, ses photos, et les réceptions d'achat (16 novembre 2026)
+
+Maquette validée le 16 novembre (canevas, écrans « Nouveau produit » et « Réception d'achat »).
+
+**Deux origines de produit** (`products.origin`) :
+
+| Origine | Exemple | Le stock entre par | Coût de revient |
+|---|---|---|---|
+| `made` : fabriqué par Dabo Hair | Leave In, sérums | **Fabrication** (lot + postes de coût) | coût du dernier lot |
+| `resold` : acheté et revendu | Virgin Hair Fertilizer | **Réceptions d'achat** (fournisseur, prix d'achat, frais) | **moyenne pondérée** du stock |
+
+Les deux chemins sont étanches : l'API refuse un lot de fabrication pour un produit revendu, et une réception d'achat pour un produit fabriqué.
+
+**Créer un produit** (`POST admin/products`, permission `products.manage`) :
+- il naît en **brouillon** (`is_active = false`) : invisible sur le site ;
+- la **référence** est créée automatiquement : marque (`DAB` pour la maison, sinon les initiales : `VHF`), 3 lettres du nom, numéro libre suivant → `VHF-HUI-001` ;
+- l'**adresse** de la fiche aussi : `huile-de-croissance-120-ml` (suffixe `-2` si elle existe déjà) ;
+- un doublon (même marque, même nom, même contenance) est refusé ;
+- une marque absente se crée depuis le formulaire (« + Nouvelle marque… », `POST admin/brands`).
+
+**Publier** (cocher « En vente ») exige **au moins une photo** : une fiche sans photo ne vend pas. Un produit en vente garde toujours au moins une photo.
+
+**Les photos** (`POST admin/products/{id}/images`, 4 au plus) suivent ce chemin :
+1. **Le navigateur** réduit la photo à 2 000 px et l'envoie en JPEG (`frontend/src/lib/resizeImage.ts`). Une photo de téléphone de 3 à 8 Mo devient 300 à 800 Ko : l'envoi est rapide, même en 3G. La limite du serveur reste à **2 Mo** (décidée à l'étape 10).
+2. **Le serveur** (`app/Services/Catalog/ProductImageService.php`, extension GD) la redresse (photo prise en portrait), la recadre en **carré 1 200 px** et la **ré-encode en WebP**. Seuls les pixels sont recopiés : un fichier piégé perd son contenu caché, et la position GPS du téléphone (EXIF) disparaît.
+3. Le fichier va dans `storage/app/public/produits/`, servi sous `/storage/produits/…`. En production, ce dossier est dans `shared/` : il survit aux déploiements, et il est **inclus dans la sauvegarde de chaque nuit** (`deploy/backup.sh`), puisque ces photos n'existent pas sur GitHub.
+
+**Réception d'achat** (`POST admin/purchase-receipts`, permission `purchases.manage` : propriétaire, gérant, magasinier) :
+- coût de la réception par unité = (quantité × prix d'achat + frais du lot) ÷ quantité ;
+- nouveau coût de revient = **moyenne pondérée** : 10 unités à 2 000 F + 20 unités à 2 600 F = 72 000 F ÷ 30 = **2 400 F** ;
+- tout se fait dans une **transaction avec verrou** sur le produit : une vente simultanée ne fausse pas la moyenne ;
+- l'entrée passe par le grand livre (mouvement `purchase`) et le journal d'audit.
+
+L'écran affiche le calcul **en direct** avant d'enregistrer (`frontend/src/features/admin/purchaseMath.ts`, même formule que le serveur) et prévient si le produit serait vendu à perte.
+
+> **Pourquoi la moyenne pondérée et pas le dernier prix ?** Si le fournisseur augmente son prix, les 10 premières unités ont quand même coûté 2 000 F. Avec le dernier prix (2 600 F), la marge des Analyses serait sous-estimée tant que ces unités ne sont pas vendues.
+
 ## 6. Le journal d'audit (RG-SEC-01)
 
 `spatie/laravel-activitylog` enregistre automatiquement, avec l'**auteur**, la **date** et les **valeurs avant et après** :

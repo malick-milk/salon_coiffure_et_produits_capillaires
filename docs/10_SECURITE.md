@@ -209,3 +209,16 @@ La meilleure pratique (moindre privilège) consiste à utiliser **deux utilisate
 - `dabohair_migrations`, pour `deploy.sh` seulement : modifier la structure des tables.
 
 À faire avec l'étape de mise en ligne, en même temps que la création du serveur.
+
+## 8. Envoi de photos depuis l'ERP (16 novembre 2026)
+
+Le site accepte désormais des fichiers : c'est une porte d'entrée classique pour une attaque (un « script » déguisé en photo). Les protections :
+
+| Risque | Protection | Preuve |
+|---|---|---|
+| Fichier qui n'est pas une image (script PHP renommé) | Type vérifié (`mimes:jpg,jpeg,png,webp`) **et** relecture par GD : un fichier illisible comme image est refusé | `ProductCreationTest` (fichier `.php` refusé) |
+| Image piégée (code caché dans les métadonnées) | **Ré-encodage** en WebP : seuls les pixels sont recopiés, tout le reste est perdu | Le fichier enregistré est toujours un WebP 1200 × 1200 |
+| Position GPS du téléphone publiée avec la photo | Les données EXIF disparaissent au ré-encodage | idem |
+| Exécution d'un fichier envoyé | Nom de fichier choisi par le serveur (`slug-aléatoire.webp`) ; Nginx sert ce dossier comme de simples fichiers, sans PHP | `deploy/nginx/dabohair.conf.template` |
+| Saturation du disque ou du serveur | 2 Mo par envoi (Nginx et PHP), 4 photos par produit, 30 envois par minute | Règles de validation et `throttle:30,1` |
+| N'importe qui envoie des photos | Route réservée au personnel ayant `products.manage` | `ProductCreationTest` (caissier : 403) |

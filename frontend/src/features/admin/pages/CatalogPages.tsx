@@ -1,6 +1,7 @@
 /** Produits et stock, fabrication (EF-COM-01 à 05). Le coût de revient est visible ici (personnel autorisé). */
-import { Minus, Plus } from 'lucide-react'
-import { useState, type FormEvent } from 'react'
+import { ImagePlus, Minus, Plus, Star, Trash2 } from 'lucide-react'
+import { useRef, useState, type FormEvent } from 'react'
+import { Link, useLocation } from 'react-router'
 import { Seo } from '@/components/common/Seo'
 import { QueryError } from '@/components/common/States'
 import { Badge } from '@/components/ui/badge'
@@ -8,9 +9,10 @@ import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useCan } from '@/features/auth/permissions'
 import { formatPrice } from '@/lib/format'
+import { resizeImage } from '@/lib/resizeImage'
 import { apiErrorMessage } from '@/lib/http'
 import type { AdminProduct, CostCategory } from '@/types/admin'
-import { type NewBatch, useAdjustStock, useAdminProducts, useBatches, useCreateBatch, useStockMovements, useUpdateProduct } from '../api'
+import { type NewBatch, useAdjustStock, useAdminProducts, useBatches, useCreateBatch, useDeleteProductImage, useMakePrimaryImage, useStockMovements, useUpdateProduct, useUploadProductImage } from '../api'
 import { AdminField, AdminInput, AdminSelect, Card, dateTime, Feedback, PageHeader, Table } from '../components/ui'
 import { firstError } from './OrdersPages'
 
@@ -26,19 +28,33 @@ export function ProductsPage() {
   const canManage = useCan('products.manage')
   const canAdjust = useCan('stock.adjust')
   const [selected, setSelected] = useState<AdminProduct | null>(null)
+  const [photosOf, setPhotosOf] = useState<number | null>(null)
+  const created = (useLocation().state as { created?: string; published?: boolean } | null)
 
   return (
     <>
       <Seo title="ERP — Produits et stock" />
-      <PageHeader title="Produits et stock" subtitle="Le stock ne se modifie jamais directement : chaque variation passe par le grand livre." />
+      <PageHeader
+        title="Produits et stock"
+        subtitle="Le stock ne se modifie jamais directement : chaque variation passe par le grand livre."
+        actions={canManage && <Button asChild variant="dark"><Link to="/admin/produits/nouveau"><Plus aria-hidden="true" /> Nouveau produit</Link></Button>}
+      />
+      {created?.created && (
+        <Feedback kind="success">
+          « {created.created} » est créé {created.published ? 'et en vente sur le site.' : 'en brouillon (invisible sur le site). Cochez « En vente » quand il est prêt.'}
+        </Feedback>
+      )}
       {update.isError && <Feedback kind="error">{firstError(update.error)}</Feedback>}
       <Card>
         {products.isError ? <QueryError message={apiErrorMessage(products.error)} onRetry={() => products.refetch()} />
           : products.isPending ? <Skeleton className="h-80 bg-[#e4e4e7]" /> : (
-            <Table head={['Produit', 'Prix de vente', 'Coût de revient', 'Taux de marge', 'Stock', 'En vente', '']} minWidth={900}>
+            <Table head={['Produit', 'Prix de vente', 'Coût de revient', 'Taux de marge', 'Stock', 'En vente', '']} minWidth={980}>
               {products.data.map((p) => (
                 <tr key={p.id} className={selected?.id === p.id ? 'bg-[#fffbeb]' : ''}>
-                  <td><strong>{label(p)}</strong><br /><span className="text-xs text-[#52525b]">{p.sku} · {p.category}</span></td>
+                  <td>
+                    <strong>{label(p)}</strong>{p.origin === 'resold' && <> <Badge tone="info">Revendu</Badge></>}{p.images.length === 0 && <> <Badge tone="warning">Sans photo</Badge></>}
+                    <br /><span className="text-xs text-[#52525b]">{p.sku} · {p.category}{p.brand ? ` · ${p.brand}` : ''}</span>
+                  </td>
                   <td>{canManage ? <PriceEditor product={p} onSave={(price) => update.mutate({ id: p.id, price })} /> : formatPrice(p.price)}</td>
                   <td className="whitespace-nowrap">{p.cost_price !== null ? `${p.cost_price.toLocaleString('fr-FR', { minimumFractionDigits: 2 })} F` : <span className="text-gold-text">à calculer</span>}</td>
                   <td>{p.margin_rate !== null ? `${p.margin_rate.toLocaleString('fr-FR')} %` : '—'}</td>
@@ -53,13 +69,19 @@ export function ProductsPage() {
                       {p.is_active ? 'Oui' : 'Non'}
                     </label>
                   </td>
-                  <td><Button variant="subtle" size="sm" onClick={() => setSelected(p)}>Stock</Button></td>
+                  <td className="whitespace-nowrap">
+                    <Button variant="subtle" size="sm" onClick={() => { setPhotosOf(null); setSelected(p) }}>Stock</Button>{' '}
+                    <Button variant="subtle" size="sm" onClick={() => { setSelected(null); setPhotosOf(p.id) }}>Photos ({p.images.length})</Button>
+                  </td>
                 </tr>
               ))}
             </Table>
           )}
       </Card>
       {selected && <StockPanel product={products.data?.find((p) => p.id === selected.id) ?? selected} canAdjust={canAdjust} onClose={() => setSelected(null)} />}
+      {photosOf !== null && products.data?.find((p) => p.id === photosOf) && (
+        <PhotosPanel product={products.data.find((p) => p.id === photosOf)!} canManage={canManage} onClose={() => setPhotosOf(null)} />
+      )}
     </>
   )
 }
@@ -126,6 +148,60 @@ function StockPanel({ product, canAdjust, onClose }: { product: AdminProduct; ca
   )
 }
 
+/** Photos d'un produit existant : ajouter (réduite par le navigateur), choisir la principale, supprimer */
+function PhotosPanel({ product, canManage, onClose }: { product: AdminProduct; canManage: boolean; onClose: () => void }) {
+  const upload = useUploadProductImage()
+  const remove = useDeleteProductImage()
+  const primary = useMakePrimaryImage()
+  const input = useRef<HTMLInputElement>(null)
+  const [busy, setBusy] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const room = 4 - product.images.length
+
+  const add = async (files: FileList | null) => {
+    if (!files?.length) return
+    setError(null)
+    setBusy(true)
+    try {
+      for (const file of Array.from(files).slice(0, room)) {
+        await upload.mutateAsync({ productId: product.id, image: await resizeImage(file) })
+      }
+    } catch (e) {
+      setError(e instanceof Error && !('isAxiosError' in e) ? e.message : firstError(e))
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  return (
+    <Card title={`Photos — ${label(product)}`} actions={<Button variant="subtle" size="sm" onClick={onClose}>Fermer</Button>}>
+      {(error || remove.isError || primary.isError) && <Feedback kind="error">{error ?? firstError(remove.error ?? primary.error)}</Feedback>}
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        {product.images.map((img, i) => (
+          <figure key={img.id} className="relative overflow-hidden rounded-xl border border-[#e4e4e7]">
+            <img src={img.url} alt={img.alt ?? `${label(product)}, vue ${i + 1}`} className="aspect-square w-full object-cover" />
+            {img.is_primary && <span className="absolute bottom-2 left-2 rounded-full bg-ink px-2 py-0.5 text-xs font-semibold text-gold">Principale</span>}
+            {canManage && (
+              <div className="absolute top-1.5 right-1.5 flex gap-1">
+                {!img.is_primary && <button type="button" disabled={primary.isPending} onClick={() => primary.mutate({ productId: product.id, imageId: img.id })} aria-label={`Faire de la photo ${i + 1} la photo principale`} className="grid size-9 place-items-center rounded-full bg-white/90 text-ink"><Star className="size-4" aria-hidden="true" /></button>}
+                <button type="button" disabled={remove.isPending} onClick={() => remove.mutate({ productId: product.id, imageId: img.id })} aria-label={`Supprimer la photo ${i + 1}`} className="grid size-9 place-items-center rounded-full bg-white/90 text-[#b91c1c]"><Trash2 className="size-4" aria-hidden="true" /></button>
+              </div>
+            )}
+          </figure>
+        ))}
+        {canManage && room > 0 && (
+          <button type="button" disabled={busy} onClick={() => input.current?.click()} className="flex aspect-square flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-[#a1a1aa] p-3 text-sm font-medium text-gold-text disabled:opacity-60">
+            <ImagePlus className="size-6" aria-hidden="true" />
+            {busy ? 'Envoi en cours…' : 'Ajouter des photos'}
+          </button>
+        )}
+      </div>
+      <input ref={input} type="file" accept="image/jpeg,image/png,image/webp" multiple className="sr-only" aria-label="Choisir des photos" onChange={(e) => { void add(e.target.files); e.target.value = '' }} />
+      <p className="text-sm text-[#52525b]">4 photos au plus. Un produit en vente garde toujours au moins une photo.</p>
+    </Card>
+  )
+}
+
 const COST_LABELS: Record<CostCategory, string> = { ingredients: 'Ingrédients', packaging: 'Flacons / emballage', labels: 'Étiquettes', labor: 'Main-d’œuvre', other: 'Autre' }
 const today = () => new Date().toISOString().slice(0, 10)
 
@@ -172,7 +248,7 @@ export function ProductionPage() {
               <AdminField label="Produit" htmlFor="b-product">
                 <AdminSelect id="b-product" value={form.product_id} onChange={set('product_id')} required>
                   <option value="">Choisir…</option>
-                  {products.data?.map((p) => <option key={p.id} value={p.id}>{label(p)}</option>)}
+                  {products.data?.filter((p) => p.origin === 'made').map((p) => <option key={p.id} value={p.id}>{label(p)}</option>)}
                 </AdminSelect>
               </AdminField>
               <AdminField label="Numéro de lot (imprimé sur le flacon)" htmlFor="b-number"><AdminInput id="b-number" value={form.batch_number} onChange={set('batch_number')} placeholder="LOT-2611-SAC" required maxLength={40} /></AdminField>

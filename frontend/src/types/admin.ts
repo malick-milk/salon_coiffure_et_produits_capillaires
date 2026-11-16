@@ -69,9 +69,22 @@ export interface AdminBooking {
   allowed_transitions: BookingStatus[]
 }
 
+export type ProductOrigin = 'made' | 'resold' // fabriqué par Dabo Hair, ou acheté et revendu
+
+export interface AdminProductImage {
+  id: number
+  url: string
+  alt: string | null
+  is_primary: boolean
+}
+
 export interface AdminProduct {
   id: number
   sku: string
+  origin: ProductOrigin
+  brand_id: number | null
+  category_id: number
+  images: AdminProductImage[]
   name: string
   unit_size: string | null
   slug: string
@@ -284,3 +297,55 @@ export interface StatementPreview {
     commission_gross: number; damaged_value: number; commission_net: number; amount_due: number; sold_qty: number; damaged_qty: number
   }
 }
+
+// ---------- Nouveau produit et réceptions d'achat (16 novembre 2026) ----------
+export interface BrandOption {
+  id: number
+  name: string
+  is_house_brand: boolean
+}
+
+export interface CategoryOption {
+  id: number
+  name: string
+}
+
+export interface NewProduct {
+  origin: ProductOrigin
+  name: string
+  brand_id: number
+  category_id: number
+  unit_size: string | null
+  price: number
+  low_stock_threshold: number
+  short_description: string | null
+  description: string | null
+}
+
+export interface PurchaseReceipt {
+  id: number
+  product_id: number
+  product_name: string
+  brand: string | null
+  supplier_name: string
+  supplier_invoice: string | null
+  received_on: string
+  quantity: number
+  unit_price: number
+  extra_costs: number
+  unit_cost: number
+  total: number
+  author: string | null
+  notes: string | null
+}
+
+export interface NewPurchaseReceipt {
+  product_id: number
+  supplier_name: string
+  supplier_invoice: string | null
+  received_on: string
+  quantity: number
+  unit_price: number
+  extra_costs: number | null
+}
+

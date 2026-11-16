@@ -59,6 +59,14 @@ php artisan migrate:fresh --seed
 
 La dernière commande crée les tables dans MySQL (port 3307) et y insère le catalogue Dabo Hair, les prestations, les horaires et les comptes de démonstration.
 
+Une seule fois, pour que les photos envoyées depuis l'ERP s'affichent :
+
+```bash
+php artisan storage:link
+```
+
+(Elle crée un raccourci `public/storage` vers `storage/app/public`, où le serveur range les photos. En production, c'est Nginx qui sert ce dossier : la commande n'y est pas nécessaire.)
+
 ### 1.4 Démarrer l'API
 
 ```bash

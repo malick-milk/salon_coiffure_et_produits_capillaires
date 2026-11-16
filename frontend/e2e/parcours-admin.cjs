@@ -39,9 +39,9 @@ async function login(page, email, password) {
   await page.getByText('CA du mois').waitFor()
   log(true, 'Tableau de bord : le chiffre d’affaires est visible (permission analytics.view)')
   log(await page.getByText(/Crème capillaire.*rupture de stock/).count() === 1, 'Alerte stock : Crème capillaire en rupture')
-  const ALL = ['Tableau de bord', 'Analyses', 'Commandes', 'Planning', 'Clients', 'Produits et stock', 'Fabrication', 'Équipe et rôles', 'Journal d’audit']
+  const ALL = ['Tableau de bord', 'Analyses', 'Commandes', 'Planning', 'Clients', 'Produits et stock', 'Fabrication', 'Réceptions d’achat', 'Équipe et rôles', 'Journal d’audit']
   const visible = async (m) => { const r = []; for (const n of ALL) if (await m.getByRole('link', { name: n, exact: true }).count()) r.push(n); return r }
-  log((await visible(menu)).length === 9, 'Menu complet : 9 entrées pour le super administrateur')
+  log((await visible(menu)).length === 10, 'Menu complet : 10 entrées pour le super administrateur')
   await page.screenshot({ path: `${SHOTS}/40-erp-dashboard.png`, fullPage: true })
 
   // 3. Commandes : filtre puis traitement complet d'un retrait en boutique
@@ -252,6 +252,52 @@ async function login(page, email, password) {
   log(relevePdf.headers()['content-type'] === 'application/pdf', 'Relevé PDF téléchargeable')
   await page.screenshot({ path: `${SHOTS}/49-erp-points-de-retrait.png`, fullPage: true })
 
+  // 9 bis. Nouveau produit revendu (Virgin Hair Fertilizer) : fiche, nouvelle marque, photo, publication, réception d'achat
+  await menu.getByRole('link', { name: 'Produits et stock' }).click()
+  await page.getByRole('link', { name: 'Nouveau produit' }).click()
+  await page.getByRole('heading', { name: 'Nouveau produit' }).waitFor()
+  await page.getByLabel(/Acheté et revendu/).check()
+  await page.getByLabel('Marque').selectOption('new')
+  await page.getByLabel('Nom de la nouvelle marque').fill('Virgin Hair Fertilizer')
+  await page.getByRole('button', { name: 'Ajouter', exact: true }).click()
+  await page.getByRole('option', { name: 'Virgin Hair Fertilizer' }).waitFor({ state: 'attached' })
+  await page.getByLabel('Nom du produit', { exact: true }).fill('Huile de croissance')
+  await page.getByLabel('Catégorie').selectOption({ label: 'Soins traitants' })
+  await page.getByLabel('Contenance').fill('120 ml')
+  await page.getByLabel('Prix de vente (F CFA)').fill('6000')
+  const publish = page.getByRole('button', { name: 'Publier' })
+  log(await publish.isDisabled(), 'Nouveau produit : « Publier » grisé tant qu’il n’y a pas de photo')
+  // Photo de test fabriquée par le navigateur : 3000 × 4000 px, comme un téléphone
+  const jpeg = await page.evaluate(() => {
+    const c = document.createElement('canvas'); c.width = 3000; c.height = 4000
+    const g = c.getContext('2d'); g.fillStyle = '#f2efe8'; g.fillRect(0, 0, 3000, 4000); g.fillStyle = '#1a1a1a'; g.fillRect(1100, 900, 800, 2400)
+    return c.toDataURL('image/jpeg', 0.9).split(',')[1]
+  })
+  await page.locator('input[type=file]').setInputFiles({ name: 'flacon.jpg', mimeType: 'image/jpeg', buffer: Buffer.from(jpeg, 'base64') })
+  await page.getByText('Principale', { exact: true }).waitFor()
+  const preview = page.locator('section', { has: page.getByRole('heading', { name: 'Aperçu dans la boutique' }) })
+  log((await preview.textContent()).includes('Virgin Hair Fertilizer'), 'Aperçu : la vraie carte de la boutique, avec la marque')
+  await page.screenshot({ path: `${SHOTS}/50-erp-nouveau-produit.png`, fullPage: true })
+  await publish.click()
+  await page.getByText('est créé et en vente sur le site').waitFor()
+  const newRow = page.getByRole('row', { name: /Huile de croissance 120 ml/ })
+  log((await newRow.textContent()).includes('Revendu') && (await newRow.textContent()).includes('VHF-HUI-001'), 'Produit créé : référence VHF-HUI-001, badge « Revendu », photo envoyée et réduite')
+
+  await menu.getByRole('link', { name: 'Réceptions d’achat' }).click()
+  await page.getByLabel(/^Produit/).selectOption({ label: 'Huile de croissance 120 ml · Virgin Hair Fertilizer' })
+  await page.getByLabel('Fournisseur', { exact: true }).fill('Grossiste Sandaga')
+  await page.getByLabel('Quantité reçue').fill('24')
+  await page.getByLabel('Prix d’achat unitaire (F)').fill('2500')
+  await page.getByLabel(/^Frais du lot/).fill('6000')
+  const calc = (await page.locator('dl').first().textContent()).replace(/[\u202f\u00a0]/g, ' ')
+  log(/2 750 F/.test(calc) && /0 → 24/.test(calc) && /3 250 F/.test(calc), 'Réception : 24 × 2 500 F + 6 000 F = 2 750 F l’unité, stock 0 → 24, marge 3 250 F (calcul en direct)')
+  await page.getByRole('button', { name: 'Enregistrer la réception' }).click()
+  await page.getByText('stock et coût de revient mis à jour').waitFor()
+  await page.screenshot({ path: `${SHOTS}/51-erp-reception-achat.png`, fullPage: true })
+  const fiche = await (await page.request.get(BASE + '/api/v1/products/huile-de-croissance-120-ml', { headers: { Accept: 'application/json' } })).json()
+  const photo = await page.request.get(BASE + fiche.data.images[0].url)
+  log(fiche.data.stock_status === 'in_stock' && photo.headers()['content-type'] === 'image/webp', `Boutique : produit en stock, photo servie en WebP (${fiche.data.images[0].url})`)
+
   // 10. Le caissier : menu réduit, pas de chiffre d'affaires, pages interdites
   await ctx.clearCookies()
   const p2 = await (await browser.newContext({ viewport: { width: 1440, height: 900 } })).newPage()
@@ -262,7 +308,7 @@ async function login(page, email, password) {
   log(await p2.getByText('CA du mois').count() === 0, 'Caissier : le chiffre d’affaires est masqué (le serveur ne l’envoie pas)')
   const m2 = p2.getByRole('navigation', { name: 'Menu ERP' })
   const v2 = await visible(m2)
-  log(!v2.includes('Équipe et rôles') && !v2.includes('Journal d’audit') && !v2.includes('Analyses') && v2.includes('Commandes'), `Caissier : menu réduit (${v2.join(', ')})`)
+  log(!v2.includes('Équipe et rôles') && !v2.includes('Journal d’audit') && !v2.includes('Analyses') && v2.includes('Commandes') && v2.includes('Réceptions d’achat'), `Caissier : menu réduit (${v2.join(', ')})`)
   await m2.getByRole('link', { name: 'Fabrication', exact: true }).click()
   await p2.getByRole('heading', { name: 'Lots fabriqués' }).waitFor()
   log(await p2.getByRole('button', { name: 'Enregistrer le lot' }).count() === 0, 'Caissier : consulte les lots (stock.view) mais sans formulaire de fabrication (production.manage)')

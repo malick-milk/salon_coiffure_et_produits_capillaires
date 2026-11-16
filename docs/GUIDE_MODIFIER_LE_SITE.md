@@ -44,10 +44,12 @@ Exemples : le prix du sérum se change dans l'ERP. Le titre « L'art du soin cap
 | Je veux changer… | Où |
 |---|---|
 | Prix, activation d'un produit, stock | ERP → **Produits et stock** |
-| Coût de revient (marge) | ERP → **Fabrication** (saisir un lot avec ses coûts) |
+| Coût de revient (marge) | ERP → **Fabrication** pour un produit Dabo Hair ; ERP → **Réceptions d’achat** pour un produit acheté et revendu |
 | Statut d'une commande, d'un rendez-vous | ERP → **Commandes**, **Planning** |
 | Comptes du personnel | ERP → **Équipe et rôles** |
-| Nom ou description d'un produit, nouveau produit | pas encore d'écran : `backend/database/seeders/DaboHairCatalogSeeder.php` |
+| **Nouveau produit** (y compris d'une autre marque) | ERP → **Produits et stock** → **Nouveau produit** |
+| Photos d'un produit (ajouter, choisir la principale, supprimer) | ERP → **Produits et stock** → bouton **Photos** |
+| Nom d'un produit existant | pas encore d'écran : `backend/database/seeders/DaboHairCatalogSeeder.php` |
 | Prestations du salon et leurs prix, coiffeuses, horaires, zones et frais de livraison | pas encore d'écran : `backend/database/seeders/ReferenceDataSeeder.php` |
 
 Après une modification d'un fichier **seeder**, appliquez-la sans effacer les commandes, depuis `backend/` :
@@ -58,7 +60,7 @@ php artisan db:seed --class=ReferenceDataSeeder
 
 (`updateOrCreate` met à jour ce qui existe au lieu de créer des doublons.)
 
-> Les écrans ERP manquants (prestations, horaires, fiche produit complète) sont une bonne idée d'amélioration : dites-le-moi si vous les voulez.
+> Les écrans ERP manquants (prestations, horaires, modification du nom d'un produit) sont une bonne idée d'amélioration : dites-le-moi si vous les voulez.
 
 ---
 

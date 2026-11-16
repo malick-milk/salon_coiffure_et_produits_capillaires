@@ -43,6 +43,7 @@ const fieldClass = 'min-h-11 w-full rounded-[10px] border border-[#a1a1aa] bg-wh
 
 export const AdminInput = ({ className, ...p }: ComponentProps<'input'>) => <input className={cn(fieldClass, className)} {...p} />
 export const AdminSelect = ({ className, ...p }: ComponentProps<'select'>) => <select className={cn(fieldClass, className)} {...p} />
+export const AdminTextarea = ({ className, ...p }: ComponentProps<'textarea'>) => <textarea className={cn(fieldClass, 'min-h-24 py-2.5', className)} {...p} />
 
 export function AdminField({ label, error, children, htmlFor }: { label: string; error?: string; children: ReactNode; htmlFor: string }) {
   return (

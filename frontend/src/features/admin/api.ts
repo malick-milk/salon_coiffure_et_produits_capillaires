@@ -3,7 +3,7 @@ import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tansta
 import { http } from '@/lib/http'
 import type { BookingStatus, OrderStatus } from '@/types/api'
 import type {
-  AdminBooking, AdminCustomer, AdminOrderDetail, AdminOrderRow, AdminProduct, AuditEntry, CostCategory, Dashboard,
+  AdminBooking, AdminCustomer, BrandOption, CategoryOption, NewProduct, NewPurchaseReceipt, PurchaseReceipt, AdminOrderDetail, AdminOrderRow, AdminProduct, AuditEntry, CostCategory, Dashboard,
   AdminPickupPoint, AdminSurvey, PageMeta, PickupPointDetail, PickupPointsIndex, StatementPreview, PaymentMethod, ProductionBatch, RoleWithPermissions, StaffRole, StaffUser, StockMovementRow, SurveyFilter, SurveyStats,
 } from '@/types/admin'
 import type { Analytics, ExportDataset } from '@/types/analytics'
@@ -72,6 +72,34 @@ export const useUpdateProduct = () =>
     const { id, ...body } = v
     return http.patch(`${A}/products/${id}`, body)
   }, [['admin', 'products'], ['products'], ['product']])
+
+// ---------- Nouveau produit, photos, réceptions d'achat (16 novembre 2026) ----------
+export const useBrands = () => useQuery({ queryKey: ['admin', 'brands'], queryFn: () => get<BrandOption[]>(`${A}/brands`) })
+export const useAdminCategories = () => useQuery({ queryKey: ['admin', 'categories'], queryFn: () => get<CategoryOption[]>(`${A}/categories`) })
+export const usePurchaseReceipts = () => useQuery({ queryKey: ['admin', 'purchase-receipts'], queryFn: () => get<PurchaseReceipt[]>(`${A}/purchase-receipts`) })
+
+export const useCreateBrand = () =>
+  useAdminMutation(async (v: { name: string }) => (await http.post<{ data: BrandOption }>(`${A}/brands`, v)).data.data, [['admin', 'brands']])
+
+export const useCreateProduct = () =>
+  useAdminMutation(async (v: NewProduct) => (await http.post<{ data: AdminProduct }>(`${A}/products`, v)).data.data, [['admin', 'products']])
+
+/** Envoi d'une photo (multipart) : le navigateur l'a déjà réduite (voir lib/resizeImage.ts) */
+export const useUploadProductImage = () =>
+  useAdminMutation(async (v: { productId: number; image: Blob }) => {
+    const form = new FormData()
+    form.append('image', v.image, 'photo.jpg')
+    return (await http.post<{ data: AdminProduct }>(`${A}/products/${v.productId}/images`, form)).data.data
+  }, [['admin', 'products'], ['products'], ['product']])
+
+export const useDeleteProductImage = () =>
+  useAdminMutation((v: { productId: number; imageId: number }) => http.delete(`${A}/products/${v.productId}/images/${v.imageId}`), [['admin', 'products'], ['products'], ['product']])
+
+export const useMakePrimaryImage = () =>
+  useAdminMutation((v: { productId: number; imageId: number }) => http.patch(`${A}/products/${v.productId}/images/${v.imageId}/primary`), [['admin', 'products'], ['products'], ['product']])
+
+export const useCreatePurchaseReceipt = () =>
+  useAdminMutation((v: NewPurchaseReceipt) => http.post(`${A}/purchase-receipts`, v), [['admin', 'purchase-receipts'], ['admin', 'products'], ['admin', 'dashboard'], ['admin', 'movements'], ['products'], ['product']])
 
 export const useAdjustStock = () =>
   useAdminMutation(

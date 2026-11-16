@@ -164,7 +164,7 @@ jobs:
         # Piège évité : « cd public && commande & » envoie TOUTE la chaîne en arrière-plan, « cd » compris ;
         # le shell principal ne change alors pas de dossier et les « cd » suivants partent du mauvais endroit.
         run: |
-          (cd backend && php artisan migrate:fresh --seed --force)
+          (cd backend && php artisan migrate:fresh --seed --force && php artisan storage:link)  # photos envoyées depuis l'ERP : /storage/…
           (cd backend && exec php artisan serve --port=8000) > api.log 2>&1 &
           (cd backend/public && PHP_CLI_SERVER_WORKERS=8 API_RATE_LIMIT=100000 CHECKOUT_RATE_LIMIT=100000 \
             exec php -S 127.0.0.1:8001 ../vendor/laravel/framework/src/Illuminate/Foundation/resources/server.php) > api-workers.log 2>&1 &

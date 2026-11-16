@@ -351,9 +351,24 @@ Mêmes fenêtres que le Test 4 : Docker allumé, `php artisan serve` et `npm run
 | Fiche du Leave In (`/produits/leave-in-250-ml`) | 2 photos, « En stock » |
 | Ouvrir directement http://localhost:5173/images/publicites/gamme-horizontale.webp | La photo s'affiche (sinon le fichier manque : voir le tableau ci-dessous) |
 
+**Nouveau produit et réception d'achat** (une seule fois avant : dans `backend/`, `php artisan migrate` puis `php artisan storage:link`) :
+
+| À essayer | Résultat attendu |
+|---|---|
+| ERP → Produits et stock → **Nouveau produit** | Formulaire en 3 parties : origine, fiche, photos ; aperçu de la carte de la boutique à droite |
+| Origine « Acheté et revendu », Marque → « + Nouvelle marque… » → Virgin Hair Fertilizer → Ajouter | La marque est créée et choisie |
+| Nom, catégorie Soins traitants, 120 ml, 6000 | L'aperçu suit la saisie ; « Publier » reste grisé |
+| Ajouter une photo prise au téléphone | Elle apparaît avec l'étiquette « Principale » ; « Publier » devient actif |
+| Publier | Retour à la liste : « … est créé et en vente », badge **Revendu**, référence **VHF-HUI-001** |
+| Décocher « En vente », puis supprimer toutes les photos et recocher | Refusé : « Ajoutez au moins une photo avant de publier ce produit. » |
+| ERP → **Réceptions d’achat** → 24 × 2 500 F + 6 000 F de frais | Calcul en direct : **2 750 F** l'unité, stock 0 → 24, marge 3 250 F |
+| Enregistrer, puis Boutique | Le produit est en stock, avec sa photo carrée |
+| Fabrication → liste des produits | Le produit revendu n'y figure pas (son stock entre par les réceptions) |
+| Se connecter en caissier | Pas de bouton « Nouveau produit », pas de formulaire de réception (lecture seule) |
+
 **Exercice : afficher la promotion.** Dans `frontend/src/content/home.ts`, passez la première publicité à `visible: true` et enregistrez. Attendu : elle passe en premier avec **10 000 F CFA**, ~~15 000 F~~ barré et « −5 000 F » ; les flèches et les points apparaissent (2 publicités). Écrivez `remaining: 12` : « Plus que 12 gammes sur 20 » s'affiche ; avec `remaining: 0`, la publicité disparaît. **Remettez ensuite `visible: false` et `remaining: null`**, puis vérifiez avec `git status` que `home.ts` n'est plus modifié (sinon `git restore frontend/src/content/home.ts`).
 
-**Tests automatiques de ces écrans** (dans `frontend/`) : `npx vitest run src/features/home` → 8 tests verts (publicités, prix, promotion, dates, bannière).
+**Tests automatiques de ces écrans** (dans `frontend/`) : `npx vitest run src/features/home src/features/admin` → 21 tests verts (publicités, bannière, nouveau produit, calcul des réceptions).
 
 **Une image ou un produit ne s'affiche pas ?**
 
@@ -365,5 +380,7 @@ Mêmes fenêtres que le Test 4 : Docker allumé, `php artisan serve` et `npm run
 | Photos des produits absentes, mais fichiers bien présents | La base a été remplie avant l'ajout des photos | Dans `backend/` : `php artisan db:seed --class=DaboHairCatalogSeeder` |
 | Image cassée alors que le chemin semble juste | Le champ `image` contient autre chose qu'un chemin (par exemple un prix) | Un champ `image` commence toujours par `/images/` ; un prix va dans `price` |
 | `git push` : `rejected … non-fast-forward` | GitHub a des commits que vous n'avez pas | `git pull --rebase --autostash origin main`, puis `git push origin main` |
+| Photo envoyée depuis l'ERP invisible (image cassée), adresse en `/storage/produits/…` | Le raccourci `public/storage` n'existe pas sur votre ordinateur | Dans `backend/` : `php artisan storage:link`, puis recharger |
+| « La photo dépasse 2 Mo » | Le navigateur n'a pas pu réduire la photo (format HEIC de l'iPhone, par exemple) | Réglages de l'iPhone → Appareil photo → Formats → « Le plus compatible » (JPEG), ou envoyer une capture |
 | `git add` : `pathspec … did not match any files` | Le fichier n'est pas à cet endroit, ou porte un autre nom | Vérifier avec `ls` le dossier et le nom exact |
 
