@@ -15,6 +15,7 @@ class ProductionBatchCost extends Model
         return ['category' => ProductionCostCategory::class, 'spent_on' => 'date'];
     }
 
+    /** @return BelongsTo<ProductionBatch, $this> */
     public function batch(): BelongsTo
     {
         return $this->belongsTo(ProductionBatch::class, 'production_batch_id');

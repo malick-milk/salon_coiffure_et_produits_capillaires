@@ -14,11 +14,13 @@ class Address extends Model
         return ['is_default' => 'boolean'];
     }
 
+    /** @return BelongsTo<Customer, $this> */
     public function customer(): BelongsTo
     {
         return $this->belongsTo(Customer::class);
     }
 
+    /** @return BelongsTo<DeliveryZone, $this> */
     public function deliveryZone(): BelongsTo
     {
         return $this->belongsTo(DeliveryZone::class);

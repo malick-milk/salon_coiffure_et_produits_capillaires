@@ -5,7 +5,9 @@ namespace App\Http\Resources;
 use App\Models\Product;
 use Illuminate\Http\Request;
 
-/** @mixin Product */
+/**
+ * @mixin Product
+ */
 class ProductDetailResource extends ProductSummaryResource
 {
     public function toArray(Request $request): array

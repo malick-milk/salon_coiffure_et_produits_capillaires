@@ -40,7 +40,11 @@ class User extends Authenticatable
         ];
     }
 
-    /** Fiche client métier associée (commandes, réservations) */
+    /**
+     * Fiche client métier associée (commandes, réservations)
+     *
+     * @return HasOne<Customer, $this>
+     */
     public function customer(): HasOne
     {
         return $this->hasOne(Customer::class);

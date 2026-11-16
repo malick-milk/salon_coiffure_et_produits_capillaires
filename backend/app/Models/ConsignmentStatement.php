@@ -29,16 +29,19 @@ class ConsignmentStatement extends Model
         ];
     }
 
+    /** @return HasMany<ConsignmentStatementItem, $this> */
     public function items(): HasMany
     {
         return $this->hasMany(ConsignmentStatementItem::class);
     }
 
+    /** @return BelongsTo<PickupPoint, $this> */
     public function pickupPoint(): BelongsTo
     {
         return $this->belongsTo(PickupPoint::class);
     }
 
+    /** @return HasMany<Order, $this> */
     public function onlineOrders(): HasMany
     {
         return $this->hasMany(Order::class);

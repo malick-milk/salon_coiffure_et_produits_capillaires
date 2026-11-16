@@ -19,11 +19,13 @@ class PurchaseReceipt extends Model
         return ['received_on' => 'date', 'quantity' => 'integer', 'unit_price' => 'integer', 'extra_costs' => 'integer', 'unit_cost' => 'decimal:2'];
     }
 
+    /** @return BelongsTo<Product, $this> */
     public function product(): BelongsTo
     {
         return $this->belongsTo(Product::class);
     }
 
+    /** @return BelongsTo<User, $this> */
     public function author(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');

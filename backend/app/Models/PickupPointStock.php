@@ -19,6 +19,7 @@ class PickupPointStock extends Model
         return ['quantity' => 'integer'];
     }
 
+    /** @return BelongsTo<Product, $this> */
     public function product(): BelongsTo
     {
         return $this->belongsTo(Product::class);

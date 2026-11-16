@@ -43,11 +43,13 @@ class SatisfactionSurvey extends Model
         return static::query()->where('token_hash', self::hashToken($token))->first();
     }
 
+    /** @return BelongsTo<Customer, $this> */
     public function customer(): BelongsTo
     {
         return $this->belongsTo(Customer::class)->withTrashed();
     }
 
+    /** @return BelongsTo<Stylist, $this> */
     public function stylist(): BelongsTo
     {
         return $this->belongsTo(Stylist::class);

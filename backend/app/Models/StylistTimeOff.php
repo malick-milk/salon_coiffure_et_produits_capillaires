@@ -16,6 +16,7 @@ class StylistTimeOff extends Model
         return ['starts_at' => 'datetime', 'ends_at' => 'datetime'];
     }
 
+    /** @return BelongsTo<Stylist, $this> */
     public function stylist(): BelongsTo
     {
         return $this->belongsTo(Stylist::class);

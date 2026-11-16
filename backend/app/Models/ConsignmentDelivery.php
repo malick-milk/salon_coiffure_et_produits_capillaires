@@ -16,11 +16,13 @@ class ConsignmentDelivery extends Model
         return ['delivered_on' => 'date', 'total_quantity' => 'integer', 'total_value' => 'integer'];
     }
 
+    /** @return HasMany<ConsignmentDeliveryItem, $this> */
     public function items(): HasMany
     {
         return $this->hasMany(ConsignmentDeliveryItem::class);
     }
 
+    /** @return BelongsTo<PickupPoint, $this> */
     public function pickupPoint(): BelongsTo
     {
         return $this->belongsTo(PickupPoint::class);

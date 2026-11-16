@@ -19,11 +19,13 @@ class StockMovement extends Model
         return ['type' => StockMovementType::class, 'quantity' => 'integer', 'stock_after' => 'integer'];
     }
 
+    /** @return BelongsTo<Product, $this> */
     public function product(): BelongsTo
     {
         return $this->belongsTo(Product::class);
     }
 
+    /** @return MorphTo<Model, $this> */
     public function reference(): MorphTo
     {
         return $this->morphTo();

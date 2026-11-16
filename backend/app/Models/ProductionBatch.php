@@ -20,11 +20,13 @@ class ProductionBatch extends Model
         return ['produced_on' => 'date', 'expires_on' => 'date', 'unit_cost' => 'decimal:2', 'total_cost' => 'integer'];
     }
 
+    /** @return BelongsTo<Product, $this> */
     public function product(): BelongsTo
     {
         return $this->belongsTo(Product::class);
     }
 
+    /** @return HasMany<ProductionBatchCost, $this> */
     public function costs(): HasMany
     {
         return $this->hasMany(ProductionBatchCost::class);

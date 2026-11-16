@@ -26,21 +26,25 @@ class PickupPoint extends Model
         return ['regions' => 'array', 'commission_rate' => 'decimal:2', 'is_active' => 'boolean'];
     }
 
+    /** @return HasMany<PickupPointStock, $this> */
     public function stocks(): HasMany
     {
         return $this->hasMany(PickupPointStock::class);
     }
 
+    /** @return HasMany<ConsignmentDelivery, $this> */
     public function deliveries(): HasMany
     {
         return $this->hasMany(ConsignmentDelivery::class);
     }
 
+    /** @return HasMany<ConsignmentStatement, $this> */
     public function statements(): HasMany
     {
         return $this->hasMany(ConsignmentStatement::class);
     }
 
+    /** @return BelongsTo<Customer, $this> */
     public function customer(): BelongsTo
     {
         return $this->belongsTo(Customer::class);

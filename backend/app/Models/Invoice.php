@@ -15,11 +15,13 @@ class Invoice extends Model
         return ['company_snapshot' => 'array', 'issued_at' => 'datetime', 'subtotal' => 'integer', 'tax_total' => 'integer', 'total' => 'integer'];
     }
 
+    /** @return BelongsTo<Order, $this> */
     public function order(): BelongsTo
     {
         return $this->belongsTo(Order::class);
     }
 
+    /** @return BelongsTo<Customer, $this> */
     public function customer(): BelongsTo
     {
         return $this->belongsTo(Customer::class);

@@ -14,6 +14,7 @@ class ProductImage extends Model
         return ['is_primary' => 'boolean'];
     }
 
+    /** @return BelongsTo<Product, $this> */
     public function product(): BelongsTo
     {
         return $this->belongsTo(Product::class);

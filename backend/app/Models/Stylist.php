@@ -20,21 +20,25 @@ class Stylist extends Model
         return ['is_active' => 'boolean'];
     }
 
+    /** @return BelongsTo<User, $this> */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
+    /** @return BelongsToMany<Service, $this> */
     public function services(): BelongsToMany
     {
         return $this->belongsToMany(Service::class);
     }
 
+    /** @return HasMany<Booking, $this> */
     public function bookings(): HasMany
     {
         return $this->hasMany(Booking::class);
     }
 
+    /** @return HasMany<StylistTimeOff, $this> */
     public function timeOff(): HasMany
     {
         return $this->hasMany(StylistTimeOff::class);

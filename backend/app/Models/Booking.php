@@ -38,16 +38,19 @@ class Booking extends Model
         ];
     }
 
+    /** @return BelongsTo<Customer, $this> */
     public function customer(): BelongsTo
     {
         return $this->belongsTo(Customer::class);
     }
 
+    /** @return BelongsTo<Service, $this> */
     public function service(): BelongsTo
     {
         return $this->belongsTo(Service::class);
     }
 
+    /** @return BelongsTo<Stylist, $this> */
     public function stylist(): BelongsTo
     {
         return $this->belongsTo(Stylist::class);

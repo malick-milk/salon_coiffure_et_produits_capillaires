@@ -2,10 +2,15 @@
 
 namespace App\Http\Resources;
 
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-/** L'utilisateur connecté (types/api.ts → User). Jamais le mot de passe ni le jeton « remember » */
+/**
+ * L'utilisateur connecté (types/api.ts → User). Jamais le mot de passe ni le jeton « remember »
+ *
+ * @mixin User
+ */
 class UserResource extends JsonResource
 {
     public function toArray(Request $request): array

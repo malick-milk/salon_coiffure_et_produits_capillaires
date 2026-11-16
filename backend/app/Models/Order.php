@@ -48,27 +48,35 @@ class Order extends Model
         ];
     }
 
-    /** Étape 14 : point de retrait partenaire choisi par la cliente */
+    /**
+     * Étape 14 : point de retrait partenaire choisi par la cliente
+     *
+     * @return BelongsTo<PickupPoint, $this>
+     */
     public function pickupPoint(): BelongsTo
     {
         return $this->belongsTo(PickupPoint::class);
     }
 
+    /** @return BelongsTo<Customer, $this> */
     public function customer(): BelongsTo
     {
         return $this->belongsTo(Customer::class);
     }
 
+    /** @return HasMany<OrderItem, $this> */
     public function items(): HasMany
     {
         return $this->hasMany(OrderItem::class);
     }
 
+    /** @return BelongsTo<DeliveryZone, $this> */
     public function deliveryZone(): BelongsTo
     {
         return $this->belongsTo(DeliveryZone::class);
     }
 
+    /** @return MorphMany<Payment, $this> */
     public function payments(): MorphMany
     {
         return $this->morphMany(Payment::class, 'payable');

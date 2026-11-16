@@ -5,7 +5,8 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    # main + les branches de correction (« correctifs/... ») : vérifiées avant d'être fusionnées dans main
+    branches: [main, 'correctifs/**']
   pull_request:
   # Chaque lundi à 6 h (UTC) : une faille peut être publiée dans une bibliothèque SANS que notre code change
   schedule:
@@ -88,6 +89,13 @@ jobs:
       - run: cp .env.example .env && php artisan key:generate
       - name: Style du code (Pint)
         run: vendor/bin/pint --test
+      - name: Analyse statique (Larastan, niveau 5)
+        # Lit le code SANS l'exécuter : propriété inexistante, valeur peut-être nulle, mauvais type…
+        # Les erreurs déjà connues sont dans phpstan-baseline.neon : seule une NOUVELLE erreur fait échouer.
+        run: vendor/bin/phpstan analyse --memory-limit=1G --no-progress --error-format=raw
+      - name: Liste à jour des erreurs restantes (seulement si l'analyse échoue)
+        if: failure()
+        run: vendor/bin/phpstan analyse --memory-limit=1G --no-progress --generate-baseline=phpstan-baseline-a-jour.neon --allow-empty-baseline || true; cat phpstan-baseline-a-jour.neon
       - name: Tests PHPUnit, couverture minimale 90 %
         run: php artisan test --coverage --min=90
 

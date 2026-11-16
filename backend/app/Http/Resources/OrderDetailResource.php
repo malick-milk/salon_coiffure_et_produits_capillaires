@@ -4,9 +4,14 @@ namespace App\Http\Resources;
 
 use App\Enums\OrderStatus;
 use App\Enums\PaymentStatus;
+use App\Models\Order;
 use Illuminate\Http\Request;
 
-/** Détail d'une commande : prix FIGÉS des lignes, jamais le coût (unit_cost reste interne) */
+/**
+ * Détail d'une commande : prix FIGÉS des lignes, jamais le coût (unit_cost reste interne)
+ *
+ * @mixin Order
+ */
 class OrderDetailResource extends OrderSummaryResource
 {
     public function toArray(Request $request): array

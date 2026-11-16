@@ -20,11 +20,13 @@ class Service extends Model
         return ['duration_minutes' => 'integer', 'buffer_minutes' => 'integer', 'price' => 'integer', 'is_active' => 'boolean'];
     }
 
+    /** @return BelongsTo<ServiceCategory, $this> */
     public function category(): BelongsTo
     {
         return $this->belongsTo(ServiceCategory::class, 'service_category_id');
     }
 
+    /** @return BelongsToMany<Stylist, $this> */
     public function stylists(): BelongsToMany
     {
         return $this->belongsToMany(Stylist::class);
@@ -35,7 +37,11 @@ class Service extends Model
         $query->where('is_active', true);
     }
 
-    /** Le resserrage qui correspond à ce twist (rappels de resserrage, 16 novembre 2026) */
+    /**
+     * Le resserrage qui correspond à ce twist (rappels de resserrage, 16 novembre 2026)
+     *
+     * @return BelongsTo<Service, $this>
+     */
     public function resserrageService(): BelongsTo
     {
         return $this->belongsTo(self::class, 'resserrage_service_id');
