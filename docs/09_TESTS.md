@@ -161,14 +161,24 @@ Ils lisent le code **sans l'exécuter**.
 | **TypeScript** (mode strict) | TS | Mauvais type, propriété inexistante, valeur peut-être `undefined` | `npm run typecheck` |
 | **ESLint** (nouveau) | TS | Règles des hooks React, variables inutilisées, **accessibilité** (image sans texte, label orphelin) | `npm run lint` |
 | **Pint** | PHP | Style homogène (indentation, ordre des `use`…) | `vendor/bin/pint --test` |
+| **Larastan** (niveau 5) | PHP | Propriété ou méthode inexistante, valeur peut-être `null`, mauvais type, comparaison toujours fausse | `vendor/bin/phpstan analyse --memory-limit=1G` |
 
 ESLint a trouvé deux espaces insécables **invisibles** tapés directement dans le code (`format.ts`) : ils sont désormais écrits ` `, ce qui les rend visibles. Les 12 avertissements restants (« Fast refresh ») ne concernent que le rechargement à chaud en développement.
 
-**À ajouter sur votre ordinateur** : **Larastan**, l'équivalent de TypeScript pour PHP. Il n'a pas pu être installé depuis l'environnement de développement (téléchargement GitHub refusé). Depuis `backend/` :
+### Larastan : de 285 erreurs à 0 (16 novembre 2026)
 
-```bash
-composer require --dev larastan/larastan
-```
+Larastan est l'équivalent de TypeScript pour PHP. Installé le 16 novembre, sa première analyse a trouvé **285 erreurs**. On ne corrige pas 285 erreurs d'un coup : on part d'une **liste d'exceptions** (`phpstan-baseline.neon`), qui fait accepter les erreurs connues et refuser toute nouvelle erreur, puis on corrige par lots. Les corrections ont été faites sur une **branche** (`correctifs/larastan`), vérifiée par la CI à chaque envoi, puis fusionnée dans `main` une fois tout vert.
+
+| Lot | Cause | Erreurs |
+|---|---|---|
+| 1 | Relations Eloquent sans type (`items(): HasMany` sans dire « de quoi ») : 61 relations annotées `@return HasMany<OrderItem, $this>` ; ressources API annotées `@mixin Order` | 285 → ~57 |
+| 2 et 4 | Larastan lisait les colonnes d'après les migrations (`status` = texte) et ignorait les `casts()` : types déclarés en `@property` sur les 31 modèles (enum, dates, nombres), valeurs calculées par les requêtes en `@property-read` | ~57 → 2 |
+| 4 | 12 vraies petites erreurs : vérifications `?->` inutiles, `match` sans cas par défaut, nombre décimal passé à la place d'un entier, `abort_unless` sur un objet | |
+| 5 | Une valeur calculée aussi écrite par le code (`product_count`) | 2 → **0** |
+
+La liste d'exceptions a ensuite été **supprimée** : aucune erreur n'est tolérée, et la CI refuse toute nouvelle erreur.
+
+**À retenir** : la grande majorité des 285 erreurs n'étaient pas des bugs. Elles venaient de **types manquants** : Larastan ne pouvait pas « voir » ce que contenait une relation ou une colonne. Une fois les types déclarés, il a trouvé les 12 vraies erreurs cachées parmi les fausses alertes. C'est pour ça qu'on documente les types : pour l'outil, et pour le prochain développeur.
 
 ---
 

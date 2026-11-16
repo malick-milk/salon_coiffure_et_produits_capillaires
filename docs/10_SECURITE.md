@@ -176,7 +176,7 @@ Un audit honnête dit aussi ce qui **n'est pas** corrigé, et pourquoi.
 |---|---|---|
 | 7 alertes modérées dans `minimatch`, utilisé par ESLint (ralentissement possible si un attaquant fournit le motif de fichiers) | Outil de développement, jamais livré ; les motifs sont ceux de notre configuration ; le seul correctif proposé par npm est un retour en arrière de version | À chaque mise à jour de `typescript-eslint` |
 | L'inscription révèle si un email a déjà un compte (« déjà utilisé ») | Compromis confort / sécurité courant en e-commerce ; limité à 20 essais par heure et par adresse IP ; la connexion, elle, ne révèle rien | Si des abus apparaissent dans le journal |
-| Larastan (analyse statique PHP) non installé | Téléchargement bloqué dans l'environnement de développement | Commande dans `docs/09_TESTS.md` §6 |
+| ~~Larastan (analyse statique PHP) non installé~~ | **Fait le 16 novembre 2026** : installé, 285 erreurs corrigées, vérifié par la CI à chaque envoi | `docs/09_TESTS.md` §6 |
 
 ---
 
