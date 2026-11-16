@@ -10,9 +10,29 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Support\Carbon;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
 
+/**
+ * Types des colonnes converties (casts) : déclarés pour l'analyse statique (Larastan).
+ *
+ * @property OrderChannel $channel
+ * @property OrderStatus $status
+ * @property PaymentStatus $payment_status
+ * @property FulfillmentMethod $fulfillment_method
+ * @property Carbon $placed_at
+ * @property Carbon|null $confirmed_at
+ * @property Carbon|null $shipped_at
+ * @property Carbon|null $delivered_at
+ * @property Carbon|null $picked_up_at
+ * @property Carbon|null $paid_at
+ * @property Carbon|null $cancelled_at
+ * @property int $subtotal
+ * @property int $discount_total
+ * @property int $shipping_fee
+ * @property int $total
+ */
 class Order extends Model
 {
     use LogsActivity;

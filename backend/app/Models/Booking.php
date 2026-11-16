@@ -7,9 +7,26 @@ use App\Enums\BookingStatus;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
 
+/**
+ * Types des colonnes converties (casts) : déclarés pour l'analyse statique (Larastan).
+ *
+ * @property BookingStatus $status
+ * @property BookingSource $source
+ * @property Carbon $starts_at
+ * @property Carbon $ends_at
+ * @property Carbon|null $confirmed_at
+ * @property Carbon|null $completed_at
+ * @property Carbon|null $cancelled_at
+ * @property Carbon|null $reminder_sent_at
+ * @property Carbon|null $resserrage_reminded_at
+ * @property Carbon|null $resserrage_snoozed_at
+ * @property int $price
+ * @property int $duration_minutes
+ */
 class Booking extends Model
 {
     use LogsActivity;

@@ -15,6 +15,17 @@ use Spatie\Activitylog\Traits\LogsActivity;
 /**
  * Produit. RÈGLE : stock_quantity ne se modifie JAMAIS directement, uniquement via
  * App\Services\Inventory\StockService (grand livre stock_movements, ADR-006).
+ *
+ * Types des colonnes converties (casts) : déclarés pour l'analyse statique (Larastan).
+ *
+ * @property int $price
+ * @property int|null $compare_at_price
+ * @property string|null $cost_price
+ * @property int $stock_quantity
+ * @property int $low_stock_threshold
+ * @property bool $is_active
+ * @property bool $is_featured
+ * @property ProductOrigin $origin
  */
 class Product extends Model
 {

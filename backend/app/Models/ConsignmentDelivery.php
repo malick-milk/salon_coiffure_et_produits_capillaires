@@ -5,8 +5,17 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Carbon;
 
-/** Bon de dépôt : produits livrés à un point de retrait (ils restent à Dabo Hair) */
+/**
+ * Bon de dépôt : produits livrés à un point de retrait (ils restent à Dabo Hair)
+ *
+ * Types des colonnes converties (casts) : déclarés pour l'analyse statique (Larastan).
+ *
+ * @property Carbon $delivered_on
+ * @property int $total_quantity
+ * @property int $total_value
+ */
 class ConsignmentDelivery extends Model
 {
     protected $fillable = ['number', 'pickup_point_id', 'delivered_on', 'total_quantity', 'total_value', 'created_by'];
