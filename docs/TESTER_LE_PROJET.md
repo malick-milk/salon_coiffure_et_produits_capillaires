@@ -367,6 +367,21 @@ Mêmes fenêtres que le Test 4 : Docker allumé, `php artisan serve` et `npm run
 | Fabrication → liste des produits | Le produit revendu n'y figure pas (son stock entre par les réceptions) |
 | Se connecter en caissier | Pas de bouton « Nouveau produit », pas de formulaire de réception (lecture seule) |
 
+**Modifier un produit** (connecté en propriétaire, après la réception ci-dessus) :
+
+| À essayer | Résultat attendu |
+|---|---|
+| Produits et stock → **Modifier** sur « Huile de croissance 120 ml » | Origine « verrouillé », coût de revient **2 750 F** en lecture seule, référence et adresse « ne change pas » |
+| « Enregistrer les modifications » sans rien toucher | Bouton grisé (rien à enregistrer) |
+| Prix de vente 6500 | « Marge par unité (nouveau prix) : 3 750 F CFA · 57,7 % · avant : 3 250 F CFA · 54,2 % » |
+| Prix de vente 2000 | Bandeau rouge « Attention : vendu à perte » |
+| Remettre 6500, écrire une description courte, enregistrer | Retour à la liste : « Modifications de … enregistrées » ; prix 6 500 F |
+| Rouvrir **Modifier** | « Dernières modifications » : « prix 6 000 → 6 500 F, description courte modifiée » |
+| Créer un 2e produit sans réception, puis **Modifier** | L'origine (2 choix) et le coût de revient sont encore modifiables |
+| Renommer ce 2e produit « Huile de croissance » en 120 ml | Refusé : « Un autre produit porte déjà ce nom… » |
+| Lien « gérer le stock » | Retour à la liste avec le panneau Stock du produit ouvert |
+| Se connecter en caissier | Pas de bouton **Modifier** |
+
 **Rappels de resserrage** (après `php artisan migrate:fresh --seed` ; Mailpit lancé par `docker compose up -d`) :
 
 | À essayer | Résultat attendu |
@@ -382,7 +397,7 @@ Mêmes fenêtres que le Test 4 : Docker allumé, `php artisan serve` et `npm run
 
 **Exercice : afficher la promotion.** Dans `frontend/src/content/home.ts`, passez la première publicité à `visible: true` et enregistrez. Attendu : elle passe en premier avec **10 000 F CFA**, ~~15 000 F~~ barré et « −5 000 F » ; les flèches et les points apparaissent (2 publicités). Écrivez `remaining: 12` : « Plus que 12 gammes sur 20 » s'affiche ; avec `remaining: 0`, la publicité disparaît. **Remettez ensuite `visible: false` et `remaining: null`**, puis vérifiez avec `git status` que `home.ts` n'est plus modifié (sinon `git restore frontend/src/content/home.ts`).
 
-**Tests automatiques de ces écrans** (dans `frontend/`) : `npx vitest run src/features/home src/features/admin` → 21 tests verts (publicités, bannière, nouveau produit, calcul des réceptions).
+**Tests automatiques de ces écrans** (dans `frontend/`) : `npx vitest run src/features/home src/features/admin` → 29 tests verts (publicités, bannière, nouveau produit, modifier un produit, calcul des réceptions).
 
 **Une image ou un produit ne s'affiche pas ?**
 

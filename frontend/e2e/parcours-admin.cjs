@@ -301,6 +301,23 @@ async function login(page, email, password) {
   const photo = await page.request.get(BASE + fiche.data.images[0].url)
   log(fiche.data.stock_status === 'in_stock' && photo.headers()['content-type'] === 'image/webp', `Boutique : produit en stock, photo servie en WebP (${fiche.data.images[0].url})`)
 
+  // 9 ter. Modifier le produit (maquette du 18 novembre 2026) : origine et coût verrouillés, marge avant / après, historique
+  await menu.getByRole('link', { name: 'Produits et stock' }).click()
+  await page.getByRole('link', { name: 'Modifier Huile de croissance 120 ml' }).click()
+  await page.getByRole('heading', { name: 'Modifier · Huile de croissance 120 ml' }).waitFor()
+  log(await page.getByText('verrouillé', { exact: true }).isVisible() && await page.getByLabel('Coût de revient (F)').count() === 0, 'Modifier : origine et coût verrouillés après la réception d’achat')
+  await page.getByLabel('Prix de vente (F CFA)').fill('6500')
+  const avantApres = (await page.getByText(/avant :/).textContent()).replace(/[\u202f\u00a0]/g, ' ')
+  log(/3 750 F CFA · 57,7 % · avant : 3 250 F CFA · 54,2 %/.test(avantApres), `Modifier : marge avant / après en direct (${avantApres})`)
+  await page.getByLabel(/^Description courte/).fill('Fait pousser et fortifie les cheveux.')
+  await page.screenshot({ path: `${SHOTS}/52-erp-modifier-produit.png`, fullPage: true })
+  await page.getByRole('button', { name: 'Enregistrer les modifications' }).click()
+  await page.getByText('Modifications de « Huile de croissance 120 ml » enregistrées.').waitFor()
+  await page.getByRole('link', { name: 'Modifier Huile de croissance 120 ml' }).click()
+  await page.getByText(/prix 6.000 → 6.500 F/).waitFor() // l'historique arrive juste après la page
+  const journal = (await page.locator('section', { has: page.getByRole('heading', { name: 'Dernières modifications' }) }).textContent()).replace(/[\u202f\u00a0]/g, ' ')
+  log(journal.includes('prix 6 000 → 6 500 F') && journal.includes('description courte modifiée'), 'Modifier : le changement apparaît dans « Dernières modifications » (journal d’audit)')
+
   // 10. Le caissier : menu réduit, pas de chiffre d'affaires, pages interdites
   await ctx.clearCookies()
   const p2 = await (await browser.newContext({ viewport: { width: 1440, height: 900 } })).newPage()

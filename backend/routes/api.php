@@ -102,6 +102,7 @@ Route::prefix('v1')->middleware('throttle:api')->group(function () {
 
             Route::get('products', [CatalogAdminController::class, 'products'])->middleware('permission:products.view');
             Route::patch('products/{product}', [CatalogAdminController::class, 'updateProduct'])->middleware('permission:products.manage');
+            Route::get('products/{product}/history', [CatalogAdminController::class, 'history'])->middleware('permission:products.view');
             Route::get('products/{product}/movements', [CatalogAdminController::class, 'movements'])->middleware('permission:stock.view');
             Route::post('products/{product}/stock-adjustments', [CatalogAdminController::class, 'adjustStock'])->middleware('permission:stock.adjust');
             Route::get('production-batches', [CatalogAdminController::class, 'batches'])->middleware('permission:stock.view');

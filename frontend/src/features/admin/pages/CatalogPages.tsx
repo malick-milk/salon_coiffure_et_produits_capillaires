@@ -1,6 +1,6 @@
 /** Produits et stock, fabrication (EF-COM-01 à 05). Le coût de revient est visible ici (personnel autorisé). */
 import { ImagePlus, Minus, Plus, Star, Trash2 } from 'lucide-react'
-import { useRef, useState, type FormEvent } from 'react'
+import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { Link, useLocation } from 'react-router'
 import { Seo } from '@/components/common/Seo'
 import { QueryError } from '@/components/common/States'
@@ -29,7 +29,14 @@ export function ProductsPage() {
   const canAdjust = useCan('stock.adjust')
   const [selected, setSelected] = useState<AdminProduct | null>(null)
   const [photosOf, setPhotosOf] = useState<number | null>(null)
-  const created = (useLocation().state as { created?: string; published?: boolean } | null)
+  const location = useLocation()
+  const created = location.state as { created?: string; published?: boolean; updated?: string } | null
+  // « gérer le stock » depuis l'écran Modifier : ouvre directement le panneau Stock du produit
+  const stockOf = (location.state as { stockOf?: number } | null)?.stockOf
+  useEffect(() => {
+    const p = stockOf ? products.data?.find((x) => x.id === stockOf) : undefined
+    if (p) setSelected(p)
+  }, [stockOf, products.data])
 
   return (
     <>
@@ -44,6 +51,7 @@ export function ProductsPage() {
           « {created.created} » est créé {created.published ? 'et en vente sur le site.' : 'en brouillon (invisible sur le site). Cochez « En vente » quand il est prêt.'}
         </Feedback>
       )}
+      {created?.updated && <Feedback kind="success">Modifications de « {created.updated} » enregistrées.</Feedback>}
       {update.isError && <Feedback kind="error">{firstError(update.error)}</Feedback>}
       <Card>
         {products.isError ? <QueryError message={apiErrorMessage(products.error)} onRetry={() => products.refetch()} />
@@ -70,6 +78,7 @@ export function ProductsPage() {
                     </label>
                   </td>
                   <td className="whitespace-nowrap">
+                    {canManage && <><Button asChild variant="dark" size="sm"><Link to={`/admin/produits/${p.id}/modifier`} aria-label={`Modifier ${label(p)}`}>Modifier</Link></Button>{' '}</>}
                     <Button variant="subtle" size="sm" onClick={() => { setPhotosOf(null); setSelected(p) }}>Stock</Button>{' '}
                     <Button variant="subtle" size="sm" onClick={() => { setSelected(null); setPhotosOf(p.id) }}>Photos ({p.images.length})</Button>
                   </td>
@@ -149,7 +158,7 @@ function StockPanel({ product, canAdjust, onClose }: { product: AdminProduct; ca
 }
 
 /** Photos d'un produit existant : ajouter (réduite par le navigateur), choisir la principale, supprimer */
-function PhotosPanel({ product, canManage, onClose }: { product: AdminProduct; canManage: boolean; onClose: () => void }) {
+export function PhotosPanel({ product, canManage, onClose, title }: { product: AdminProduct; canManage: boolean; onClose?: () => void; title?: string }) {
   const upload = useUploadProductImage()
   const remove = useDeleteProductImage()
   const primary = useMakePrimaryImage()
@@ -174,7 +183,7 @@ function PhotosPanel({ product, canManage, onClose }: { product: AdminProduct; c
   }
 
   return (
-    <Card title={`Photos — ${label(product)}`} actions={<Button variant="subtle" size="sm" onClick={onClose}>Fermer</Button>}>
+    <Card title={title ?? `Photos — ${label(product)}`} actions={onClose && <Button variant="subtle" size="sm" onClick={onClose}>Fermer</Button>}>
       {(error || remove.isError || primary.isError) && <Feedback kind="error">{error ?? firstError(remove.error ?? primary.error)}</Feedback>}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         {product.images.map((img, i) => (

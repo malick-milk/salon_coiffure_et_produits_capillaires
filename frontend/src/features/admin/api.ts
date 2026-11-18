@@ -3,7 +3,7 @@ import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tansta
 import { http } from '@/lib/http'
 import type { BookingStatus, OrderStatus } from '@/types/api'
 import type {
-  AdminBooking, AdminCustomer, BrandOption, CategoryOption, NewProduct, NewPurchaseReceipt, PurchaseReceipt, AdminOrderDetail, AdminOrderRow, AdminProduct, AuditEntry, CostCategory, Dashboard,
+  AdminBooking, AdminCustomer, BrandOption, CategoryOption, NewProduct, NewPurchaseReceipt, ProductChanges, ProductHistoryEntry, PurchaseReceipt, AdminOrderDetail, AdminOrderRow, AdminProduct, AuditEntry, CostCategory, Dashboard,
   AdminPickupPoint, AdminSurvey, PageMeta, PickupPointDetail, PickupPointsIndex, StatementPreview, PaymentMethod, ProductionBatch, RoleWithPermissions, StaffRole, StaffUser, StockMovementRow, SurveyFilter, SurveyStats,
 } from '@/types/admin'
 import type { Analytics, ExportDataset } from '@/types/analytics'
@@ -68,10 +68,13 @@ export const useChangeBookingStatus = () =>
   )
 
 export const useUpdateProduct = () =>
-  useAdminMutation((v: { id: number } & Partial<Pick<AdminProduct, 'price' | 'is_active' | 'is_featured' | 'low_stock_threshold'>>) => {
+  useAdminMutation(async (v: { id: number } & ProductChanges) => {
     const { id, ...body } = v
-    return http.patch(`${A}/products/${id}`, body)
-  }, [['admin', 'products'], ['products'], ['product']])
+    return (await http.patch<{ data: AdminProduct }>(`${A}/products/${id}`, body)).data.data
+  }, [['admin', 'products'], ['admin', 'product-history'], ['products'], ['product']])
+
+export const useProductHistory = (productId: number) =>
+  useQuery({ queryKey: ['admin', 'product-history', productId], queryFn: () => get<ProductHistoryEntry[]>(`${A}/products/${productId}/history`) })
 
 // ---------- Nouveau produit, photos, réceptions d'achat (16 novembre 2026) ----------
 export const useBrands = () => useQuery({ queryKey: ['admin', 'brands'], queryFn: () => get<BrandOption[]>(`${A}/brands`) })

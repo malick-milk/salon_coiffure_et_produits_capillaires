@@ -97,6 +97,7 @@ export interface AdminProduct {
   stock_quantity: number
   low_stock_threshold: number
   stock_status: 'in_stock' | 'low_stock' | 'out_of_stock'
+  stock_entries_locked: boolean // un lot ou une réception existe : origine et coût verrouillés
   is_active: boolean
   is_featured: boolean
   short_description: string | null
@@ -321,6 +322,19 @@ export interface NewProduct {
   low_stock_threshold: number
   short_description: string | null
   description: string | null
+}
+
+/** Ce que l'écran « Modifier un produit » peut envoyer (la référence et l'adresse n'en font jamais partie) */
+export type ProductChanges = Partial<Pick<AdminProduct, 'origin' | 'name' | 'brand_id' | 'category_id' | 'unit_size' | 'price' | 'compare_at_price'
+  | 'is_active' | 'is_featured' | 'low_stock_threshold' | 'short_description' | 'description'> & { cost_price: number }>
+
+/** Une ligne de « Dernières modifications » (journal d'audit du produit) */
+export interface ProductHistoryEntry {
+  id: number
+  event: string // created, updated, image_added, image_removed…
+  causer: string
+  created_at: string | null
+  changes: { field: string; old: unknown; new: unknown }[]
 }
 
 export interface PurchaseReceipt {

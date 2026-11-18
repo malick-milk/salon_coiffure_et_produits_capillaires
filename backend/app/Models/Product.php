@@ -80,6 +80,26 @@ class Product extends Model
         return $this->hasMany(PurchaseReceipt::class);
     }
 
+    /** @return HasMany<ProductionBatch, $this> */
+    public function productionBatches(): HasMany
+    {
+        return $this->hasMany(ProductionBatch::class);
+    }
+
+    /**
+     * Le stock et le coût de ce produit viennent-ils déjà d'un lot fabriqué ou d'une réception d'achat ?
+     * Si oui : l'origine est verrouillée et le coût de revient n'est plus saisi à la main (moyenne pondérée).
+     * Utilise les compteurs chargés par withExists() quand ils sont là (liste de l'ERP : pas une requête par ligne).
+     */
+    public function hasStockEntries(): bool
+    {
+        $attributes = $this->getAttributes();
+        $batches = array_key_exists('production_batches_exists', $attributes) ? (bool) $attributes['production_batches_exists'] : $this->productionBatches()->exists();
+        $receipts = array_key_exists('purchase_receipts_exists', $attributes) ? (bool) $attributes['purchase_receipts_exists'] : $this->purchaseReceipts()->exists();
+
+        return $batches || $receipts;
+    }
+
     /** @return HasMany<ProductImage, $this> */
     public function images(): HasMany
     {
@@ -127,6 +147,6 @@ class Product extends Model
     /** Journal d'audit (RG-SEC-01) : qui a modifié quoi, avec les valeurs avant et après */
     public function getActivitylogOptions(): LogOptions
     {
-        return LogOptions::defaults()->useLogName('products')->logOnly(['name', 'price', 'compare_at_price', 'cost_price', 'is_active', 'is_featured', 'low_stock_threshold', 'description'])->logOnlyDirty()->dontSubmitEmptyLogs();
+        return LogOptions::defaults()->useLogName('products')->logOnly(['origin', 'name', 'brand_id', 'category_id', 'unit_size', 'price', 'compare_at_price', 'cost_price', 'is_active', 'is_featured', 'low_stock_threshold', 'short_description', 'description'])->logOnlyDirty()->dontSubmitEmptyLogs();
     }
 }

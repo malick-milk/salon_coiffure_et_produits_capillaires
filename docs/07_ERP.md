@@ -131,6 +131,24 @@ L'écran affiche le calcul **en direct** avant d'enregistrer (`frontend/src/feat
 
 > **Pourquoi la moyenne pondérée et pas le dernier prix ?** Si le fournisseur augmente son prix, les 10 premières unités ont quand même coûté 2 000 F. Avec le dernier prix (2 600 F), la marge des Analyses serait sous-estimée tant que ces unités ne sont pas vendues.
 
+### 5 ter. Modifier un produit existant (18 novembre 2026)
+
+Bouton **Modifier** sur chaque ligne de « Produits et stock » → `/admin/produits/:id/modifier` (`EditProductPage.tsx`), `PATCH admin/products/{id}` (permission `products.manage`).
+
+| Élément | Règle | Pourquoi |
+|---|---|---|
+| Référence (SKU) et adresse (slug) | **ne changent jamais** (le serveur ignore ces champs) | factures, commandes et liens partagés sur les réseaux y renvoient |
+| Origine (fabriqué / revendu) | **verrouillée** dès le premier lot fabriqué ou la première réception d'achat | le stock et le coût en dépendent |
+| Coût de revient | saisissable **avant** le premier lot ou la première réception ; ensuite en lecture seule | après, c'est la moyenne pondérée qui le calcule |
+| Prix, prix barré | modifiables ; la marge s'affiche **avant et après** (3 250 F → 3 750 F), en rouge si vente à perte | voir l'effet avant d'enregistrer |
+| Nom, marque, catégorie, contenance | modifiables, sans doublon (même marque + nom + contenance) | |
+| Photos | même panneau que « Photos », enregistrées tout de suite | |
+| Commandes passées | gardent leur prix | il est **figé** dans `order_items` au moment de l'achat |
+
+Le verrou se calcule avec `Product::hasStockEntries()`. Dans la liste, `withExists(['productionBatches', 'purchaseReceipts'])` charge les deux réponses en **une seule requête** (et non une par produit : c'est le piège « N+1 »).
+
+L'écran n'envoie **que les champs modifiés** : le journal d'audit ne contient que de vrais changements. « Dernières modifications » (`GET admin/products/{id}/history`) affiche les 5 dernières lignes du journal pour ce produit, en phrases courtes (« prix 6 000 → 6 500 F »).
+
 ## 6. Le journal d'audit (RG-SEC-01)
 
 `spatie/laravel-activitylog` enregistre automatiquement, avec l'**auteur**, la **date** et les **valeurs avant et après** :

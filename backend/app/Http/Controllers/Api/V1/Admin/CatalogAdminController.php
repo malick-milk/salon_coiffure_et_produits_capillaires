@@ -10,33 +10,73 @@ use App\Http\Controllers\Controller;
 use App\Models\Product;
 use App\Models\ProductionBatch;
 use App\Models\StockMovement;
+use App\Models\User;
 use App\Services\Inventory\StockService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
+use Spatie\Activitylog\Models\Activity;
 
 /** Produits, stock et fabrication (EF-COM-01 à 05). Ici, le coût de revient EST visible (personnel autorisé). */
 class CatalogAdminController extends Controller
 {
     public function products(): JsonResponse
     {
-        $products = Product::query()->with(['category', 'brand', 'images'])->orderBy('name')->orderBy('unit_size')->get();
+        $products = Product::query()->with(['category', 'brand', 'images'])->withExists(['productionBatches', 'purchaseReceipts'])->orderBy('name')->orderBy('unit_size')->get();
 
         return response()->json(['data' => $products->map(fn (Product $p) => self::row($p))]);
     }
 
+    /**
+     * Modifier un produit (maquette « Modifier un produit », validée le 18 novembre 2026).
+     * Règles : la référence (SKU) et l'adresse (slug) ne changent JAMAIS (factures, liens partagés) ;
+     * l'origine et le coût de revient se verrouillent dès le premier lot fabriqué ou la première réception d'achat
+     * (le coût devient alors la moyenne pondérée). Chaque changement va au journal d'audit (avant / après).
+     * Les commandes passées gardent leur prix : il est figé dans order_items au moment de l'achat.
+     */
     public function updateProduct(Request $request, Product $product): JsonResponse
     {
         $data = $request->validate([
+            'origin' => ['sometimes', Rule::enum(ProductOrigin::class)],
+            'name' => ['sometimes', 'string', 'min:2', 'max:120'],
+            'brand_id' => ['sometimes', 'integer', 'exists:brands,id'],
+            'category_id' => ['sometimes', 'integer', Rule::exists('categories', 'id')->where('is_active', true)],
+            'unit_size' => ['sometimes', 'nullable', 'string', 'max:50'],
             'price' => ['sometimes', 'integer', 'min:0', 'max:10000000'],
             'compare_at_price' => ['sometimes', 'nullable', 'integer', 'min:1'],
+            'cost_price' => ['sometimes', 'integer', 'min:0', 'max:10000000'],
             'is_active' => ['sometimes', 'boolean'],
             'is_featured' => ['sometimes', 'boolean'],
             'low_stock_threshold' => ['sometimes', 'integer', 'min:0', 'max:100000'],
             'short_description' => ['sometimes', 'nullable', 'string', 'max:500'],
             'description' => ['sometimes', 'nullable', 'string', 'max:10000'],
-        ]);
+        ], [], ['name' => 'nom du produit', 'brand_id' => 'marque', 'category_id' => 'catégorie', 'price' => 'prix de vente', 'cost_price' => 'coût de revient', 'compare_at_price' => 'prix barré']);
+
+        // Verrous : une fois du stock entré par un lot ou une réception, l'origine et le coût ne se touchent plus
+        if ($product->hasStockEntries()) {
+            if (array_key_exists('origin', $data) && $data['origin'] !== $product->origin->value) {
+                throw ValidationException::withMessages(['origin' => "L'origine ne peut plus changer : du stock est déjà entré par un lot fabriqué ou une réception d'achat."]);
+            }
+            if (array_key_exists('cost_price', $data) && (float) $data['cost_price'] !== (float) $product->cost_price) {
+                throw ValidationException::withMessages(['cost_price' => 'Le coût de revient se calcule maintenant tout seul (moyenne des lots et des réceptions) : il ne se saisit plus à la main.']);
+            }
+            unset($data['origin'], $data['cost_price']);
+        }
+
+        // Pas deux fiches identiques (même marque, même nom, même contenance), la fiche modifiée exceptée
+        if (array_key_exists('name', $data) || array_key_exists('brand_id', $data) || array_key_exists('unit_size', $data)) {
+            $data['name'] = trim($data['name'] ?? $product->name);
+            $data['unit_size'] = array_key_exists('unit_size', $data) ? (trim((string) $data['unit_size']) ?: null) : $product->unit_size;
+            $size = $data['unit_size'];
+            $duplicate = Product::withTrashed()->whereKeyNot($product->id)->where('brand_id', $data['brand_id'] ?? $product->brand_id)->where('name', $data['name'])
+                ->when($size, fn ($q) => $q->where('unit_size', $size), fn ($q) => $q->whereNull('unit_size'))->exists();
+            if ($duplicate) {
+                throw ValidationException::withMessages(['name' => 'Un autre produit porte déjà ce nom, dans cette marque et cette contenance.']);
+            }
+        }
+
         // Le prix barré se compare au prix FINAL : celui envoyé, sinon le prix actuel.
         // (« gt:price » ne voyait que le champ de la requête : un prix barré seul était toujours refusé)
         $price = $data['price'] ?? $product->price;
@@ -51,6 +91,26 @@ class CatalogAdminController extends Controller
         $product->update($data); // tracé dans le journal d'audit (valeurs avant / après)
 
         return response()->json(['data' => self::row($product->fresh(['category', 'brand', 'images']))]);
+    }
+
+    /** « Dernières modifications » d'un produit : les 5 dernières lignes du journal d'audit qui le concernent */
+    public function history(Product $product): JsonResponse
+    {
+        $rows = Activity::query()->with('causer')->where('subject_type', $product->getMorphClass())->where('subject_id', $product->id)
+            ->where('log_name', 'products')->latest('id')->limit(5)->get();
+
+        return response()->json(['data' => $rows->map(function (Activity $a) {
+            $new = (array) ($a->properties['attributes'] ?? []);
+            $old = (array) ($a->properties['old'] ?? []);
+
+            return [
+                'id' => $a->id, 'event' => $a->event,
+                'causer' => $a->causer instanceof User ? trim($a->causer->first_name.' '.$a->causer->last_name) : 'Système',
+                'created_at' => Carbon::make($a->created_at)?->format('Y-m-d\TH:i:s'),
+                // Seulement les champs qui ont changé, pour une phrase courte : « prix 5 500 -> 6 000 F »
+                'changes' => collect($new)->map(fn ($value, $field) => ['field' => $field, 'old' => $old[$field] ?? null, 'new' => $value])->values(),
+            ];
+        })]);
     }
 
     public function movements(Product $product): JsonResponse
@@ -134,6 +194,8 @@ class CatalogAdminController extends Controller
             'cost_price' => $p->cost_price !== null ? (float) $p->cost_price : null,
             'margin_rate' => $p->cost_price !== null && $p->price > 0 ? round(100 * ($p->price - (float) $p->cost_price) / $p->price, 1) : null,
             'stock_quantity' => $p->stock_quantity, 'low_stock_threshold' => $p->low_stock_threshold, 'stock_status' => $p->stockStatus(),
+            // Origine et coût verrouillés : du stock est déjà entré par un lot fabriqué ou une réception d'achat
+            'stock_entries_locked' => $p->hasStockEntries(),
             'is_active' => $p->is_active, 'is_featured' => $p->is_featured, 'short_description' => $p->short_description, 'description' => $p->description,
         ];
     }
