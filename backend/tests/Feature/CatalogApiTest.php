@@ -17,16 +17,18 @@ class CatalogApiTest extends TestCase
     {
         $this->getJson('/api/v1/categories')->assertOk()
             ->assertJsonPath('data.0.slug', 'soins-capillaires')
-            ->assertJsonPath('data.0.product_count', 10)
-            ->assertJsonPath('data.1.slug', 'serums')
-            ->assertJsonPath('data.1.product_count', 3);
+            ->assertJsonPath('data.0.product_count', 11) // 10 soins + la gamme complète
+            ->assertJsonPath('data.1.slug', 'gammes') // en premier : la gamme du lancement
+            ->assertJsonPath('data.1.product_count', 1)
+            ->assertJsonPath('data.2.slug', 'serums')
+            ->assertJsonPath('data.2.product_count', 3);
     }
 
     public function test_la_liste_respecte_le_format_pagine_du_contrat(): void
     {
         $this->getJson('/api/v1/products')->assertOk()
-            ->assertJsonCount(10, 'data')
-            ->assertJsonPath('meta', ['current_page' => 1, 'last_page' => 1, 'per_page' => 12, 'total' => 10])
+            ->assertJsonCount(11, 'data')
+            ->assertJsonPath('meta', ['current_page' => 1, 'last_page' => 1, 'per_page' => 12, 'total' => 11])
             ->assertJsonStructure(['data' => [['id', 'slug', 'sku', 'name', 'brand', 'unit_size', 'price', 'stock_status', 'stock_left', 'category', 'image_url']]]);
     }
 
@@ -46,7 +48,7 @@ class CatalogApiTest extends TestCase
             ->assertJsonPath('data.0.unit_size', '15 ml')
             ->assertJsonPath('data.0.price', 1500);
 
-        $this->getJson('/api/v1/products?category=soins-capillaires')->assertJsonPath('meta.total', 10);
+        $this->getJson('/api/v1/products?category=soins-capillaires')->assertJsonPath('meta.total', 11);
     }
 
     public function test_la_recherche_ignore_les_accents_et_les_majuscules(): void
@@ -66,6 +68,7 @@ class CatalogApiTest extends TestCase
     {
         // Crème : 96 fabriquées, 96 vendues au revendeur
         $this->getJson('/api/v1/products/creme-capillaire')->assertJsonPath('data.stock_status', 'out_of_stock');
+        // 9 : la gamme complète n'y est pas, puisqu'elle contient la crème
         $this->getJson('/api/v1/products?in_stock=1')->assertJsonPath('meta.total', 9);
 
         // Masque : 24 en stock, seuil d'alerte relevé à 30 -> stock faible, avec le nombre restant
@@ -89,7 +92,7 @@ class CatalogApiTest extends TestCase
 
         $this->getJson('/api/v1/products/spray-anti-chute')->assertNotFound()->assertExactJson(['message' => 'Ressource introuvable.']);
         $this->getJson('/api/v1/products/inexistant')->assertNotFound();
-        $this->getJson('/api/v1/products')->assertJsonPath('meta.total', 9);
+        $this->getJson('/api/v1/products')->assertJsonPath('meta.total', 10);
     }
 
     public function test_les_filtres_invalides_sont_refuses_avec_un_message_en_francais(): void

@@ -24,7 +24,7 @@ class CatalogAdminController extends Controller
 {
     public function products(): JsonResponse
     {
-        $products = Product::query()->with(['category', 'brand', 'images'])->withExists(['productionBatches', 'purchaseReceipts'])->orderBy('name')->orderBy('unit_size')->get();
+        $products = Product::query()->with(['category', 'brand', 'images'])->with('bundleItems.component')->withExists(['productionBatches', 'purchaseReceipts'])->orderBy('name')->orderBy('unit_size')->get();
 
         return response()->json(['data' => $products->map(fn (Product $p) => self::row($p))]);
     }
@@ -84,6 +84,10 @@ class CatalogAdminController extends Controller
         if ($compareAt !== null && $compareAt <= $price) {
             throw ValidationException::withMessages(['compare_at_price' => "Le prix barré doit être supérieur au prix de vente ({$price} F)."]);
         }
+        // Le prix membre doit rester sous le prix normal (sinon « −5 000 F » deviendrait une hausse)
+        if ($product->member_price !== null && $price <= $product->member_price) {
+            throw ValidationException::withMessages(['price' => "Le prix de vente doit rester supérieur au prix membre ({$product->member_price} F)."]);
+        }
         // Publier (brouillon -> en vente) exige une photo : une fiche sans photo ne vend pas
         if (($data['is_active'] ?? false) && ! $product->is_active && ! $product->images()->exists()) {
             throw ValidationException::withMessages(['is_active' => 'Ajoutez au moins une photo avant de publier ce produit.']);
@@ -132,6 +136,9 @@ class CatalogAdminController extends Controller
             'quantity' => ['required', 'integer', 'not_in:0', 'min:-100000', 'max:100000'],
             'reason' => ['required', 'string', 'min:3', 'max:255'],
         ]);
+        if ($product->is_bundle) {
+            throw ValidationException::withMessages(['type' => 'Une gamme n’a pas de stock à elle : son stock, c’est celui de ses 6 soins. Faites entrer les soins un par un.']);
+        }
         $type = StockMovementType::from($data['type']);
         // Une perte est toujours une SORTIE, un retour toujours une ENTRÉE ; un ajustement peut être les deux
         $quantity = match ($type) {
@@ -176,7 +183,11 @@ class CatalogAdminController extends Controller
             'costs.*.label' => ['required', 'string', 'max:150'],
             'costs.*.amount' => ['required', 'integer', 'min:1', 'max:100000000'],
         ], ['batch_number.unique' => 'Ce numéro de lot existe déjà.']);
-        if (Product::query()->find($data['product_id'])?->origin === ProductOrigin::Resold) {
+        $target = Product::query()->find($data['product_id']);
+        if ($target?->is_bundle) {
+            throw ValidationException::withMessages(['product_id' => 'Une gamme n’a pas de stock à elle : son stock, c’est celui de ses 6 soins. Faites entrer les soins un par un.']);
+        }
+        if ($target?->origin === ProductOrigin::Resold) {
             throw ValidationException::withMessages(['product_id' => "Ce produit est acheté et revendu : son stock entre par une réception d'achat."]);
         }
         $batch = $record->execute($data, $request->user());
@@ -193,7 +204,9 @@ class CatalogAdminController extends Controller
             'category' => $p->category->name, 'brand' => $p->brand?->name, 'price' => $p->price, 'compare_at_price' => $p->compare_at_price,
             'cost_price' => $p->cost_price !== null ? (float) $p->cost_price : null,
             'margin_rate' => $p->cost_price !== null && $p->price > 0 ? round(100 * ($p->price - (float) $p->cost_price) / $p->price, 1) : null,
-            'stock_quantity' => $p->stock_quantity, 'low_stock_threshold' => $p->low_stock_threshold, 'stock_status' => $p->stockStatus(),
+            // Gamme : nombre de gammes complètes qu'on peut former avec le stock des composants
+            'is_bundle' => $p->is_bundle, 'member_price' => $p->member_price, 'member_price_limit' => $p->member_price_limit,
+            'stock_quantity' => $p->availableQuantity(), 'low_stock_threshold' => $p->low_stock_threshold, 'stock_status' => $p->stockStatus(),
             // Origine et coût verrouillés : du stock est déjà entré par un lot fabriqué ou une réception d'achat
             'stock_entries_locked' => $p->hasStockEntries(),
             'is_active' => $p->is_active, 'is_featured' => $p->is_featured, 'short_description' => $p->short_description, 'description' => $p->description,

@@ -13,18 +13,22 @@ class RegisterRequest extends FormRequest
     protected function prepareForValidation(): void
     {
         $this->normalizePhones(['phone']);
-        $this->merge(['email' => mb_strtolower(trim((string) $this->input('email')))]);
+        // Champs facultatifs laissés vides : null (et non « »), sinon l'unicité de l'e-mail bloquerait le 2e compte sans e-mail
+        $email = mb_strtolower(trim((string) $this->input('email')));
+        $lastName = trim((string) $this->input('last_name'));
+        $this->merge(['email' => $email === '' ? null : $email, 'last_name' => $lastName === '' ? null : $lastName]);
     }
 
     public function rules(): array
     {
         return [
             'first_name' => ['required', 'string', 'min:2', 'max:100'],
-            'last_name' => ['required', 'string', 'min:2', 'max:100'],
-            'email' => ['required', 'email:rfc', 'max:191', 'unique:users,email'],
+            // Inscription rapide (18 novembre 2026) : prénom, téléphone, mot de passe. Nom et e-mail facultatifs.
+            'last_name' => ['nullable', 'string', 'min:2', 'max:100'],
+            'email' => ['nullable', 'email:rfc', 'max:191', 'unique:users,email'],
             'phone' => ['required', 'string', 'regex:'.Phone::SENEGAL_MOBILE, 'unique:users,phone'],
-            // 8 caractères minimum, 72 maximum (limite de bcrypt), confirmation identique
-            'password' => ['required', 'confirmed', 'max:72', Password::defaults()], // règle commune : AppServiceProvider
+            // 8 caractères minimum, 72 maximum (limite de bcrypt). Plus de 2e saisie : le bouton « Afficher » la remplace
+            'password' => ['required', 'max:72', Password::defaults()], // règle commune : AppServiceProvider
             'consent' => ['accepted'],
         ];
     }
@@ -35,7 +39,6 @@ class RegisterRequest extends FormRequest
             'email.unique' => 'Un compte existe déjà avec cette adresse.',
             'phone.unique' => 'Ce numéro est déjà utilisé.',
             'phone.regex' => 'Numéro mobile invalide.',
-            'password.confirmed' => 'Les mots de passe ne correspondent pas.',
         ];
     }
 }

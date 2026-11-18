@@ -21,6 +21,9 @@ use Spatie\Activitylog\Traits\LogsActivity;
  *
  * @property int $price
  * @property int|null $compare_at_price
+ * @property int|null $member_price
+ * @property int|null $member_price_limit
+ * @property bool $is_bundle
  * @property string|null $cost_price
  * @property int $stock_quantity
  * @property int $low_stock_threshold
@@ -36,7 +39,7 @@ class Product extends Model
 
     // stock_quantity est volontairement ABSENT : impossible de le modifier par « mass assignment »
     protected $fillable = [
-        'category_id', 'brand_id', 'variant_of_id', 'origin', 'sku', 'name', 'slug', 'short_description', 'description',
+        'category_id', 'brand_id', 'variant_of_id', 'origin', 'is_bundle', 'member_price', 'member_price_limit', 'sku', 'name', 'slug', 'short_description', 'description',
         'unit_size', 'price', 'compare_at_price', 'cost_price', 'low_stock_threshold', 'is_active', 'is_featured',
         'meta_title', 'meta_description',
     ];
@@ -46,6 +49,9 @@ class Product extends Model
         return [
             'price' => 'integer',
             'compare_at_price' => 'integer',
+            'member_price' => 'integer',
+            'member_price_limit' => 'integer',
+            'is_bundle' => 'boolean',
             'cost_price' => 'decimal:2',
             'stock_quantity' => 'integer',
             'low_stock_threshold' => 'integer',
@@ -130,11 +136,33 @@ class Product extends Model
     }
 
     /** Le statut public du stock (le chiffre exact n'est jamais exposé) */
+    /** @return HasMany<ProductBundleItem, $this> */
+    public function bundleItems(): HasMany
+    {
+        return $this->hasMany(ProductBundleItem::class, 'bundle_id');
+    }
+
+    /**
+     * Quantité vendable. Produit simple : son stock. GAMME : le nombre de gammes complètes qu'on peut
+     * former avec le stock de ses composants (le composant le plus rare décide).
+     */
+    public function availableQuantity(): int
+    {
+        if (! $this->is_bundle) {
+            return $this->stock_quantity;
+        }
+        $this->loadMissing('bundleItems.component'); // chargement explicite (pas de requête cachée dans une boucle)
+
+        return (int) ($this->bundleItems->map(fn (ProductBundleItem $i) => intdiv(max(0, $i->component->stock_quantity), $i->quantity))->min() ?? 0);
+    }
+
     public function stockStatus(): string
     {
+        $available = $this->availableQuantity();
+
         return match (true) {
-            $this->stock_quantity === 0 => 'out_of_stock',
-            $this->stock_quantity <= $this->low_stock_threshold => 'low_stock',
+            $available === 0 => 'out_of_stock',
+            $available <= $this->low_stock_threshold => 'low_stock',
             default => 'in_stock',
         };
     }
@@ -147,6 +175,6 @@ class Product extends Model
     /** Journal d'audit (RG-SEC-01) : qui a modifié quoi, avec les valeurs avant et après */
     public function getActivitylogOptions(): LogOptions
     {
-        return LogOptions::defaults()->useLogName('products')->logOnly(['origin', 'name', 'brand_id', 'category_id', 'unit_size', 'price', 'compare_at_price', 'cost_price', 'is_active', 'is_featured', 'low_stock_threshold', 'short_description', 'description'])->logOnlyDirty()->dontSubmitEmptyLogs();
+        return LogOptions::defaults()->useLogName('products')->logOnly(['origin', 'name', 'member_price', 'member_price_limit', 'brand_id', 'category_id', 'unit_size', 'price', 'compare_at_price', 'cost_price', 'is_active', 'is_featured', 'low_stock_threshold', 'short_description', 'description'])->logOnlyDirty()->dontSubmitEmptyLogs();
     }
 }

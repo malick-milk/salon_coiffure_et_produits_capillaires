@@ -98,6 +98,25 @@ class DaboHairCatalogSeeder extends Seeder
         }
         $products['DAB-SAP-015']->update(['variant_of_id' => $products['DAB-SAP-030']->id]);
 
+        // GAMME COMPLÈTE (lancement du 15 décembre 2026) : 6 soins vendus ensemble, 15 000 F ;
+        // 10 000 F pour une cliente connectée (prix membre), 20 gammes à ce prix, une par compte.
+        // Pas de stock à elle : on la vend tant que les 6 composants sont en stock.
+        // Sérum : Activ'Pousse 30 ml, provisoirement (Activ'Pousse ou Booster : à confirmer avec Awa).
+        $gammes = Category::updateOrCreate(['slug' => 'gammes'], ['name' => 'Gammes', 'parent_id' => $root->id, 'position' => 0]);
+        $gamme = Product::updateOrCreate(['sku' => 'DAB-GAM-001'], [
+            'name' => 'Gamme complète Dabo Hair', 'slug' => 'gamme-complete-dabo-hair', 'unit_size' => '6 soins', 'price' => 15000,
+            'member_price' => 10000, 'member_price_limit' => 20, 'is_bundle' => true, 'category_id' => $gammes->id, 'brand_id' => $dabo->id,
+            'is_featured' => true, 'low_stock_threshold' => 5,
+            'short_description' => 'Les six soins Dabo Hair pour des cheveux à l’état pur : shampooing, masque, Leave In, crème, sérum et spray hydratant.',
+        ]);
+        foreach (['DAB-SHA-001', 'DAB-MAS-001', 'DAB-LEA-250', 'DAB-CRE-001', 'DAB-SAP-030', 'DAB-SPH-250'] as $sku) {
+            $gamme->bundleItems()->updateOrCreate(['component_id' => $products[$sku]->id], ['quantity' => 1]);
+        }
+        foreach ([['/images/publicites/gamme-verticale.webp', 'Les six soins Dabo Hair sur une table : Leave In, sérum, masque, crème, spray hydratant et shampooing'],
+            ['/images/publicites/gamme-horizontale.webp', 'La gamme complète Dabo Hair, vue d’ensemble']] as $i => [$path, $alt]) {
+            ProductImage::updateOrCreate(['product_id' => $gamme->id, 'path' => $path], ['alt_text' => $alt, 'position' => $i, 'is_primary' => $i === 0]);
+        }
+
         // Vente en gros RÉELLE (capture du client) : 36 douzaines, 1 374 000 F CFA.
         // PAS en production : le nom du revendeur n'est pas encore renseigné ([REVENDEUR] [NOM]) ; le stock réel
         // se saisit le premier jour par un inventaire dans l'ERP (docs/11_DEPLOIEMENT.md, « Jour 1 »).

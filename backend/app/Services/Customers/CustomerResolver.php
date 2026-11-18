@@ -15,13 +15,23 @@ use App\Support\Phone;
  */
 class CustomerResolver
 {
-    /** @param array{first_name:string,last_name:string,phone:string,email:?string} $data */
+    /** @param array{first_name:string,last_name:?string,phone:string,email:?string} $data */
     public function resolve(?User $user, array $data): Customer
     {
         $phone = Phone::normalize($data['phone']);
 
         if ($user) {
-            return $user->customer ?? Customer::query()->updateOrCreate(
+            // Compte créé par l'inscription rapide (sans nom ni e-mail) : la 1re commande les complète
+            if ($user->customer) {
+                $user->customer->fill(array_filter([
+                    'last_name' => $user->customer->last_name ? null : ($data['last_name'] ?? null),
+                    'email' => $user->customer->email ? null : ($data['email'] ?? null),
+                ]))->save();
+
+                return $user->customer;
+            }
+
+            return Customer::query()->updateOrCreate(
                 ['phone' => $user->phone ?: $phone],
                 ['user_id' => $user->id, 'first_name' => $user->first_name, 'last_name' => $user->last_name, 'email' => $user->email],
             );

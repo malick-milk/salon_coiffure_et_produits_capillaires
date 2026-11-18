@@ -58,8 +58,14 @@ class ChangeOrderStatusAction
             if ($next === OrderStatus::Cancelled && $atPoint) {
                 $this->pickupPoints->releaseForCancelledOrder($order, $by?->id); // retour dans le stock du partenaire
             } elseif ($next === OrderStatus::Cancelled) {
-                foreach ($order->items()->with('product')->get() as $item) {
-                    $this->stock->record($item->product, StockMovementType::SaleCancellation, $item->quantity, $order, "Annulation {$order->reference}", $by?->id);
+                foreach ($order->items()->with('product.bundleItems.component')->get() as $item) {
+                    // Une gamme rend ses composants au stock (c'est eux qui étaient sortis à la vente)
+                    $returns = $item->product->is_bundle
+                        ? $item->product->bundleItems->map(fn ($c) => [$c->component, $item->quantity * $c->quantity])
+                        : collect([[$item->product, $item->quantity]]);
+                    foreach ($returns as [$product, $quantity]) {
+                        $this->stock->record($product, StockMovementType::SaleCancellation, $quantity, $order, "Annulation {$order->reference}", $by?->id);
+                    }
                 }
             }
 

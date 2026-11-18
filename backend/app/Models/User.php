@@ -20,6 +20,8 @@ use Spatie\Permission\Traits\HasRoles;
  *
  * Types pour l'analyse statique (Larastan) : colonnes converties et dates.
  *
+ * @property string|null $last_name
+ * @property string|null $email
  * @property Carbon|null $email_verified_at
  * @property Carbon|null $last_login_at
  * @property string $password

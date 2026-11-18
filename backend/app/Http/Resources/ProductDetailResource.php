@@ -21,6 +21,10 @@ class ProductDetailResource extends ProductSummaryResource
             'short_description' => $this->short_description,
             'description' => $this->description, // affiché comme TEXTE par le frontend (anti-XSS)
             'hair_types' => $this->hairTypes->map(fn ($h) => ['name' => $h->name, 'slug' => $h->slug])->values(),
+            // Ce que contient une gamme (« Shampooing sans sulfate », « Leave In 250 ml »…)
+            'bundle_items' => $this->is_bundle
+                ? $this->bundleItems->map(fn ($i) => ['name' => $i->component->displayName(), 'slug' => $i->component->slug, 'quantity' => $i->quantity])->values()
+                : [],
             'images' => $this->images->map(fn ($i) => ['url' => $i->path, 'alt' => $i->alt_text ?? $this->displayName()])->values(),
             'variants' => $family->count() > 1
                 ? $family->sortByDesc('price')->map(fn (Product $p) => [

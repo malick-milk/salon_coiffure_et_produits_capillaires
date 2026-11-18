@@ -8,6 +8,7 @@ use App\Http\Requests\RegisterRequest;
 use App\Http\Resources\UserResource;
 use App\Models\Customer;
 use App\Models\User;
+use App\Support\Phone;
 use App\Support\SecurityLog;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -29,20 +30,23 @@ class AuthController extends Controller
 
     public function login(LoginRequest $request): UserResource|JsonResponse
     {
-        $email = mb_strtolower(trim($request->string('email')->toString()));
-        $key = 'login:'.$email.'|'.$request->ip();
+        // « email » contient l'e-mail OU le téléphone (« 77 123 45 67 », « +221 77… ») : on cherche la bonne colonne
+        $login = mb_strtolower(trim($request->string('email')->toString()));
+        $byEmail = str_contains($login, '@');
+        $key = 'login:'.($byEmail ? $login : Phone::normalize($login)).'|'.$request->ip();
+        $masked = $byEmail ? SecurityLog::maskEmail($login) : '…'.substr(Phone::normalize($login), -2);
 
         if (RateLimiter::tooManyAttempts($key, self::MAX_ATTEMPTS)) {
-            SecurityLog::event('login.locked', $request, ['email' => SecurityLog::maskEmail($email)]);
+            SecurityLog::event('login.locked', $request, ['email' => $masked]);
 
             return response()->json(['message' => 'Trop de tentatives. Réessayez dans une minute.'], 429);
         }
 
-        $credentials = ['email' => $email, 'password' => $request->string('password')->toString(), 'is_active' => true];
-        if (! Auth::guard('web')->attempt($credentials, $request->boolean('remember'))) {
+        $credentials = $byEmail ? ['email' => $login] : ['phone' => $this->storedPhone($login)];
+        if (! Auth::guard('web')->attempt([...$credentials, 'password' => $request->string('password')->toString(), 'is_active' => true], $request->boolean('remember'))) {
             RateLimiter::hit($key, self::LOCK_SECONDS);
-            SecurityLog::event('login.failed', $request, ['email' => SecurityLog::maskEmail($email), 'attempts' => RateLimiter::attempts($key)]);
-            // Message VAGUE : on ne révèle pas si l'email existe (anti-énumération des comptes)
+            SecurityLog::event('login.failed', $request, ['email' => $masked, 'attempts' => RateLimiter::attempts($key)]);
+            // Message VAGUE : on ne révèle pas si le compte existe (anti-énumération des comptes)
             throw ValidationException::withMessages(['email' => 'Ces identifiants ne correspondent à aucun compte.']);
         }
 
@@ -51,7 +55,7 @@ class AuthController extends Controller
         $user = $request->user();
         $user->forceFill(['last_login_at' => now()])->save();
         if ($user->getAllPermissions()->isNotEmpty()) { // connexion du PERSONNEL : accès à l'ERP, on la trace
-            SecurityLog::event('login.staff', $request, ['email' => SecurityLog::maskEmail($email)], 'info');
+            SecurityLog::event('login.staff', $request, ['email' => $masked], 'info');
         }
 
         return new UserResource($user);
@@ -67,8 +71,8 @@ class AuthController extends Controller
             // RG-RES-08 : un invité qui crée son compte retrouve ses commandes et réservations passées
             $customer = Customer::query()->where('phone', $data['phone'])->whereNull('user_id')->first();
             $customer
-                ? $customer->update(['user_id' => $user->id, 'email' => $data['email']])
-                : Customer::create(['user_id' => $user->id, 'first_name' => $data['first_name'], 'last_name' => $data['last_name'], 'phone' => $data['phone'], 'email' => $data['email']]);
+                ? $customer->update(['user_id' => $user->id, 'email' => $data['email'] ?? $customer->email])
+                : Customer::create(['user_id' => $user->id, 'first_name' => $data['first_name'], 'last_name' => $data['last_name'] ?? null, 'phone' => $data['phone'], 'email' => $data['email'] ?? null]);
 
             return $user;
         });
@@ -93,5 +97,13 @@ class AuthController extends Controller
         // Statut 200 forcé : juste après une inscription, Laravel répondrait « 201 Created »
         // (le modèle vient d'être créé dans le même cycle), ce qui n'a pas de sens pour une lecture
         return (new UserResource($request->user()))->response()->setStatusCode(200);
+    }
+
+    /** Le téléphone tel qu'il est enregistré : « 771234567 » ou « +221771234567 » selon ce qu'a tapé la cliente à l'inscription */
+    private function storedPhone(string $typed): string
+    {
+        $local = preg_replace('/^\+?221/', '', Phone::normalize($typed)) ?? '';
+
+        return User::query()->whereIn('phone', [$local, '+221'.$local])->value('phone') ?? $local;
     }
 }

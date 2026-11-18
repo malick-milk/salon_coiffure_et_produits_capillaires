@@ -39,7 +39,7 @@ class CatalogController extends Controller
     public function products(ProductIndexRequest $request): JsonResponse
     {
         $f = $request->validated();
-        $query = Product::query()->active()->with(['brand', 'category', 'images']);
+        $query = Product::query()->active()->with(['brand', 'category', 'images', 'bundleItems.component']);
 
         if (! empty($f['category'])) {
             $category = Category::query()->where('slug', $f['category'])->first();
@@ -53,7 +53,10 @@ class CatalogController extends Controller
             $query->where(fn ($q) => $q->where('name', 'like', $term)->orWhere('unit_size', 'like', $term));
         }
         $query->when($request->boolean('featured'), fn ($q) => $q->where('is_featured', true))
-            ->when($request->boolean('in_stock'), fn ($q) => $q->where('stock_quantity', '>', 0))
+            // En stock : un produit simple a du stock ; une gamme n'a AUCUN composant en manque
+            ->when($request->boolean('in_stock'), fn ($q) => $q->where(fn ($s) => $s
+                ->where(fn ($p) => $p->where('is_bundle', false)->where('stock_quantity', '>', 0))
+                ->orWhere(fn ($b) => $b->where('is_bundle', true)->whereDoesntHave('bundleItems', fn ($i) => $i->whereHas('component', fn ($c) => $c->whereColumn('products.stock_quantity', '<', 'product_bundle_items.quantity'))))))
             ->when(isset($f['min_price']), fn ($q) => $q->where('price', '>=', $f['min_price']))
             ->when(isset($f['max_price']), fn ($q) => $q->where('price', '<=', $f['max_price']));
 
@@ -77,7 +80,7 @@ class CatalogController extends Controller
     {
         // firstOrFail() -> 404 automatique si le produit n'existe pas ou n'est pas en vente
         $product = Product::query()->active()->where('slug', $slug)
-            ->with(['brand', 'category', 'images', 'hairTypes', 'mainProduct'])->firstOrFail();
+            ->with(['brand', 'category', 'images', 'hairTypes', 'mainProduct', 'bundleItems.component'])->firstOrFail();
 
         return new ProductDetailResource($product);
     }
