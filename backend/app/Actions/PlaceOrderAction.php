@@ -51,7 +51,8 @@ class PlaceOrderAction
         $point = $method === FulfillmentMethod::PickupPoint ? PickupPoint::query()->active()->findOrFail($data['pickup_point_id']) : null;
 
         // Gammes : leurs composants seront verrouillés et retirés du stock avec elles
-        $components = ProductBundleItem::query()->whereIn('bundle_id', $wanted->keys())->get()->groupBy('bundle_id');
+        // toBase() : le regroupement devient une collection ordinaire (une collection Eloquent ne contient que des modèles)
+        $components = ProductBundleItem::query()->whereIn('bundle_id', $wanted->keys())->get()->groupBy('bundle_id')->toBase();
         if ($point && $components->isNotEmpty()) {
             abort(422, 'La gamme se retire au salon ou se fait livrer : elle n’est pas disponible en point de retrait.');
         }
@@ -147,10 +148,10 @@ class PlaceOrderAction
      * @param  Collection<int|string, int>  $wanted
      * @param  Collection<int|string, Product>  $products
      * @param  Collection<int|string, Product>  $locked
-     * @param  EloquentCollection<int|string, EloquentCollection<int, ProductBundleItem>>  $components
+     * @param  Collection<int|string, EloquentCollection<int, ProductBundleItem>>  $components
      * @return list<array{product_id:int,name:string,requested:int,available:int}>
      */
-    private function conflicts(Collection $wanted, Collection $products, Collection $locked, EloquentCollection $components): array
+    private function conflicts(Collection $wanted, Collection $products, Collection $locked, Collection $components): array
     {
         $out = [];
         foreach ($wanted as $id => $qty) {
@@ -170,10 +171,10 @@ class PlaceOrderAction
      * @param  Collection<int|string, int>  $wanted
      * @param  Collection<int|string, Product>  $products
      * @param  Collection<int|string, Product>  $locked
-     * @param  EloquentCollection<int|string, EloquentCollection<int, ProductBundleItem>>  $components
+     * @param  Collection<int|string, EloquentCollection<int, ProductBundleItem>>  $components
      * @return list<array{product:Product,quantity:int,unit_price:int,regular_unit_price:?int,unit_cost:?string}>
      */
-    private function priceLines(Collection $wanted, Collection $products, Collection $locked, EloquentCollection $components, ?User $user): array
+    private function priceLines(Collection $wanted, Collection $products, Collection $locked, Collection $components, ?User $user): array
     {
         $lines = [];
         foreach ($wanted as $id => $qty) {
