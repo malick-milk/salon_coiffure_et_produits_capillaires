@@ -9,6 +9,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { homeContent } from '@/content/home'
 import { salon, salonMapsUrl } from '@/content/salon'
 import { useBusinessHours, useServices } from '@/features/booking/hooks'
+import { MemberOfferHero } from '@/features/catalog/components/MemberOffer'
 import { ProductCard } from '@/features/catalog/components/ProductCard'
 import { AdCarousel } from '@/features/home/components/AdCarousel'
 import { useProducts } from '@/features/catalog/hooks'
@@ -49,6 +50,9 @@ export function HomePage() {
         address: { '@type': 'PostalAddress', streetAddress: salon.address, addressLocality: salon.city, addressCountry: 'SN' },
         openingHours: 'Mo-Su 09:00-19:00',
       })}</script>
+
+      {/* Lancement du 15 décembre : la gamme au prix membre (rien ne s'affiche si l'offre n'existe pas) */}
+      <MemberOfferHero />
 
       <AdCarousel ads={homeContent.ads} />
 

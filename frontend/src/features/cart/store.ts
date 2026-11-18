@@ -18,6 +18,7 @@ export interface CartItem {
   name: string
   unitSize: string | null
   price: Money
+  memberPrice?: Money | null // prix membre possible (gamme du lancement) : appliqué si le serveur dit « eligible »
   quantity: number
 }
 

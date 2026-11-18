@@ -1,5 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import axios from 'axios'
+import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { Link, Navigate, useNavigate, useSearchParams } from 'react-router'
 import { applyServerErrors, Field } from '@/components/common/FormField'
@@ -20,27 +21,32 @@ export function LoginPage() {
   const navigate = useNavigate()
   const me = useMe()
   const login = useLogin()
+  const [submitted, setSubmitted] = useState(false)
   const { register, handleSubmit, setError, formState: { errors } } = useForm<LoginValues>({
     resolver: zodResolver(loginSchema),
     defaultValues: { email: '', password: '', remember: true },
   })
 
-  if (me.data) return <Navigate to={target(me.data)} replace />
+  // welcome : connexion depuis le panier, celui-ci confirme « votre prix membre est appliqué »
+  if (me.data) return <Navigate to={target(me.data)} replace state={submitted ? { welcome: true } : undefined} />
 
-  const onSubmit = (values: LoginValues) =>
+  const onSubmit = (values: LoginValues) => {
+    setSubmitted(true)
     login.mutate(values, {
-      onSuccess: (user) => navigate(target(user), { replace: true }),
+      onSuccess: (user) => navigate(target(user), { replace: true, state: { welcome: true } }),
       onError: (error) => {
+        setSubmitted(false)
         if (apiErrorStatus(error) === 422 && axios.isAxiosError<ValidationErrorBody>(error)) applyServerErrors(error.response?.data.errors, setError)
       },
     })
+  }
 
   const status = apiErrorStatus(login.error)
   return (
     <AuthShell title="Connexion" subtitle="Suivez vos commandes et vos rendez-vous.">
       <form noValidate onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5">
-        <Field label="Email" error={errors.email?.message}>
-          {(id, d) => <Input id={id} type="email" autoComplete="email" aria-invalid={!!errors.email} aria-describedby={d} {...register('email')} />}
+        <Field label="E-mail ou téléphone" error={errors.email?.message}>
+          {(id, d) => <Input id={id} autoComplete="username" placeholder="vous@exemple.sn ou 77 123 45 67" aria-invalid={!!errors.email} aria-describedby={d} {...register('email')} />}
         </Field>
         <Field label="Mot de passe" error={errors.password?.message}>
           {(id, d) => <PasswordInput id={id} autoComplete="current-password" aria-invalid={!!errors.password} aria-describedby={d} {...register('password')} />}

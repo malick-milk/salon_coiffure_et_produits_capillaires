@@ -23,7 +23,7 @@ const log = (ok, msg) => { if (!ok) failures++; console.log(`${ok ? 'OK  ' : 'FA
   log(page.url().includes('redirect=%2Fcompte%2Freservations'), 'Page protégée : redirection vers /connexion avec retour prévu')
 
   // 2. Mauvais mot de passe : message vague (pas d'énumération des comptes)
-  await page.getByLabel('Email').fill('mariama@client.test')
+  await page.getByLabel('E-mail ou téléphone').fill('mariama@client.test')
   await page.getByLabel('Mot de passe', { exact: true }).fill('mauvais')
   await page.getByRole('button', { name: 'Se connecter' }).click()
   await page.getByText('Ces identifiants ne correspondent à aucun compte.').waitFor()
@@ -138,7 +138,7 @@ const log = (ok, msg) => { if (!ok) failures++; console.log(`${ok ? 'OK  ' : 'FA
 
   // 10. Protection IDOR : Mariama ne peut pas voir la commande de l'invité
   await page.goto(BASE + '/connexion?redirect=/compte/commandes/CMD-2026-000011')
-  await page.getByLabel('Email').fill('mariama@client.test')
+  await page.getByLabel('E-mail ou téléphone').fill('mariama@client.test')
   await page.getByLabel('Mot de passe', { exact: true }).fill('demo-dabo-2026')
   await page.getByRole('button', { name: 'Se connecter' }).click()
   await page.getByText('Commande introuvable').waitFor()
@@ -148,7 +148,7 @@ const log = (ok, msg) => { if (!ok) failures++; console.log(`${ok ? 'OK  ' : 'FA
 
   // 11. Redirection externe refusée après connexion (open redirect)
   await page.goto(BASE + '/connexion?redirect=https://site-pirate.example')
-  await page.getByLabel('Email').fill('mariama@client.test')
+  await page.getByLabel('E-mail ou téléphone').fill('mariama@client.test')
   await page.getByLabel('Mot de passe', { exact: true }).fill('demo-dabo-2026')
   await page.getByRole('button', { name: 'Se connecter' }).click()
   await page.waitForURL(BASE + '/compte')
@@ -159,7 +159,7 @@ const log = (ok, msg) => { if (!ok) failures++; console.log(`${ok ? 'OK  ' : 'FA
   // 12. Limitation des tentatives (RG-SEC-02) : 6e essai bloqué
   await page.goto(BASE + '/connexion')
   for (let i = 0; i < 5; i++) {
-    await page.getByLabel('Email').fill('cible@client.test')
+    await page.getByLabel('E-mail ou téléphone').fill('cible@client.test')
     await page.getByLabel('Mot de passe', { exact: true }).fill(`essai-${i}`)
     await page.getByRole('button', { name: 'Se connecter' }).click()
     await page.getByText('Ces identifiants ne correspondent à aucun compte.').waitFor()
@@ -168,26 +168,30 @@ const log = (ok, msg) => { if (!ok) failures++; console.log(`${ok ? 'OK  ' : 'FA
   await page.getByText('Trop de tentatives. Réessayez dans une minute.').waitFor()
   log(true, 'Après 5 échecs, la 6e tentative est bloquée (429)')
 
-  // 13. Inscription
+  // 13. Inscription rapide (18 novembre 2026) : prénom, téléphone, mot de passe
   await page.goto(BASE + '/inscription')
+  log(await page.getByLabel('Nom', { exact: true }).count() === 0 && await page.getByLabel('Confirmer le mot de passe').count() === 0, 'Inscription : 3 champs seulement (ni nom, ni e-mail, ni 2e mot de passe)')
   await page.getByLabel('Prénom').fill('Ndeye')
-  await page.getByLabel('Nom', { exact: true }).fill('Gueye')
-  await page.getByLabel('Email').fill('mariama@client.test')
-  await page.getByLabel('Téléphone mobile').fill('70 222 33 44')
+  await page.getByLabel('Téléphone mobile').fill('77 000 00 03') // numéro de Mariama
   await page.getByLabel('Mot de passe', { exact: true }).fill('nouveau-mdp-1')
-  await page.getByLabel('Confirmer le mot de passe').fill('nouveau-mdp-2')
   await page.getByRole('checkbox', { name: /politique de confidentialité/ }).check()
   await page.getByRole('button', { name: 'Créer mon compte' }).click()
-  await page.getByText('Les mots de passe ne correspondent pas.').waitFor()
-  await page.getByLabel('Confirmer le mot de passe').fill('nouveau-mdp-1')
-  await page.getByRole('button', { name: 'Créer mon compte' }).click()
-  await page.getByText('Un compte existe déjà avec cette adresse.').waitFor()
-  log(true, 'Inscription : confirmation vérifiée côté navigateur, email déjà pris refusé par le serveur (422)')
-  await page.getByLabel('Email').fill('ndeye@client.test')
+  await page.getByText('Ce numéro est déjà utilisé.').waitFor()
+  log(true, 'Inscription : numéro déjà pris refusé par le serveur (422)')
+  await page.getByLabel('Téléphone mobile').fill('70 222 33 44')
   await page.getByRole('button', { name: 'Créer mon compte' }).click()
   await page.waitForURL('**/compte')
   await page.getByRole('heading', { name: 'Bonjour Ndeye' }).waitFor()
   log(true, 'Inscription réussie : connectée automatiquement')
+  // Sans e-mail, on se connecte avec son numéro
+  await page.getByRole('button', { name: 'Se déconnecter' }).first().click()
+  await page.waitForURL(BASE + '/') // la déconnexion ramène à l'accueil : attendre qu'elle soit finie
+  await page.goto(BASE + '/connexion')
+  await page.getByLabel('E-mail ou téléphone').fill('70 222 33 44')
+  await page.getByLabel('Mot de passe', { exact: true }).fill('nouveau-mdp-1')
+  await page.getByRole('button', { name: 'Se connecter' }).click()
+  await page.waitForURL('**/compte')
+  log(true, 'Connexion avec le numéro de téléphone (compte sans e-mail)')
 
   // 14. Mobile
   const m = await browser.newPage({ viewport: { width: 390, height: 844 }, isMobile: true })

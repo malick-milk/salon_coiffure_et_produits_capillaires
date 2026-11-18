@@ -12,6 +12,7 @@ import { formatPrice } from '@/lib/format'
 import { apiErrorMessage, apiErrorStatus } from '@/lib/http'
 import { cn } from '@/lib/utils'
 import { NotFoundPage } from '@/pages/NotFoundPage'
+import { hasMemberOffer, MemberCounter, MemberPriceBlock } from '../components/MemberOffer'
 import { stockLabel } from '../components/ProductCard'
 import { useProduct } from '../hooks'
 
@@ -49,7 +50,7 @@ export function ProductPage() {
   const fullName = [product.name, product.unit_size].filter(Boolean).join(' ')
 
   const addToCart = () => {
-    add({ productId: product.id, slug: product.slug, name: product.name, unitSize: product.unit_size, price: product.price }, quantity)
+    add({ productId: product.id, slug: product.slug, name: product.name, unitSize: product.unit_size, price: product.price, memberPrice: product.member_price ?? null }, quantity)
     setAdded(true)
     window.setTimeout(() => setAdded(false), 2500)
   }
@@ -80,10 +81,17 @@ export function ProductPage() {
           <div className="flex flex-col gap-6">
             {product.brand && <p className="text-[13px] font-semibold tracking-[0.16em] text-gold uppercase">{product.brand.name} · fabrication maison</p>}
             <h1 className="font-display text-4xl leading-tight font-semibold sm:text-5xl">{product.name}</h1>
-            <p className="flex items-baseline gap-3">
-              <strong className="text-3xl font-semibold">{formatPrice(product.price)}</strong>
-              <span className="text-sm text-[#a3a3a3]">TTC{product.unit_size && ` · ${product.unit_size}`}</span>
-            </p>
+            {hasMemberOffer(product) ? (
+              <>
+                <MemberPriceBlock product={product} />
+                {product.member_offer!.status !== 'sold_out' && <MemberCounter remaining={product.member_offer!.remaining} limit={product.member_offer!.limit} />}
+              </>
+            ) : (
+              <p className="flex items-baseline gap-3">
+                <strong className="text-3xl font-semibold">{formatPrice(product.price)}</strong>
+                <span className="text-sm text-[#a3a3a3]">TTC{product.unit_size && ` · ${product.unit_size}`}</span>
+              </p>
+            )}
 
             {product.variants.length > 0 && (
               <div className="flex flex-col gap-2.5">
@@ -132,6 +140,20 @@ export function ProductPage() {
             <p className="sr-only" aria-live="polite">{added ? `${quantity} ${fullName} ajouté au panier` : ''}</p>
             {added && (
               <Link to="/panier" className="w-fit text-sm font-semibold text-gold underline underline-offset-4">Voir le panier</Link>
+            )}
+
+            {product.bundle_items && product.bundle_items.length > 0 && (
+              <div className="flex flex-col gap-2">
+                <h2 className="text-sm font-semibold text-muted">Dans la gamme</h2>
+                <ul className="grid grid-cols-2 gap-x-4 gap-y-1.5 text-[15px] text-[#e6e1d6]">
+                  {product.bundle_items.map((i) => (
+                    <li key={i.slug} className="flex items-center gap-2">
+                      <span aria-hidden="true" className="size-1.5 rounded-full bg-gold" />
+                      <Link to={`/produits/${i.slug}`} className="hover:text-gold">{i.quantity > 1 ? `${i.quantity} × ` : ''}{i.name}</Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
             )}
 
             <ul className="flex flex-col gap-3.5 border-y border-ink-line py-5 text-[15px] text-[#d9d9d9]">

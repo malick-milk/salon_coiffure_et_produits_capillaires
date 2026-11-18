@@ -115,8 +115,8 @@ export const deliveryZones: DeliveryZone[] = [
 export interface MockUser {
   id: number
   first_name: string
-  last_name: string
-  email: string
+  last_name: string | null
+  email: string | null
   phone: string | null
   password: string
   roles: string[]

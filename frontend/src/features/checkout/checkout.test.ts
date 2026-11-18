@@ -21,15 +21,21 @@ describe('formulaire de commande', () => {
   })
 })
 
-describe('inscription', () => {
-  const ok = { first_name: 'Awa', last_name: 'Ndiaye', email: 'awa@exemple.sn', phone: '771234567', password: 'secret-123', password_confirmation: 'secret-123', consent: true as const }
-  it('accepte un formulaire valide', () => expect(registerSchema.safeParse(ok).success).toBe(true))
-  it('refuse des mots de passe différents, en signalant le champ de confirmation', () => {
-    const r = registerSchema.safeParse({ ...ok, password_confirmation: 'autre-chose' })
-    expect(r.success).toBe(false)
-    expect(r.success ? [] : r.error.issues[0]!.path).toEqual(['password_confirmation'])
+describe('inscription rapide (prénom, téléphone, mot de passe)', () => {
+  const ok = { first_name: 'Awa', phone: '77 123 45 67', password: 'secret-123', consent: true as const }
+  it('accepte les 3 champs seuls : nom et e-mail vides deviennent null', () => {
+    const r = registerSchema.safeParse({ ...ok, last_name: '', email: '  ' })
+    expect(r.success && [r.data.last_name, r.data.email, r.data.phone]).toEqual([null, null, '771234567'])
   })
-  it('refuse un mot de passe trop court', () => expect(registerSchema.safeParse({ ...ok, password: 'court', password_confirmation: 'court' }).success).toBe(false))
+  it('garde le nom et l’e-mail repris d’une réservation', () => {
+    const r = registerSchema.safeParse({ ...ok, last_name: 'Ndiaye', email: 'awa@exemple.sn' })
+    expect(r.success && [r.data.last_name, r.data.email]).toEqual(['Ndiaye', 'awa@exemple.sn'])
+  })
+  it('refuse un e-mail mal écrit, un mot de passe trop court ou sans chiffre', () => {
+    expect(registerSchema.safeParse({ ...ok, email: 'awa@' }).success).toBe(false)
+    expect(registerSchema.safeParse({ ...ok, password: 'court' }).success).toBe(false)
+    expect(registerSchema.safeParse({ ...ok, password: 'sanschiffre' }).success).toBe(false)
+  })
 })
 
 describe('redirection après connexion (anti « open redirect »)', () => {

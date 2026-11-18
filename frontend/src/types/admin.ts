@@ -97,7 +97,9 @@ export interface AdminProduct {
   stock_quantity: number
   low_stock_threshold: number
   stock_status: 'in_stock' | 'low_stock' | 'out_of_stock'
-  stock_entries_locked: boolean // un lot ou une réception existe : origine et coût verrouillés
+  stock_entries_locked: boolean
+  is_bundle?: boolean // gamme : stock = gammes complètes formables avec le stock des soins
+  member_price?: Money | null // un lot ou une réception existe : origine et coût verrouillés
   is_active: boolean
   is_featured: boolean
   short_description: string | null

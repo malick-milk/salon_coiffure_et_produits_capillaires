@@ -61,7 +61,9 @@ export const accountHandlers = [
     if (email.endsWith('@dabohair.test')) {
       return invalid({ email: ['Le faux serveur (MSW) est actif et ne connaît pas les comptes du personnel. VITE_ENABLE_MOCKS=true est défini dans un fichier .env de frontend/ (ls -a pour voir les fichiers cachés) ou dans une variable d’environnement : mettez false, puis relancez npm run dev.'] })
     }
-    const user = users.find((u) => u.email === email)
+    // E-mail OU téléphone (inscription rapide : un compte peut n'avoir que son numéro)
+    const typedPhone = email.replace(/[\s.-]/g, '').replace(/^\+?221/, '')
+    const user = users.find((u) => u.email === email || (!!u.phone && u.phone.replace(/^\+?221/, '') === typedPhone))
     if (!user || user.password !== body.password) {
       const count = (lock && lock.until > Date.now() ? lock.count : 0) + 1
       db.failedLogins.set(email, { count, until: Date.now() + LOCK_MS })
@@ -82,18 +84,19 @@ export const accountHandlers = [
     const email = (b.email ?? '').trim().toLowerCase()
     const phone = (b.phone ?? '').replace(/\s/g, '')
     if ((b.first_name ?? '').trim().length < 2) errors.first_name = ['Le prénom est obligatoire.']
-    if ((b.last_name ?? '').trim().length < 2) errors.last_name = ['Le nom est obligatoire.']
-    if (!EMAIL.test(email)) errors.email = ['Adresse email invalide.']
-    else if (users.some((u) => u.email === email)) errors.email = ['Un compte existe déjà avec cette adresse.']
+    // Inscription rapide : nom et e-mail facultatifs, mais valides s'ils sont donnés
+    const lastName = (b.last_name ?? '').trim()
+    if (lastName && lastName.length < 2) errors.last_name = ['Le nom doit contenir au moins 2 caractères.']
+    if (email && !EMAIL.test(email)) errors.email = ['Adresse email invalide.']
+    else if (email && users.some((u) => u.email === email)) errors.email = ['Un compte existe déjà avec cette adresse.']
     if (!PHONE_SN.test(phone)) errors.phone = ['Numéro mobile invalide.']
     else if (users.some((u) => u.phone === phone)) errors.phone = ['Ce numéro est déjà utilisé.']
     if ((b.password ?? '').length < 8) errors.password = ['8 caractères minimum.']
     else if (!/\p{L}/u.test(b.password) || !/\d/.test(b.password)) errors.password = ['Le mot de passe doit contenir au moins une lettre et un chiffre.']
-    if (b.password !== b.password_confirmation) errors.password_confirmation = ['Les mots de passe ne correspondent pas.']
     if (!b.consent) errors.consent = ['Le consentement est obligatoire.']
     if (Object.keys(errors).length) return invalid(errors)
 
-    const user: MockUser = { id: Math.max(...users.map((u) => u.id)) + 1, first_name: b.first_name.trim(), last_name: b.last_name.trim(), email, phone, password: b.password, roles: ['customer'] }
+    const user: MockUser = { id: Math.max(...users.map((u) => u.id)) + 1, first_name: b.first_name.trim(), last_name: lastName || null, email: email || null, phone, password: b.password, roles: ['customer'] }
     users.push(user)
     persistDb()
     localStorage.setItem(SESSION_KEY, String(user.id))
@@ -116,7 +119,7 @@ export const accountHandlers = [
     if ((b.last_name ?? '').trim().length < 2) errors.last_name = ['Le nom est obligatoire.']
     if (!PHONE_SN.test(phone)) errors.phone = ['Numéro mobile invalide.']
     if (Object.keys(errors).length) return invalid(errors)
-    Object.assign(u, { first_name: b.first_name.trim(), last_name: b.last_name.trim(), phone })
+    Object.assign(u, { first_name: b.first_name.trim(), last_name: (b.last_name ?? '').trim(), phone })
     persistDb()
     return HttpResponse.json({ data: toUser(u) })
   }),

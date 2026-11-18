@@ -181,4 +181,13 @@ class MemberPriceTest extends TestCase
 
         $this->assertDatabaseHas('customers', ['phone' => '771234567', 'last_name' => 'Sow', 'email' => 'mariama.sow@exemple.sn']);
     }
+
+    public function test_un_numero_deja_sur_la_fiche_d_un_compte_est_refuse_proprement(): void
+    {
+        // Mariama a changé de numéro dans son profil : l'ancien (770000003) reste sur sa fiche cliente
+        User::where('email', 'mariama@client.test')->update(['phone' => '785554433']);
+
+        $this->postJson('/api/v1/auth/register', ['first_name' => 'Ndeye', 'phone' => '77 000 00 03', 'password' => 'motdepasse-2026', 'consent' => true])
+            ->assertUnprocessable()->assertJsonPath('errors.phone.0', 'Ce numéro est déjà utilisé.'); // et non une erreur 500
+    }
 }

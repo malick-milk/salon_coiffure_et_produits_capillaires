@@ -14,6 +14,7 @@ import { Seo } from '@/components/common/Seo'
 import { Button } from '@/components/ui/button'
 import { Input, Textarea } from '@/components/ui/input'
 import { useMe } from '@/features/auth/hooks'
+import { useMemberPricing } from '@/features/cart/memberPrice'
 import { useCart, useCartSubtotal } from '@/features/cart/store'
 import { formatPrice } from '@/lib/format'
 import { apiErrorMessage, apiErrorStatus, type ValidationErrorBody } from '@/lib/http'
@@ -30,6 +31,7 @@ export function CheckoutPage() {
   const setQuantity = useCart((s) => s.setQuantity)
   const remove = useCart((s) => s.remove)
   const subtotal = useCartSubtotal()
+  const member = useMemberPricing() // prix membre : même calcul que le panier (le serveur confirme)
   const { data: user } = useMe()
   const zones = useDeliveryZones()
   const points = usePickupPoints()
@@ -49,7 +51,7 @@ export function CheckoutPage() {
   // Client connecté : on préremplit ses coordonnées (il peut les modifier pour cette commande).
   // keepDirtyValues : si le client a déjà commencé à taper, sa saisie n'est pas écrasée.
   useEffect(() => {
-    if (user) reset((v) => ({ ...v, first_name: user.first_name, last_name: user.last_name, phone: user.phone ?? '', email: user.email }), { keepDirtyValues: true })
+    if (user) reset((v) => ({ ...v, first_name: user.first_name, last_name: user.last_name ?? '', phone: user.phone ?? '', email: user.email ?? '' }), { keepDirtyValues: true })
   }, [user, reset])
 
   const method = useWatch({ control, name: 'fulfillment_method' })
@@ -212,8 +214,9 @@ export function CheckoutPage() {
             </ul>
             <dl className="flex flex-col gap-2 text-[15px]">
               <div className="flex justify-between"><dt className="text-[#52525b]">Sous-total</dt><dd>{formatPrice(subtotal)}</dd></div>
+              {member.discount > 0 && <div className="flex justify-between text-[#15803d]"><dt>Prix membre</dt><dd>−{formatPrice(member.discount)}</dd></div>}
               <div className="flex justify-between"><dt className="text-[#52525b]">Livraison</dt><dd>{method !== 'delivery' ? 'Gratuite' : zone ? formatPrice(shippingFee) : 'Choisir une zone'}</dd></div>
-              <div className="flex justify-between border-t border-[#e4e4e7] pt-3 text-lg"><dt>Total</dt><dd className="font-semibold">{formatPrice(subtotal + shippingFee)}</dd></div>
+              <div className="flex justify-between border-t border-[#e4e4e7] pt-3 text-lg"><dt>Total</dt><dd className="font-semibold">{formatPrice(subtotal - member.discount + shippingFee)}</dd></div>
             </dl>
             <p className="text-[13px] leading-relaxed text-[#52525b]">Paiement à la réception : espèces, Wave, Orange Money ou Free Money. Montant définitif confirmé par le serveur.</p>
             {placeOrder.isError && ![409, 422].includes(apiErrorStatus(placeOrder.error) ?? 0) && <p role="alert" className="text-sm text-[#b91c1c]">{apiErrorMessage(placeOrder.error)}</p>}

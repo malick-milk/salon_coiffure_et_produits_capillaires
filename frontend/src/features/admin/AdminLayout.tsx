@@ -91,7 +91,7 @@ export function AdminLayout() {
         <header className="flex flex-wrap items-center justify-between gap-3 border-b border-[#e4e4e7] bg-white px-6 py-3">
           <span className="flex items-center gap-2 text-sm text-[#52525b]"><CalendarDays className="size-4" aria-hidden="true" />{new Intl.DateTimeFormat('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }).format(new Date())}</span>
           <span className="flex items-center gap-2.5">
-            <span className="flex size-9 items-center justify-center rounded-full bg-ink text-sm font-semibold text-gold" aria-hidden="true">{user.first_name.charAt(0)}{user.last_name.charAt(0)}</span>
+            <span className="flex size-9 items-center justify-center rounded-full bg-ink text-sm font-semibold text-gold" aria-hidden="true">{user.first_name.charAt(0)}{user.last_name?.charAt(0)}</span>
             <span className="flex flex-col text-sm leading-tight"><strong>{user.first_name} {user.last_name}</strong><span className="text-xs text-[#52525b]">{ROLE_LABELS[user.roles[0] ?? ''] ?? user.roles[0]}</span></span>
           </span>
         </header>

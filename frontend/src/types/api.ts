@@ -51,6 +51,20 @@ export interface ProductSummary {
   is_featured: boolean
   category: CategoryRef
   image_url: string | null
+  is_bundle?: boolean // gamme : plusieurs soins vendus ensemble
+  member_price?: Money | null // prix réservé aux clientes connectées (lancement du 15 décembre)
+  member_offer?: MemberOffer | null
+}
+
+/**
+ * Prix membre, vu par la visiteuse : eligible (connectée, y a droit), sign_in (pas connectée),
+ * already_used (déjà acheté à ce prix : un par compte), sold_out (les places sont parties), none (pas d'offre)
+ */
+export type MemberOfferStatus = 'eligible' | 'sign_in' | 'already_used' | 'sold_out' | 'none'
+export interface MemberOffer {
+  limit: number
+  remaining: number
+  status: MemberOfferStatus
 }
 
 export interface ProductVariant {
@@ -67,6 +81,7 @@ export interface ProductDetail extends ProductSummary {
   hair_types: HairType[]
   images: { url: string; alt: string }[]
   variants: ProductVariant[] // autres contenances (products.variant_of_id)
+  bundle_items?: { name: string; slug: string; quantity: number }[] // contenu d'une gamme
 }
 
 export type ProductSort = 'newest' | 'price_asc' | 'price_desc' | 'name'
@@ -146,26 +161,26 @@ export interface BookingConfirmation {
 export interface User {
   id: number
   first_name: string
-  last_name: string
-  email: string
+  last_name: string | null // facultatifs depuis l'inscription rapide
+  email: string | null
   phone: string | null
   roles: string[] // 'customer', 'manager'…
   permissions: string[] // sert à AFFICHER les menus de l'ERP ; chaque route de l'API revérifie (sécurité)
 }
 
 export interface LoginRequest {
-  email: string
+  email: string // e-mail OU téléphone
   password: string
   remember: boolean
 }
 
+/** Inscription rapide (18 novembre 2026) : prénom, téléphone, mot de passe ; nom et e-mail facultatifs */
 export interface RegisterRequest {
   first_name: string
-  last_name: string
-  email: string
+  last_name?: string | null
+  email?: string | null
   phone: string
   password: string
-  password_confirmation: string
   consent: boolean
 }
 

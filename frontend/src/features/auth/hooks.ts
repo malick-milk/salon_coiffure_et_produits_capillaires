@@ -8,14 +8,21 @@ export function useMe() {
   return useQuery({ queryKey: ME_KEY, queryFn: fetchMe, staleTime: 5 * 60_000, retry: false })
 }
 
+/** Connectée, la visiteuse peut avoir droit au prix membre : les fiches produits sont redemandées */
+function signedIn(qc: ReturnType<typeof useQueryClient>, user: Awaited<ReturnType<typeof login>>) {
+  qc.setQueryData(ME_KEY, user)
+  void qc.invalidateQueries({ queryKey: ['product'] })
+  void qc.invalidateQueries({ queryKey: ['products'] })
+}
+
 export function useLogin() {
   const qc = useQueryClient()
-  return useMutation({ mutationFn: login, onSuccess: (user) => qc.setQueryData(ME_KEY, user) })
+  return useMutation({ mutationFn: login, onSuccess: (user) => signedIn(qc, user) })
 }
 
 export function useRegister() {
   const qc = useQueryClient()
-  return useMutation({ mutationFn: register, onSuccess: (user) => qc.setQueryData(ME_KEY, user) })
+  return useMutation({ mutationFn: register, onSuccess: (user) => signedIn(qc, user) })
 }
 
 export function useLogout() {

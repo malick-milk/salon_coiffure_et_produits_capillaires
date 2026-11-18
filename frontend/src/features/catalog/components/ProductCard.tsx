@@ -41,12 +41,17 @@ export function ProductCard({ product }: { product: ProductSummary }) {
         </h3>
         <p className="text-[13px] text-muted">{stockLabel(product)}</p>
         <div className="mt-auto flex items-center justify-between pt-2">
-          <strong className="text-lg">{formatPrice(product.price)}</strong>
+          <span className="flex flex-col">
+            <strong className="text-lg">{formatPrice(product.price)}</strong>
+            {product.member_price != null && product.member_offer && ['eligible', 'sign_in'].includes(product.member_offer.status) && (
+              <span className="text-[13px] font-semibold text-gold">{formatPrice(product.member_price)} pour les membres</span>
+            )}
+          </span>
           <Button
             size="icon"
             disabled={soldOut}
             aria-label={`Ajouter ${product.name} ${product.unit_size ?? ''} au panier`}
-            onClick={() => add({ productId: product.id, slug: product.slug, name: product.name, unitSize: product.unit_size, price: product.price })}
+            onClick={() => add({ productId: product.id, slug: product.slug, name: product.name, unitSize: product.unit_size, price: product.price, memberPrice: product.member_price ?? null })}
           >
             <Plus aria-hidden="true" />
           </Button>

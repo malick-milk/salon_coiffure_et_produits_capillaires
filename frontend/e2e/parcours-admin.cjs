@@ -12,7 +12,7 @@ const log = (ok, msg) => { if (!ok) failures++; console.log(`${ok ? 'OK  ' : 'FA
 
 async function login(page, email, password) {
   await page.goto(BASE + '/connexion')
-  await page.getByLabel('Email').fill(email)
+  await page.getByLabel('E-mail ou téléphone').fill(email)
   await page.getByLabel('Mot de passe', { exact: true }).fill(password)
   await page.getByRole('button', { name: 'Se connecter' }).click()
 }

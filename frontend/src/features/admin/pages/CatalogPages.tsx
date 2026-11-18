@@ -60,7 +60,7 @@ export function ProductsPage() {
               {products.data.map((p) => (
                 <tr key={p.id} className={selected?.id === p.id ? 'bg-[#fffbeb]' : ''}>
                   <td>
-                    <strong>{label(p)}</strong>{p.origin === 'resold' && <> <Badge tone="info">Revendu</Badge></>}{p.images.length === 0 && <> <Badge tone="warning">Sans photo</Badge></>}
+                    <strong>{label(p)}</strong>{p.is_bundle && <> <Badge tone="info">Gamme</Badge></>}{p.origin === 'resold' && <> <Badge tone="info">Revendu</Badge></>}{p.images.length === 0 && <> <Badge tone="warning">Sans photo</Badge></>}
                     <br /><span className="text-xs text-[#52525b]">{p.sku} · {p.category}{p.brand ? ` · ${p.brand}` : ''}</span>
                   </td>
                   <td>{canManage ? <PriceEditor product={p} onSave={(price) => update.mutate({ id: p.id, price })} /> : formatPrice(p.price)}</td>
@@ -69,7 +69,7 @@ export function ProductsPage() {
                   <td>
                     <span className="font-semibold">{p.stock_quantity}</span>{' '}
                     {p.stock_status === 'out_of_stock' ? <Badge tone="neutral">Rupture</Badge> : p.stock_status === 'low_stock' ? <Badge tone="warning">Faible</Badge> : null}
-                    <br /><span className="text-xs text-[#52525b]">seuil {p.low_stock_threshold}</span>
+                    <br /><span className="text-xs text-[#52525b]">{p.is_bundle ? 'gammes complètes possibles' : `seuil ${p.low_stock_threshold}`}</span>
                   </td>
                   <td>
                     <label className="flex items-center gap-2 text-sm">
@@ -79,7 +79,8 @@ export function ProductsPage() {
                   </td>
                   <td className="whitespace-nowrap">
                     {canManage && <><Button asChild variant="dark" size="sm"><Link to={`/admin/produits/${p.id}/modifier`} aria-label={`Modifier ${label(p)}`}>Modifier</Link></Button>{' '}</>}
-                    <Button variant="subtle" size="sm" onClick={() => { setPhotosOf(null); setSelected(p) }}>Stock</Button>{' '}
+                    {/* Une gamme n'a pas de stock à elle : on gère celui de ses soins */}
+                    {!p.is_bundle && <><Button variant="subtle" size="sm" onClick={() => { setPhotosOf(null); setSelected(p) }}>Stock</Button>{' '}</>}
                     <Button variant="subtle" size="sm" onClick={() => { setSelected(null); setPhotosOf(p.id) }}>Photos ({p.images.length})</Button>
                   </td>
                 </tr>
