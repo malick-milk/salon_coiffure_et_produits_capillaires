@@ -22,7 +22,7 @@ describe('formulaire de commande', () => {
 })
 
 describe('inscription rapide (prénom, téléphone, mot de passe)', () => {
-  const ok = { first_name: 'Awa', phone: '77 123 45 67', password: 'secret-123', consent: true as const }
+  const ok = { first_name: 'Awa', phone: '77 123 45 67', password: 'Secret-2026', password_confirmation: 'Secret-2026', consent: true as const }
   it('accepte les 3 champs seuls : nom et e-mail vides deviennent null', () => {
     const r = registerSchema.safeParse({ ...ok, last_name: '', email: '  ' })
     expect(r.success && [r.data.last_name, r.data.email, r.data.phone]).toEqual([null, null, '771234567'])
@@ -31,10 +31,23 @@ describe('inscription rapide (prénom, téléphone, mot de passe)', () => {
     const r = registerSchema.safeParse({ ...ok, last_name: 'Ndiaye', email: 'awa@exemple.sn' })
     expect(r.success && [r.data.last_name, r.data.email]).toEqual(['Ndiaye', 'awa@exemple.sn'])
   })
-  it('refuse un e-mail mal écrit, un mot de passe trop court ou sans chiffre', () => {
-    expect(registerSchema.safeParse({ ...ok, email: 'awa@' }).success).toBe(false)
-    expect(registerSchema.safeParse({ ...ok, password: 'court' }).success).toBe(false)
-    expect(registerSchema.safeParse({ ...ok, password: 'sanschiffre' }).success).toBe(false)
+  it('refuse un e-mail mal écrit', () => expect(registerSchema.safeParse({ ...ok, email: 'awa@' }).success).toBe(false))
+  // Vérification renforcée du mot de passe (18 novembre 2026) : le message dit exactement ce qui manque
+  const why = (password: string, confirmation = password) => {
+    const r = registerSchema.safeParse({ ...ok, password, password_confirmation: confirmation })
+    return r.success ? null : r.error.issues[0]!.message
+  }
+  it.each([
+    ['Court-1', '10 caractères minimum.'],
+    ['sansmajuscule-26', 'Au moins une majuscule.'],
+    ['SANSMINUSCULE-26', 'Au moins une minuscule.'],
+    ['Sans-Chiffre-Ici', 'Au moins un chiffre.'],
+    ['Dabo-771234567', 'Le mot de passe ne doit pas contenir votre numéro de téléphone.'],
+    ['Awa-Dakar-2026', 'Le mot de passe ne doit pas contenir votre prénom.'],
+  ])('refuse « %s » : %s', (password, message) => expect(why(password)).toBe(message))
+  it('refuse deux mots de passe différents, accepte un mot de passe solide', () => {
+    expect(why('Secret-2026', 'Secret-2027')).toBe('Les mots de passe ne correspondent pas.')
+    expect(why('Lancement-2026')).toBeNull()
   })
 })
 

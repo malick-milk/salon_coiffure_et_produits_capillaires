@@ -53,12 +53,12 @@ class AuthApiTest extends TestCase
     {
         $this->postJson('/api/v1/auth/register', [
             'first_name' => 'Ndeye', 'last_name' => 'Gueye', 'email' => 'Ndeye@Client.test', 'phone' => '70 222 33 44',
-            'password' => 'nouveau-mdp-1', 'password_confirmation' => 'nouveau-mdp-1', 'consent' => true,
+            'password' => 'Nouveau-Mdp-2026', 'password_confirmation' => 'Nouveau-Mdp-2026', 'consent' => true,
         ])->assertCreated()->assertJsonPath('data.email', 'ndeye@client.test')->assertJsonPath('data.phone', '702223344');
 
         $user = User::where('email', 'ndeye@client.test')->first();
-        $this->assertNotSame('nouveau-mdp-1', $user->password); // jamais en clair
-        $this->assertTrue(password_verify('nouveau-mdp-1', $user->password));
+        $this->assertNotSame('Nouveau-Mdp-2026', $user->password); // jamais en clair
+        $this->assertTrue(password_verify('Nouveau-Mdp-2026', $user->password));
         $this->assertTrue($user->hasRole('customer'));
         $this->getJson('/api/v1/auth/me')->assertOk();
     }
@@ -79,7 +79,7 @@ class AuthApiTest extends TestCase
         $guest = Customer::create(['first_name' => 'Coumba', 'last_name' => 'Mbaye', 'phone' => '781234567']);
         $this->postJson('/api/v1/auth/register', [
             'first_name' => 'Coumba', 'last_name' => 'Mbaye', 'email' => 'coumba@client.test', 'phone' => '78 123 45 67',
-            'password' => 'mot-de-passe-1', 'password_confirmation' => 'mot-de-passe-1', 'consent' => true,
+            'password' => 'Mot-De-Passe-2026', 'password_confirmation' => 'Mot-De-Passe-2026', 'consent' => true,
         ])->assertCreated();
 
         $this->assertSame(User::where('email', 'coumba@client.test')->value('id'), $guest->fresh()->user_id); // RG-RES-08

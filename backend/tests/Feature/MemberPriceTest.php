@@ -152,19 +152,19 @@ class MemberPriceTest extends TestCase
 
     public function test_inscription_rapide_puis_connexion_par_telephone(): void
     {
-        $this->postJson('/api/v1/auth/register', ['first_name' => 'Mariama', 'phone' => '77 123 45 67', 'password' => 'motdepasse-2026', 'consent' => true])
+        $this->postJson('/api/v1/auth/register', ['first_name' => 'Mariama', 'phone' => '77 123 45 67', 'password' => 'Lancement-2026', 'password_confirmation' => 'Lancement-2026', 'consent' => true])
             ->assertCreated()->assertJsonPath('data.email', null)->assertJsonPath('data.last_name', null);
         $this->assertDatabaseHas('customers', ['phone' => '771234567', 'first_name' => 'Mariama', 'last_name' => null, 'email' => null]);
 
         // Un 2e compte sans e-mail est permis (l'unicité ne porte que sur les e-mails remplis)
         $this->flushSession();
         $this->app['auth']->forgetGuards();
-        $this->postJson('/api/v1/auth/register', ['first_name' => 'Awa', 'phone' => '781234567', 'password' => 'motdepasse-2026', 'consent' => true])->assertCreated();
+        $this->postJson('/api/v1/auth/register', ['first_name' => 'Awa', 'phone' => '781234567', 'password' => 'Lancement-2026', 'password_confirmation' => 'Lancement-2026', 'consent' => true])->assertCreated();
 
         foreach (['77 123 45 67', '+221 77 123 45 67'] as $typed) {
             $this->flushSession();
             $this->app['auth']->forgetGuards();
-            $this->postJson('/api/v1/auth/login', ['email' => $typed, 'password' => 'motdepasse-2026'])->assertOk()->assertJsonPath('data.first_name', 'Mariama');
+            $this->postJson('/api/v1/auth/login', ['email' => $typed, 'password' => 'Lancement-2026'])->assertOk()->assertJsonPath('data.first_name', 'Mariama');
         }
         $this->flushSession();
         $this->app['auth']->forgetGuards();
@@ -175,7 +175,7 @@ class MemberPriceTest extends TestCase
 
     public function test_la_premiere_commande_complete_le_nom_et_l_e_mail(): void
     {
-        $this->postJson('/api/v1/auth/register', ['first_name' => 'Mariama', 'phone' => '771234567', 'password' => 'motdepasse-2026', 'consent' => true])->assertCreated();
+        $this->postJson('/api/v1/auth/register', ['first_name' => 'Mariama', 'phone' => '771234567', 'password' => 'Lancement-2026', 'password_confirmation' => 'Lancement-2026', 'consent' => true])->assertCreated();
         $this->order([['product_id' => $this->id('DAB-SHA-001'), 'quantity' => 1]], '771234567', ['customer' => ['first_name' => 'Mariama', 'last_name' => 'Sow', 'phone' => '771234567', 'email' => 'mariama.sow@exemple.sn']])
             ->assertCreated();
 
@@ -187,13 +187,13 @@ class MemberPriceTest extends TestCase
         // Mariama a changé de numéro dans son profil : l'ancien (770000003) reste sur sa fiche cliente
         User::where('email', 'mariama@client.test')->update(['phone' => '785554433']);
 
-        $this->postJson('/api/v1/auth/register', ['first_name' => 'Ndeye', 'phone' => '77 000 00 03', 'password' => 'motdepasse-2026', 'consent' => true])
+        $this->postJson('/api/v1/auth/register', ['first_name' => 'Ndeye', 'phone' => '77 000 00 03', 'password' => 'Lancement-2026', 'password_confirmation' => 'Lancement-2026', 'consent' => true])
             ->assertUnprocessable()->assertJsonPath('errors.phone.0', 'Ce numéro est déjà utilisé.'); // et non une erreur 500
     }
 
     public function test_profil_le_numero_suit_la_fiche_et_un_compte_sans_e_mail_peut_en_ajouter_un(): void
     {
-        $this->postJson('/api/v1/auth/register', ['first_name' => 'Astou', 'phone' => '764443322', 'password' => 'motdepasse-2026', 'consent' => true])->assertCreated();
+        $this->postJson('/api/v1/auth/register', ['first_name' => 'Astou', 'phone' => '764443322', 'password' => 'Lancement-2026', 'password_confirmation' => 'Lancement-2026', 'consent' => true])->assertCreated();
 
         // Nom facultatif, e-mail AJOUTÉ (le compte n'en avait pas), numéro changé : la fiche cliente suit
         $this->patchJson('/api/v1/me/profile', ['first_name' => 'Astou', 'last_name' => '', 'phone' => '76 444 33 11', 'email' => 'Astou@Exemple.sn'])
@@ -205,5 +205,19 @@ class MemberPriceTest extends TestCase
         $this->patchJson('/api/v1/me/profile', ['first_name' => 'Astou', 'phone' => '764443311', 'email' => 'autre@exemple.sn'])->assertOk()->assertJsonPath('data.email', 'astou@exemple.sn');
         // Le numéro d'une autre fiche cliente est refusé proprement
         $this->patchJson('/api/v1/me/profile', ['first_name' => 'Astou', 'phone' => '770000003'])->assertUnprocessable()->assertJsonPath('errors.phone.0', 'Ce numéro est déjà utilisé.');
+    }
+
+    public function test_mot_de_passe_verification_renforcee(): void
+    {
+        $base = ['first_name' => 'Soukey', 'phone' => '76 333 22 11', 'consent' => true];
+        $error = fn (string $password, ?string $confirmation = null) => $this->postJson('/api/v1/auth/register', [...$base, 'password' => $password, 'password_confirmation' => $confirmation ?? $password])
+            ->assertUnprocessable()->json('errors.password.0');
+
+        $this->assertSame('Les mots de passe ne correspondent pas.', $error('Lancement-2026', 'Lancement-2027'));
+        $this->assertStringContainsString('10', $error('Court-1')); // 10 caractères minimum
+        $this->assertSame('Le mot de passe doit contenir au moins une majuscule et une minuscule.', $error('lancement-2026'));
+        $this->assertSame('Le mot de passe ne doit pas contenir votre numéro de téléphone.', $error('Dabo-763332211'));
+        $this->assertSame('Le mot de passe ne doit pas contenir votre prénom.', $error('Soukey-2026x'));
+        $this->postJson('/api/v1/auth/register', [...$base, 'password' => 'Lancement-2026', 'password_confirmation' => 'Lancement-2026'])->assertCreated();
     }
 }

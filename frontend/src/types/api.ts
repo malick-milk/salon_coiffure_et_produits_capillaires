@@ -181,6 +181,7 @@ export interface RegisterRequest {
   email?: string | null
   phone: string
   password: string
+  password_confirmation: string
   consent: boolean
 }
 

@@ -120,7 +120,7 @@ Maquettes validées le 18 novembre 2026 (canevas, section « Lancement du 15 dé
 | Le **serveur** décide du prix, sous verrou : deux commandes en même temps ne prennent pas la même place | `PlaceOrderAction::priceLines()` |
 | Sans compte : on peut toujours commander, à 15 000 F | |
 | Pas de gamme en point de retrait (le partenaire n'a pas les 6 soins) | `PlaceOrderAction` (refus 422) |
-| Inscription rapide : prénom, téléphone, mot de passe ; nom et e-mail complétés à la 1re commande ; connexion par e-mail **ou** téléphone | `RegisterRequest`, `AuthController::login()`, `CustomerResolver` |
+| Inscription rapide : prénom, téléphone, mot de passe **saisi deux fois** (règles renforcées : docs/10_SECURITE.md) ; nom et e-mail complétés à la 1re commande ; connexion par e-mail **ou** téléphone | `RegisterRequest`, `AuthController::login()`, `CustomerResolver` |
 
 **Le prix membre affiché ET le prix facturé.** Le site demande au serveur où en est la visiteuse (`member_offer.status` : `eligible`, `sign_in`, `already_used`, `sold_out`) et affiche en conséquence. Mais à la commande, le serveur recalcule tout : changer un prix dans le navigateur ne sert à rien (RG-COM-04). `order_items.regular_unit_price` garde le prix normal (15 000 F) sur la ligne vendue au prix membre : c'est ce qui permet de compter les 20 places et de vérifier « une par compte ».
 

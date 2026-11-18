@@ -35,9 +35,12 @@ class AppServiceProvider extends ServiceProvider
         // Politique de mot de passe des comptes clients (OWASP A07) : 8 caractères, au moins une lettre et un chiffre.
         // En production, on refuse aussi les mots de passe déjà publiés dans une fuite connue (« Have I Been Pwned » :
         // seuls les 5 premiers caractères du hachage SHA-1 quittent le serveur, jamais le mot de passe).
+        // Comptes clientes (renforcé le 18 novembre 2026, demande de Dabo Hair) : 10 caractères, majuscule,
+        // minuscule, chiffre. En production, refus des mots de passe présents dans une fuite de données connue
+        // (uncompromised : seuls les 5 premiers caractères de l'empreinte SHA-1 partent, jamais le mot de passe).
         Password::defaults(fn () => $this->app->isProduction()
-            ? Password::min(8)->letters()->numbers()->uncompromised()
-            : Password::min(8)->letters()->numbers());
+            ? Password::min(10)->letters()->mixedCase()->numbers()->uncompromised()
+            : Password::min(10)->letters()->mixedCase()->numbers());
 
         // Création de réservations, commandes, comptes : 20 par heure et par adresse IP (anti-spam, RG-RES-07)
         RateLimiter::for('checkout', fn (Request $request) => Limit::perHour(config('app.rate_limits.checkout'))->by($request->ip()));

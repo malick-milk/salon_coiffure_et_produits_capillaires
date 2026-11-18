@@ -59,6 +59,7 @@ return [
     'password' => [
         'letters' => ':Attribute doit contenir au moins une lettre.',
         'numbers' => ':Attribute doit contenir au moins un chiffre.',
+        'mixed' => ':Attribute doit contenir au moins une majuscule et une minuscule.',
         'uncompromised' => 'Ce :attribute apparaît dans une fuite de données connue. Choisissez-en un autre.',
     ],
 

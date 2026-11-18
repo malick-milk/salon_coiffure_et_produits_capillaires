@@ -30,7 +30,7 @@ export function RegisterPage() {
     resolver: zodResolver(registerSchema),
     defaultValues: {
       first_name: prefill?.first_name ?? '', last_name: prefill?.last_name ?? '', email: prefill?.email ?? '', phone: prefill?.phone ?? '',
-      password: '', consent: false as unknown as true,
+      password: '', password_confirmation: '', consent: false as unknown as true,
     },
     mode: 'onTouched',
   })
@@ -65,8 +65,11 @@ export function RegisterPage() {
         <Field label="Téléphone mobile" hint="Pour vous prévenir quand la commande est prête. Il sert aussi à vous connecter." error={errors.phone?.message}>
           {(id, d) => <Input id={id} type="tel" inputMode="tel" autoComplete="tel" placeholder="77 123 45 67" aria-invalid={!!errors.phone} aria-describedby={d} {...register('phone')} />}
         </Field>
-        <Field label="Mot de passe" hint="8 caractères minimum, avec au moins une lettre et un chiffre." error={errors.password?.message}>
+        <Field label="Mot de passe" hint="10 caractères minimum, avec une majuscule, une minuscule et un chiffre. Ni votre prénom, ni votre numéro." error={errors.password?.message}>
           {(id, d) => <PasswordInput id={id} autoComplete="new-password" aria-invalid={!!errors.password} aria-describedby={d} {...register('password')} />}
+        </Field>
+        <Field label="Confirmer le mot de passe" error={errors.password_confirmation?.message}>
+          {(id, d) => <PasswordInput id={id} autoComplete="new-password" aria-invalid={!!errors.password_confirmation} aria-describedby={d} {...register('password_confirmation')} />}
         </Field>
         {(errors.last_name || errors.email) && <p role="alert" className="text-sm text-[#f87171]">{errors.last_name?.message ?? errors.email?.message}</p>}
         <div className="flex flex-col gap-1.5">

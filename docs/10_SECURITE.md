@@ -96,7 +96,7 @@ L'audit tourne maintenant à chaque push et **chaque lundi** : une faille peut a
 | Force brute | 5 essais par minute (email + IP), puis blocage ; chaque blocage est journalisé |
 | Énumération des comptes | Même message pour un email inconnu et un mauvais mot de passe, **et même durée de réponse** (Laravel impose une durée minimale, le *timebox*) |
 | Fixation de session | Nouvel identifiant de session à chaque connexion |
-| Mot de passe client | **Renforcé** : 8 caractères, une lettre, un chiffre ; en production, refus des mots de passe publiés dans une fuite connue (service « Have I Been Pwned » : seuls 5 caractères du hachage quittent le serveur) |
+| Mot de passe client | **Renforcé le 18 novembre 2026** (demande de Dabo Hair) : 10 caractères, une majuscule, une minuscule, un chiffre ; ni le prénom ni le numéro de téléphone dedans ; **saisi deux fois** (confirmation) ; en production, refus des mots de passe publiés dans une fuite connue (service « Have I Been Pwned » : seuls 5 caractères du hachage quittent le serveur). Les mêmes règles sont vérifiées dans le navigateur (message immédiat) et sur le serveur (seul juge) |
 | Mot de passe du propriétaire | 12 caractères, lettres et chiffres, saisi sans affichage |
 
 ### A08 — Intégrité des logiciels et des données

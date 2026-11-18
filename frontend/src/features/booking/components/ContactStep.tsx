@@ -3,7 +3,9 @@
  * React Hook Form évite de re-rendre toute la page à chaque lettre tapée (formulaires rapides).
  */
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useEffect } from 'react'
 import { useForm, type UseFormSetError } from 'react-hook-form'
+import { useMe } from '@/features/auth/hooks'
 import { Field } from '@/components/common/FormField'
 import { Input, Textarea } from '@/components/ui/input'
 import { contactSchema, type ContactInput, type ContactValues } from '../schema'
@@ -11,10 +13,12 @@ import { contactSchema, type ContactInput, type ContactValues } from '../schema'
 export type ContactSetError = UseFormSetError<ContactInput>
 
 export function ContactStep({ formId, onSubmit }: { formId: string; onSubmit: (values: ContactValues, setError: ContactSetError) => void }) {
+  const { data: user } = useMe()
   const {
     register,
     handleSubmit,
     setError,
+    reset,
     formState: { errors },
   } = useForm<ContactInput, unknown, ContactValues>({
     resolver: zodResolver(contactSchema),
@@ -22,8 +26,20 @@ export function ContactStep({ formId, onSubmit }: { formId: string; onSubmit: (v
     mode: 'onTouched', // erreur affichée en quittant le champ, pas pendant la saisie
   })
 
+  // Cliente connectée : ses coordonnées sont reprises de son compte (comme à la commande), elle n'a rien à
+  // retaper. keepDirtyValues : si elle a déjà commencé à écrire, sa saisie n'est pas écrasée.
+  // Le serveur rattache de toute façon le rendez-vous à SON compte (CustomerResolver).
+  useEffect(() => {
+    if (user) reset((v) => ({ ...v, first_name: user.first_name, last_name: user.last_name ?? '', phone: user.phone ?? '', email: user.email ?? '' }), { keepDirtyValues: true })
+  }, [user, reset])
+
   return (
     <form id={formId} noValidate onSubmit={handleSubmit((values) => onSubmit(values, setError))} className="flex flex-col gap-5">
+      {user && (
+        <p className="rounded-xl border border-ink-line bg-ink-soft px-4 py-3 text-sm text-[#d9d9d9]">
+          Coordonnées reprises de votre compte : vérifiez-les, puis envoyez la demande. Le rendez-vous apparaîtra dans « Mes réservations ».
+        </p>
+      )}
       <div className="grid gap-5 sm:grid-cols-2">
         <Field label="Prénom *" error={errors.first_name?.message}>
           {(id, describedBy) => <Input id={id} autoComplete="given-name" aria-invalid={!!errors.first_name} aria-describedby={describedBy} {...register('first_name')} />}
