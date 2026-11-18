@@ -34,3 +34,13 @@ export function safeRedirect(value: string | null, fallback = '/compte'): string
     return fallback
   }
 }
+
+/**
+ * Destination d'une CLIENTE : jamais l'ERP. Bug du 18 novembre 2026 : venue de /admin, la page de connexion
+ * transmettait « revenir sur /admin » à l'inscription ; la nouvelle cliente tombait sur « accès refusé ».
+ * L'ERP n'est ouvert qu'au personnel (comptes créés par la gérante dans « Équipe et rôles »).
+ */
+export function customerRedirect(value: string | null): string {
+  const path = safeRedirect(value)
+  return path === '/admin' || path.startsWith('/admin/') || path.startsWith('/admin?') ? '/compte' : path
+}

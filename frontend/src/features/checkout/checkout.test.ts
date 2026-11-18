@@ -1,4 +1,4 @@
-import { safeRedirect } from '@/features/auth/components/RequireAuth'
+import { customerRedirect, safeRedirect } from '@/features/auth/components/RequireAuth'
 import { registerSchema } from '@/features/auth/schema'
 import { checkoutSchema } from './schema'
 
@@ -39,6 +39,12 @@ describe('inscription rapide (prénom, téléphone, mot de passe)', () => {
 })
 
 describe('redirection après connexion (anti « open redirect »)', () => {
+  it('une cliente n’est jamais renvoyée vers l’ERP (bug du 18 novembre 2026)', () => {
+    expect(customerRedirect('/admin')).toBe('/compte')
+    expect(customerRedirect('/admin/produits?page=2')).toBe('/compte')
+    expect(customerRedirect('/panier')).toBe('/panier') // les autres destinations sont gardées
+    expect(customerRedirect('https://site-pirate.com')).toBe('/compte')
+  })
   it('accepte un chemin interne', () => expect(safeRedirect('/compte/commandes')).toBe('/compte/commandes'))
   it('refuse une URL externe ou un chemin « //site.com »', () => {
     expect(safeRedirect('https://site-pirate.com')).toBe('/compte')

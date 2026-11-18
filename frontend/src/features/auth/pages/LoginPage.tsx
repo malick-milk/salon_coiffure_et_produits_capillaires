@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { apiErrorMessage, apiErrorStatus, type ValidationErrorBody } from '@/lib/http'
 import { PasswordInput } from '../components/PasswordInput'
-import { safeRedirect } from '../components/RequireAuth'
+import { customerRedirect, safeRedirect } from '../components/RequireAuth'
 import { useLogin, useMe } from '../hooks'
 import { isStaff } from '../permissions'
 import { loginSchema, type LoginValues } from '../schema'
@@ -17,7 +17,8 @@ import { loginSchema, type LoginValues } from '../schema'
 export function LoginPage() {
   const [params] = useSearchParams()
   // Sans redirection demandée, le personnel arrive sur l'ERP et le client sur son espace
-  const target = (user: Parameters<typeof isStaff>[0]) => safeRedirect(params.get('redirect'), isStaff(user) ? '/admin' : '/compte')
+  // Une cliente n'est jamais renvoyée vers l'ERP, même si la page demandée était /admin
+  const target = (user: Parameters<typeof isStaff>[0]) => (isStaff(user) ? safeRedirect(params.get('redirect'), '/admin') : customerRedirect(params.get('redirect')))
   const navigate = useNavigate()
   const me = useMe()
   const login = useLogin()
@@ -60,7 +61,7 @@ export function LoginPage() {
       </form>
       <p className="text-center text-sm text-muted">
         Pas encore de compte ?{' '}
-        <Link to={`/inscription?redirect=${encodeURIComponent(safeRedirect(params.get('redirect')))}`} className="font-semibold text-gold underline underline-offset-4">Créer un compte</Link>
+        <Link to={`/inscription?redirect=${encodeURIComponent(customerRedirect(params.get('redirect')))}`} className="font-semibold text-gold underline underline-offset-4">Créer un compte</Link>
       </p>
     </AuthShell>
   )

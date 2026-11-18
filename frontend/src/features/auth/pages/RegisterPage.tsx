@@ -10,14 +10,14 @@ import { apiErrorMessage, apiErrorStatus, type ValidationErrorBody } from '@/lib
 import { useCart } from '@/features/cart/store'
 import { formatPrice } from '@/lib/format'
 import { PasswordInput } from '../components/PasswordInput'
-import { safeRedirect } from '../components/RequireAuth'
+import { customerRedirect } from '../components/RequireAuth'
 import { useMe, useRegister } from '../hooks'
 import { registerSchema, type RegisterInput, type RegisterValues } from '../schema'
 import { AuthShell } from './LoginPage'
 
 export function RegisterPage() {
   const [params] = useSearchParams()
-  const redirect = safeRedirect(params.get('redirect'))
+  const redirect = customerRedirect(params.get('redirect')) // un compte créé ici est un compte CLIENT : jamais l'ERP
   const navigate = useNavigate()
   const me = useMe()
   const [submitted, setSubmitted] = useState(false)
