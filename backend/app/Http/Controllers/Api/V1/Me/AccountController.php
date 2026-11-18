@@ -13,6 +13,7 @@ use App\Models\Booking;
 use App\Models\Order;
 use App\Notifications\BookingCancelledByCustomer;
 use App\Support\Notify;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Gate;
@@ -61,12 +62,15 @@ class AccountController extends Controller
         return new CustomerBookingResource($booking);
     }
 
-    public function updateProfile(UpdateProfileRequest $request): UserResource
+    public function updateProfile(UpdateProfileRequest $request): JsonResponse
     {
         $user = $request->user();
-        $user->update($request->validated());
-        $user->customer?->update($request->safe()->only(['first_name', 'last_name'])); // fiche client tenue à jour
+        $data = array_filter($request->validated(), fn ($v, $k) => $k !== 'email' || $v !== null, ARRAY_FILTER_USE_BOTH);
+        $user->update($data);
+        // La fiche cliente suit le compte : nom, numéro (sinon l'ancien numéro restait sur la fiche) et e-mail ajouté
+        $user->customer?->update(collect($data)->only(['first_name', 'last_name', 'phone', 'email'])->all());
 
-        return new UserResource($user);
+        // 200 forcé : un compte créé dans le même cycle (inscription puis profil) répondrait « 201 Created »
+        return (new UserResource($user))->response()->setStatusCode(200);
     }
 }

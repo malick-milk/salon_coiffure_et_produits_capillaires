@@ -190,4 +190,20 @@ class MemberPriceTest extends TestCase
         $this->postJson('/api/v1/auth/register', ['first_name' => 'Ndeye', 'phone' => '77 000 00 03', 'password' => 'motdepasse-2026', 'consent' => true])
             ->assertUnprocessable()->assertJsonPath('errors.phone.0', 'Ce numéro est déjà utilisé.'); // et non une erreur 500
     }
+
+    public function test_profil_le_numero_suit_la_fiche_et_un_compte_sans_e_mail_peut_en_ajouter_un(): void
+    {
+        $this->postJson('/api/v1/auth/register', ['first_name' => 'Astou', 'phone' => '764443322', 'password' => 'motdepasse-2026', 'consent' => true])->assertCreated();
+
+        // Nom facultatif, e-mail AJOUTÉ (le compte n'en avait pas), numéro changé : la fiche cliente suit
+        $this->patchJson('/api/v1/me/profile', ['first_name' => 'Astou', 'last_name' => '', 'phone' => '76 444 33 11', 'email' => 'Astou@Exemple.sn'])
+            ->assertOk()->assertJsonPath('data.email', 'astou@exemple.sn')->assertJsonPath('data.last_name', null);
+        $this->assertDatabaseHas('customers', ['phone' => '764443311', 'email' => 'astou@exemple.sn']);
+        $this->assertDatabaseMissing('customers', ['phone' => '764443322']);
+
+        // Une fois l'e-mail là, le changer passe par le salon : le champ est ignoré
+        $this->patchJson('/api/v1/me/profile', ['first_name' => 'Astou', 'phone' => '764443311', 'email' => 'autre@exemple.sn'])->assertOk()->assertJsonPath('data.email', 'astou@exemple.sn');
+        // Le numéro d'une autre fiche cliente est refusé proprement
+        $this->patchJson('/api/v1/me/profile', ['first_name' => 'Astou', 'phone' => '770000003'])->assertUnprocessable()->assertJsonPath('errors.phone.0', 'Ce numéro est déjà utilisé.');
+    }
 }

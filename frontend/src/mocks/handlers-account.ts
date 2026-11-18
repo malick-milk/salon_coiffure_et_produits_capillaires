@@ -112,14 +112,16 @@ export const accountHandlers = [
     await delay(300)
     const u = currentUser()
     if (!u) return unauthenticated()
-    const b = (await request.json()) as Pick<User, 'first_name' | 'last_name' | 'phone'>
+    const b = (await request.json()) as Pick<User, 'first_name' | 'last_name' | 'phone'> & { email?: string | null }
     const phone = (b.phone ?? '').replace(/\s/g, '')
     const errors: Record<string, string[]> = {}
     if ((b.first_name ?? '').trim().length < 2) errors.first_name = ['Le prénom est obligatoire.']
-    if ((b.last_name ?? '').trim().length < 2) errors.last_name = ['Le nom est obligatoire.']
+    const lastName = (b.last_name ?? '').trim()
+    if (lastName && lastName.length < 2) errors.last_name = ['Le nom doit contenir au moins 2 caractères.']
     if (!PHONE_SN.test(phone)) errors.phone = ['Numéro mobile invalide.']
     if (Object.keys(errors).length) return invalid(errors)
-    Object.assign(u, { first_name: b.first_name.trim(), last_name: (b.last_name ?? '').trim(), phone })
+    // E-mail : seulement AJOUTÉ à un compte qui n'en a pas (comme le serveur)
+    Object.assign(u, { first_name: b.first_name.trim(), last_name: lastName || null, phone, ...(u.email ? {} : { email: (b.email ?? '').trim().toLowerCase() || null }) })
     persistDb()
     return HttpResponse.json({ data: toUser(u) })
   }),

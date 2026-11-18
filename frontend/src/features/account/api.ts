@@ -6,7 +6,8 @@ export const fetchMyOrder = async (reference: string) => (await http.get<{ data:
 export const fetchMyBookings = async () => (await http.get<{ data: CustomerBooking[] }>('/me/bookings')).data.data
 export const cancelMyBooking = async (reference: string) =>
   (await http.post<{ data: CustomerBooking }>(`/me/bookings/${encodeURIComponent(reference)}/cancel`)).data.data
-export const updateProfile = async (body: Pick<User, 'first_name' | 'last_name' | 'phone'>) =>
+/** email : seulement pour AJOUTER un e-mail à un compte qui n'en a pas (le changer passe par le salon) */
+export const updateProfile = async (body: Pick<User, 'first_name' | 'last_name' | 'phone'> & { email?: string | null }) =>
   (await http.patch<{ data: User }>('/me/profile', body)).data.data
 
 type NotificationsPage = { data: AccountNotification[]; meta: { unread: number } }

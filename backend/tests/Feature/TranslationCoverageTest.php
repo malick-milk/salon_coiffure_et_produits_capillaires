@@ -16,7 +16,7 @@ class TranslationCoverageTest extends TestCase
     protected bool $seed = false;
 
     /** Règles sans message propre (modificateurs) */
-    private const MODIFIERS = ['nullable', 'sometimes', 'bail', 'present', 'filled'];
+    private const MODIFIERS = ['nullable', 'sometimes', 'bail', 'present', 'filled', 'exclude']; // exclude : le champ est ignoré, jamais de message
 
     public function test_chaque_regle_de_validation_utilisee_a_un_message_francais(): void
     {

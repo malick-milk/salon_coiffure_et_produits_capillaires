@@ -29,10 +29,13 @@ export function useLogout() {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: logout,
-    onSuccess: () => {
-      // On vide TOUT le cache : les données du compte précédent ne doivent pas rester visibles
-      qc.clear()
+    onSuccess: async () => {
+      // 1. Personne n'est connecté : setQueryData PRÉVIENT tous les composants affichés (l'en-tête aussi).
+      //    Piège corrigé le 18 novembre 2026 : qc.clear() vidait le cache SANS prévenir les composants déjà
+      //    à l'écran ; l'en-tête gardait le prénom de la cliente précédente (« Soukey » au-dessus d'« Astou »).
       qc.setQueryData(ME_KEY, null)
+      // 2. Les données du compte précédent (commandes, notifications…) sont effacées, composants prévenus
+      await qc.resetQueries({ predicate: (q) => q.queryKey[0] !== ME_KEY[0] })
     },
   })
 }

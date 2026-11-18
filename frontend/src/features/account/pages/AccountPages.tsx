@@ -301,10 +301,12 @@ function BookingRow({ booking: b, confirming, pending, onAsk, onAbort, onConfirm
 }
 
 // ---------- Profil ----------
+// Nom et e-mail facultatifs depuis l'inscription rapide (18 novembre 2026)
 const profileSchema = z.object({
   first_name: z.string().trim().min(2, 'Indiquez votre prénom.'),
-  last_name: z.string().trim().min(2, 'Indiquez votre nom.'),
+  last_name: z.string().trim().refine((v) => v === '' || v.length >= 2, 'Le nom doit contenir au moins 2 caractères.').transform((v) => v || null),
   phone: z.string().transform(normalizePhone).refine((v) => SENEGAL_MOBILE.test(v), 'Numéro mobile invalide.'),
+  email: z.string().trim().refine((v) => v === '' || z.email().safeParse(v).success, 'Adresse email invalide.').transform((v) => v || null),
 })
 
 export function ProfilePage() {
@@ -313,7 +315,7 @@ export function ProfilePage() {
   const [saved, setSaved] = useState(false)
   const { register, handleSubmit, setError, formState: { errors, isDirty } } = useForm<z.input<typeof profileSchema>, unknown, z.output<typeof profileSchema>>({
     resolver: zodResolver(profileSchema),
-    values: { first_name: user?.first_name ?? '', last_name: user?.last_name ?? '', phone: user?.phone ?? '' },
+    values: { first_name: user?.first_name ?? '', last_name: user?.last_name ?? '', phone: user?.phone ?? '', email: user?.email ?? '' },
   })
   return (
     <div className="flex flex-col gap-6">
@@ -325,7 +327,8 @@ export function ProfilePage() {
           className="flex flex-col gap-5"
           onSubmit={handleSubmit((values) => {
             setSaved(false)
-            update.mutate(values, {
+            // Un e-mail déjà enregistré ne part pas (le serveur l'ignorerait) : on ne peut qu'en AJOUTER un
+            update.mutate(user?.email ? { ...values, email: undefined } : values, {
               onSuccess: () => setSaved(true),
               onError: (e) => { if (apiErrorStatus(e) === 422 && axios.isAxiosError<ValidationErrorBody>(e)) applyServerErrors(e.response?.data.errors, setError) },
             })
@@ -333,10 +336,16 @@ export function ProfilePage() {
         >
           <div className="grid gap-5 sm:grid-cols-2">
             <Field label="Prénom" error={errors.first_name?.message}>{(id, d) => <Input id={id} autoComplete="given-name" aria-invalid={!!errors.first_name} aria-describedby={d} {...register('first_name')} />}</Field>
-            <Field label="Nom" error={errors.last_name?.message}>{(id, d) => <Input id={id} autoComplete="family-name" aria-invalid={!!errors.last_name} aria-describedby={d} {...register('last_name')} />}</Field>
+            <Field label="Nom (facultatif)" error={errors.last_name?.message}>{(id, d) => <Input id={id} autoComplete="family-name" aria-invalid={!!errors.last_name} aria-describedby={d} {...register('last_name')} />}</Field>
           </div>
           <Field label="Téléphone mobile" error={errors.phone?.message}>{(id, d) => <Input id={id} type="tel" autoComplete="tel" aria-invalid={!!errors.phone} aria-describedby={d} {...register('phone')} />}</Field>
-          <Field label="Email" hint="Pour changer d’email, contactez le salon (vérification d’identité).">{(id, d) => <Input id={id} value={user?.email ?? ''} readOnly aria-describedby={d} className="text-muted" />}</Field>
+          {user?.email ? (
+            <Field label="Email" hint="Pour changer d’email, contactez le salon (vérification d’identité).">{(id, d) => <Input id={id} value={user.email ?? ''} readOnly aria-describedby={d} className="text-muted" />}</Field>
+          ) : (
+            <Field label="Email (facultatif)" hint="Pour recevoir vos rappels de resserrage et vos factures par e-mail. Une fois enregistré, il se change auprès du salon." error={errors.email?.message}>
+              {(id, d) => <Input id={id} type="email" autoComplete="email" aria-invalid={!!errors.email} aria-describedby={d} {...register('email')} />}
+            </Field>
+          )}
           <div className="flex flex-wrap items-center gap-4">
             <Button type="submit" disabled={update.isPending || !isDirty}>{update.isPending ? 'Enregistrement…' : 'Enregistrer'}</Button>
             {saved && <p role="status" className="flex items-center gap-1.5 text-sm text-[#86efac]"><Check className="size-4" aria-hidden="true" />Profil mis à jour</p>}

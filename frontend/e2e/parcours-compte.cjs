@@ -172,7 +172,7 @@ const log = (ok, msg) => { if (!ok) failures++; console.log(`${ok ? 'OK  ' : 'FA
   await page.goto(BASE + '/inscription')
   log(await page.getByLabel('Nom', { exact: true }).count() === 0 && await page.getByLabel('Confirmer le mot de passe').count() === 0, 'Inscription : 3 champs seulement (ni nom, ni e-mail, ni 2e mot de passe)')
   await page.getByLabel('Prénom').fill('Ndeye')
-  await page.getByLabel('Téléphone mobile').fill('77 000 00 03') // numéro de Mariama
+  await page.getByLabel('Téléphone mobile').fill('78 555 44 33') // numéro ACTUEL de Mariama (changé à l'étape Profil)
   await page.getByLabel('Mot de passe', { exact: true }).fill('nouveau-mdp-1')
   await page.getByRole('checkbox', { name: /politique de confidentialité/ }).check()
   await page.getByRole('button', { name: 'Créer mon compte' }).click()
@@ -186,6 +186,9 @@ const log = (ok, msg) => { if (!ok) failures++; console.log(`${ok ? 'OK  ' : 'FA
   // Sans e-mail, on se connecte avec son numéro
   await page.getByRole('button', { name: 'Se déconnecter' }).first().click()
   await page.waitForURL(BASE + '/') // la déconnexion ramène à l'accueil : attendre qu'elle soit finie
+  // Bug du 18 novembre 2026 : après la déconnexion, l'en-tête gardait le prénom de la cliente précédente
+  log(await page.getByRole('banner').getByRole('link', { name: 'Se connecter' }).count() >= 1 && await page.getByRole('banner').getByRole('link', { name: /Mon compte \(/ }).count() === 0,
+    'Déconnexion : l’en-tête n’affiche plus le prénom de la cliente précédente')
   await page.goto(BASE + '/connexion')
   await page.getByLabel('E-mail ou téléphone').fill('70 222 33 44')
   await page.getByLabel('Mot de passe', { exact: true }).fill('nouveau-mdp-1')
