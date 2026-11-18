@@ -1,34 +1,28 @@
-# Campagne de lancement du site · 21 jours, 4 réseaux
+# Campagne de lancement du site · 15 décembre 2026 · 5 réseaux
 
-Maquettes validées le 16 novembre 2026 (canevas « Dabo Hair — Accueil et gammes »). Le détail jour par jour est dans `00-calendrier-21-jours.png`.
+Images définitives, **validées le 18 novembre 2026** (version « offre réservée aux membres »). Sources HTML, légendes à copier, hashtags et liens mesurés : `marketing/sources/lancement/LISEZ-MOI.md`.
 
-| Phase | Jour | Instagram (1080 × 1350) | Statut WhatsApp, TikTok, Snapchat (1080 × 1920) |
+| Phase | Jour | Date | Fichiers (Instagram et Facebook 1080 × 1350 ; WhatsApp, TikTok, Snapchat 1080 × 1920) |
 |---|---|---|---|
-| 1 · Mystère | J-21 | `01-J21-mystere-instagram-publication.png` | `01-J21-mystere-whatsapp-statut.png`, `-tiktok-couverture.png`, `-snapchat.png` |
-| 2 · Révélation | J-14 | `02-J14-revelation-instagram-publication.png` | `02-J14-revelation-…` (3 fichiers) |
-| 3 · Compte à rebours | J-7 | `03-J7-compte-a-rebours-instagram-publication.png` | `03-J7-compte-a-rebours-…` (3 fichiers) |
-| | J-3 | `03-J3-compte-a-rebours-instagram-publication.png` | `03-J3-compte-a-rebours-…` (3 fichiers) |
-| | J-1 | `03-J1-compte-a-rebours-instagram-publication.png` | `03-J1-compte-a-rebours-…` (3 fichiers) |
-| 4 · Jour J | J | `04-JourJ-instagram-publication.png` | `04-JourJ-…` (3 fichiers) |
+| 1 · Mystère | J-21 | mardi 24 novembre | `01-J21-mystere-*.png` (5) |
+| 2 · Révélation | J-14 | mardi 1er décembre | `02-J14-revelation-*.png` (5) |
+| 3 · Compte à rebours | J-7 | mardi 8 décembre | `03-J7-compte-a-rebours-*.png` (5) |
+| | J-3 | samedi 12 décembre | `03-J3-compte-a-rebours-*.png` (5) |
+| | J-1 | lundi 14 décembre | `03-J1-compte-a-rebours-*.png` (5) |
+| 4 · Jour J | J | mardi 15 décembre | `04-JourJ-*.png` (5) |
 
-## Prêtes à publier
+Calendrier complet : `00-calendrier-21-jours.png`. Promotion de la gamme sur Instagram (prix membre) : `marketing/promo-gamme/`.
 
-Les phases 1 et 2 (8 images), les images TikTok, Snapchat et WhatsApp de J-7, J-3 et J-1 (9 images), et la couverture TikTok du Jour J.
+## Prêtes à publier tout de suite
 
-Le fil d'or continue de se remplir chaque jour de la dernière semaine : 67 % à J-7, 86 % à J-3, 95 % à J-1, 100 % le Jour J.
+J-21 et J-14 (10 images) : elles n'annoncent aucun prix.
 
-## À refaire avant de publier (textes provisoires entre crochets)
+## À ne PAS publier avant que…
 
-| Image | Texte provisoire | Il faut |
-|---|---|---|
-| `03-J7-…`, `03-J3-…`, `03-J1-compte-a-rebours-instagram-publication.png` | « Offre de lancement : [à confirmer avec Awa] » | l'offre de lancement |
-| `04-JourJ-instagram-publication.png` | « [domaine] · lien en bio » | le nom de domaine |
-| `04-JourJ-whatsapp-statut.png` | « [domaine] » | le nom de domaine |
-| `04-JourJ-snapchat.png` | « [domaine] » | le nom de domaine |
+| Images | Il faut |
+|---|---|
+| J-7, J-3, J-1, Jour J (prix membre 10 000 F) | que le site facture vraiment 10 000 F à un membre et 15 000 F sans compte, avec la gamme en un seul article |
+| Jour J : Instagram, Facebook, WhatsApp, Snapchat | le nom de domaine (décidé avec Awa), puis ré-export : `node marketing/outils/exporter.cjs marketing/sources/lancement marketing/lancement 04-` |
+| J-3 TikTok (avis de clientes) | l'accord écrit de chaque cliente filmée |
 
-## Rappels
-
-- Les **liens** ne sont jamais dans l'image : bio Instagram et TikTok, légende du statut WhatsApp, trombone Snapchat.
-- Chaque lien porte sa source pour la mesure : `?utm_source=instagram&utm_campaign=lancement` (puis `whatsapp`, `tiktok`, `snapchat`).
-- Statut WhatsApp de J-7 : demander aux clientes d'**enregistrer le numéro**, sinon la liste de diffusion du Jour J ne leur arrive pas.
-- Avis de clientes (J-3) : accord écrit de chacune avant publication.
+Les autres questions ouvertes (modalités de l'offre, heure d'ouverture, « 30 secondes ») sont dans le LISEZ-MOI des sources.
