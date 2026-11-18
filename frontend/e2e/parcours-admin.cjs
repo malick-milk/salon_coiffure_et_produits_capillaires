@@ -265,6 +265,9 @@ async function login(page, email, password) {
   await page.getByLabel('Catégorie').selectOption({ label: 'Soins traitants' })
   await page.getByLabel('Contenance').fill('120 ml')
   await page.getByLabel('Prix de vente (F CFA)').fill('6000')
+  await page.getByLabel('Prix d’achat unitaire (F) · obligatoire').fill('2500')
+  const marge = (await page.getByText(/du prix de vente/).textContent()).replace(/[\u202f\u00a0]/g, ' ')
+  log(/3 500 F CFA · 58,3 %/.test(marge), `Nouveau produit : marge calculée en direct (${marge})`)
   const publish = page.getByRole('button', { name: 'Publier' })
   log(await publish.isDisabled(), 'Nouveau produit : « Publier » grisé tant qu’il n’y a pas de photo')
   // Photo de test fabriquée par le navigateur : 3000 × 4000 px, comme un téléphone

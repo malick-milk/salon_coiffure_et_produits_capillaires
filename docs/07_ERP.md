@@ -112,6 +112,8 @@ Les deux chemins sont étanches : l'API refuse un lot de fabrication pour un pro
 - un doublon (même marque, même nom, même contenance) est refusé ;
 - une marque absente se crée depuis le formulaire (« + Nouvelle marque… », `POST admin/brands`).
 
+**Prix d'achat unitaire obligatoire** (18 novembre 2026) : prix payé au fournisseur (revendu) ou coût estimé d'une unité (fabriqué). Il devient le **coût de revient de départ** : la marge est connue dès la création, dans « Produits et stock » et dans les Analyses. L'écran l'affiche en direct (« 3 500 F · 58,3 % du prix de vente »). Ensuite, la première réception d'achat le remplace par le vrai prix payé, puis la moyenne pondérée prend le relais ; pour un produit fabriqué, chaque lot le remplace. **Vente à perte** (prix de vente plus bas) : l'écran avertit en rouge mais n'empêche pas d'enregistrer (produit d'appel, déstockage).
+
 **Publier** (cocher « En vente ») exige **au moins une photo** : une fiche sans photo ne vend pas. Un produit en vente garde toujours au moins une photo.
 
 **Les photos** (`POST admin/products/{id}/images`, 4 au plus) suivent ce chemin :

@@ -10,11 +10,13 @@ import { Link, useNavigate } from 'react-router'
 import { Seo } from '@/components/common/Seo'
 import { Button } from '@/components/ui/button'
 import { ProductCard } from '@/features/catalog/components/ProductCard'
+import { formatPrice } from '@/lib/format'
 import { resizeImage } from '@/lib/resizeImage'
 import { cn } from '@/lib/utils'
 import type { ProductOrigin } from '@/types/admin'
 import { useAdminCategories, useBrands, useCreateBrand, useCreateProduct, useUpdateProduct, useUploadProductImage } from '../api'
 import { AdminField, AdminInput, AdminSelect, AdminTextarea, Card, Feedback, PageHeader } from '../components/ui'
+import { productMargin } from '../purchaseMath'
 import { firstError } from './OrdersPages'
 
 const MAX_PHOTOS = 4
@@ -41,6 +43,7 @@ export function NewProductPage() {
   const [categoryId, setCategoryId] = useState('')
   const [unitSize, setUnitSize] = useState('')
   const [price, setPrice] = useState('')
+  const [purchasePrice, setPurchasePrice] = useState('')
   const [threshold, setThreshold] = useState('6')
   const [shortDescription, setShortDescription] = useState('')
   const [description, setDescription] = useState('')
@@ -62,6 +65,9 @@ export function NewProductPage() {
   const brand = brands.data?.find((b) => String(b.id) === brandId)
   const category = categories.data?.find((c) => String(c.id) === categoryId)
   const ready = name.trim().length >= 2 && Boolean(brand) && Boolean(category) && price !== '' && Number(price) >= 0
+    && purchasePrice !== '' && Number(purchasePrice) >= 0
+  // Marge par unité, en direct (même calcul que le serveur : (prix de vente − coût) ÷ prix de vente)
+  const margin = price !== '' && purchasePrice !== '' ? productMargin(Number(price), Number(purchasePrice)) : null
   const canPublish = ready && photos.length > 0
 
   const addPhotos = (files: FileList | null) => {
@@ -93,7 +99,7 @@ export function NewProductPage() {
     try {
       const product = await createProduct.mutateAsync({
         origin, name: name.trim(), brand_id: brand.id, category_id: category.id, unit_size: unitSize.trim() || null,
-        price: Number(price), low_stock_threshold: Number(threshold || 0),
+        price: Number(price), purchase_price: Number(purchasePrice), low_stock_threshold: Number(threshold || 0),
         short_description: shortDescription.trim() || null, description: description.trim() || null,
       })
       createdId = product.id
@@ -163,11 +169,26 @@ export function NewProductPage() {
                 </AdminSelect>
               </AdminField>
             </div>
-            <div className="grid gap-4 sm:grid-cols-3">
+            <div className="grid gap-4 sm:grid-cols-2">
               <AdminField label="Contenance" htmlFor="np-size"><AdminInput id="np-size" value={unitSize} onChange={(e) => setUnitSize(e.target.value)} maxLength={50} placeholder="Ex. 120 ml" /></AdminField>
-              <AdminField label="Prix de vente (F CFA)" htmlFor="np-price"><AdminInput id="np-price" type="number" min={0} step={100} value={price} onChange={(e) => setPrice(e.target.value)} required /></AdminField>
               <AdminField label="Seuil d’alerte de stock" htmlFor="np-threshold"><AdminInput id="np-threshold" type="number" min={0} value={threshold} onChange={(e) => setThreshold(e.target.value)} /></AdminField>
             </div>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="flex flex-col gap-1.5">
+                <AdminField label="Prix d’achat unitaire (F) · obligatoire" htmlFor="np-purchase">
+                  <AdminInput id="np-purchase" type="number" min={0} step={50} value={purchasePrice} onChange={(e) => setPurchasePrice(e.target.value)} required aria-describedby="np-purchase-aide" />
+                </AdminField>
+                <p id="np-purchase-aide" className="text-xs text-[#52525b]">{origin === 'resold' ? 'Prix payé au fournisseur pour une unité' : 'Coût estimé d’une unité (ingrédients, flacon, étiquette)'}</p>
+              </div>
+              <AdminField label="Prix de vente (F CFA)" htmlFor="np-price"><AdminInput id="np-price" type="number" min={0} step={100} value={price} onChange={(e) => setPrice(e.target.value)} required /></AdminField>
+            </div>
+            {margin && (
+              <p aria-live="polite" className={`flex flex-wrap items-center justify-between gap-2 rounded-xl border p-3.5 text-[15px] ${margin.loss ? 'border-[#fca5a5] bg-[#fef2f2] text-[#b91c1c]' : 'border-[#86efac] bg-[#f0fdf4] text-[#14532d]'}`}>
+                {margin.loss
+                  ? <><span>Attention : vendu à perte</span><strong>{formatPrice(-margin.amount)} de perte par unité</strong></>
+                  : <><span>Marge par unité</span><strong>{formatPrice(margin.amount)} · {margin.rate.toLocaleString('fr-FR')} % du prix de vente</strong></>}
+              </p>
+            )}
             <AdminField label={`Description courte (sur la carte, ${shortDescription.length}/160)`} htmlFor="np-short">
               <AdminInput id="np-short" value={shortDescription} onChange={(e) => setShortDescription(e.target.value)} maxLength={160} placeholder="À quoi sert le produit, en une phrase" />
             </AdminField>
@@ -196,6 +217,8 @@ export function NewProductPage() {
             <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1.5 text-sm">
               <dt className="text-[#52525b]">Référence</dt><dd className="text-right">créée à l’enregistrement</dd>
               <dt className="text-[#52525b]">Stock</dt><dd className="text-right">0 · {origin === 'resold' ? 'à recevoir par un achat' : 'à saisir par la Fabrication'}</dd>
+              <dt className="text-[#52525b]">Marge estimée</dt>
+              <dd className={`text-right ${margin?.loss ? 'text-[#b91c1c]' : 'text-[#14532d]'}`}>{margin ? `${formatPrice(margin.amount)} par unité (${margin.rate.toLocaleString('fr-FR')} %)` : '—'}</dd>
             </dl>
             <p className="rounded-xl border border-[#f5d58a] bg-[#fff8e6] p-3 text-sm text-gold-text">
               « Publier » reste grisé tant qu’il manque une photo. En brouillon, le produit est invisible sur le site.

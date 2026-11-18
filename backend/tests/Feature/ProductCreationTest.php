@@ -42,7 +42,7 @@ class ProductCreationTest extends TestCase
     {
         return [
             'origin' => 'resold', 'name' => 'Huile de croissance', 'brand_id' => $this->vhfBrandId(),
-            'category_id' => Category::where('slug', 'soins-traitants')->value('id'), 'unit_size' => '120 ml', 'price' => 6000,
+            'category_id' => Category::where('slug', 'soins-traitants')->value('id'), 'unit_size' => '120 ml', 'price' => 6000, 'purchase_price' => 2500,
             'short_description' => 'Fait pousser et fortifie les cheveux.', ...$over,
         ];
     }
@@ -62,7 +62,8 @@ class ProductCreationTest extends TestCase
         $this->assertSame('resold', $row['origin']);
         $this->assertFalse($row['is_active']);                   // brouillon
         $this->assertSame(0, $row['stock_quantity']);
-        $this->assertNull($row['cost_price']);
+        $this->assertEquals(2500, $row['cost_price']);    // prix d'achat saisi : coût de revient de départ
+        $this->assertEquals(58.3, $row['margin_rate']);   // (6 000 − 2 500) ÷ 6 000 : marge connue dès la création
         // Invisible sur le site tant qu'il n'est pas publié
         $this->getJson('/api/v1/products/huile-de-croissance-120-ml')->assertNotFound();
     }
@@ -72,7 +73,7 @@ class ProductCreationTest extends TestCase
         $this->admin();
         $dabo = Brand::where('is_house_brand', true)->value('id');
         $sku = $this->postJson('/api/v1/admin/products', ['origin' => 'made', 'name' => 'Crème capillaire', 'brand_id' => $dabo,
-            'category_id' => Category::where('slug', 'hydratants-et-cremes')->value('id'), 'unit_size' => '500 ml', 'price' => 6000])
+            'category_id' => Category::where('slug', 'hydratants-et-cremes')->value('id'), 'unit_size' => '500 ml', 'price' => 6000, 'purchase_price' => 1800])
             ->assertCreated()->json('data.sku');
         $this->assertSame('DAB-CRE-001', Product::where('sku', 'DAB-CRE-001')->value('sku')); // existant : non touché
         $this->assertSame('DAB-CRE-002', $sku);                                                 // le suivant libre
@@ -85,7 +86,10 @@ class ProductCreationTest extends TestCase
         $this->postJson('/api/v1/admin/products', $payload)->assertCreated();
         $this->postJson('/api/v1/admin/products', $payload)->assertUnprocessable()
             ->assertJsonPath('errors.name.0', 'Ce produit existe déjà dans cette marque et cette contenance.');
-        $this->postJson('/api/v1/admin/products', [])->assertUnprocessable()->assertJsonValidationErrors(['origin', 'name', 'brand_id', 'category_id', 'price']);
+        $this->postJson('/api/v1/admin/products', [])->assertUnprocessable()->assertJsonValidationErrors(['origin', 'name', 'brand_id', 'category_id', 'price', 'purchase_price']);
+        // Vente à perte : autorisée (l'écran avertit seulement)
+        $loss = $this->postJson('/api/v1/admin/products', [...$payload, 'name' => 'Produit d’appel', 'price' => 2000])->assertCreated();
+        $this->assertEquals(-25, $loss->json('data.margin_rate')); // (2 000 − 2 500) ÷ 2 000
         $this->postJson('/api/v1/admin/brands', ['name' => 'virgin hair fertilizer'])->assertUnprocessable()
             ->assertJsonPath('errors.name.0', 'Cette marque existe déjà.');
     }

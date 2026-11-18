@@ -357,7 +357,8 @@ Mêmes fenêtres que le Test 4 : Docker allumé, `php artisan serve` et `npm run
 |---|---|
 | ERP → Produits et stock → **Nouveau produit** | Formulaire en 3 parties : origine, fiche, photos ; aperçu de la carte de la boutique à droite |
 | Origine « Acheté et revendu », Marque → « + Nouvelle marque… » → Virgin Hair Fertilizer → Ajouter | La marque est créée et choisie |
-| Nom, catégorie Soins traitants, 120 ml, 6000 | L'aperçu suit la saisie ; « Publier » reste grisé |
+| Nom, catégorie Soins traitants, 120 ml, prix d'achat 2500, prix de vente 6000 | Bandeau vert « 3 500 F CFA · 58,3 % du prix de vente » ; « Publier » reste grisé |
+| Prix de vente 2000 | Bandeau rouge « Attention : vendu à perte », 500 F de perte par unité ; l'enregistrement reste possible |
 | Ajouter une photo prise au téléphone | Elle apparaît avec l'étiquette « Principale » ; « Publier » devient actif |
 | Publier | Retour à la liste : « … est créé et en vente », badge **Revendu**, référence **VHF-HUI-001** |
 | Décocher « En vente », puis supprimer toutes les photos et recocher | Refusé : « Ajoutez au moins une photo avant de publier ce produit. » |

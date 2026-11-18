@@ -317,6 +317,7 @@ export interface NewProduct {
   category_id: number
   unit_size: string | null
   price: number
+  purchase_price: number // prix d'achat (revendu) ou coût estimé (fabriqué) : coût de revient de départ
   low_stock_threshold: number
   short_description: string | null
   description: string | null

@@ -1,7 +1,7 @@
 /** Même formule que le serveur (RecordPurchaseReceiptAction) : on vérifie les mêmes exemples que tests/Feature/ProductCreationTest.php */
 import { describe, expect, it } from 'vitest'
 import { fitWithin } from '@/lib/resizeImage'
-import { previewReceipt } from './purchaseMath'
+import { previewReceipt, productMargin } from './purchaseMath'
 
 describe('Réception d’achat : aperçu du calcul', () => {
   it('coût par unité avec frais du lot, puis moyenne pondérée avec le stock existant', () => {
@@ -33,5 +33,15 @@ describe('Photo réduite avant l’envoi', () => {
   })
   it('une image déjà petite n’est jamais agrandie', () => {
     expect(fitWithin(800, 600)).toEqual({ width: 800, height: 600 })
+  })
+})
+
+describe('Marge d’un nouveau produit', () => {
+  it('même taux que le serveur : (vente − coût) ÷ vente, arrondi à 0,1 %', () => {
+    expect(productMargin(6000, 2500)).toEqual({ amount: 3500, rate: 58.3, loss: false })
+  })
+  it('vente à perte signalée ; prix de vente nul : pas de taux', () => {
+    expect(productMargin(2000, 2500)).toEqual({ amount: -500, rate: -25, loss: true })
+    expect(productMargin(0, 2500)).toBeNull()
   })
 })

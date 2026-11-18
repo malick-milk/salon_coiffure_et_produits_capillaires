@@ -34,3 +34,15 @@ export function previewReceipt(p: {
     : round2((p.stockBefore * p.costBefore + p.quantity * unitCost) / stockAfter)
   return { subtotal, total, unitCost, stockAfter, newCost, unitMargin: p.salePrice > 0 ? round2(p.salePrice - newCost) : null }
 }
+
+/**
+ * Marge d'un nouveau produit (écran « Nouveau produit ») : même formule que le taux de marge du serveur
+ * (CatalogAdminController::row) : (prix de vente − coût) ÷ prix de vente, arrondi à 0,1 %.
+ * Une marge négative = vente à perte : autorisée, l'écran avertit seulement (décision du 18 novembre 2026).
+ */
+export function productMargin(salePrice: number, cost: number): { amount: number; rate: number; loss: boolean } | null {
+  if (!Number.isFinite(salePrice) || !Number.isFinite(cost) || salePrice <= 0 || cost < 0) return null
+  const amount = salePrice - cost
+  return { amount, rate: Math.round((1000 * amount) / salePrice) / 10, loss: amount < 0 }
+}
+

@@ -29,8 +29,25 @@ describe('Nouveau produit', () => {
     fireEvent.change(screen.getByLabelText('Nom du produit'), { target: { value: 'Huile de croissance' } })
     fireEvent.change(screen.getByLabelText('Catégorie'), { target: { value: '7' } })
     fireEvent.change(screen.getByLabelText('Prix de vente (F CFA)'), { target: { value: '6000' } })
+    expect(draft).toBeDisabled() // prix d'achat obligatoire
+    fireEvent.change(screen.getByLabelText('Prix d’achat unitaire (F) · obligatoire'), { target: { value: '2500' } })
     expect(draft).toBeEnabled()
     expect(publish).toBeDisabled() // aucune photo
+  })
+
+  it('la marge s’affiche en direct ; une vente à perte est signalée sans bloquer l’enregistrement', async () => {
+    renderPage()
+    await screen.findByRole('option', { name: 'Virgin Hair Fertilizer' })
+    fireEvent.change(screen.getByLabelText('Nom du produit', { exact: true }), { target: { value: 'Huile de croissance' } })
+    fireEvent.change(screen.getByLabelText('Catégorie'), { target: { value: '7' } })
+    fireEvent.change(screen.getByLabelText('Prix d’achat unitaire (F) · obligatoire'), { target: { value: '2500' } })
+    fireEvent.change(screen.getByLabelText('Prix de vente (F CFA)'), { target: { value: '6000' } })
+    expect(screen.getByText(/3\s500\sF CFA · 58,3 % du prix de vente/)).toBeInTheDocument()
+
+    fireEvent.change(screen.getByLabelText('Prix de vente (F CFA)'), { target: { value: '2000' } })
+    expect(screen.getByText('Attention : vendu à perte')).toBeInTheDocument()
+    expect(screen.getByText(/500\sF CFA de perte par unité/)).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Enregistrer en brouillon' })).toBeEnabled() // option (a) : avertir, pas bloquer
   })
 
   it('l’aperçu est la vraie carte de la boutique et suit la saisie', async () => {

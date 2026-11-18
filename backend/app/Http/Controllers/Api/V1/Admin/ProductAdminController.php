@@ -30,10 +30,12 @@ class ProductAdminController extends Controller
             'category_id' => ['required', 'integer', 'exists:categories,id'],
             'unit_size' => ['nullable', 'string', 'max:50'],
             'price' => ['required', 'integer', 'min:0', 'max:10000000'],
+            // Prix d'achat (revendu) ou coût estimé (fabriqué) : la marge est connue dès la création (18 novembre 2026)
+            'purchase_price' => ['required', 'integer', 'min:0', 'max:10000000'],
             'low_stock_threshold' => ['sometimes', 'integer', 'min:0', 'max:100000'],
             'short_description' => ['nullable', 'string', 'max:160'],
             'description' => ['nullable', 'string', 'max:10000'],
-        ], [], ['name' => 'nom du produit', 'brand_id' => 'marque', 'category_id' => 'catégorie', 'price' => 'prix de vente']);
+        ], [], ['name' => 'nom du produit', 'brand_id' => 'marque', 'category_id' => 'catégorie', 'price' => 'prix de vente', 'purchase_price' => 'prix d’achat unitaire']);
 
         $name = trim($data['name']);
         $size = isset($data['unit_size']) ? trim($data['unit_size']) : null;
@@ -45,12 +47,15 @@ class ProductAdminController extends Controller
 
         $brand = Brand::query()->findOrFail($data['brand_id']);
         $product = Product::create([
-            ...$data,
+            ...collect($data)->except('purchase_price')->all(),
             'name' => $name,
             'unit_size' => $size ?: null,
             'sku' => $this->uniqueSku($brand, $name, $size),
             'slug' => $this->uniqueSlug(trim($name.' '.($size ?? ''))),
             'low_stock_threshold' => $data['low_stock_threshold'] ?? 5,
+            // Coût de revient de départ ; affiné ensuite par les réceptions d'achat (moyenne pondérée) ou les lots fabriqués.
+            // Vente à perte (prix de vente < prix d'achat) : autorisée, l'écran avertit (produit d'appel, déstockage).
+            'cost_price' => $data['purchase_price'],
             'is_active' => false, // brouillon : invisible sur le site tant qu'il n'est pas publié
             'is_featured' => false,
         ]);
