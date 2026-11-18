@@ -367,6 +367,22 @@ Mêmes fenêtres que le Test 4 : Docker allumé, `php artisan serve` et `npm run
 | Fabrication → liste des produits | Le produit revendu n'y figure pas (son stock entre par les réceptions) |
 | Se connecter en caissier | Pas de bouton « Nouveau produit », pas de formulaire de réception (lecture seule) |
 
+**La gamme au prix membre** (lancement du 15 décembre ; après `php artisan migrate:fresh --seed`). Dans la démo, la crème est en rupture, donc la gamme aussi : d'abord ERP → **Fabrication** → un lot de 24 « Crème capillaire ». Ensuite, sur le téléphone ou en mode téléphone du navigateur (F12, icône téléphone) :
+
+| À essayer | Résultat attendu |
+|---|---|
+| Accueil, sans être connectée | En haut : « La gamme complète, six soins », « Prix membre 10 000 F » et « Sans compte 15 000 F », « Plus que 20 gammes sur 20 » |
+| Ouvrir la gamme, « Ajouter au panier », puis le panier | Encart « Payez 10 000 F au lieu de 15 000 F » ; bouton « Commander sans compte · 15 000 F » |
+| « Créer mon compte gratuit » | 3 champs seulement (prénom, téléphone, mot de passe) ; « Votre gamme à 10 000 F vous attend dans le panier » |
+| Créer le compte | Retour au panier : « Bienvenue … : votre prix membre est appliqué », prix membre −5 000 F, total 10 000 F |
+| Valider la commande (le nom est demandé ici) | « Commande enregistrée », 10 000 F |
+| Revenir sur la gamme | « Vous avez déjà profité du prix membre : une gamme par compte », compteur à 19 sur 20 |
+| Se déconnecter, se reconnecter avec le **numéro de téléphone** | Connexion réussie (le compte n'a pas d'e-mail) |
+| ERP → Produits et stock | La gamme a le badge **Gamme**, pas de bouton Stock ; son stock = gammes complètes possibles |
+| ERP → annuler la commande | Les 6 soins reviennent en stock, le compteur repasse à 20 |
+
+Le même parcours tourne tout seul : `node frontend/e2e/parcours-prix-membre.cjs ./captures` (API et site lancés, base fraîche).
+
 **Modifier un produit** (connecté en propriétaire, après la réception ci-dessus) :
 
 | À essayer | Résultat attendu |

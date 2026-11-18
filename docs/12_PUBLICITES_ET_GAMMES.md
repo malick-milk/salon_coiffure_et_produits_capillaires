@@ -106,3 +106,26 @@ Formats produits : **1600 × 1000** pour une publicité sur ordinateur, **1080 �
 | Vitrine | Carrousel accessible (pause, clavier, lecteurs d'écran), menu « Nos gammes », pages de gamme, ajout d'une gamme entière au panier |
 | Données | Vraies prestations dans les seeders à la place des exemples |
 | Tests | Tests backend et frontend, parcours Playwright mis à jour |
+
+## 8. La gamme complète au prix membre (lancement du 15 décembre 2026)
+
+Maquettes validées le 18 novembre 2026 (canevas, section « Lancement du 15 décembre »). Décisions : promotion sur la gamme seulement (les twists plus tard), **réservée aux membres**, **une gamme par compte**.
+
+| Règle | Où dans le code |
+|---|---|
+| La gamme est un **article composé** : 6 soins (shampooing, masque, Leave In, crème, sérum Activ'Pousse 30 ml provisoirement, spray hydratant), 15 000 F | `product_bundle_items`, `DaboHairCatalogSeeder` (référence DAB-GAM-001) |
+| Pas de stock à elle : on peut en vendre autant que le **soin le plus rare** le permet | `Product::availableQuantity()` |
+| Une vente retire les 6 soins du grand livre ; une annulation les rend | `PlaceOrderAction`, `ChangeOrderStatusAction` |
+| **Prix membre** 10 000 F : cliente connectée, 20 gammes en tout, une par compte ; une commande annulée rend sa place | `MemberPriceService` |
+| Le **serveur** décide du prix, sous verrou : deux commandes en même temps ne prennent pas la même place | `PlaceOrderAction::priceLines()` |
+| Sans compte : on peut toujours commander, à 15 000 F | |
+| Pas de gamme en point de retrait (le partenaire n'a pas les 6 soins) | `PlaceOrderAction` (refus 422) |
+| Inscription rapide : prénom, téléphone, mot de passe ; nom et e-mail complétés à la 1re commande ; connexion par e-mail **ou** téléphone | `RegisterRequest`, `AuthController::login()`, `CustomerResolver` |
+
+**Le prix membre affiché ET le prix facturé.** Le site demande au serveur où en est la visiteuse (`member_offer.status` : `eligible`, `sign_in`, `already_used`, `sold_out`) et affiche en conséquence. Mais à la commande, le serveur recalcule tout : changer un prix dans le navigateur ne sert à rien (RG-COM-04). `order_items.regular_unit_price` garde le prix normal (15 000 F) sur la ligne vendue au prix membre : c'est ce qui permet de compter les 20 places et de vérifier « une par compte ».
+
+**Attention, la crème.** La gamme contient la crème capillaire. Si la crème est en rupture, la gamme l'est aussi (« Rupture » sur le site). Avant le 15 décembre : vérifier dans l'ERP que les 6 soins sont en stock (au moins 20 de chaque pour les 20 gammes).
+
+**À confirmer avec Awa :** le sérum de la gamme (Activ'Pousse ou Booster). Pour changer : la liste des 6 références dans `DaboHairCatalogSeeder`, puis `php artisan db:seed --class=DaboHairCatalogSeeder`.
+
+**Limite connue :** un compte créé sans e-mail ne peut pas utiliser « mot de passe oublié » (le lien part par e-mail). La cliente passe par le salon ; une réinitialisation par SMS est à prévoir avec le chiffrage des SMS.
