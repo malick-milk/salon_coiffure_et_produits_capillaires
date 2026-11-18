@@ -20,13 +20,69 @@ Laravel 13 exige **PHP 8.3 ou plus**. Le PHP de XAMPP est souvent plus ancien. P
 php -v
 ```
 
-Si la commande échoue ou affiche une version inférieure à 8.3, installez PHP et Composer avec l'installateur officiel de Laravel. Ouvrez **PowerShell** (pas Git Bash) et collez cette commande :
+Si la commande échoue ou affiche une version inférieure à 8.3, installez **le PHP 8.3 officiel** (la même version que le serveur et la CI).
 
-```powershell
-Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://php.new/install/windows'))
+> **Ne pas utiliser `php.new` (Herd Lite)**, conseillé ici auparavant. Son PHP n'a pas de GD complet : ni JPEG ni WebP. Constaté le 18 novembre 2026 : 4 tests de photos échouaient (`imagejpeg function is not defined`) et l'envoi de photos depuis l'ERP ne pouvait pas marcher. Et il installe PHP 8.4, alors que le serveur est en 8.3.
+
+1. Sur **https://windows.php.net/download/**, bloc **PHP 8.3**, ligne **VS16 x64 Non Thread Safe**, cliquez **Zip** (environ 30 Mo). Le nom du fichier contient `8.3`, `nts` et `x64` ; **pas** `src`, `debug` ni `devel`.
+2. Clic droit sur le zip → **Extraire tout…** → destination **`C:\php83`**. Le dossier doit contenir directement `php.exe`, `php.ini-development` et `ext`.
+3. Dans **Git Bash**, créez la configuration et activez les extensions **une seule fois** (sans rien modifier à la main dans le fichier) :
+
+```bash
+cp /c/php83/php.ini-development /c/php83/php.ini
 ```
 
-Fermez puis rouvrez Git Bash, et vérifiez de nouveau avec `php -v` puis `composer -V`.
+```bash
+cat >> /c/php83/php.ini <<'FIN'
+; --- Dabo Hair : extensions nécessaires au projet ---
+extension_dir = "ext"
+extension=curl
+extension=fileinfo
+extension=gd
+extension=exif
+extension=intl
+extension=mbstring
+extension=openssl
+extension=pdo_mysql
+extension=sodium
+extension=zip
+FIN
+```
+
+4. Mettez ce PHP **en tête** du `PATH`. Git Bash lit `~/.bash_profile` en dernier : c'est là que la ligne doit aller.
+
+```bash
+echo 'export PATH="/c/php83:$PATH"  # PHP 8.3 officiel' >> ~/.bash_profile
+```
+
+5. Fermez et rouvrez Git Bash, puis vérifiez :
+
+```bash
+which php
+```
+
+Résultat attendu : `/c/php83/php`.
+
+```bash
+php -v
+```
+
+Résultat attendu : `PHP 8.3.x`, **sans aucun avertissement**.
+
+```bash
+php -r "\$g = gd_info(); echo 'JPEG:', (int) \$g['JPEG Support'], ' WebP:', (int) \$g['WebP Support'], PHP_EOL;"
+```
+
+Résultat attendu : `JPEG:1 WebP:1`.
+
+Composer : https://getcomposer.org/download/ (« Composer-Setup.exe »), en choisissant `C:\php83\php.exe` quand l'installateur demande quel PHP utiliser.
+
+| Symptôme | Cause | Solution |
+|---|---|---|
+| `which php` montre encore un autre PHP (Herd Lite, XAMPP) | Un autre fichier ajoute son chemin après le vôtre | Ajouter la ligne `export PATH=…` à la **fin** de `~/.bash_profile`, puis rouvrir Git Bash |
+| `Unable to load dynamic library 'mdstring'` | Faute de frappe dans `php.ini` (c'est **mb**string) | Repartir d'un `php.ini` propre : étapes 3 et suivantes |
+| `Module "gd" is already loaded` | Extension activée deux fois (ligne décommentée à la main **et** ajoutée par le bloc) | Repartir d'un `php.ini` propre : étapes 3 et suivantes |
+| `imagejpeg function is not defined` dans les tests | PHP sans GD complet (Herd Lite) | Installer le PHP officiel ci-dessus |
 
 ### 1.2 Lancer la base de données (Docker Desktop ouvert)
 Depuis le dossier du projet :
