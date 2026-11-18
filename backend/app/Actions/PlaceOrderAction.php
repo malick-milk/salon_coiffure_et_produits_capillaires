@@ -19,6 +19,7 @@ use App\Services\Customers\CustomerResolver;
 use App\Services\Inventory\StockService;
 use App\Services\PickupPoints\PickupPointService;
 use App\Services\Support\ReferenceGenerator;
+use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
@@ -146,10 +147,10 @@ class PlaceOrderAction
      * @param  Collection<int|string, int>  $wanted
      * @param  Collection<int|string, Product>  $products
      * @param  Collection<int|string, Product>  $locked
-     * @param  Collection<int|string, Collection<int, ProductBundleItem>>  $components
+     * @param  EloquentCollection<int|string, EloquentCollection<int, ProductBundleItem>>  $components
      * @return list<array{product_id:int,name:string,requested:int,available:int}>
      */
-    private function conflicts(Collection $wanted, Collection $products, Collection $locked, Collection $components): array
+    private function conflicts(Collection $wanted, Collection $products, Collection $locked, EloquentCollection $components): array
     {
         $out = [];
         foreach ($wanted as $id => $qty) {
@@ -169,10 +170,10 @@ class PlaceOrderAction
      * @param  Collection<int|string, int>  $wanted
      * @param  Collection<int|string, Product>  $products
      * @param  Collection<int|string, Product>  $locked
-     * @param  Collection<int|string, Collection<int, ProductBundleItem>>  $components
+     * @param  EloquentCollection<int|string, EloquentCollection<int, ProductBundleItem>>  $components
      * @return list<array{product:Product,quantity:int,unit_price:int,regular_unit_price:?int,unit_cost:?string}>
      */
-    private function priceLines(Collection $wanted, Collection $products, Collection $locked, Collection $components, ?User $user): array
+    private function priceLines(Collection $wanted, Collection $products, Collection $locked, EloquentCollection $components, ?User $user): array
     {
         $lines = [];
         foreach ($wanted as $id => $qty) {
