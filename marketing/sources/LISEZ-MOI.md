@@ -4,8 +4,8 @@ Chaque visuel publié sur les réseaux a ici sa **page HTML d'origine** : on la 
 
 | Dossier | Contenu | Images exportées |
 |---|---|---|
-| `lancement/` | campagne de lancement du site, 21 jours, 4 réseaux (validée le 16 novembre 2026) | `marketing/lancement/` |
-| `promo-gamme/` | publication et story Instagram de la gamme en promotion | à exporter après validation |
+| `lancement/` | campagne de lancement du site (15 décembre 2026), 21 jours, 5 réseaux ; validée le 16 novembre, mise à jour le 18 novembre (dates, offre membres, Facebook) en attente de validation ; détail dans `lancement/LISEZ-MOI.md` | `marketing/lancement/` |
+| `promo-gamme/` | publication et story Instagram de la gamme au prix membre (10 000 F avec un compte gratuit, 15 000 F sans) | à exporter après validation |
 | `_images/` | captures du site sur téléphone, utilisées dans les maquettes | — |
 
 Exporter (taille exacte lue dans la maquette, échec si une image manque) :
