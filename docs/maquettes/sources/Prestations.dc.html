@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Prestations Dabo Hair</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Josefin+Sans:wght@300;400&family=Playfair+Display:wght@500;600;700&display=swap">
+<style>
+body{margin:0;background:#0f0f0f}
+a{color:#d4af37}a:hover{color:#e8c95a}
+</style>
+</helmet>
+<div style="width: 100%; min-width: 1200px; min-height: 1180px; background: #0f0f0f; color: #f8f8f8; font-family: Inter, system-ui, sans-serif">
+  <header style="display: flex; align-items: center; justify-content: space-between; padding: 18px 64px; border-bottom: 1px solid #262626">
+    <span style="font-family: 'Josefin Sans', sans-serif; font-size: 20px; letter-spacing: 5px; color: #d4af37">DABO HAIR</span>
+    <nav style="display: flex; gap: 32px; font-size: 15px"><span>Nos gammes</span><span>Boutique</span><span style="color: #d4af37; font-weight: 600">Prestations</span><span>Le salon</span></nav>
+    <span style="background: #d4af37; color: #0f0f0f; padding: 10px 18px; border-radius: 999px; font-size: 14px; font-weight: 600">Réserver</span>
+  </header>
+
+  <section style="padding: 48px 64px 24px; display: flex; justify-content: space-between; align-items: flex-end; gap: 40px">
+    <div>
+      <span style="font-size: 13px; letter-spacing: 2px; text-transform: uppercase; color: #d4af37">Soins et coiffures</span>
+      <h1 style="margin: 8px 0 0; font-family: 'Playfair Display', serif; font-size: 48px; font-weight: 600">La beauté de vos cheveux, notre passion</h1>
+    </div>
+    <div role="tablist" aria-label="Familles de prestations" style="display: flex; gap: 8px">
+      <sc-for list="{{tabs}}" as="t" hint-placeholder-count="3">
+        <button type="button" role="tab" aria-selected="{{t.selected}}" onClick="{{t.go}}" style="{{t.style}}">{{t.label}}</button>
+      </sc-for>
+    </div>
+  </section>
+
+  <section style="padding: 8px 64px 40px; display: grid; grid-template-columns: 1fr 380px; gap: 32px; align-items: start">
+    <div style="display: flex; flex-direction: column">
+      <sc-for list="{{rows}}" as="r" hint-placeholder-count="5">
+        <div style="display: grid; grid-template-columns: 1fr auto auto; gap: 24px; align-items: center; padding: 22px 0; border-bottom: 1px solid #262626">
+          <div style="display: flex; flex-direction: column; gap: 4px">
+            <span style="display: flex; align-items: center; gap: 10px"><strong style="font-size: 18px">{{r.name}}</strong><sc-if value="{{r.flag}}" hint-placeholder-val="false"><span style="background: #3a2a10; color: #f0b44c; font-size: 12px; padding: 3px 8px; border-radius: 999px">Prix à confirmer</span></sc-if></span>
+            <span style="font-size: 14px; color: #a3a3a3">{{r.detail}}</span>
+          </div>
+          <span style="color: #d4af37; font-weight: 600; font-size: 18px; white-space: nowrap">{{r.price}}</span>
+          <a href="#" style="border: 1px solid #d4af37; padding: 10px 16px; border-radius: 999px; text-decoration: none; font-size: 14px; white-space: nowrap">Réserver</a>
+        </div>
+      </sc-for>
+    </div>
+    <aside style="display: flex; flex-direction: column; gap: 16px">
+      <div style="background: #141414; border: 1px solid #262626; border-radius: 20px; padding: 24px; display: flex; flex-direction: column; gap: 10px">
+        <strong style="font-size: 17px">Comment ça marche</strong>
+        <ol style="margin: 0; padding-left: 18px; color: #c9c4b8; line-height: 1.8; font-size: 15px">
+          <li>Choisissez la prestation</li>
+          <li>Choisissez un créneau libre</li>
+          <li>Confirmation par SMS ou WhatsApp</li>
+        </ol>
+        <span style="font-size: 13px; color: #a3a3a3">Le paiement se fait au salon.</span>
+      </div>
+      <div style="background: #141414; border: 1px solid #2b2516; border-radius: 20px; padding: 24px; display: flex; flex-direction: column; gap: 8px">
+        <strong style="font-size: 17px; color: #d4af37">Disponible au salon</strong>
+        <span style="color: #c9c4b8; line-height: 1.6; font-size: 15px">Masque capillaire à base de kératine, à ajouter à votre soin.</span>
+        <a href="#" style="font-size: 14px">Voir le masque · 3 000 F</a>
+      </div>
+      <div style="font-size: 14px; color: #a3a3a3; line-height: 1.7; padding: 0 4px">Une question ? +221 77 602 62 00<br>Les durées s'afficheront ici dès que le salon les aura confirmées.</div>
+    </aside>
+  </section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1180}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { tab: 0 }; }
+  renderVals() {
+    const groups = [
+      { label: 'Twists', rows: [
+        { name: 'Twist simple', detail: 'Twists sur cheveux naturels', price: 'dès 5 000 F', flag: false },
+        { name: 'Resserrage twist', detail: 'Entretien des racines', price: '5 000 F', flag: false },
+        { name: 'Mini twist', detail: 'Twists fins, longue tenue', price: '8 000 F', flag: true },
+        { name: 'Micro twist', detail: 'Twists très fins', price: '10 000 F', flag: false }
+      ] },
+      { label: 'Soin + twist', rows: [
+        { name: 'Soin, shampooing et twist', detail: 'Le soin complet avant la coiffure', price: '8 000 F', flag: false },
+        { name: 'Soin, shampooing, bain d’huile et twist', detail: 'Pour les cheveux très secs', price: '10 000 F', flag: false }
+      ] },
+      { label: 'Brushing', rows: [
+        { name: 'Brushing', detail: 'Lissage au séchoir', price: '3 000 F', flag: false },
+        { name: 'Soin et brushing', detail: 'Soin profond puis brushing', price: '5 000 F', flag: false }
+      ] }
+    ];
+    const t = this.state.tab;
+    return {
+      rows: groups[t].rows,
+      tabs: groups.map((g, n) => ({
+        label: g.label,
+        selected: n === t ? 'true' : 'false',
+        go: () => this.setState({ tab: n }),
+        style: 'font: inherit; font-size: 15px; padding: 11px 18px; border-radius: 999px; cursor: pointer; ' + (n === t ? 'background: #d4af37; color: #0f0f0f; border: 1px solid #d4af37; font-weight: 600' : 'background: transparent; color: #f8f8f8; border: 1px solid #333')
+      }))
+    };
+  }
+}
+</script>
+</body>
+</html>

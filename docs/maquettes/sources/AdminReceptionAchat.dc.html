@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>ERP : réception d’achat</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap">
+<style>body{margin:0;background:#0f0f0f}</style>
+</helmet>
+<div style="width:1440px;height:960px;background:#0f0f0f;color:#f8f8f8;font-family:Inter,system-ui,sans-serif;display:grid;grid-template-columns:240px 1fr">
+  <aside style="background:#141414;border-right:1px solid #262626;padding:24px 16px;display:flex;flex-direction:column;gap:4px;font-size:15px"><strong style="color:#d4af37;letter-spacing:3px;padding:0 12px 20px">DABO · ERP</strong><span style="padding:10px 12px;color:#a3a3a3">Tableau de bord</span><span style="padding:10px 12px;color:#a3a3a3">Commandes</span><span style="padding:10px 12px;color:#a3a3a3">Produits et gammes</span><span style="padding:10px 12px;color:#a3a3a3">Fabrication</span><span style="padding:10px 12px;background:#2b2516;color:#d4af37;border-radius:10px;font-weight:600">Réceptions d’achat</span><span style="padding:10px 12px;color:#a3a3a3">Rendez-vous</span><span style="padding:10px 12px;color:#a3a3a3">Analyses</span></aside>
+  <main style="padding:32px 40px;display:flex;flex-direction:column;gap:22px">
+    <div><h1 style="margin:0;font-family:'Playfair Display',serif;font-size:30px;font-weight:600">Réception d’achat</h1><p style="margin:6px 0 0;color:#a3a3a3">Pour les produits achetés et revendus. Les produits Dabo Hair entrent par « Fabrication ».</p></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start">
+      <div style="background:#141414;border:1px solid #262626;border-radius:20px;padding:24px;display:flex;flex-direction:column;gap:16px">
+        <strong style="font-size:15px">Nouvelle réception</strong>
+        <label style="display:flex;flex-direction:column;gap:6px;font-size:13px;color:#a3a3a3">Produit (seulement les produits « achetés et revendus »)<span style="background:#0f0f0f;border:1px solid #333;color:#f8f8f8;padding:11px 12px;border-radius:10px;font-size:15px;display:flex;justify-content:space-between">Huile de croissance · Virgin Hair Fertilizer<span style="color:#a3a3a3">▾</span></span></label>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px"><label style="display:flex;flex-direction:column;gap:6px;font-size:13px;color:#a3a3a3">Fournisseur<span style="background:#0f0f0f;border:1px solid #333;color:#f8f8f8;padding:11px 12px;border-radius:10px;font-size:15px">[nom du fournisseur]</span></label><label style="display:flex;flex-direction:column;gap:6px;font-size:13px;color:#a3a3a3">N° de facture du fournisseur<span style="background:#0f0f0f;border:1px solid #333;color:#f8f8f8;padding:11px 12px;border-radius:10px;font-size:15px">[facultatif]</span></label></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px"><label style="display:flex;flex-direction:column;gap:6px;font-size:13px;color:#a3a3a3">Date de réception<span style="background:#0f0f0f;border:1px solid #333;color:#f8f8f8;padding:11px 12px;border-radius:10px;font-size:15px">12/11/2026</span></label><label style="display:flex;flex-direction:column;gap:6px;font-size:13px;color:#a3a3a3">Quantité reçue<span style="background:#0f0f0f;border:1px solid #333;color:#f8f8f8;padding:11px 12px;border-radius:10px;font-size:15px">24</span></label><label style="display:flex;flex-direction:column;gap:6px;font-size:13px;color:#a3a3a3">Prix d’achat unitaire (F)<span style="background:#0f0f0f;border:1px solid #333;color:#f8f8f8;padding:11px 12px;border-radius:10px;font-size:15px">[prix d’achat]</span></label></div>
+        <label style="display:flex;flex-direction:column;gap:6px;font-size:13px;color:#a3a3a3">Frais du lot : transport, douane (F, facultatif)<span style="background:#0f0f0f;border:1px solid #333;color:#f8f8f8;padding:11px 12px;border-radius:10px;font-size:15px">[frais]</span><span style="font-size:12px;color:#7a7a7a">Répartis sur chaque unité dans le coût de revient</span></label>
+        <div style="background:#0f0f0f;border:1px solid #2b2516;border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:10px;font-size:14px">
+  <span style="display:flex;justify-content:space-between"><span style="color:#a3a3a3">Achat : 24 × [prix d’achat]</span><span>[sous-total] F</span></span>
+  <span style="display:flex;justify-content:space-between"><span style="color:#a3a3a3">+ Frais (transport, douane)</span><span>[frais] F</span></span>
+  <span style="display:flex;justify-content:space-between;border-top:1px solid #262626;padding-top:10px"><strong>Coût de revient par unité</strong><strong style="color:#d4af37">[total ÷ 24] F</strong></span>
+  <span style="display:flex;justify-content:space-between"><span style="color:#a3a3a3">Stock</span><span>0 → <strong>24</strong></span></span>
+  <span style="display:flex;justify-content:space-between"><span style="color:#a3a3a3">Marge par unité (prix de vente − coût)</span><span style="color:#7fc99a">calculée à l’enregistrement</span></span>
+</div>
+        <span style="background:#d4af37;color:#0f0f0f;font-weight:600;text-align:center;padding:13px;border-radius:999px">Enregistrer la réception</span>
+        <span style="font-size:12px;color:#7a7a7a">Inscrite au grand livre du stock et au journal d’audit (qui, quand, combien).</span>
+      </div>
+      <div style="background:#141414;border:1px solid #262626;border-radius:20px;padding:24px;display:flex;flex-direction:column;gap:16px">
+        <strong style="font-size:15px">Dernières réceptions</strong>
+        <div style="display:grid;grid-template-columns:90px 1fr 1fr 70px 120px;gap:12px;font-size:12px;color:#a3a3a3;text-transform:uppercase;letter-spacing:1px"><span>Date</span><span>Produit</span><span>Fournisseur</span><span>Qté</span><span>Prix unit.</span></div>
+        <div style="display:grid;grid-template-columns:90px 1fr 1fr 70px 120px;gap:12px;padding:12px 0;border-top:1px solid #262626;font-size:14px;color:#f8f8f8"><span>12 nov.</span><span>Huile de croissance</span><span>[Fournisseur]</span><span>24</span><span>[prix d’achat]</span></div><div style="display:grid;grid-template-columns:90px 1fr 1fr 70px 120px;gap:12px;padding:12px 0;border-top:1px solid #262626;font-size:14px;color:#555"><span>—</span><span>—</span><span>—</span><span>—</span><span>—</span></div>
+        <div style="background:#161616;border-radius:12px;padding:14px;font-size:13px;color:#c9c4b8;line-height:1.6">Si le prix d’achat change d’une commande à l’autre, le coût de revient devient la <strong>moyenne pondérée</strong> : 10 unités à 2 000 F + 20 unités à 2 600 F = 2 400 F l’unité. La marge reste juste.</div>
+      </div>
+    </div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":960}}'>
+class Component extends DCLogic { renderVals() { return {}; } }
+</script>
+</body>
+</html>

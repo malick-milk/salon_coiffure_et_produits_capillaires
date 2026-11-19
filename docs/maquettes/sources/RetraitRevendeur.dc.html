@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Retrait en point de retrait</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600&display=swap">
+<style>
+body{margin:0;background:#0f0f0f}
+</style>
+</helmet>
+<div style="width: 100%; min-width: 1100px; min-height: 860px; background: #0f0f0f; color: #f8f8f8; font-family: Inter, system-ui, sans-serif; padding: 40px 64px; box-sizing: border-box; display: grid; grid-template-columns: 1fr 360px; gap: 40px">
+  <div style="display: flex; flex-direction: column; gap: 20px">
+    <span style="font-size: 13px; letter-spacing: 2px; text-transform: uppercase; color: #d4af37">Commande · étape 2 sur 3</span>
+    <h1 style="margin: 0; font-family: 'Playfair Display', serif; font-size: 36px; font-weight: 600">Comment recevoir vos produits ?</h1>
+    <div role="radiogroup" aria-label="Mode de réception" style="display: flex; flex-direction: column; gap: 12px">
+      <sc-for list="{{modes}}" as="m" hint-placeholder-count="3">
+        <button type="button" role="radio" aria-checked="{{m.checked}}" onClick="{{m.go}}" style="{{m.style}}">
+          <span style="display: flex; flex-direction: column; gap: 4px; text-align: left"><strong style="font-size: 16px">{{m.title}}</strong><span style="font-size: 14px; color: #a3a3a3">{{m.detail}}</span></span>
+          <span style="color: #d4af37; font-weight: 600">{{m.price}}</span>
+        </button>
+      </sc-for>
+    </div>
+    <sc-if value="{{isPickup}}" hint-placeholder-val="true">
+      <div style="background: #141414; border: 1px solid #2b2516; border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 12px">
+        <label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; color: #a3a3a3">Votre région
+          <span style="background: #0f0f0f; border: 1px solid #333; border-radius: 10px; padding: 12px; color: #f8f8f8">Thiès</span>
+        </label>
+        <div style="display: flex; gap: 14px; align-items: flex-start; border: 1px solid #d4af37; border-radius: 12px; padding: 14px">
+          <span style="width: 40px; height: 40px; border-radius: 999px; background: #2b2516; color: #d4af37; display: grid; place-items: center; font-weight: 700">M</span>
+          <span style="display: flex; flex-direction: column; gap: 3px; font-size: 14px"><strong style="font-size: 15px">Point de retrait Dabo Hair · Thiès</strong><span>Chez Moussa, Marché central (allée des cosmétiques)</span><span style="color: #a3a3a3">Lundi au samedi, 9 h – 19 h · 77 *** 12 34</span><span style="color: #9fd69a">Produits disponibles sur place</span></span>
+        </div>
+        <span style="font-size: 13px; color: #a3a3a3">Vous recevez un SMS avec votre code de retrait (ex. : 4821) dès que la commande est prête. Donnez ce code au partenaire et payez au retrait, en espèces ou par Wave.</span>
+      </div>
+    </sc-if>
+    <div style="font-size: 13px; color: #a3a3a3">Régions sans point de retrait : livraison à Dakar ou retrait au salon pour le moment.</div>
+  </div>
+  <aside style="background: #141414; border: 1px solid #262626; border-radius: 20px; padding: 24px; display: flex; flex-direction: column; gap: 12px; align-self: start">
+    <strong style="font-size: 17px">Votre commande</strong>
+    <div style="display: flex; justify-content: space-between; font-size: 14px"><span>Sérum Activ’Pousse 30 ml × 2</span><span>6 000 F</span></div>
+    <div style="display: flex; justify-content: space-between; font-size: 14px"><span>Crème capillaire × 1</span><span>3 000 F</span></div>
+    <div style="display: flex; justify-content: space-between; font-size: 14px; color: #a3a3a3"><span>Réception</span><span>{{fee}}</span></div>
+    <div style="display: flex; justify-content: space-between; font-size: 18px; font-weight: 700; border-top: 1px solid #262626; padding-top: 12px"><span>Total</span><span style="color: #d4af37">{{total}}</span></div>
+    <span style="background: #d4af37; color: #0f0f0f; text-align: center; font-weight: 600; padding: 15px; border-radius: 999px; margin-top: 6px">Continuer</span>
+  </aside>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":860}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { mode: 2 }; }
+  renderVals() {
+    const modes = [
+      { title: 'Livraison à Dakar', detail: 'Sous 24 à 48 h, paiement à la réception', price: 'dès 1 000 F', fee: 1000 },
+      { title: 'Retrait au salon (Dakar)', detail: 'Gratuit, prêt sous 2 h', price: 'Gratuit', fee: 0 },
+      { title: 'Retrait dans une boutique partenaire de votre région', detail: 'Gratuit, près de chez vous', price: 'Gratuit', fee: 0 }
+    ];
+    const m = this.state.mode;
+    const total = 9000 + modes[m].fee;
+    return {
+      isPickup: m === 2,
+      fee: modes[m].fee ? modes[m].fee.toLocaleString('fr-FR') + ' F' : 'Gratuit',
+      total: total.toLocaleString('fr-FR') + ' F',
+      modes: modes.map((x, n) => ({ ...x, checked: n === m ? 'true' : 'false', go: () => this.setState({ mode: n }),
+        style: 'display: flex; justify-content: space-between; align-items: center; gap: 16px; width: 100%; font: inherit; color: #f8f8f8; cursor: pointer; padding: 18px 20px; border-radius: 16px; background: #141414; border: 1px solid ' + (n === m ? '#d4af37' : '#262626') }))
+    };
+  }
+}
+</script>
+</body>
+</html>

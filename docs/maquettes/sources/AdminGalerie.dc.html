@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>ERP galerie et avis</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600&display=swap">
+<style>
+body{margin:0;background:#0f0f0f}
+</style>
+</helmet>
+<div style="width: 100%; min-width: 1200px; min-height: 980px; background: #0f0f0f; color: #f8f8f8; font-family: Inter, system-ui, sans-serif; display: grid; grid-template-columns: 240px 1fr">
+  <aside style="background: #141414; border-right: 1px solid #262626; padding: 24px 16px; display: flex; flex-direction: column; gap: 4px; font-size: 15px">
+    <strong style="color: #d4af37; letter-spacing: 3px; padding: 0 12px 20px">DABO · ERP</strong>
+    <span style="padding: 10px 12px; color: #a3a3a3">Tableau de bord</span>
+    <span style="padding: 10px 12px; color: #a3a3a3">Commandes</span>
+    <span style="padding: 10px 12px; color: #a3a3a3">Rendez-vous</span>
+    <span style="padding: 10px 12px; color: #a3a3a3">Publicités</span>
+    <span style="padding: 10px 12px; background: #2b2516; color: #d4af37; border-radius: 10px; font-weight: 600">Galerie et avis</span>
+    <span style="padding: 10px 12px; color: #a3a3a3">Analyses</span>
+  </aside>
+  <main style="padding: 32px 40px; display: flex; flex-direction: column; gap: 22px">
+    <div style="display: flex; justify-content: space-between; align-items: center">
+      <h1 style="margin: 0; font-family: 'Playfair Display', serif; font-size: 30px; font-weight: 600">Galerie et avis clients</h1>
+      <div role="tablist" style="display: flex; gap: 8px">
+        <sc-for list="{{tabs}}" as="t" hint-placeholder-count="2">
+          <button type="button" role="tab" aria-selected="{{t.selected}}" onClick="{{t.go}}" style="{{t.style}}">{{t.label}}</button>
+        </sc-for>
+      </div>
+    </div>
+
+    <sc-if value="{{isGallery}}" hint-placeholder-val="true">
+      <div style="display: grid; grid-template-columns: 420px 1fr; gap: 24px; align-items: start">
+        <form style="background: #141414; border: 1px solid #262626; border-radius: 20px; padding: 24px; display: flex; flex-direction: column; gap: 14px" onSubmit="{{noop}}">
+          <strong style="font-size: 17px">Ajouter une vidéo</strong>
+          <div style="border: 1px dashed #4a4335; border-radius: 16px; padding: 26px; text-align: center; display: flex; flex-direction: column; gap: 6px"><span style="color: #f8f8f8">Glissez la vidéo ici ou <span style="color: #d4af37">choisissez un fichier</span></span><span style="font-size: 13px; color: #a3a3a3">MP4 ou MOV depuis le téléphone · 15 s et 50 Mo maximum<br>Compressée automatiquement, le son est retiré</span></div>
+          <label style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; color: #a3a3a3">Prestation réalisée<span style="background: #0f0f0f; border: 1px solid #333; color: #f8f8f8; padding: 11px 12px; border-radius: 10px; font-size: 15px">Micro twist · 10 000 F</span></label>
+          <label style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; color: #a3a3a3">Rendez-vous lié (facultatif)<span style="background: #0f0f0f; border: 1px solid #333; color: #f8f8f8; padding: 11px 12px; border-radius: 10px; font-size: 15px">RDV-2026-000214 · samedi 7 novembre</span></label>
+          <label style="display: flex; gap: 10px; align-items: flex-start; background: #1d1a12; border: 1px solid #4a4335; border-radius: 12px; padding: 12px; font-size: 14px; line-height: 1.5; cursor: pointer">
+            <input type="checkbox" checked="{{consent}}" onChange="{{toggle}}" style="width: 20px; height: 20px; accent-color: #d4af37; margin-top: 2px">
+            <span>La cliente a donné son <strong>accord pour la diffusion</strong> sur le site et les réseaux (obligatoire). La date et l'auteur de l'ajout sont enregistrés.</span>
+          </label>
+          <span style="{{publishStyle}}">{{publishLabel}}</span>
+        </form>
+        <div style="display: flex; flex-direction: column; gap: 10px">
+          <sc-for list="{{videos}}" as="v" hint-placeholder-count="4">
+            <div style="display: grid; grid-template-columns: 54px 1fr auto auto; gap: 16px; align-items: center; background: #141414; border: 1px solid #262626; border-radius: 14px; padding: 10px 14px">
+              <span style="width: 54px; height: 96px; border-radius: 10px; background: linear-gradient(160deg,#3a2c12,#14100a)"></span>
+              <span style="display: flex; flex-direction: column; gap: 4px"><strong>{{v.title}}</strong><span style="font-size: 13px; color: #a3a3a3">{{v.meta}}</span></span>
+              <span style="{{v.badge}}">{{v.status}}</span>
+              <span style="font-size: 14px; color: #d4af37">Modifier</span>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{isReviews}}" hint-placeholder-val="false">
+      <div style="display: flex; flex-direction: column; gap: 12px">
+        <p style="margin: 0; color: #a3a3a3">Un avis n'apparaît sur le site qu'après votre validation. On ne supprime pas un avis négatif honnête : on y répond.</p>
+        <sc-for list="{{reviews}}" as="r" hint-placeholder-count="3">
+          <div style="background: #141414; border: 1px solid #262626; border-radius: 16px; padding: 18px 20px; display: grid; grid-template-columns: 1fr auto; gap: 16px; align-items: center">
+            <div style="display: flex; flex-direction: column; gap: 6px">
+              <span><strong>{{r.name}}</strong> <span style="color: #d4af37; letter-spacing: 2px; margin-left: 8px">{{r.stars}}</span> <span style="font-size: 13px; color: #a3a3a3; margin-left: 8px">{{r.meta}}</span></span>
+              <span style="color: #e6e1d6; line-height: 1.55">{{r.text}}</span>
+            </div>
+            <div style="display: flex; gap: 8px">
+              <span style="background: #d4af37; color: #0f0f0f; font-weight: 600; padding: 10px 16px; border-radius: 999px; font-size: 14px">Publier</span>
+              <span style="border: 1px solid #333; padding: 10px 16px; border-radius: 999px; font-size: 14px">Répondre</span>
+              <span style="border: 1px solid #5a2a2a; color: #f0a0a0; padding: 10px 16px; border-radius: 999px; font-size: 14px">Refuser</span>
+            </div>
+          </div>
+        </sc-for>
+        <span style="font-size: 13px; color: #a3a3a3">Motifs de refus possibles : propos injurieux, données personnelles, publicité, hors sujet.</span>
+      </div>
+    </sc-if>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":980}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { tab: 0, consent: false }; }
+  renderVals() {
+    const t = this.state.tab, c = this.state.consent;
+    const ok = 'background: #16201a; color: #9fd69a', wait = 'background: #2b2516; color: #e8c95a';
+    return {
+      isGallery: t === 0, isReviews: t === 1, consent: c,
+      toggle: () => this.setState({ consent: !c }),
+      noop: (e) => e && e.preventDefault && e.preventDefault(),
+      publishLabel: c ? 'Publier dans la galerie' : 'Cochez l’accord de la cliente pour publier',
+      publishStyle: 'text-align: center; font-weight: 600; padding: 14px; border-radius: 999px; ' + (c ? 'background: #d4af37; color: #0f0f0f' : 'background: #262626; color: #6b6b6b'),
+      tabs: ['Vidéos', 'Avis à valider (3)'].map((label, n) => ({ label, selected: n === t ? 'true' : 'false', go: () => this.setState({ tab: n }), style: 'font: inherit; font-size: 15px; padding: 11px 18px; border-radius: 999px; cursor: pointer; ' + (n === t ? 'background: #d4af37; color: #0f0f0f; border: 1px solid #d4af37; font-weight: 600' : 'background: transparent; color: #f8f8f8; border: 1px solid #333') })),
+      videos: [
+        { title: 'Micro twist', meta: 'Ajoutée le 07/11 · accord de la cliente ✓ · 214 vues', status: 'En ligne', badge: 'font-size: 12px; font-weight: 600; padding: 5px 10px; border-radius: 999px; ' + ok },
+        { title: 'Soin et brushing', meta: 'Ajoutée le 05/11 · accord de la cliente ✓ · 158 vues', status: 'En ligne', badge: 'font-size: 12px; font-weight: 600; padding: 5px 10px; border-radius: 999px; ' + ok },
+        { title: 'Resserrage twist', meta: 'Ajoutée le 03/11 · accord de la cliente ✓ · 97 vues', status: 'En ligne', badge: 'font-size: 12px; font-weight: 600; padding: 5px 10px; border-radius: 999px; ' + ok },
+        { title: 'Mini twist', meta: 'Ajoutée aujourd’hui · compression en cours', status: 'En préparation', badge: 'font-size: 12px; font-weight: 600; padding: 5px 10px; border-radius: 999px; ' + wait }
+      ],
+      reviews: [
+        { name: 'Khady N.', stars: '★★★★★', meta: 'Twist simple · rendez-vous du 06/11', text: 'Super ambiance et coiffure nickel, merci à toute l’équipe !' },
+        { name: 'Ndeye F.', stars: '★★★☆☆', meta: 'Commande livrée le 04/11', text: 'Produits bien, mais la livraison a eu un jour de retard.' },
+        { name: 'Awa T.', stars: '★★★★★', meta: 'Micro twist · rendez-vous du 02/11', text: 'Le meilleur salon pour les twists à Dakar.' }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

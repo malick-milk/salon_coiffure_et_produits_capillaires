@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>ERP : nouveau produit</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap">
+<style>body{margin:0;background:#0f0f0f}</style>
+</helmet>
+<div style="width:1440px;height:1100px;background:#0f0f0f;color:#f8f8f8;font-family:Inter,system-ui,sans-serif;display:grid;grid-template-columns:240px 1fr">
+  <aside style="background:#141414;border-right:1px solid #262626;padding:24px 16px;display:flex;flex-direction:column;gap:4px;font-size:15px"><strong style="color:#d4af37;letter-spacing:3px;padding:0 12px 20px">DABO · ERP</strong><span style="padding:10px 12px;color:#a3a3a3">Tableau de bord</span><span style="padding:10px 12px;color:#a3a3a3">Commandes</span><span style="padding:10px 12px;background:#2b2516;color:#d4af37;border-radius:10px;font-weight:600">Produits et gammes</span><span style="padding:10px 12px;color:#a3a3a3">Fabrication</span><span style="padding:10px 12px;color:#a3a3a3">Réceptions d’achat</span><span style="padding:10px 12px;color:#a3a3a3">Rendez-vous</span><span style="padding:10px 12px;color:#a3a3a3">Analyses</span></aside>
+  <main style="padding:32px 40px;display:flex;flex-direction:column;gap:22px">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <div><span style="font-size:13px;color:#a3a3a3">Produits et stock / Modifier</span><h1 style="margin:6px 0 0;font-family:'Playfair Display',serif;font-size:30px;font-weight:600">Modifier · Huile de croissance 120 ml</h1></div>
+      <div style="display:flex;gap:10px"><span style="border:1px solid #444;padding:12px 20px;border-radius:999px;font-weight:600">Annuler</span><span style="background:#d4af37;color:#0f0f0f;font-weight:600;padding:12px 22px;border-radius:999px">Enregistrer les modifications</span></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 360px;gap:24px;align-items:start"><div style="background:#141414;border:1px solid #262626;border-radius:20px;padding:24px;display:flex;flex-direction:column;gap:16px">
+  <strong style="font-size:15px">1. Origine du produit</strong>
+  <div style="border:1px solid #333;border-radius:14px;padding:14px 16px;display:flex;justify-content:space-between;align-items:center;gap:12px"><span style="display:flex;flex-direction:column;gap:4px"><strong style="font-size:15px">Acheté et revendu</strong><span style="font-size:13px;color:#a3a3a3">Ne peut plus changer : 1 réception d’achat déjà enregistrée (le stock et le coût en dépendent)</span></span><span style="font-size:12px;color:#a3a3a3;border:1px solid #333;border-radius:999px;padding:5px 10px;white-space:nowrap">verrouillé</span></div>
+  <strong style="font-size:15px;margin-top:6px">2. Fiche</strong>
+  <label style="display:flex;flex-direction:column;gap:6px;font-size:13px;color:#a3a3a3">Nom du produit<span style="background:#0f0f0f;border:1px solid #333;color:#f8f8f8;padding:11px 12px;border-radius:10px;font-size:15px">Huile de croissance</span></label>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+    <label style="display:flex;flex-direction:column;gap:6px;font-size:13px;color:#a3a3a3">Marque<span style="background:#0f0f0f;border:1px solid #333;color:#f8f8f8;padding:11px 12px;border-radius:10px;font-size:15px;display:flex;justify-content:space-between">Virgin Hair Fertilizer<span style="color:#a3a3a3">▾</span></span><span style="font-size:12px;color:#7a7a7a">Pas dans la liste ? « + Nouvelle marque »</span></label>
+    <label style="display:flex;flex-direction:column;gap:6px;font-size:13px;color:#a3a3a3">Catégorie<span style="background:#0f0f0f;border:1px solid #333;color:#f8f8f8;padding:11px 12px;border-radius:10px;font-size:15px;display:flex;justify-content:space-between">Soins traitants<span style="color:#a3a3a3">▾</span></span></label>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px"><label style="display:flex;flex-direction:column;gap:6px;font-size:13px;color:#a3a3a3">Contenance<span style="background:#0f0f0f;border:1px solid #333;color:#f8f8f8;padding:11px 12px;border-radius:10px;font-size:15px;">120 ml</span></label><label style="display:flex;flex-direction:column;gap:6px;font-size:13px;color:#a3a3a3">Seuil d’alerte de stock<span style="background:#0f0f0f;border:1px solid #333;color:#f8f8f8;padding:11px 12px;border-radius:10px;font-size:15px;">6</span><span style="font-size:12px;color:#7a7a7a">Alerte quand il en reste moins</span></label></div>
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px"><div style="display:flex;flex-direction:column;gap:6px;font-size:13px;color:#a3a3a3">Coût de revient actuel<span style="background:#1a1a1a;border:1px dashed #444;color:#c9c4b8;padding:11px 12px;border-radius:10px;font-size:15px">2 750 F</span><span style="font-size:12px;color:#7a7a7a">Moyenne des réceptions d’achat : il se met à jour tout seul</span></div><label style="display:flex;flex-direction:column;gap:6px;font-size:13px;color:#a3a3a3">Prix de vente (F CFA)<span style="background:#0f0f0f;border:1px solid #333;color:#f8f8f8;padding:11px 12px;border-radius:10px;font-size:15px">6 500</span></label><label style="display:flex;flex-direction:column;gap:6px;font-size:13px;color:#a3a3a3">Prix barré (facultatif)<span style="background:#0f0f0f;border:1px solid #333;color:#f8f8f8;padding:11px 12px;border-radius:10px;font-size:15px">—</span><span style="font-size:12px;color:#7a7a7a">Ancien prix, affiché barré sur le site</span></label></div>
+  <div style="display:flex;justify-content:space-between;align-items:center;background:#0f1f14;border:1px solid #1f4d2b;border-radius:12px;padding:12px 16px;font-size:15px"><span style="color:#c9c4b8">Marge par unité (nouveau prix)</span><strong style="color:#7fc99a">3 750 F · 57,7 % · avant : 3 250 F · 54,2 %</strong></div>
+  <strong style="font-size:15px;margin-top:6px">3. Photos (2 sur 4)</strong>
+  <div style="display:flex;flex-direction:column;gap:6px;font-size:13px;color:#a3a3a3">Photos (1 à 4 · la première est la photo principale)
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px">
+    <div style="aspect-ratio:1;border:1px solid #333;border-radius:14px;overflow:hidden;position:relative;background:#161616"><img src="/_blob/4daa9e825979a74456b98873a799772f" alt="" style="width:100%;height:100%;object-fit:cover"><span style="position:absolute;left:8px;bottom:8px;background:#0f0f0f;color:#d4af37;font-size:11px;font-weight:700;padding:3px 8px;border-radius:999px">Principale</span><span style="position:absolute;right:8px;top:8px;width:30px;height:30px;border-radius:999px;background:#f8f8f8;color:#b91c1c;display:grid;place-items:center;font-size:14px">✕</span></div><div style="aspect-ratio:1;border:1px solid #333;border-radius:14px;overflow:hidden;position:relative;background:#161616"><img src="/_blob/4daa9e825979a74456b98873a799772f" alt="" style="width:100%;height:100%;object-fit:cover"><span style="position:absolute;right:8px;top:8px;width:30px;height:30px;border-radius:999px;background:#f8f8f8;color:#0f0f0f;display:grid;place-items:center;font-size:15px">☆</span><span style="position:absolute;right:8px;top:44px;width:30px;height:30px;border-radius:999px;background:#f8f8f8;color:#b91c1c;display:grid;place-items:center;font-size:14px">✕</span></div><div style="aspect-ratio:1;border:2px dashed #555;border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;color:#d4af37;font-size:13px;text-align:center;padding:8px"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#d4af37" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14"></path><path d="M5 12h14"></path></svg>Ajouter ou glisser des photos</div>
+    <div style="aspect-ratio:1;border:1px solid #262626;border-radius:14px;background:#161616"></div>
+  </div>
+  <span style="font-size:12px;color:#7a7a7a">JPG, PNG ou WebP, 10 Mo au plus. Le site les recadre en carré et les convertit en WebP tout seul.</span>
+</div>
+</div><div style="background:#141414;border:1px solid #262626;border-radius:20px;padding:24px;display:flex;flex-direction:column;gap:16px">
+  <div style="background:#0f0f0f;border:1px solid #262626;border-radius:16px;overflow:hidden">
+    <div style="aspect-ratio:4/5;background:#161616;overflow:hidden"><img src="/_blob/4daa9e825979a74456b98873a799772f" alt="" style="width:100%;height:100%;object-fit:cover"></div>
+    <div style="padding:14px;display:flex;flex-direction:column;gap:4px"><span style="font-size:12px;color:#a3a3a3;letter-spacing:1px;text-transform:uppercase">Virgin Hair Fertilizer</span><strong style="font-size:16px">Huile de croissance</strong><span style="font-size:13px;color:#a3a3a3">120 ml</span><strong style="color:#d4af37;font-size:17px">6 500 F CFA</strong></div>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:8px;font-size:14px">
+    <span style="display:flex;justify-content:space-between"><span style="color:#a3a3a3">Référence (ne change pas)</span><span>VHF-HUI-001</span></span>
+    <span style="display:flex;justify-content:space-between"><span style="color:#a3a3a3">Adresse (ne change pas)</span><span>/produits/huile-de-croissance</span></span>
+    <span style="display:flex;justify-content:space-between"><span style="color:#a3a3a3">Stock</span><span>24 · <u style="color:#d4af37">gérer le stock</u></span></span>
+    <span style="display:flex;justify-content:space-between"><span style="color:#a3a3a3">Statut</span><span style="color:#7fc99a">En vente</span></span>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:8px;font-size:13px;border-top:1px solid #262626;padding-top:14px"><strong style="font-size:14px">Dernières modifications</strong><span style="color:#c9c4b8">18 nov. · Awa Ndiaye · description courte ajoutée</span><span style="color:#c9c4b8">16 nov. · Awa Ndiaye · prix 5 500 → 6 000 F</span><span style="color:#a3a3a3">Tout est dans le Journal d’audit</span></div>
+</div></div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1360}}'>
+class Component extends DCLogic { renderVals() { return {}; } }
+</script>
+</body>
+</html>

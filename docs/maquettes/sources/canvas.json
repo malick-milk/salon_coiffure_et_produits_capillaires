@@ -1,0 +1,762 @@
+{
+ "v": 3,
+ "createdOnFiles": {
+  "v": 1,
+  "at": "2026-11-05T08:10:00Z"
+ },
+ "title": "Dabo Hair — Accueil et gammes",
+ "launch": {
+  "view": "canvas"
+ },
+ "pages": [],
+ "boards": {
+  "Main.dc.html": {
+   "x": 0,
+   "y": 0,
+   "w": 1440,
+   "h": 1560,
+   "title": "Accueil — ordinateur (menu « Nos gammes » ouvert)",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "Mobile.dc.html": {
+   "x": 1520,
+   "y": 0,
+   "w": 390,
+   "h": 844,
+   "title": "Accueil — téléphone",
+   "is_interactive": true
+  },
+  "MobileMenu.dc.html": {
+   "x": 1990,
+   "y": 0,
+   "w": 390,
+   "h": 844,
+   "title": "Menu — téléphone"
+  },
+  "Slides.dc.html": {
+   "x": 0,
+   "y": 1900,
+   "w": 1440,
+   "h": 1640,
+   "title": "Les 3 publicités du carrousel"
+  },
+  "Gamme.dc.html": {
+   "x": 0,
+   "y": 3880,
+   "w": 1440,
+   "h": 1500,
+   "title": "Page d'une gamme : la routine complète",
+   "expand": "fill"
+  },
+  "Prestations.dc.html": {
+   "x": 1520,
+   "y": 3880,
+   "w": 1440,
+   "h": 1180,
+   "title": "Page Prestations (vos tarifs)",
+   "expand": "fill"
+  },
+  "AdminPubs.dc.html": {
+   "x": 0,
+   "y": 5720,
+   "w": 1440,
+   "h": 940,
+   "title": "ERP — gérer les publicités",
+   "expand": "fill"
+  },
+  "Logo.dc.html": {
+   "x": 0,
+   "y": 7060,
+   "w": 1440,
+   "h": 1180,
+   "title": "Logo redessiné (avant / après et déclinaisons)"
+  },
+  "Galerie.dc.html": {
+   "x": 1520,
+   "y": 7060,
+   "w": 1440,
+   "h": 1700,
+   "title": "Page Réalisations : vidéos de 7 s et avis clients",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "AdminGalerie.dc.html": {
+   "x": 0,
+   "y": 8340,
+   "w": 1440,
+   "h": 980,
+   "title": "ERP : ajouter une vidéo, valider les avis",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "Revendeurs.dc.html": {
+   "x": 0,
+   "y": 9920,
+   "w": 1440,
+   "h": 900,
+   "title": "ERP : points de retrait partenaires",
+   "expand": "fill"
+  },
+  "RevendeurFiche.dc.html": {
+   "x": 1520,
+   "y": 9920,
+   "w": 1440,
+   "h": 1180,
+   "title": "ERP : relevé de fin de mois (modifiez « reste compté »)",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "DocumentsRevendeur.dc.html": {
+   "x": 0,
+   "y": 11200,
+   "w": 1440,
+   "h": 1160,
+   "title": "Bon de dépôt et facture mensuelle du partenaire"
+  },
+  "RetraitRevendeur.dc.html": {
+   "x": 1520,
+   "y": 11200,
+   "w": 1440,
+   "h": 860,
+   "title": "Commande : retrait dans une boutique partenaire",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "HeroGamme.dc.html": {
+   "x": 0,
+   "y": 12960,
+   "w": 1440,
+   "h": 900,
+   "title": "Accueil : publicité n° 1, ordinateur (photo horizontale)"
+  },
+  "HeroGammeMobile.dc.html": {
+   "x": 1520,
+   "y": 12960,
+   "w": 390,
+   "h": 844,
+   "title": "Accueil : publicité n° 1, téléphone (photo verticale)"
+  },
+  "HeroPromo.dc.html": {
+   "x": 0,
+   "y": 14300,
+   "w": 1440,
+   "h": 900,
+   "title": "Publicité promotion, ordinateur"
+  },
+  "HeroPromoMobile.dc.html": {
+   "x": 1520,
+   "y": 14300,
+   "w": 390,
+   "h": 844,
+   "title": "Publicité promotion, téléphone"
+  },
+  "FooterReseaux.dc.html": {
+   "x": 0,
+   "y": 15700,
+   "w": 1440,
+   "h": 430,
+   "title": "Pied de page, ordinateur : « Suivez-nous » et WhatsApp"
+  },
+  "FooterReseauxMobile.dc.html": {
+   "x": 1520,
+   "y": 15700,
+   "w": 390,
+   "h": 844,
+   "title": "Pied de page, téléphone"
+  },
+  "ProduitWhatsApp.dc.html": {
+   "x": 0,
+   "y": 16220,
+   "w": 720,
+   "h": 520,
+   "title": "Fiche produit : question par WhatsApp (message pré-rempli)"
+  },
+  "InstaPost.dc.html": {
+   "x": 0,
+   "y": 17300,
+   "w": 1080,
+   "h": 1350,
+   "title": "Publication du fil, 1080 × 1350"
+  },
+  "InstaStory.dc.html": {
+   "x": 1160,
+   "y": 17300,
+   "w": 1080,
+   "h": 1920,
+   "title": "Story, 1080 × 1920 (zones cachées hachurées)"
+  },
+  "InstaLegende.dc.html": {
+   "x": 2320,
+   "y": 17300,
+   "w": 640,
+   "h": 1350,
+   "title": "Légende, hashtags et lien mesuré"
+  },
+  "BanniereLeaveIn.dc.html": {
+   "x": 0,
+   "y": 20000,
+   "w": 1280,
+   "h": 320,
+   "title": "A · Nouveau produit : Leave In (lien : fiche du Leave In)"
+  },
+  "BanniereTwist.dc.html": {
+   "x": 0,
+   "y": 20420,
+   "w": 1280,
+   "h": 320,
+   "title": "B · Salon : twists dès 5 000 F (lien : /reserver)"
+  },
+  "BanniereTelephone.dc.html": {
+   "x": 1360,
+   "y": 20000,
+   "w": 390,
+   "h": 844,
+   "title": "Les deux bannières sur téléphone (taille réelle)"
+  },
+  "AdminNouveauProduit.dc.html": {
+   "x": 0,
+   "y": 21500,
+   "w": 1440,
+   "h": 1260,
+   "title": "Nouveau produit : origine, fiche, photos, aperçu"
+  },
+  "AdminReceptionAchat.dc.html": {
+   "x": 0,
+   "y": 22840,
+   "w": 1440,
+   "h": 960,
+   "title": "Réception d’achat : entrée du stock d’un produit revendu"
+  },
+  "LancementCalendrier.dc.html": {
+   "x": 0,
+   "y": 24500,
+   "w": 2060,
+   "h": 1180,
+   "title": "Calendrier : 21 jours, 4 réseaux"
+  },
+  "Lancement1Insta.dc.html": {
+   "x": 0,
+   "y": 25800,
+   "w": 1080,
+   "h": 1350,
+   "title": "Phase 1 · Instagram"
+  },
+  "Lancement1WhatsApp.dc.html": {
+   "x": 1160,
+   "y": 25800,
+   "w": 1080,
+   "h": 1920,
+   "title": "Phase 1 · Statut WhatsApp"
+  },
+  "Lancement1TikTok.dc.html": {
+   "x": 2320,
+   "y": 25800,
+   "w": 1080,
+   "h": 1920,
+   "title": "Phase 1 · Couverture TikTok"
+  },
+  "Lancement2Insta.dc.html": {
+   "x": 0,
+   "y": 27900,
+   "w": 1080,
+   "h": 1350,
+   "title": "Phase 2 · Instagram"
+  },
+  "Lancement2WhatsApp.dc.html": {
+   "x": 1160,
+   "y": 27900,
+   "w": 1080,
+   "h": 1920,
+   "title": "Phase 2 · Statut WhatsApp"
+  },
+  "Lancement2TikTok.dc.html": {
+   "x": 2320,
+   "y": 27900,
+   "w": 1080,
+   "h": 1920,
+   "title": "Phase 2 · Couverture TikTok"
+  },
+  "Lancement3Insta.dc.html": {
+   "x": 0,
+   "y": 32100,
+   "w": 1080,
+   "h": 1350,
+   "title": "J-3 · Phase 3 · Instagram"
+  },
+  "Lancement3WhatsApp.dc.html": {
+   "x": 1160,
+   "y": 32100,
+   "w": 1080,
+   "h": 1920,
+   "title": "J-3 · Phase 3 · Statut WhatsApp"
+  },
+  "Lancement3TikTok.dc.html": {
+   "x": 2320,
+   "y": 32100,
+   "w": 1080,
+   "h": 1920,
+   "title": "J-3 · Phase 3 · Couverture TikTok"
+  },
+  "Lancement4Insta.dc.html": {
+   "x": 0,
+   "y": 36300,
+   "w": 1080,
+   "h": 1350,
+   "title": "Phase 4 · Instagram (Jour J)"
+  },
+  "Lancement4WhatsApp.dc.html": {
+   "x": 1160,
+   "y": 36300,
+   "w": 1080,
+   "h": 1920,
+   "title": "Phase 4 · Statut WhatsApp (Jour J)"
+  },
+  "Lancement4TikTok.dc.html": {
+   "x": 2320,
+   "y": 36300,
+   "w": 1080,
+   "h": 1920,
+   "title": "Phase 4 · Couverture TikTok (Jour J)"
+  },
+  "Lancement1Snap.dc.html": {
+   "x": 3480,
+   "y": 25800,
+   "w": 1080,
+   "h": 1920,
+   "title": "Phase 1 · Snapchat"
+  },
+  "Lancement2Snap.dc.html": {
+   "x": 3480,
+   "y": 27900,
+   "w": 1080,
+   "h": 1920,
+   "title": "Phase 2 · Snapchat"
+  },
+  "Lancement3Snap.dc.html": {
+   "x": 3480,
+   "y": 32100,
+   "w": 1080,
+   "h": 1920,
+   "title": "J-3 · Phase 3 · Snapchat"
+  },
+  "Lancement4Snap.dc.html": {
+   "x": 3480,
+   "y": 36300,
+   "w": 1080,
+   "h": 1920,
+   "title": "Phase 4 · Snapchat (Jour J)"
+  },
+  "Lancement3J7Insta.dc.html": {
+   "x": 0,
+   "y": 30000,
+   "w": 1080,
+   "h": 1350,
+   "title": "J-7 · Phase 3 · Instagram"
+  },
+  "Lancement3J7WhatsApp.dc.html": {
+   "x": 1160,
+   "y": 30000,
+   "w": 1080,
+   "h": 1920,
+   "title": "J-7 · Phase 3 · Statut WhatsApp"
+  },
+  "Lancement3J7TikTok.dc.html": {
+   "x": 2320,
+   "y": 30000,
+   "w": 1080,
+   "h": 1920,
+   "title": "J-7 · Phase 3 · Couverture TikTok"
+  },
+  "Lancement3J7Snap.dc.html": {
+   "x": 3480,
+   "y": 30000,
+   "w": 1080,
+   "h": 1920,
+   "title": "J-7 · Phase 3 · Snapchat"
+  },
+  "Lancement3J1Insta.dc.html": {
+   "x": 0,
+   "y": 34200,
+   "w": 1080,
+   "h": 1350,
+   "title": "J-1 · Phase 3 · Instagram"
+  },
+  "Lancement3J1WhatsApp.dc.html": {
+   "x": 1160,
+   "y": 34200,
+   "w": 1080,
+   "h": 1920,
+   "title": "J-1 · Phase 3 · Statut WhatsApp"
+  },
+  "Lancement3J1TikTok.dc.html": {
+   "x": 2320,
+   "y": 34200,
+   "w": 1080,
+   "h": 1920,
+   "title": "J-1 · Phase 3 · Couverture TikTok"
+  },
+  "Lancement3J1Snap.dc.html": {
+   "x": 3480,
+   "y": 34200,
+   "w": 1080,
+   "h": 1920,
+   "title": "J-1 · Phase 3 · Snapchat"
+  },
+  "RappelEspaceClient.dc.html": {
+   "x": 0,
+   "y": 38920,
+   "w": 1280,
+   "h": 900,
+   "title": "Rappel de resserrage : espace client (ordinateur)"
+  },
+  "RappelNotifications.dc.html": {
+   "x": 1360,
+   "y": 38920,
+   "w": 390,
+   "h": 844,
+   "title": "Notifications : téléphone"
+  },
+  "RappelEmail.dc.html": {
+   "x": 1830,
+   "y": 38920,
+   "w": 640,
+   "h": 860,
+   "title": "E-mail de rappel"
+  },
+  "RappelInvitationCompte.dc.html": {
+   "x": 2550,
+   "y": 38920,
+   "w": 390,
+   "h": 844,
+   "title": "Réservation sans compte : invitation"
+  },
+  "AdminModifierProduit.dc.html": {
+   "x": 0,
+   "y": 24400,
+   "w": 1440,
+   "h": 1100,
+   "title": "Modifier un produit : fiche, prix, photos, historique"
+  },
+  "PrixMembreAccueil.dc.html": {
+   "x": 0,
+   "y": 40300,
+   "w": 390,
+   "h": 844,
+   "title": "1 · Accueil, visiteuse sans compte"
+  },
+  "PrixMembreFiche.dc.html": {
+   "x": 470,
+   "y": 40300,
+   "w": 390,
+   "h": 844,
+   "title": "2 · Fiche de la gamme, cliente connectée"
+  },
+  "PrixMembrePanier.dc.html": {
+   "x": 940,
+   "y": 40300,
+   "w": 390,
+   "h": 844,
+   "title": "3 · Panier sans compte"
+  },
+  "PrixMembreInscription.dc.html": {
+   "x": 1410,
+   "y": 40300,
+   "w": 390,
+   "h": 844,
+   "title": "4 · Inscription rapide (depuis le panier)"
+  },
+  "PrixMembrePanierMembre.dc.html": {
+   "x": 1880,
+   "y": 40300,
+   "w": 390,
+   "h": 844,
+   "title": "5 · Panier après inscription"
+  }
+ },
+ "order": [
+  "Main.dc.html",
+  "Mobile.dc.html",
+  "MobileMenu.dc.html",
+  "Slides.dc.html",
+  "Gamme.dc.html",
+  "Prestations.dc.html",
+  "AdminPubs.dc.html",
+  "Logo.dc.html",
+  "Galerie.dc.html",
+  "AdminGalerie.dc.html",
+  "Revendeurs.dc.html",
+  "RevendeurFiche.dc.html",
+  "DocumentsRevendeur.dc.html",
+  "RetraitRevendeur.dc.html",
+  "HeroGamme.dc.html",
+  "HeroGammeMobile.dc.html",
+  "HeroPromo.dc.html",
+  "HeroPromoMobile.dc.html",
+  "FooterReseaux.dc.html",
+  "FooterReseauxMobile.dc.html",
+  "ProduitWhatsApp.dc.html",
+  "InstaPost.dc.html",
+  "InstaStory.dc.html",
+  "InstaLegende.dc.html",
+  "BanniereLeaveIn.dc.html",
+  "BanniereTwist.dc.html",
+  "BanniereTelephone.dc.html",
+  "AdminNouveauProduit.dc.html",
+  "AdminReceptionAchat.dc.html",
+  "LancementCalendrier.dc.html",
+  "Lancement1Insta.dc.html",
+  "Lancement1WhatsApp.dc.html",
+  "Lancement1TikTok.dc.html",
+  "Lancement2Insta.dc.html",
+  "Lancement2WhatsApp.dc.html",
+  "Lancement2TikTok.dc.html",
+  "Lancement3Insta.dc.html",
+  "Lancement3WhatsApp.dc.html",
+  "Lancement3TikTok.dc.html",
+  "Lancement4Insta.dc.html",
+  "Lancement4WhatsApp.dc.html",
+  "Lancement4TikTok.dc.html",
+  "Lancement1Snap.dc.html",
+  "Lancement2Snap.dc.html",
+  "Lancement3Snap.dc.html",
+  "Lancement4Snap.dc.html",
+  "Lancement3J7Insta.dc.html",
+  "Lancement3J7WhatsApp.dc.html",
+  "Lancement3J7TikTok.dc.html",
+  "Lancement3J7Snap.dc.html",
+  "Lancement3J1Insta.dc.html",
+  "Lancement3J1WhatsApp.dc.html",
+  "Lancement3J1TikTok.dc.html",
+  "Lancement3J1Snap.dc.html",
+  "RappelEspaceClient.dc.html",
+  "RappelNotifications.dc.html",
+  "RappelEmail.dc.html",
+  "RappelInvitationCompte.dc.html",
+  "AdminModifierProduit.dc.html",
+  "PrixMembreAccueil.dc.html",
+  "PrixMembreFiche.dc.html",
+  "PrixMembrePanier.dc.html",
+  "PrixMembreInscription.dc.html",
+  "PrixMembrePanierMembre.dc.html"
+ ],
+ "notes": {
+  "t1": {
+   "x": 0,
+   "y": -300,
+   "text": "Accueil publicitaire et « Nos gammes »",
+   "kind": "title1",
+   "maxW": 2380
+  },
+  "t2": {
+   "x": 0,
+   "y": 1600,
+   "text": "Le carrousel : une publicité = une image, un message, un bouton",
+   "kind": "title1",
+   "maxW": 1440
+  },
+  "t3": {
+   "x": 0,
+   "y": 3580,
+   "text": "Gammes et prestations",
+   "kind": "title1",
+   "maxW": 2960
+  },
+  "t4": {
+   "x": 0,
+   "y": 5420,
+   "text": "Les publicités se changent depuis l'ERP, sans toucher au code",
+   "kind": "title1",
+   "maxW": 1440
+  },
+  "n1": {
+   "x": 1520,
+   "y": 1900,
+   "w": 420,
+   "text": "À confirmer par Dabo Hair :\n• les noms des gammes « par besoin » (proposition faite à partir des produits) ;\n• les noms des coffrets (« La routine complète », « Le trio essentiel ») ;\n• le prix du Mini Twist : 8 000 F (grille Twist) ou 10 000 F (affiche Soins & coiffures) ?\n• la durée de chaque prestation (nécessaire pour la réservation en ligne) ;\n• le fichier original du logo (PNG transparent ou SVG) ;\n• le prix barré du coffret (14 000 F = somme des 4 produits) : l'afficher ou non ?\n• les photos d'origine en bonne qualité (celles reçues sont des captures de stories, floues en grand).",
+   "fill": "orange",
+   "size": "m"
+  },
+  "t5": {
+   "x": 0,
+   "y": 6760,
+   "text": "Logo, galerie de réalisations et avis clients",
+   "kind": "title1",
+   "maxW": 2960
+  },
+  "n2": {
+   "x": 3040,
+   "y": 7060,
+   "w": 420,
+   "text": "Galerie et avis : les règles\n• Accord écrit de chaque cliente avant de publier sa vidéo (droit à l'image, loi sénégalaise sur les données personnelles).\n• Vidéos compressées sur le serveur (environ 1 Mo pour 7 s), lues en boucle sans le son.\n• Un avis = une vraie prestation ou une vraie commande : pas de faux avis.\n• Validation dans l'ERP avant publication ; on répond aux avis négatifs au lieu de les cacher.",
+   "fill": "orange",
+   "size": "m"
+  },
+  "t6": {
+   "x": 0,
+   "y": 9620,
+   "text": "Points de retrait partenaires dans les régions (stock confié, retrait des commandes, relevé mensuel)",
+   "kind": "title1",
+   "maxW": 2960
+  },
+  "n3": {
+   "x": 3040,
+   "y": 9920,
+   "w": 420,
+   "text": "Règles retenues\n• Partenaires = boutiques existantes, surtout points de retrait (évite un déplacement par commande lointaine).\n• Stock confié chaque mois ; il reste à Dabo Hair.\n• Commande en ligne → SMS au partenaire ; la cliente donne son code de retrait et paie sur place.\n• Prix du site partout. Commission : 10 % par produit remis ou vendu.\n• Relevé des restants en fin de mois ; versement au plus tard le 5.\n• Dabo Hair livre chaque région ; abîmés ou perdus déduits de la commission.\n\nÀ confirmer :\n• vente au comptoir aux clientes de passage, en plus des retraits ?\n• abîmés supérieurs à la commission : reste dû ?\n• un partenaire pour Ziguinchor, Sédhiou et Kolda, ou un par région ?",
+   "fill": "orange",
+   "size": "m"
+  },
+  "t7": {
+   "x": 0,
+   "y": 12660,
+   "text": "Publicité de l'accueil avec les vraies photos de la gamme (10 novembre)",
+   "kind": "title1",
+   "maxW": 2960
+  },
+  "n4": {
+   "x": 1990,
+   "y": 12960,
+   "w": 420,
+   "text": "À compléter avant la mise en ligne :\n• le NOM de la gamme (titre provisoire : « Six soins pour des cheveux à l’état pur ») ;\n• le PRIX de la gamme complète ;\n• le flacon blanc de la 2e photo : autre produit (spray anti-chute ?) ou même spray ?\n• le prix et la contenance du Leave In.\n\nRègle gardée : le texte n’est jamais posé sur la photo, il reste lisible quelle que soit l’image.",
+   "fill": "orange",
+   "size": "m"
+  },
+  "t8": {
+   "x": 0,
+   "y": 14000,
+   "text": "Variante « promotion » de la publicité (gamme à 10 000 F au lieu de 15 000 F, 20 exemplaires)",
+   "kind": "title1",
+   "maxW": 2380
+  },
+  "n5": {
+   "x": 1990,
+   "y": 14300,
+   "w": 420,
+   "text": "Règles de la promotion\n• Prix normal 15 000 F barré, prix promo 10 000 F en grand : la cliente voit l'économie en 1 seconde\n• « Plus que 12 gammes sur 20 » : calculé sur le vrai stock, jamais inventé (pas de fausse urgence)\n• À 0 gamme : la publicité disparaît toute seule et la gamme revient à 15 000 F\n• Acompte de 5 000 F : PAS dans cette version. Le site propose déjà le paiement à la réception, plus simple pour la cliente et pour la boutique. L'acompte demande un paiement en ligne (Wave, Orange Money) : prévu plus tard\n\nÀ confirmer :\n• La promotion est-elle encore en cours ? Une date de fin ?\n• D'accord pour remplacer l'acompte par le paiement à la réception ?",
+   "fill": "orange",
+   "size": "m"
+  },
+  "t9": {
+   "x": 0,
+   "y": 15400,
+   "text": "Réseaux sociaux : liens vers les comptes de la boutique et WhatsApp",
+   "kind": "title1",
+   "maxW": 2380
+  },
+  "n6": {
+   "x": 1990,
+   "y": 15700,
+   "w": 420,
+   "fill": "orange",
+   "size": "m",
+   "text": "Choix retenus\n• Des LIENS vers les comptes de la boutique : gratuit, rien à maintenir, aucune donnée des clientes envoyée à Meta ou TikTok\n• Pas de « fil Instagram » intégré : il dépend d'un jeton Meta à renouveler et ralentit la page\n• WhatsApp mis en avant : c'est là que les clientes posent leurs questions au Sénégal. Le message est pré-rempli avec le produit\n• Un réseau sans lien n'est pas affiché (pas d'icône morte)\n• Logos officiels (Simple Icons, licence libre), boutons de 44 à 48 px\n\nÀ fournir :\n• Le lien Instagram de la boutique\n• Le lien TikTok (s'il existe)\n• Le lien de la page Facebook (s'il existe)\n• WhatsApp : le 77 602 62 00 est-il bien le WhatsApp de la boutique ?"
+  },
+  "t10": {
+   "x": 0,
+   "y": 17000,
+   "text": "Instagram : publication des gammes en promotion (exemple)",
+   "kind": "title1",
+   "maxW": 2380
+  },
+  "n7": {
+   "x": 3040,
+   "y": 17300,
+   "w": 420,
+   "fill": "orange",
+   "size": "m",
+   "text": "Choix retenus\n• Même charte que le site (noir et or, Playfair) : la cliente reconnaît la marque en passant du post au site\n• Le prix est le plus gros texte : 10 000 F se lit en moins d'une seconde en faisant défiler\n• Texte sur bande noire, jamais sur la partie chargée de la photo\n• « Seulement 20 gammes » : vrai chiffre, pas de faux compte à rebours\n• Paiement à la réception au lieu de l'acompte (à confirmer par Awa)\n\nÀ confirmer :\n• Date de fin de l'offre\n• Adresse du site (domaine) pour le lien\n• Publier seulement quand la gamme est commandable sur le site"
+  },
+  "t11": {
+   "x": 0,
+   "y": 19700,
+   "text": "Bannière promotionnelle de l’accueil (1280 × 320) : deux propositions",
+   "kind": "title1",
+   "maxW": 2380
+  },
+  "n8": {
+   "x": 1830,
+   "y": 20000,
+   "w": 420,
+   "fill": "orange",
+   "size": "m",
+   "text": "Règles de la bannière\n• Un autre message que la publicité du haut (qui parle déjà de la gamme)\n• 2 lignes de texte seulement, en très gros : sur téléphone l'image est réduite 3,6 fois\n• Rien d'important à moins de 48 px des bords (coins arrondis par le site)\n• Toute la bannière est cliquable : la flèche le montre\n• Le texte de l'image est invisible pour Google et les lecteurs d'écran : il faut le recopier dans imageAlt\n\nÀ choisir : A (Leave In) ou B (twists) ?"
+  },
+  "t12": {
+   "x": 0,
+   "y": 21200,
+   "text": "ERP : ajouter un nouveau produit (exemple : Virgin Hair Fertilizer)",
+   "kind": "title1",
+   "maxW": 2380
+  },
+  "n9": {
+   "x": 1520,
+   "y": 21500,
+   "w": 420,
+   "fill": "orange",
+   "size": "m",
+   "text": "Règles retenues\n• Deux origines : « Fabriqué par Dabo Hair » (stock par Fabrication) ou « Acheté et revendu » (stock par Réception d’achat)\n• Référence et adresse de la fiche créées automatiquement\n• Brouillon par défaut : invisible sur le site tant que ce n’est pas publié\n• Publier exige au moins une photo\n• Photos envoyées depuis l’ERP, recadrées et converties en WebP par le serveur\n• Prix d’achat unitaire OBLIGATOIRE à la création (18 novembre) : la marge est connue dès le premier jour, et affichée en direct\n• Coût de revient = moyenne pondérée des achats (+ frais du lot) : la marge des Analyses reste juste\n• Tout est tracé dans le journal d’audit\n• Droits : administrateur et gérant ; le caissier ne crée pas de produit\n\nÀ confirmer pour Virgin Hair Fertilizer :\n• Acheté et revendu (pas fabriqué) ?\n• Quels produits exactement (nom, contenance) ?\n• Prix de vente, prix d’achat, fournisseur\n• Photos : les prendre nous-mêmes (boîte Puluz), pas celles de la marque (droits d’auteur)"
+  },
+  "t13": {
+   "x": 0,
+   "y": 24200,
+   "text": "Campagne de lancement du site : 3 semaines, Instagram · WhatsApp · TikTok · Snapchat",
+   "kind": "title1",
+   "maxW": 3400
+  },
+  "n10": {
+   "x": 2140,
+   "y": 24500,
+   "w": 520,
+   "fill": "orange",
+   "size": "m",
+   "text": "Le principe\n• 4 phases : mystère (J-21), révélation (J-14), compte à rebours (J-7 → J-1), Jour J\n• Chaque phase sur les 4 réseaux, au même moment, avec le même message adapté au format\n• Un fil d’or commun qui se remplit : la progression est visible partout\n• Les vrais écrans du site (capturés sur le site actuel), pas des images inventées\n• Zones cachées dessinées en pointillés (nom WhatsApp, boutons TikTok) : à ne pas recouvrir\n\nÀ confirmer avant de produire :\n• La date du Jour J et le nom de domaine\n• L’offre de lancement (la gamme à 10 000 F ?)\n• Les vidéos TikTok : Awa accepte-t-elle d’apparaître ? (sinon : mains, produits, écran)\n• Les avis de clientes : accord écrit de chacune\n\nSnapchat\n• Bandeau de texte natif (bande noire translucide) : le visuel ressemble à un vrai snap\n• Le lien s’ajoute dans Snapchat avec le trombone (« lien attaché »), pas dans l’image\n• Public plus jeune : ton plus direct (tutoiement), à valider avec Awa"
+  },
+  "t14": {
+   "x": 0,
+   "y": 38620,
+   "text": "Rappels de resserrage : dans l’espace client et par e-mail (pas de SMS pour l’instant)",
+   "kind": "title1",
+   "maxW": 3000
+  },
+  "n11": {
+   "x": 3020,
+   "y": 38920,
+   "w": 520,
+   "fill": "orange",
+   "size": "m",
+   "text": "Règles proposées\n• Quand : X semaines après un twist TERMINÉ (statut dans l’ERP), un délai par prestation fixé par Awa\n• Où : cloche + rubrique « Notifications » de l’espace client, et e-mail si l’adresse est connue. Pas de SMS (coûts présentés plus tard)\n• Une seule fois par twist ; aucun rappel si la cliente a déjà réservé un resserrage\n• « Réserver » ouvre la réservation avec le bon resserrage déjà choisi\n• « Me le rappeler dans 1 semaine » : un seul report\n• Lien de désinscription dans chaque e-mail (obligatoire)\n• Réservation sans compte : invitation à créer un compte, sinon e-mail seulement\n\nÀ fournir par Awa :\n• Le délai conseillé avant resserrage pour chaque twist (simple, mini, micro)\n• Le texte du conseil, s’il veut le formuler autrement"
+  },
+  "t15": {
+   "x": 0,
+   "y": 24100,
+   "text": "ERP : modifier un produit déjà créé",
+   "kind": "title1",
+   "maxW": 2400
+  },
+  "n12": {
+   "x": 1520,
+   "y": 24400,
+   "w": 520,
+   "fill": "orange",
+   "size": "m",
+   "text": "Règles proposées\n• Bouton « Modifier » sur chaque ligne de « Produits et stock »\n• Modifiables : nom, marque, catégorie, contenance, prix de vente, prix barré, seuil, descriptions, photos\n• La RÉFÉRENCE et l’ADRESSE de la fiche ne changent pas : les commandes et factures passées, et les liens partagés, restent valables\n• L’ORIGINE se verrouille dès qu’un lot ou une réception existe (le stock et le coût en dépendent)\n• Le COÛT DE REVIENT : modifiable tant qu’aucun lot ni réception n’existe ; ensuite calculé tout seul (lecture seule)\n• Marge avant / après affichée quand on change le prix ; vente à perte signalée (comme à la création)\n• Chaque modification va au journal d’audit (qui, quand, avant / après) ; les 2 dernières sont rappelées à droite\n• Les commandes déjà passées gardent leur prix (prix figés)"
+  },
+  "t16": {
+   "x": 0,
+   "y": 40000,
+   "text": "Lancement du 15 décembre : la gamme au prix membre",
+   "kind": "title1",
+   "maxW": 2400
+  },
+  "n13": {
+   "x": 2350,
+   "y": 40300,
+   "w": 560,
+   "fill": "orange",
+   "size": "m",
+   "text": "Règles proposées\n• La GAMME devient un article du catalogue (6 soins, 15 000 F). Une vente retire 1 de chacun des 6 produits du stock (grand livre)\n• PRIX MEMBRE 10 000 F : seulement pour une cliente CONNECTÉE à son compte. Le serveur calcule le prix, jamais le navigateur\n• Sans compte : on peut toujours commander, à 15 000 F (aucune vente perdue)\n• 20 gammes au prix membre ; le compteur « Plus que X sur 20 » suit les ventes réelles. Après la 20e : 15 000 F pour tout le monde\n• Une gamme au prix membre par compte (à confirmer avec Awa)\n• Depuis le panier, « Créer mon compte » garde les articles et revient au panier avec le prix membre appliqué\n• Inscription rapide : prénom, téléphone, mot de passe (+ case des conditions). Nom et e-mail facultatifs, à compléter plus tard. Aujourd’hui : 6 champs\n• Analyses : comptes créés depuis le panier, part des commandes faites par des membres\n\nÀ décider :\n• Une gamme par compte, ou plus ?\n• Inscription à 3 champs : d’accord ? (l’e-mail sert aux rappels de resserrage : on le demandera après la commande)"
+  }
+ },
+ "designSystems": []
+}

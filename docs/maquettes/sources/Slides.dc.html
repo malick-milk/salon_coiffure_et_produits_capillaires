@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Les 3 publicités du carrousel</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Josefin+Sans:wght@300;400&family=Playfair+Display:wght@500;600;700&display=swap">
+<style>
+body{margin:0;background:#0f0f0f}
+</style>
+</helmet>
+<div style="width: 1440px; min-height: 1640px; background: #0f0f0f; color: #f8f8f8; font-family: Inter, system-ui, sans-serif; padding: 56px 64px; box-sizing: border-box; display: flex; flex-direction: column; gap: 40px">
+  <div style="display: flex; justify-content: space-between; align-items: flex-end; gap: 40px">
+    <div style="display: flex; flex-direction: column; gap: 8px">
+      <span style="font-size: 13px; letter-spacing: 2px; text-transform: uppercase; color: #d4af37">Règle commune</span>
+      <h2 style="margin: 0; font-family: 'Playfair Display', serif; font-size: 36px; font-weight: 600">Une publicité = une image, un message, un prix, un bouton</h2>
+    </div>
+    <p style="margin: 0; max-width: 420px; color: #a3a3a3; font-size: 15px; line-height: 1.6">Le texte reste toujours à gauche, sur fond noir, jamais par-dessus la photo : il reste lisible quelle que soit l'image envoyée depuis l'ERP.</p>
+  </div>
+
+  <sc-for list="{{slides}}" as="s" hint-placeholder-count="3">
+    <article style="display: grid; grid-template-columns: 300px 1fr; gap: 32px; align-items: start">
+      <div style="display: flex; flex-direction: column; gap: 10px; padding-top: 8px">
+        <span style="font-family: 'Playfair Display', serif; font-size: 44px; color: #d4af37; line-height: 1">{{s.num}}</span>
+        <strong style="font-size: 18px">{{s.name}}</strong>
+        <span style="font-size: 14px; line-height: 1.6; color: #a3a3a3">{{s.why}}</span>
+        <span style="font-size: 13px; color: #c9c4b8; border-top: 1px solid #262626; padding-top: 10px">Bouton vers : {{s.target}}</span>
+      </div>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; height: 440px; border-radius: 24px; overflow: hidden; border: 1px solid #2b2516; background: #121212">
+        <div style="padding: 44px 48px; display: flex; flex-direction: column; justify-content: center; gap: 16px">
+          <span style="align-self: flex-start; border: 1px solid #d4af37; color: #d4af37; font-size: 12px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; padding: 6px 12px; border-radius: 999px">{{s.eyebrow}}</span>
+          <h3 style="margin: 0; font-family: 'Playfair Display', serif; font-size: 44px; font-weight: 600; line-height: 1.08">{{s.title}}</h3>
+          <p style="margin: 0; font-size: 16px; line-height: 1.6; color: #c9c4b8">{{s.text}}</p>
+          <div style="display: flex; align-items: baseline; gap: 10px"><strong style="font-size: 32px; color: #d4af37">{{s.price}}</strong><span style="font-size: 14px; color: #a3a3a3">{{s.note}}</span></div>
+          <div style="display: flex; gap: 12px; margin-top: 4px">
+            <span style="background: #d4af37; color: #0f0f0f; font-weight: 600; padding: 14px 24px; border-radius: 999px">{{s.cta}}</span>
+            <span style="border: 1px solid #3a3a3a; padding: 14px 22px; border-radius: 999px; color: #f8f8f8">{{s.cta2}}</span>
+          </div>
+        </div>
+        <div style="position: relative">
+          <img src="{{s.image}}" alt="{{s.alt}}" style="width: 100%; height: 100%; object-fit: cover; object-position: {{s.pos}}">
+          <span style="position: absolute; bottom: 16px; right: 16px; background: rgba(15,15,15,.85); color: #f8f8f8; font-size: 13px; padding: 8px 12px; border-radius: 10px">{{s.badge}}</span>
+        </div>
+      </div>
+    </article>
+  </sc-for>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1640}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {
+      slides: [
+        { num: '01', name: 'Le coffret complet', why: 'L’offre au meilleur panier : elle passe en premier.', target: 'page de la gamme « La routine complète »', eyebrow: 'Offre coffret', title: 'La routine complète', text: 'Shampooing, crème, sérum et spray hydratant : les 4 gestes pour des cheveux à l’état pur.', price: '10 000 F CFA', note: 'les 4 produits', cta: 'Commander le coffret', cta2: 'Voir la routine', image: '/_blob/6d18d32423e2d549a66ead9a482aa2fc', alt: 'Spray hydratant, crème, sérum et shampooing Dabo Hair', pos: 'center 85%', badge: '4 produits' },
+        { num: '02', name: 'L’entrée de gamme', why: 'Pour celles et ceux qui découvrent la marque.', target: 'page de la gamme « Le trio essentiel »', eyebrow: 'Offre coffret', title: 'Le trio essentiel', text: 'Shampooing, crème et sérum : la base d’une routine simple, à petit prix.', price: '5 000 F CFA', note: 'les 3 produits', cta: 'Commander le trio', cta2: 'Voir le détail', image: '/_blob/7f2ca7d747f7686f61fbd820fe537fad', alt: 'Shampooing, crème et sérum Dabo Hair', pos: 'center 85%', badge: '3 produits' },
+        { num: '03', name: 'La nouveauté ou le salon', why: 'Change selon l’actualité : un produit, une prestation, une fête.', target: 'fiche produit du masque (ou page Prestations)', eyebrow: 'Nouveau', title: 'Masque à la kératine', text: 'Le soin profond de la maison, pour réparer et renforcer la fibre.', price: '3 000 F CFA', note: 'le pot', cta: 'Découvrir le masque', cta2: 'Réserver un soin', image: '/_blob/e174ac64d7a92a88bcdbf9043f99a3ae', alt: 'Les soins Dabo Hair devant une plante', pos: 'center 70%', badge: 'Disponible au salon et en ligne' }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

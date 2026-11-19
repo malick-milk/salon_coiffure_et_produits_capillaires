@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Logo Dabo Hair redessiné</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600&display=swap">
+<style>
+body{margin:0;background:#0f0f0f}
+</style>
+</helmet>
+<div style="width: 1440px; min-height: 1180px; background: #0f0f0f; color: #f8f8f8; font-family: Inter, system-ui, sans-serif; padding: 56px 64px; box-sizing: border-box; display: flex; flex-direction: column; gap: 40px">
+  <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 28px; align-items: stretch">
+    <figure style="margin: 0; display: flex; flex-direction: column; gap: 12px">
+      <div style="background: #000; border: 1px solid #262626; border-radius: 20px; height: 440px; display: grid; place-items: center; overflow: hidden"><img src="/_blob/2fc692b54f778f30f8e23b096e5e6d0a" alt="Logo actuel, photographié" style="width: 100%; height: 100%; object-fit: contain"></div>
+      <figcaption style="font-size: 14px; color: #a3a3a3"><strong style="color: #f8f8f8">Avant</strong> : une photo floue, impossible à agrandir ou à imprimer proprement</figcaption>
+    </figure>
+    <figure style="margin: 0; display: flex; flex-direction: column; gap: 12px; grid-column: span 2">
+      <div style="background: #0f0f0f; border: 1px solid #2b2516; border-radius: 20px; height: 440px; display: grid; place-items: center; padding: 20px; box-sizing: border-box"><img src="/_blob/e6d181f66b51dfad24ea0d151545115f" alt="Logo Dabo Hair redessiné en vectoriel" style="height: 100%"></div>
+      <figcaption style="font-size: 14px; color: #a3a3a3"><strong style="color: #d4af37">Après</strong> : logo principal, vectoriel (net à toutes les tailles, de l'icône du site à l'enseigne)</figcaption>
+    </figure>
+  </div>
+
+  <div style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 28px">
+    <div style="background: #141414; border: 1px solid #262626; border-radius: 20px; padding: 28px; display: flex; flex-direction: column; gap: 14px">
+      <h2 style="margin: 0; font-family: 'Playfair Display', serif; font-size: 26px; font-weight: 600">Ce qui a été amélioré</h2>
+      <sc-for list="{{fixes}}" as="f" hint-placeholder-count="6">
+        <div style="display: grid; grid-template-columns: 180px 1fr; gap: 16px; border-top: 1px solid #262626; padding-top: 12px; font-size: 15px; line-height: 1.55"><strong style="color: #d4af37">{{f.what}}</strong><span style="color: #c9c4b8">{{f.how}}</span></div>
+      </sc-for>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 16px">
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px">
+        <figure style="margin: 0; background: #0f0f0f; border: 1px solid #262626; border-radius: 20px; padding: 20px; display: flex; flex-direction: column; align-items: center; gap: 12px">
+          <img src="/_blob/6f5dfacf95bdbec5ba479114a3028e99" alt="Icône Dabo Hair" style="width: 150px; height: 150px; border-radius: 999px">
+          <div style="display: flex; align-items: end; gap: 12px"><img src="/_blob/6f5dfacf95bdbec5ba479114a3028e99" alt="" style="width: 48px; border-radius: 10px"><img src="/_blob/6f5dfacf95bdbec5ba479114a3028e99" alt="" style="width: 32px; border-radius: 6px"><img src="/_blob/6f5dfacf95bdbec5ba479114a3028e99" alt="" style="width: 16px"></div>
+          <figcaption style="font-size: 13px; color: #a3a3a3; text-align: center">Icône : photo de profil WhatsApp, Instagram, onglet du navigateur</figcaption>
+        </figure>
+        <figure style="margin: 0; background: #f6f1e7; border-radius: 20px; padding: 20px; display: flex; flex-direction: column; align-items: center; gap: 12px">
+          <img src="/_blob/e1c4235d78da290e9eec7edaeb1ea46e" alt="Logo en noir sur fond clair" style="height: 200px">
+          <figcaption style="font-size: 13px; color: #5a5242; text-align: center">Une couleur : tampon, étiquette, facture, impression noir et blanc</figcaption>
+        </figure>
+      </div>
+      <figure style="margin: 0; background: #0f0f0f; border: 1px solid #262626; border-radius: 20px; padding: 20px 24px; display: flex; flex-direction: column; gap: 12px">
+        <img src="/_blob/b045178ca526d3f19e76303ddeff1499" alt="Logo horizontal Dabo Hair" style="height: 80px; align-self: flex-start">
+        <figcaption style="font-size: 13px; color: #a3a3a3">Horizontal : barre de navigation du site, en-tête des factures, signature d'e-mail</figcaption>
+      </figure>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1180}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {
+      fixes: [
+        { what: 'Vectoriel', how: 'Redessiné en tracés (SVG) : net en 16 px comme sur une banderole de 3 mètres.' },
+        { what: 'Alignement', how: 'Le cercle était décalé de 11 px à gauche du triangle : tout est maintenant centré sur un même axe.' },
+        { what: 'Épaisseurs', how: 'Le cercle, le triangle et le profil ont des traits réguliers et de même famille.' },
+        { what: 'Tête redessinée', how: 'Chevelure au contour régulier, visage découpé net, profil, oreille et cou tracés d’un trait continu, sans les bavures de la photo.' },
+        { what: 'Typographie', how: 'Police géométrique fine, lettres espacées régulièrement, losanges dessinés autour de HAIR.' },
+        { what: 'Signature anglaise', how: '« Your Hair in the pure state » n’est pas correct en anglais : proposé « Your hair in its purest state ».' },
+        { what: 'Déclinaisons', how: 'Principal, sans signature, icône, horizontal, une couleur : chaque usage a sa version.' }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

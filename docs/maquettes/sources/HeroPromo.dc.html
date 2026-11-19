@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Publicité promotion de la gamme</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap">
+<style>
+body{margin:0;background:#0f0f0f}
+</style>
+</helmet>
+<div style="width: 1440px; height: 900px; overflow: hidden; background: #0f0f0f; color: #f8f8f8; font-family: Inter, system-ui, sans-serif; display: flex; flex-direction: column">
+  <div style="background: #d4af37; color: #0f0f0f; font-size: 14px; font-weight: 500; text-align: center; padding: 8px">Retrait gratuit au salon · Livraison à Dakar · Paiement à la réception</div>
+  <header style="display: flex; align-items: center; justify-content: space-between; padding: 14px 64px; border-bottom: 1px solid #262626">
+    <img src="/_blob/b045178ca526d3f19e76303ddeff1499" alt="Dabo Hair" style="height: 48px">
+    <nav style="display: flex; gap: 34px; font-size: 15px; font-weight: 500"><span style="color: #d4af37">Nos gammes</span><span>Boutique</span><span>Prestations</span><span>Le salon</span></nav>
+    <span style="background: #d4af37; color: #0f0f0f; padding: 10px 20px; border-radius: 999px; font-size: 14px; font-weight: 600">Réserver</span>
+  </header>
+
+  <section aria-roledescription="carrousel" aria-label="Offres du moment" style="flex: 1; padding: 36px 64px 28px; display: flex; flex-direction: column; gap: 22px">
+    <div style="display: grid; grid-template-columns: 5fr 7fr; gap: 48px; align-items: stretch; flex: 1">
+      <div style="display: flex; flex-direction: column; justify-content: center; gap: 18px">
+        <span style="align-self: flex-start; border: 1px solid #d4af37; color: #d4af37; font-size: 12px; font-weight: 600; letter-spacing: 1.6px; text-transform: uppercase; padding: 7px 13px; border-radius: 999px">Offre limitée · 20 gammes</span>
+        <h1 style="margin: 0; font-family: 'Playfair Display', serif; font-size: 54px; font-weight: 600; line-height: 1.06">Six soins pour des cheveux à l’état pur</h1>
+        <p style="margin: 0; font-size: 17px; line-height: 1.65; color: #c9c4b8">La routine complète Dabo Hair à prix réduit, jusqu’à épuisement des 20 gammes en promotion.</p>
+        <ul style="margin: 0; padding: 0; list-style: none; display: flex; flex-wrap: wrap; gap: 8px">
+          <sc-for list="{{products}}" as="p" hint-placeholder-count="6">
+            <li style="border: 1px solid #333; border-radius: 999px; padding: 7px 13px; font-size: 14px; color: #e6e1d6">{{p}}</li>
+          </sc-for>
+        </ul>
+        <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 4px">
+          <div style="display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap">
+            <strong style="font-size: 40px; color: #d4af37">10 000 F CFA</strong>
+            <s style="font-size: 20px; color: #8a857b">15 000 F</s>
+            <span style="background: #d4af37; color: #0f0f0f; font-size: 13px; font-weight: 700; padding: 4px 10px; border-radius: 999px">−5 000 F</span>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 6px; max-width: 420px">
+            <div style="display: flex; justify-content: space-between; font-size: 14px"><span style="color: #e6e1d6; font-weight: 600">Plus que 12 gammes sur 20</span><span style="color: #a3a3a3">calculé sur le stock</span></div>
+            <div style="height: 6px; border-radius: 999px; background: #2b2516; overflow: hidden"><div style="width: 60%; height: 100%; background: #d4af37"></div></div>
+          </div>
+          <p style="margin: 0; font-size: 14px; color: #c9c4b8">Paiement à la réception · Livraison à Dakar ou retrait gratuit au salon</p>
+        </div>
+        <div style="display: flex; gap: 12px; margin-top: 4px">
+          <span style="background: #d4af37; color: #0f0f0f; font-weight: 600; font-size: 16px; padding: 15px 26px; border-radius: 999px">Profiter de l’offre</span>
+          <span style="border: 1px solid #3a3a3a; font-size: 16px; padding: 15px 24px; border-radius: 999px">Voir les 6 produits</span>
+        </div>
+      </div>
+      <div style="position: relative; border-radius: 26px; overflow: hidden; border: 1px solid #2b2516; min-height: 0">
+        <img src="/_blob/7ca124c6b8b47b7bc01788de195ebb33" alt="Les six soins Dabo Hair sur une table : Leave In, sérum, masque, crème, spray hydratant et shampooing" style="width: 100%; height: 100%; object-fit: cover; object-position: 55% 58%">
+        <span style="position: absolute; left: 18px; bottom: 18px; background: rgba(15,15,15,.85); color: #f8f8f8; font-size: 13px; padding: 8px 13px; border-radius: 10px">Seulement 20 gammes en promotion</span>
+      </div>
+    </div>
+    <div style="display: flex; align-items: center; justify-content: space-between">
+      <span style="font-size: 14px; color: #a3a3a3">1 / 3</span>
+      <div style="display: flex; align-items: center; gap: 6px">
+        <span style="display: block; width: 28px; height: 8px; border-radius: 999px; background: #d4af37"></span>
+        <span style="display: block; width: 8px; height: 8px; border-radius: 999px; background: #4a4335"></span>
+        <span style="display: block; width: 8px; height: 8px; border-radius: 999px; background: #4a4335"></span>
+      </div>
+      <div style="display: flex; gap: 10px">
+        <span aria-label="Publicité précédente" style="width: 44px; height: 44px; border: 1px solid #333; border-radius: 999px; display: grid; place-items: center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#f8f8f8" stroke-width="2" aria-hidden="true"><path d="m15 18-6-6 6-6"></path></svg></span>
+        <span aria-label="Publicité suivante" style="width: 44px; height: 44px; border: 1px solid #333; border-radius: 999px; display: grid; place-items: center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#f8f8f8" stroke-width="2" aria-hidden="true"><path d="m9 18 6-6-6-6"></path></svg></span>
+      </div>
+    </div>
+  </section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return { products: ['Shampooing', 'Masque', 'Leave In', 'Crème', 'Sérum', 'Spray hydratant'] };
+  }
+}
+</script>
+</body>
+</html>

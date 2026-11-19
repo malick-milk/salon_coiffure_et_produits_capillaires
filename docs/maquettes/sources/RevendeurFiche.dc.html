@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Relevé point de retrait</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600&display=swap">
+<style>
+body{margin:0;background:#f4f4f5}
+input[type=number]{width:72px}
+</style>
+</helmet>
+<div style="width: 100%; min-width: 1200px; min-height: 1180px; background: #f4f4f5; color: #0f0f0f; font-family: Inter, system-ui, sans-serif; padding: 32px 40px; box-sizing: border-box; display: flex; flex-direction: column; gap: 20px">
+  <div style="display: flex; justify-content: space-between; align-items: flex-end">
+    <div>
+      <span style="font-size: 13px; color: #52525b">Points de retrait / Thiès</span>
+      <h1 style="margin: 4px 0 0; font-family: 'Playfair Display', serif; font-size: 30px; font-weight: 600">Boutique de Moussa Diop · Thiès</h1>
+      <p style="margin: 6px 0 0; color: #52525b">Vend au prix du site · commission 10 % · Point de retrait : Marché central · Versement au plus tard le 5</p>
+    </div>
+    <div role="tablist" style="display: flex; gap: 8px">
+      <sc-for list="{{tabs}}" as="t" hint-placeholder-count="3">
+        <button type="button" role="tab" aria-selected="{{t.selected}}" onClick="{{t.go}}" style="{{t.style}}">{{t.label}}</button>
+      </sc-for>
+    </div>
+  </div>
+
+  <sc-if value="{{isStatement}}" hint-placeholder-val="true">
+    <div style="background: #fff; border: 1px solid #e4e4e7; border-radius: 16px; padding: 22px 24px; display: flex; flex-direction: column; gap: 16px">
+      <div style="display: flex; justify-content: space-between; align-items: center">
+        <div><strong style="font-size: 18px">Relevé d'octobre 2026</strong><br><span style="font-size: 13px; color: #52525b">Saisissez ce qui reste dans la boutique partenaire : le site calcule ce qui a été vendu.</span></div>
+        <span style="font-size: 13px; color: #52525b">dont 3 commandes en ligne remises aux clientes (incluses dans les vendus)</span>
+      </div>
+      <table style="width: 100%; border-collapse: collapse; font-size: 14px">
+        <thead><tr style="text-align: right; color: #52525b; font-size: 12px; border-bottom: 1px solid #e4e4e7">
+          <th style="text-align: left; padding: 10px 6px">Produit</th><th style="padding: 10px 6px">Prix du site</th><th style="padding: 10px 6px">Reste au 1er oct.</th><th style="padding: 10px 6px">Livrés</th>
+          <th style="padding: 10px 6px">Reste compté</th><th style="padding: 10px 6px">Abîmés / perdus</th><th style="padding: 10px 6px">Vendus</th><th style="padding: 10px 6px">Montant</th>
+        </tr></thead>
+        <tbody>
+          <sc-for list="{{lines}}" as="l" hint-placeholder-count="5">
+            <tr style="border-bottom: 1px solid #f4f4f5; text-align: right">
+              <td style="text-align: left; padding: 10px 6px; font-weight: 600">{{l.name}}</td>
+              <td style="padding: 10px 6px">{{l.priceLabel}}</td>
+              <td style="padding: 10px 6px">{{l.start}}</td>
+              <td style="padding: 10px 6px">{{l.delivered}}</td>
+              <td style="padding: 6px"><input type="number" min="0" value="{{l.counted}}" onInput="{{l.setCounted}}" aria-label="{{l.ariaCounted}}" style="padding: 8px; border: 1px solid #a1a1aa; border-radius: 8px; font: inherit; text-align: right"></td>
+              <td style="padding: 6px"><input type="number" min="0" value="{{l.damaged}}" onInput="{{l.setDamaged}}" aria-label="{{l.ariaDamaged}}" style="padding: 8px; border: 1px solid #a1a1aa; border-radius: 8px; font: inherit; text-align: right"></td>
+              <td style="padding: 10px 6px; font-weight: 600; color: {{l.soldColor}}">{{l.sold}}</td>
+              <td style="padding: 10px 6px">{{l.amount}}</td>
+            </tr>
+          </sc-for>
+        </tbody>
+      </table>
+      <div style="display: grid; grid-template-columns: 1fr 380px; gap: 24px; align-items: start">
+        <div style="background: #fff7e6; border: 1px solid #f0d9a8; border-radius: 12px; padding: 14px 16px; font-size: 14px; line-height: 1.6">
+          <strong>Écart à vérifier</strong> : Moussa a déclaré 63 produits vendus, le comptage en donne {{soldTotal}}. Notez l'explication avant de valider (oubli, vente non déclarée…).
+        </div>
+        <dl style="margin: 0; display: grid; grid-template-columns: 1fr auto; gap: 8px 16px; font-size: 15px">
+          <dt>Ventes au prix du site</dt><dd style="margin: 0; text-align: right">{{sales}}</dd>
+          <dt>Commission 10 %</dt><dd style="margin: 0; text-align: right">{{commission}}</dd>
+          <dt>Abîmés / perdus déduits</dt><dd style="margin: 0; text-align: right; color: #b91c1c">− {{damagedValue}}</dd>
+          <dt style="font-weight: 600">Commission nette</dt><dd style="margin: 0; text-align: right; font-weight: 600">{{netCommission}}</dd>
+          <dt style="font-weight: 700; font-size: 17px; border-top: 1px solid #e4e4e7; padding-top: 8px">À reverser avant le 5</dt><dd style="margin: 0; text-align: right; font-weight: 700; font-size: 17px; border-top: 1px solid #e4e4e7; padding-top: 8px">{{due}}</dd>
+        </dl>
+      </div>
+      <div style="display: flex; gap: 10px; justify-content: flex-end">
+        <span style="border: 1px solid #a1a1aa; padding: 12px 18px; border-radius: 999px">Enregistrer le brouillon</span>
+        <span style="background: #0f0f0f; color: #f8f8f8; font-weight: 600; padding: 12px 20px; border-radius: 999px">Valider : facture + relevé PDF</span>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{isDelivery}}" hint-placeholder-val="false">
+    <div style="background: #fff; border: 1px solid #e4e4e7; border-radius: 16px; padding: 22px 24px; display: flex; flex-direction: column; gap: 14px; max-width: 760px">
+      <strong style="font-size: 18px">Livraison de novembre</strong>
+      <span style="font-size: 13px; color: #52525b">Les quantités sortent du stock « Dabo Hair » et passent dans le stock « point de retrait de Thiès ». Elles restent à vous.</span>
+      <sc-for list="{{delivery}}" as="d" hint-placeholder-count="5">
+        <div style="display: grid; grid-template-columns: 1fr 120px 120px; gap: 12px; align-items: center; font-size: 14px; border-bottom: 1px solid #f4f4f5; padding-bottom: 8px"><span>{{d.name}}</span><span style="text-align: right">{{d.qty}} unités</span><span style="text-align: right; color: #52525b">{{d.value}}</span></div>
+      </sc-for>
+      <div style="display: flex; justify-content: space-between; font-weight: 700"><span>Valeur confiée (prix du site)</span><span>276 000 F</span></div>
+      <span style="align-self: flex-end; background: #0f0f0f; color: #f8f8f8; font-weight: 600; padding: 12px 20px; border-radius: 999px">Enregistrer et générer le bon de dépôt</span>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{isHistory}}" hint-placeholder-val="false">
+    <div style="background: #fff; border: 1px solid #e4e4e7; border-radius: 16px; padding: 8px 20px 12px">
+      <table style="width: 100%; border-collapse: collapse; font-size: 14px">
+        <thead><tr style="text-align: left; color: #52525b; font-size: 12px; border-bottom: 1px solid #e4e4e7"><th style="padding: 12px 8px">Mois</th><th style="padding: 12px 8px">Vendus</th><th style="padding: 12px 8px">Ventes</th><th style="padding: 12px 8px">Commission nette</th><th style="padding: 12px 8px">Versé</th><th style="padding: 12px 8px">Documents</th></tr></thead>
+        <tbody>
+          <tr style="border-bottom: 1px solid #f4f4f5"><td style="padding: 12px 8px">Septembre</td><td style="padding: 12px 8px">55</td><td style="padding: 12px 8px">175 000 F</td><td style="padding: 12px 8px">17 500 F</td><td style="padding: 12px 8px; color: #14532d">157 500 F le 4 oct.</td><td style="padding: 12px 8px; color: #8a6a12">Bon de dépôt · Relevé · Facture</td></tr>
+          <tr><td style="padding: 12px 8px">Août</td><td style="padding: 12px 8px">48</td><td style="padding: 12px 8px">152 000 F</td><td style="padding: 12px 8px">15 200 F</td><td style="padding: 12px 8px; color: #b91c1c">136 800 F le 7 sept. (en retard)</td><td style="padding: 12px 8px; color: #8a6a12">Bon de dépôt · Relevé · Facture</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1180}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { tab: 0, counted: [8, 10, 3, 5, 6], damaged: [1, 0, 0, 1, 0] };
+  }
+  renderVals() {
+    const base = [
+      { name: 'Sérum Activ’Pousse 30 ml', price: 3000, start: 6, delivered: 24 },
+      { name: 'Crème capillaire', price: 3000, start: 4, delivered: 24 },
+      { name: 'Shampooing sans sulfate', price: 3000, start: 2, delivered: 12 },
+      { name: 'Spray hydratant 250 ml', price: 5000, start: 0, delivered: 12 },
+      { name: 'Masque à la kératine', price: 3000, start: 3, delivered: 12 }
+    ];
+    const f = n => n.toLocaleString('fr-FR') + ' F';
+    const { counted, damaged } = this.state;
+    const set = (key, i) => (e) => {
+      const v = Math.max(0, parseInt(e.target.value || '0', 10) || 0);
+      const next = [...this.state[key]]; next[i] = v; this.setState({ [key]: next });
+    };
+    let sales = 0, damagedValue = 0, soldTotal = 0;
+    const lines = base.map((p, i) => {
+      const sold = p.start + p.delivered - counted[i] - damaged[i];
+      sales += Math.max(sold, 0) * p.price; damagedValue += damaged[i] * p.price; soldTotal += sold;
+      return {
+        ...p, priceLabel: f(p.price), counted: counted[i], damaged: damaged[i], sold,
+        soldColor: sold < 0 ? '#b91c1c' : '#0f0f0f', amount: f(Math.max(sold, 0) * p.price),
+        setCounted: set('counted', i), setDamaged: set('damaged', i),
+        ariaCounted: 'Reste compté : ' + p.name, ariaDamaged: 'Abîmés ou perdus : ' + p.name
+      };
+    });
+    const commission = Math.round(sales * 0.10);
+    const net = Math.max(commission - damagedValue, 0);
+    const tabStyle = n => 'font: inherit; font-size: 15px; padding: 11px 18px; border-radius: 999px; cursor: pointer; ' + (n === this.state.tab ? 'background: #0f0f0f; color: #f8f8f8; border: 1px solid #0f0f0f; font-weight: 600' : 'background: #fff; color: #0f0f0f; border: 1px solid #d4d4d8');
+    return {
+      lines, soldTotal,
+      sales: f(sales), commission: f(commission), damagedValue: f(damagedValue), netCommission: f(net), due: f(sales - net),
+      isStatement: this.state.tab === 0, isDelivery: this.state.tab === 1, isHistory: this.state.tab === 2,
+      tabs: ['Relevé du mois', 'Livraison', 'Historique'].map((label, n) => ({ label, selected: n === this.state.tab ? 'true' : 'false', go: () => this.setState({ tab: n }), style: tabStyle(n) })),
+      delivery: [['Sérum Activ’Pousse 30 ml', 24, 3000], ['Crème capillaire', 24, 3000], ['Shampooing sans sulfate', 12, 3000], ['Spray hydratant 250 ml', 12, 5000], ['Masque à la kératine', 12, 3000]].map(([name, qty, p]) => ({ name, qty, value: f(qty * p) }))
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>ERP publicités</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600&display=swap">
+<style>
+body{margin:0;background:#0f0f0f}
+</style>
+</helmet>
+<div style="width: 100%; min-width: 1200px; min-height: 940px; background: #0f0f0f; color: #f8f8f8; font-family: Inter, system-ui, sans-serif; display: grid; grid-template-columns: 240px 1fr">
+  <aside style="background: #141414; border-right: 1px solid #262626; padding: 24px 16px; display: flex; flex-direction: column; gap: 4px; font-size: 15px">
+    <strong style="color: #d4af37; letter-spacing: 3px; padding: 0 12px 20px">DABO · ERP</strong>
+    <span style="padding: 10px 12px; color: #a3a3a3">Tableau de bord</span>
+    <span style="padding: 10px 12px; color: #a3a3a3">Commandes</span>
+    <span style="padding: 10px 12px; color: #a3a3a3">Produits et gammes</span>
+    <span style="padding: 10px 12px; color: #a3a3a3">Rendez-vous</span>
+    <span style="padding: 10px 12px; background: #2b2516; color: #d4af37; border-radius: 10px; font-weight: 600">Publicités</span>
+    <span style="padding: 10px 12px; color: #a3a3a3">Analyses</span>
+  </aside>
+  <main style="padding: 32px 40px; display: flex; flex-direction: column; gap: 24px">
+    <div style="display: flex; justify-content: space-between; align-items: center">
+      <div><h1 style="margin: 0; font-family: 'Playfair Display', serif; font-size: 30px; font-weight: 600">Publicités de l'accueil</h1><p style="margin: 6px 0 0; color: #a3a3a3">3 au maximum dans le carrousel. Glissez pour changer l'ordre.</p></div>
+      <span style="background: #d4af37; color: #0f0f0f; font-weight: 600; padding: 12px 20px; border-radius: 999px">Nouvelle publicité</span>
+    </div>
+    <div style="display: grid; grid-template-columns: 1fr 440px; gap: 24px; align-items: start">
+      <div style="display: flex; flex-direction: column; gap: 12px">
+        <sc-for list="{{ads}}" as="a" hint-placeholder-count="4">
+          <button type="button" onClick="{{a.pick}}" style="{{a.style}}">
+            <span style="color: #6b6b6b; font-size: 18px; cursor: grab" aria-hidden="true">⋮⋮</span>
+            <img src="{{a.image}}" alt="" style="width: 96px; height: 64px; border-radius: 10px; object-fit: cover; object-position: center 85%">
+            <span style="display: flex; flex-direction: column; gap: 4px; text-align: left; flex: 1"><strong style="font-size: 16px">{{a.title}}</strong><span style="font-size: 13px; color: #a3a3a3">{{a.dates}}</span></span>
+            <span style="{{a.badgeStyle}}">{{a.status}}</span>
+          </button>
+        </sc-for>
+      </div>
+      <form style="background: #141414; border: 1px solid #262626; border-radius: 20px; padding: 24px; display: flex; flex-direction: column; gap: 14px" onSubmit="{{noop}}">
+        <strong style="font-size: 17px">Modifier : {{cur.title}}</strong>
+        <label style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; color: #a3a3a3">Image (JPG ou WebP, 1600 × 1000 px conseillé)
+          <span style="display: flex; gap: 12px; align-items: center"><img src="{{cur.image}}" alt="" style="width: 120px; height: 76px; border-radius: 10px; object-fit: cover; object-position: center 85%"><span style="border: 1px dashed #444; padding: 10px 14px; border-radius: 10px; color: #f8f8f8">Remplacer l'image</span></span>
+        </label>
+        <label style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; color: #a3a3a3">Petit titre<input value="{{cur.eyebrow}}" style="background: #0f0f0f; border: 1px solid #333; color: #f8f8f8; padding: 11px 12px; border-radius: 10px; font: inherit; font-size: 15px"></label>
+        <label style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; color: #a3a3a3">Titre (60 caractères max.)<input value="{{cur.title}}" style="background: #0f0f0f; border: 1px solid #333; color: #f8f8f8; padding: 11px 12px; border-radius: 10px; font: inherit; font-size: 15px"></label>
+        <label style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; color: #a3a3a3">Texte du bouton<input value="{{cur.cta}}" style="background: #0f0f0f; border: 1px solid #333; color: #f8f8f8; padding: 11px 12px; border-radius: 10px; font: inherit; font-size: 15px"></label>
+        <label style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; color: #a3a3a3">Le bouton mène vers<span style="background: #0f0f0f; border: 1px solid #333; color: #f8f8f8; padding: 11px 12px; border-radius: 10px; font-size: 15px">{{cur.target}}</span></label>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px">
+          <label style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; color: #a3a3a3">Début<span style="background: #0f0f0f; border: 1px solid #333; color: #f8f8f8; padding: 11px 12px; border-radius: 10px; font-size: 15px">{{cur.start}}</span></label>
+          <label style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; color: #a3a3a3">Fin (facultatif)<span style="background: #0f0f0f; border: 1px solid #333; color: #f8f8f8; padding: 11px 12px; border-radius: 10px; font-size: 15px">{{cur.end}}</span></label>
+        </div>
+        <div style="display: flex; gap: 10px; margin-top: 6px"><span style="flex: 1; text-align: center; background: #d4af37; color: #0f0f0f; font-weight: 600; padding: 13px; border-radius: 999px">Enregistrer</span><span style="border: 1px solid #333; padding: 13px 18px; border-radius: 999px">Aperçu</span></div>
+        <span style="font-size: 12px; color: #a3a3a3">Le prix affiché vient du produit ou de la gamme liée : il se met à jour tout seul.</span>
+      </form>
+    </div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":940}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { sel: 0 }; }
+  renderVals() {
+    const ads = [
+      { title: 'La routine complète', eyebrow: 'Offre coffret', cta: 'Commander le coffret', target: 'Gamme : La routine complète', start: '05/11/2026', end: '—', status: 'En ligne', image: '/_blob/6d18d32423e2d549a66ead9a482aa2fc' },
+      { title: 'Le trio essentiel', eyebrow: 'Offre coffret', cta: 'Commander le trio', target: 'Gamme : Le trio essentiel', start: '05/11/2026', end: '—', status: 'En ligne', image: '/_blob/7f2ca7d747f7686f61fbd820fe537fad' },
+      { title: 'Masque à la kératine', eyebrow: 'Nouveau', cta: 'Découvrir le masque', target: 'Produit : Masque capillaire', start: '05/11/2026', end: '31/12/2026', status: 'En ligne', image: '/_blob/e174ac64d7a92a88bcdbf9043f99a3ae' },
+      { title: 'Tabaski : twists à -10 %', eyebrow: 'Salon', cta: 'Réserver', target: 'Page Prestations', start: '20/05/2027', end: '27/05/2027', status: 'Programmée', image: '/_blob/ef98f72528e3f2b45a2e5aa4702b0655' }
+    ];
+    const s = this.state.sel;
+    return {
+      cur: ads[s],
+      noop: (e) => e && e.preventDefault && e.preventDefault(),
+      ads: ads.map((a, n) => ({
+        ...a,
+        dates: 'Du ' + a.start + (a.end === '—' ? ', sans fin' : ' au ' + a.end),
+        pick: () => this.setState({ sel: n }),
+        style: 'display: flex; align-items: center; gap: 14px; width: 100%; font: inherit; color: #f8f8f8; padding: 12px 16px; border-radius: 16px; cursor: pointer; background: #141414; border: 1px solid ' + (n === s ? '#d4af37' : '#262626'),
+        badgeStyle: 'font-size: 12px; font-weight: 600; padding: 5px 10px; border-radius: 999px; ' + (a.status === 'En ligne' ? 'background: #16201a; color: #9fd69a' : 'background: #1c2230; color: #9cb8e8')
+      }))
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Documents point de retrait</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Josefin+Sans:wght@300;400&display=swap">
+<style>
+body{margin:0;background:#3f3f46}
+td,th{padding:7px 6px}
+</style>
+</helmet>
+<div style="width: 1440px; min-height: 1160px; background: #3f3f46; padding: 48px; box-sizing: border-box; display: grid; grid-template-columns: 1fr 1fr; gap: 48px; font-family: Inter, system-ui, sans-serif; color: #0f0f0f">
+  <sc-for list="{{docs}}" as="d" hint-placeholder-count="2">
+    <div style="display: flex; flex-direction: column; gap: 12px">
+      <span style="color: #f8f8f8; font-size: 15px"><strong>{{d.when}}</strong> · {{d.why}}</span>
+      <article style="background: #fff; aspect-ratio: 1 / 1.414; padding: 44px 46px; box-sizing: border-box; display: flex; flex-direction: column; gap: 18px; font-size: 13px; box-shadow: 0 20px 40px rgba(0,0,0,.35)">
+        <header style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid #d4af37; padding-bottom: 14px">
+          <div style="display: flex; gap: 12px; align-items: center">
+            <img src="/_blob/6f5dfacf95bdbec5ba479114a3028e99" alt="" style="width: 54px; height: 54px; border-radius: 999px">
+            <div><strong style="font-family: 'Josefin Sans', sans-serif; font-weight: 400; letter-spacing: 4px; font-size: 18px">DABO HAIR</strong><br><span style="color: #52525b; font-size: 11px">Dakar, Sénégal · NINEA [à renseigner] · RCCM [à renseigner]</span></div>
+          </div>
+          <div style="text-align: right"><strong style="font-size: 18px">{{d.title}}</strong><br><span>{{d.number}}</span><br><span style="color: #52525b">{{d.date}}</span></div>
+        </header>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px">
+          <div><span style="color: #52525b; font-size: 11px; text-transform: uppercase; letter-spacing: 1px">Point de retrait partenaire</span><br><strong>Boutique de Moussa Diop</strong><br>Marché central, Thiès<br>77 *** 12 34</div>
+          <div><span style="color: #52525b; font-size: 11px; text-transform: uppercase; letter-spacing: 1px">{{d.metaLabel}}</span><br>{{d.meta}}</div>
+        </div>
+        <table style="width: 100%; border-collapse: collapse">
+          <thead><tr style="background: #f4f4f5; text-align: right; font-size: 11px; color: #52525b"><th style="text-align: left">Produit</th><sc-for list="{{d.cols}}" as="c" hint-placeholder-count="3"><th>{{c}}</th></sc-for></tr></thead>
+          <tbody>
+            <sc-for list="{{d.rows}}" as="r" hint-placeholder-count="5">
+              <tr style="border-bottom: 1px solid #f4f4f5; text-align: right"><td style="text-align: left">{{r.name}}</td><sc-for list="{{r.cells}}" as="v" hint-placeholder-count="3"><td>{{v}}</td></sc-for></tr>
+            </sc-for>
+          </tbody>
+        </table>
+        <dl style="margin: 0 0 0 auto; width: 300px; display: grid; grid-template-columns: 1fr auto; gap: 6px 12px">
+          <sc-for list="{{d.totals}}" as="t" hint-placeholder-count="3"><dt style="{{t.style}}">{{t.label}}</dt><dd style="margin: 0; text-align: right; {{t.style}}">{{t.value}}</dd></sc-for>
+        </dl>
+        <p style="margin: 0; color: #3f3f46; line-height: 1.6; font-size: 12px">{{d.note}}</p>
+        <footer style="margin-top: auto; display: grid; grid-template-columns: 1fr 1fr; gap: 24px">
+          <div style="border-top: 1px solid #a1a1aa; padding-top: 6px; color: #52525b">Pour Dabo Hair</div>
+          <div style="border-top: 1px solid #a1a1aa; padding-top: 6px; color: #52525b">Le partenaire (signature, « lu et approuvé »)</div>
+        </footer>
+      </article>
+    </div>
+  </sc-for>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1160}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const f = n => n.toLocaleString('fr-FR') + ' F';
+    const p = [['Sérum Activ’Pousse 30 ml', 3000, 24, 21], ['Crème capillaire', 3000, 24, 18], ['Shampooing sans sulfate', 3000, 12, 11], ['Spray hydratant 250 ml', 5000, 12, 6], ['Masque à la kératine', 3000, 12, 9]];
+    const bold = 'font-weight: 700; font-size: 15px; border-top: 1px solid #e4e4e7; padding-top: 6px';
+    return {
+      docs: [
+        {
+          when: 'À chaque livraison', why: 'prouve ce que la boutique partenaire a reçu. Ce n’est pas une vente : les produits restent à Dabo Hair.',
+          title: 'BON DE DÉPÔT', number: 'BD-2026-000014', date: 'Livré le 2 novembre 2026', metaLabel: 'Conditions',
+          meta: 'Dépôt-vente · prix de vente imposé : prix du site · commission 10 % · relevé et versement au plus tard le 5 du mois suivant',
+          cols: ['Prix du site', 'Quantité', 'Valeur'],
+          rows: p.map(([name, price, qty]) => ({ name, cells: [f(price), String(qty), f(price * qty)] })),
+          totals: [{ label: 'Total des produits confiés', value: '84', style: '' }, { label: 'Valeur confiée', value: '276 000 F', style: bold }],
+          note: 'Les produits restent la propriété de Dabo Hair jusqu’à leur vente et se vendent au prix affiché sur dabohair.com. Tout produit abîmé ou perdu est déduit de la commission du partenaire, à sa valeur au prix du site.'
+        },
+        {
+          when: 'À la fin du mois', why: 'facture les seuls produits vendus, calcule la commission et le montant à verser avant le 5.',
+          title: 'FACTURE', number: 'FAC-2026-000187', date: 'Relevé d’octobre · émise le 1er novembre 2026', metaLabel: 'Relevé du mois',
+          meta: 'Reste au 1er oct. 15 · livrés 84 · reste compté 32 · abîmés 2 → vendus 65 (dont 3 retraits de commandes en ligne)',
+          cols: ['Prix du site', 'Vendus', 'Montant'],
+          rows: p.map(([name, price, , sold]) => ({ name, cells: [f(price), String(sold), f(price * sold)] })),
+          totals: [
+            { label: 'Ventes au prix du site', value: '207 000 F', style: '' },
+            { label: 'Commission 10 %', value: '− 20 700 F', style: '' },
+            { label: 'Abîmés / perdus (1 sérum, 1 spray)', value: '+ 8 000 F', style: '' },
+            { label: 'À verser avant le 5 novembre', value: '194 300 F', style: bold }
+          ],
+          note: 'Versement par Wave, Orange Money ou espèces au plus tard le 5. Stock restant dans la boutique partenaire, reporté sur novembre : 32 produits.'
+        }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

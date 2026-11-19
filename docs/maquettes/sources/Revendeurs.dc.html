@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>ERP points de retrait</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600&display=swap">
+<style>
+body{margin:0;background:#f4f4f5}
+</style>
+</helmet>
+<div style="width: 100%; min-width: 1200px; min-height: 900px; background: #f4f4f5; color: #0f0f0f; font-family: Inter, system-ui, sans-serif; display: grid; grid-template-columns: 240px 1fr">
+  <aside style="background: #0f0f0f; color: #f8f8f8; padding: 24px 16px; display: flex; flex-direction: column; gap: 4px; font-size: 15px">
+    <strong style="color: #d4af37; letter-spacing: 3px; padding: 0 12px 20px">DABO · ERP</strong>
+    <span style="padding: 10px 12px; color: #a3a3a3">Tableau de bord</span>
+    <span style="padding: 10px 12px; color: #a3a3a3">Commandes</span>
+    <span style="padding: 10px 12px; color: #a3a3a3">Planning</span>
+    <span style="padding: 10px 12px; color: #a3a3a3">Clients</span>
+    <span style="padding: 10px 12px; background: #262626; color: #d4af37; border-radius: 10px; font-weight: 600">Points de retrait</span>
+    <span style="padding: 10px 12px; color: #a3a3a3">Produits et stock</span>
+    <span style="padding: 10px 12px; color: #a3a3a3">Avis clients</span>
+  </aside>
+  <main style="padding: 32px 40px; display: flex; flex-direction: column; gap: 22px">
+    <div style="display: flex; justify-content: space-between; align-items: flex-end">
+      <div>
+        <h1 style="margin: 0; font-family: 'Playfair Display', serif; font-size: 30px; font-weight: 600">Points de retrait partenaires</h1>
+        <p style="margin: 6px 0 0; color: #52525b">Boutiques partenaires dans les régions : elles gardent un stock confié, remettent les commandes en ligne aux clientes et peuvent vendre au comptoir, au prix du site. Novembre 2026.</p>
+      </div>
+      <span style="background: #0f0f0f; color: #f8f8f8; font-weight: 600; padding: 12px 20px; border-radius: 999px">Ajouter un point de retrait</span>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px">
+      <sc-for list="{{kpis}}" as="k" hint-placeholder-count="4">
+        <div style="background: #fff; border: 1px solid #e4e4e7; border-radius: 16px; padding: 18px 20px; display: flex; flex-direction: column; gap: 4px">
+          <span style="font-size: 13px; color: #52525b">{{k.label}}</span>
+          <strong style="font-size: 26px">{{k.value}}</strong>
+          <span style="font-size: 13px; color: {{k.tone}}">{{k.hint}}</span>
+        </div>
+      </sc-for>
+    </div>
+
+    <div style="background: #fff; border: 1px solid #e4e4e7; border-radius: 16px; padding: 8px 20px 12px">
+      <table style="width: 100%; border-collapse: collapse; font-size: 14px">
+        <thead><tr style="text-align: left; color: #52525b; font-size: 12px; border-bottom: 1px solid #e4e4e7">
+          <th style="padding: 12px 8px">Boutique partenaire</th><th style="padding: 12px 8px">Région</th><th style="padding: 12px 8px">Adresse</th>
+          <th style="padding: 12px 8px; text-align: right">Stock confié</th><th style="padding: 12px 8px; text-align: right">Vendus (oct.)</th>
+          <th style="padding: 12px 8px; text-align: right">Commission</th><th style="padding: 12px 8px; text-align: right">À reverser</th><th style="padding: 12px 8px">Paiement</th><th style="padding: 12px 8px">Écart</th>
+        </tr></thead>
+        <tbody>
+          <sc-for list="{{rows}}" as="r" hint-placeholder-count="4">
+            <tr style="border-bottom: 1px solid #f4f4f5">
+              <td style="padding: 14px 8px"><strong>{{r.name}}</strong><br><span style="color: #71717a; font-size: 12px">{{r.phone}}</span></td>
+              <td style="padding: 14px 8px">{{r.region}}</td>
+              <td style="padding: 14px 8px">{{r.pickup}}</td>
+              <td style="padding: 14px 8px; text-align: right">{{r.stock}}</td>
+              <td style="padding: 14px 8px; text-align: right">{{r.sold}}</td>
+              <td style="padding: 14px 8px; text-align: right">{{r.commission}}</td>
+              <td style="padding: 14px 8px; text-align: right; font-weight: 600">{{r.due}}</td>
+              <td style="padding: 14px 8px"><span style="{{r.payStyle}}">{{r.pay}}</span></td>
+              <td style="padding: 14px 8px; color: {{r.gapColor}}">{{r.gap}}</td>
+            </tr>
+          </sc-for>
+        </tbody>
+      </table>
+    </div>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px">
+      <div style="background: #fff; border: 1px solid #e4e4e7; border-radius: 16px; padding: 18px 20px">
+        <strong>Régions couvertes : 3 sur 14</strong>
+        <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px">
+          <sc-for list="{{regions}}" as="g" hint-placeholder-count="14">
+            <span style="{{g.style}}">{{g.name}}</span>
+          </sc-for>
+        </div>
+      </div>
+      <div style="background: #fff7e6; border: 1px solid #f0d9a8; border-radius: 16px; padding: 18px 20px; font-size: 14px; line-height: 1.6">
+        <strong>Rappel automatique</strong><br>Le 1er du mois, chaque partenaire reçoit un SMS : « Préparez votre relevé des produits restants. Versement à faire au plus tard le 5. » Le 6, un partenaire non payé passe en <strong>retard</strong>.
+      </div>
+    </div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const pill = (bg, c) => `font-size: 12px; font-weight: 600; padding: 5px 10px; border-radius: 999px; background: ${bg}; color: ${c}`;
+    const covered = ['Ziguinchor', 'Sédhiou', 'Kolda', 'Thiès'];
+    return {
+      kpis: [
+        { label: 'Points de retrait actifs', value: '2', hint: 'Casamance et Thiès', tone: '#52525b' },
+        { label: 'Ventes des points de retrait (octobre)', value: '388 000 F', hint: '+18 % sur septembre', tone: '#14532d' },
+        { label: 'À encaisser avant le 5', value: '194 300 F', hint: '1 partenaire', tone: '#8a6a12' },
+        { label: 'Écarts au comptage', value: '1', hint: '2 produits manquants à éclaircir', tone: '#b91c1c' }
+      ],
+      rows: [
+        { name: 'Moussa Diop', phone: '77 *** 12 34', region: 'Thiès', pickup: 'Marché central', stock: '32', sold: '65', commission: '12 700 F', due: '194 300 F', pay: 'À payer avant le 5', payStyle: pill('#fff7e6', '#8a6a12'), gap: '2 manquants', gapColor: '#b91c1c' },
+        { name: 'Awa Badji', phone: '76 *** 45 10', region: 'Ziguinchor, Sédhiou, Kolda', pickup: 'Ziguinchor, quartier Boucotte', stock: '41', sold: '60', commission: '18 100 F', due: '162 900 F', pay: 'Payé le 3', payStyle: pill('#dff3e4', '#14532d'), gap: 'Aucun', gapColor: '#14532d' }
+      ],
+      regions: ['Dakar', 'Diourbel', 'Fatick', 'Kaffrine', 'Kaolack', 'Kédougou', 'Kolda', 'Louga', 'Matam', 'Saint-Louis', 'Sédhiou', 'Tambacounda', 'Thiès', 'Ziguinchor'].map(name => ({
+        name, style: 'font-size: 13px; padding: 6px 10px; border-radius: 999px; ' + (covered.includes(name) ? 'background: #0f0f0f; color: #d4af37' : 'background: #f4f4f5; color: #71717a')
+      }))
+    };
+  }
+}
+</script>
+</body>
+</html>
