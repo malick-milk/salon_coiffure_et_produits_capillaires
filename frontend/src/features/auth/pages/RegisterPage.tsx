@@ -15,6 +15,13 @@ import { useMe, useRegister } from '../hooks'
 import { registerSchema, type RegisterInput, type RegisterValues } from '../schema'
 import { AuthShell } from './LoginPage'
 
+/**
+ * Objet CONSTANT (créé une seule fois) : <Navigate> refait la navigation chaque fois que « state » change.
+ * Écrit en ligne ({ welcome: true }), il changeait à chaque affichage : boucle infinie (« Maximum update depth
+ * exceeded ») pendant le chargement de la page suivante (bug vu par la CI le 19 novembre 2026).
+ */
+const WELCOME = { welcome: true } as const
+
 export function RegisterPage() {
   const [params] = useSearchParams()
   const redirect = customerRedirect(params.get('redirect')) // un compte créé ici est un compte CLIENT : jamais l'ERP
@@ -37,13 +44,13 @@ export function RegisterPage() {
 
   // Dès que la cliente est connectée, ce <Navigate> redirige… AVANT le onSuccess plus bas.
   // submitted dit qu'elle vient de s'inscrire : le panier affiche alors « Bienvenue … »
-  if (me.data) return <Navigate to={redirect} replace state={submitted ? { welcome: true } : undefined} />
+  if (me.data) return <Navigate to={redirect} replace state={submitted ? WELCOME : undefined} />
 
   const onSubmit = (values: RegisterValues) => {
     setSubmitted(true)
     registerUser.mutate(values, {
       // « welcome » : le panier affiche « Bienvenue … : votre prix membre est appliqué »
-      onSuccess: () => navigate(redirect, { replace: true, state: { welcome: true } }),
+      onSuccess: () => navigate(redirect, { replace: true, state: WELCOME }),
       onError: (error) => {
         setSubmitted(false)
         if (apiErrorStatus(error) === 422 && axios.isAxiosError<ValidationErrorBody>(error)) applyServerErrors(error.response?.data.errors, setError)

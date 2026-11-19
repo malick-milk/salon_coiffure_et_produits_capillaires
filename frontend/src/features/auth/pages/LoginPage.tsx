@@ -14,6 +14,13 @@ import { useLogin, useMe } from '../hooks'
 import { isStaff } from '../permissions'
 import { loginSchema, type LoginValues } from '../schema'
 
+/**
+ * Objet CONSTANT (créé une seule fois) : <Navigate> refait la navigation chaque fois que « state » change.
+ * Écrit en ligne ({ welcome: true }), il changeait à chaque affichage : boucle infinie (« Maximum update depth
+ * exceeded ») pendant le chargement de la page suivante (bug vu par la CI le 19 novembre 2026).
+ */
+const WELCOME = { welcome: true } as const
+
 export function LoginPage() {
   const [params] = useSearchParams()
   // Sans redirection demandée, le personnel arrive sur l'ERP et le client sur son espace
@@ -29,12 +36,12 @@ export function LoginPage() {
   })
 
   // welcome : connexion depuis le panier, celui-ci confirme « votre prix membre est appliqué »
-  if (me.data) return <Navigate to={target(me.data)} replace state={submitted ? { welcome: true } : undefined} />
+  if (me.data) return <Navigate to={target(me.data)} replace state={submitted ? WELCOME : undefined} />
 
   const onSubmit = (values: LoginValues) => {
     setSubmitted(true)
     login.mutate(values, {
-      onSuccess: (user) => navigate(target(user), { replace: true, state: { welcome: true } }),
+      onSuccess: (user) => navigate(target(user), { replace: true, state: WELCOME }),
       onError: (error) => {
         setSubmitted(false)
         if (apiErrorStatus(error) === 422 && axios.isAxiosError<ValidationErrorBody>(error)) applyServerErrors(error.response?.data.errors, setError)
