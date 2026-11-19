@@ -44,3 +44,13 @@ export function customerRedirect(value: string | null): string {
   const path = safeRedirect(value)
   return path === '/admin' || path.startsWith('/admin/') || path.startsWith('/admin?') ? '/compte' : path
 }
+
+/**
+ * Destination du PERSONNEL : l'ERP. Bug du 19 novembre 2026 : déconnectée depuis « Mes réservations », la page
+ * de connexion gardait « revenir sur /compte/reservations » ; la gérante y arrivait au lieu de l'ERP.
+ * Une destination dans l'ERP (/admin/commandes…) est gardée ; tout le reste mène au tableau de bord.
+ */
+export function staffRedirect(value: string | null): string {
+  const path = safeRedirect(value, '/admin')
+  return path === '/admin' || path.startsWith('/admin/') || path.startsWith('/admin?') ? path : '/admin'
+}

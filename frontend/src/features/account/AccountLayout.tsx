@@ -24,8 +24,8 @@ export function AccountLayout() {
 
 function AccountShell() {
   const { data: user } = useMe()
-  const logout = useLogout()
   const navigate = useNavigate()
+  const logout = useLogout(() => navigate('/', { replace: true }))
   const unread = useMyNotifications().data?.meta.unread ?? 0
   return (
     <div className="px-4 pt-10 pb-24 sm:px-6">
@@ -44,7 +44,7 @@ function AccountShell() {
           <button
             type="button"
             disabled={logout.isPending}
-            onClick={() => logout.mutate(undefined, { onSuccess: () => navigate('/', { replace: true }) })}
+            onClick={() => logout.mutate()}
             className="flex min-h-12 shrink-0 items-center gap-3 rounded-[10px] px-3.5 text-muted hover:bg-ink lg:mt-2 lg:border-t lg:border-ink-line"
           >
             <LogOut className="size-5" aria-hidden="true" />

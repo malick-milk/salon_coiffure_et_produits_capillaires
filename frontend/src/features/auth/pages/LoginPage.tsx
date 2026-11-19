@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { apiErrorMessage, apiErrorStatus, type ValidationErrorBody } from '@/lib/http'
 import { PasswordInput } from '../components/PasswordInput'
-import { customerRedirect, safeRedirect } from '../components/RequireAuth'
+import { customerRedirect, staffRedirect } from '../components/RequireAuth'
 import { useLogin, useMe } from '../hooks'
 import { isStaff } from '../permissions'
 import { loginSchema, type LoginValues } from '../schema'
@@ -17,8 +17,8 @@ import { loginSchema, type LoginValues } from '../schema'
 export function LoginPage() {
   const [params] = useSearchParams()
   // Sans redirection demandée, le personnel arrive sur l'ERP et le client sur son espace
-  // Une cliente n'est jamais renvoyée vers l'ERP, même si la page demandée était /admin
-  const target = (user: Parameters<typeof isStaff>[0]) => (isStaff(user) ? safeRedirect(params.get('redirect'), '/admin') : customerRedirect(params.get('redirect')))
+  // Le personnel va dans l'ERP, une cliente dans son espace : jamais l'un chez l'autre
+  const target = (user: Parameters<typeof isStaff>[0]) => (isStaff(user) ? staffRedirect(params.get('redirect')) : customerRedirect(params.get('redirect')))
   const navigate = useNavigate()
   const me = useMe()
   const login = useLogin()

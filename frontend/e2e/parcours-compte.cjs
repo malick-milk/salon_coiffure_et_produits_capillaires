@@ -203,6 +203,31 @@ const log = (ok, msg) => { if (!ok) failures++; console.log(`${ok ? 'OK  ' : 'FA
   await page.waitForURL('**/compte')
   log(true, 'Connexion avec le numéro de téléphone (compte sans e-mail)')
 
+  // 13 bis. Bug du 19 novembre 2026 : après une cliente, la gérante se connecte. Elle doit arriver dans l'ERP
+  // et ne JAMAIS voir les réservations de la cliente (elles restaient en mémoire dans le navigateur)
+  await page.getByRole('button', { name: 'Se déconnecter' }).first().click()
+  await page.waitForURL(BASE + '/')
+  await page.goto(BASE + '/connexion?redirect=/compte/reservations')
+  await page.getByLabel('E-mail ou téléphone').fill('mariama@client.test')
+  await page.getByLabel('Mot de passe', { exact: true }).fill('demo-dabo-2026')
+  await page.getByRole('button', { name: 'Se connecter' }).click()
+  await page.getByText(/RDV-2026-\d{6}/).first().waitFor()
+  await page.getByRole('button', { name: 'Se déconnecter' }).first().click()
+  await page.waitForURL(BASE + '/')
+  log(true, 'Déconnexion depuis « Mes réservations » : retour à l’accueil (et non /connexion?redirect=…)')
+  await page.goto(BASE + '/connexion?redirect=/compte/reservations') // comme si la page de la cliente avait été gardée
+  await page.getByLabel('E-mail ou téléphone').fill('admin@dabohair.test')
+  await page.getByLabel('Mot de passe', { exact: true }).fill('admin-dabo-2026')
+  await page.getByRole('button', { name: 'Se connecter' }).click()
+  await page.waitForURL(BASE + '/admin')
+  log(true, 'Gérante connectée après une cliente : arrive dans l’ERP, pas dans l’espace de la cliente')
+  await page.goto(BASE + '/compte/reservations')
+  await page.getByRole('heading', { name: 'Mes réservations' }).waitFor()
+  await page.waitForTimeout(1000)
+  log(await page.getByText(/RDV-2026-\d{6}/).count() === 0, 'Gérante : aucune réservation de la cliente précédente à l’écran')
+  await page.getByRole('button', { name: 'Se déconnecter' }).first().click()
+  await page.waitForURL(BASE + '/')
+
   // 14. Mobile
   const m = await browser.newPage({ viewport: { width: 390, height: 844 }, isMobile: true })
   for (const path of ['/connexion', '/inscription', '/commande', '/panier']) {

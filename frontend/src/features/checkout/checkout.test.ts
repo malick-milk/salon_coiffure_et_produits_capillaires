@@ -1,4 +1,4 @@
-import { customerRedirect, safeRedirect } from '@/features/auth/components/RequireAuth'
+import { customerRedirect, safeRedirect, staffRedirect } from '@/features/auth/components/RequireAuth'
 import { registerSchema } from '@/features/auth/schema'
 import { checkoutSchema } from './schema'
 
@@ -52,6 +52,11 @@ describe('inscription rapide (prénom, téléphone, mot de passe)', () => {
 })
 
 describe('redirection après connexion (anti « open redirect »)', () => {
+  it('le personnel va dans l’ERP, pas dans l’espace de la cliente précédente (bug du 19 novembre 2026)', () => {
+    expect(staffRedirect('/compte/reservations')).toBe('/admin')
+    expect(staffRedirect('/admin/commandes?statut=pending')).toBe('/admin/commandes?statut=pending')
+    expect(staffRedirect(null)).toBe('/admin')
+  })
   it('une cliente n’est jamais renvoyée vers l’ERP (bug du 18 novembre 2026)', () => {
     expect(customerRedirect('/admin')).toBe('/compte')
     expect(customerRedirect('/admin/produits?page=2')).toBe('/compte')

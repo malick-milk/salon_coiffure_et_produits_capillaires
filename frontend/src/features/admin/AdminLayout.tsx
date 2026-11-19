@@ -51,7 +51,7 @@ export function AdminLayout() {
   const { data: user, isPending } = useMe()
   const location = useLocation()
   const navigate = useNavigate()
-  const logout = useLogout()
+  const logout = useLogout(() => navigate('/', { replace: true }))
 
   if (isPending) return <div className="min-h-screen bg-[#f4f4f5] p-8"><Skeleton className="h-64 bg-[#e4e4e7]" /></div>
   if (!user) return <Navigate to={`/connexion?redirect=${encodeURIComponent(location.pathname)}`} replace />
@@ -82,7 +82,7 @@ export function AdminLayout() {
         </div>
         <div className="mt-auto flex flex-col gap-1 border-t border-ink-line pt-4">
           <Link to="/" className="flex min-h-11 items-center gap-3 rounded-[10px] px-3 text-sm text-[#e4e4e7] hover:bg-ink-soft"><Store className="size-[18px]" aria-hidden="true" />Voir le site</Link>
-          <button type="button" onClick={() => logout.mutate(undefined, { onSuccess: () => navigate('/', { replace: true }) })} className="flex min-h-11 items-center gap-3 rounded-[10px] px-3 text-left text-sm text-[#e4e4e7] hover:bg-ink-soft">
+          <button type="button" onClick={() => logout.mutate()} className="flex min-h-11 items-center gap-3 rounded-[10px] px-3 text-left text-sm text-[#e4e4e7] hover:bg-ink-soft">
             <LogOut className="size-[18px]" aria-hidden="true" />Se déconnecter
           </button>
         </div>
