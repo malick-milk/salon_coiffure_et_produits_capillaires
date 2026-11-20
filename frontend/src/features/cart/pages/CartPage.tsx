@@ -7,6 +7,7 @@ import { EmptyState } from '@/components/common/States'
 import { Button } from '@/components/ui/button'
 import { formatPrice } from '@/lib/format'
 import { useMe } from '@/features/auth/hooks'
+import { missingForFreeDelivery, useFreeDeliveryThreshold } from '@/features/checkout/api'
 import { useMemberPricing } from '../memberPrice'
 import { MAX_QUANTITY_PER_ITEM, useCart, useCartCount, useCartSubtotal } from '../store'
 
@@ -19,6 +20,7 @@ export function CartPage() {
   const member = useMemberPricing()
   const me = useMe()
   const total = subtotal - member.discount
+  const missingDelivery = missingForFreeDelivery(useFreeDeliveryThreshold(), total)
   // Retour de l'inscription (ou de la connexion) : on confirme que le prix membre est appliqué
   const welcome = (useLocation().state as { welcome?: boolean } | null)?.welcome && member.applied.length > 0
 
@@ -87,6 +89,7 @@ export function CartPage() {
                   <div className="flex justify-between border-t border-[#e4e4e7] pt-3 text-lg"><span>Total</span><strong>{formatPrice(total)}</strong></div>
                 </>
               )}
+              {missingDelivery !== null && <p className="rounded-lg bg-[#fff8e6] px-3 py-2 text-[13px] font-semibold text-gold-text">Plus que {formatPrice(missingDelivery)} pour la livraison offerte</p>}
               <p className="text-[13px] leading-relaxed text-[#52525b]">Frais de livraison calculés à l'étape suivante selon votre zone. Retrait en boutique gratuit. Les prix sont confirmés par le serveur à la validation.</p>
               <Button asChild variant="dark"><Link to="/commande">{member.signIn ? `Commander sans compte · ${formatPrice(total)}` : 'Valider la commande'}</Link></Button>
               <p className="text-center text-xs text-[#52525b]">Commande possible sans compte. Paiement à la réception.</p>

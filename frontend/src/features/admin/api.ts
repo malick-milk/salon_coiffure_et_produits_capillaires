@@ -3,7 +3,7 @@ import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tansta
 import { http } from '@/lib/http'
 import type { BookingStatus, OrderStatus } from '@/types/api'
 import type {
-  AdminBooking, AdminCustomer, BrandOption, CategoryOption, AdminPromotion, NewProduct, NewPurchaseReceipt, ProductChanges, ProductHistoryEntry, PromotionInput, PromotionResults, PurchaseReceipt, AdminOrderDetail, AdminOrderRow, AdminProduct, AuditEntry, CostCategory, Dashboard,
+  AdminBooking, AdminCustomer, BrandOption, CategoryOption, AdminDeliveryZone, AdminPromotion, DeliveryOverview, NewProduct, NewPurchaseReceipt, ProductChanges, ProductHistoryEntry, PromotionInput, PromotionResults, PurchaseReceipt, AdminOrderDetail, AdminOrderRow, AdminProduct, AuditEntry, CostCategory, Dashboard,
   AdminPickupPoint, AdminSurvey, PageMeta, PickupPointDetail, PickupPointsIndex, StatementPreview, PaymentMethod, ProductionBatch, RoleWithPermissions, StaffRole, StaffUser, StockMovementRow, SurveyFilter, SurveyStats,
 } from '@/types/admin'
 import type { Analytics, ExportDataset } from '@/types/analytics'
@@ -217,3 +217,17 @@ export const useCreatePromotion = () =>
 export const useUpdatePromotion = (id: number) =>
   useAdminMutation(async (v: PromotionInput) => (await http.patch<{ data: AdminPromotion }>(`${A}/promotions/${id}`, v)).data.data, promotionKeys)
 export const useStopPromotion = () => useAdminMutation((id: number) => http.post(`${A}/promotions/${id}/stop`), promotionKeys)
+
+// ---------- Tarifs de livraison (maquette validée le 21 novembre 2026) ----------
+// Les frais changent aussi la page de commande du site : on rafraîchit ['delivery-zones']
+const deliveryKeys = [['admin', 'delivery'], ['delivery-zones']]
+export const useDelivery = () => useQuery({ queryKey: ['admin', 'delivery'], queryFn: () => get<DeliveryOverview>(`${A}/delivery`) })
+export const useCreateDeliveryZone = () =>
+  useAdminMutation(async (v: { name: string; fee: number; delay_label: string | null }) => (await http.post<{ data: AdminDeliveryZone }>(`${A}/delivery-zones`, v)).data.data, deliveryKeys)
+export const useUpdateDeliveryZone = () =>
+  useAdminMutation((v: { id: number } & Partial<Pick<AdminDeliveryZone, 'name' | 'fee' | 'delay_label' | 'is_active'>>) => {
+    const { id, ...body } = v
+    return http.patch(`${A}/delivery-zones/${id}`, body)
+  }, deliveryKeys)
+export const useUpdateDeliverySettings = () =>
+  useAdminMutation((v: { free_delivery_threshold: number | null }) => http.put(`${A}/delivery-settings`, v), deliveryKeys)

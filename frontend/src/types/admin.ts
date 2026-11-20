@@ -419,3 +419,20 @@ export interface PromotionInput {
   audience?: PromotionAudience
   product_ids?: number[]
 }
+
+// ---------- Tarifs de livraison (maquette validée le 21 novembre 2026) ----------
+export interface AdminDeliveryZone {
+  id: number
+  name: string
+  fee: Money
+  delay_label: string | null
+  is_active: boolean // « proposée sur le site »
+  updated_at: string | null
+  orders_30d?: number
+}
+
+export interface DeliveryOverview {
+  zones: AdminDeliveryZone[]
+  free_delivery_threshold: Money | null
+  history: { id: number; event: string | null; causer: string; subject: string | null; changes: { old?: Record<string, unknown>; attributes?: Record<string, unknown> }; created_at: string | null }[]
+}

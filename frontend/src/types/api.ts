@@ -214,6 +214,7 @@ export interface DeliveryZone {
   id: number
   name: string
   fee: Money
+  delay_label?: string | null // délai annoncé (« 24 h », « Le jour même »), réglé dans l'ERP
 }
 
 export interface ShippingAddress {

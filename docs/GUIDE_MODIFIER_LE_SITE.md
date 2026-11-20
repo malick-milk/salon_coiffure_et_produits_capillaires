@@ -51,7 +51,8 @@ Exemples : le prix du sérum se change dans l'ERP. Le titre « L'art du soin cap
 | **Nouveau produit** (y compris d'une autre marque) | ERP → **Produits et stock** → **Nouveau produit** |
 | Photos d'un produit (ajouter, choisir la principale, supprimer) | ERP → **Produits et stock** → bouton **Photos** |
 | Nom, marque, catégorie, contenance, prix, descriptions d'un produit existant | ERP → **Produits et stock** → bouton **Modifier** (la référence et l'adresse web ne changent jamais) |
-| Prestations du salon et leurs prix, coiffeuses, horaires, zones et frais de livraison | pas encore d'écran : `backend/database/seeders/ReferenceDataSeeder.php` |
+| **Zones et frais de livraison**, délai annoncé, livraison offerte à partir d'un montant | ERP → **Livraison** (une zone ne se supprime pas : on la décoche « Sur le site ») |
+| Prestations du salon et leurs prix, coiffeuses, horaires | pas encore d'écran : `backend/database/seeders/ReferenceDataSeeder.php` |
 | Délai avant le rappel de resserrage, pour chaque twist | `backend/database/seeders/ReferenceDataSeeder.php`, constante `RESSERRAGE` (en jours) |
 
 Après une modification d'un fichier **seeder**, appliquez-la sans effacer les commandes, depuis `backend/` :

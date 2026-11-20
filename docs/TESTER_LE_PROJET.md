@@ -384,6 +384,18 @@ Mêmes fenêtres que le Test 4 : Docker allumé, `php artisan serve` et `npm run
 
 Le même parcours tourne tout seul : `node frontend/e2e/parcours-promotions.cjs ./captures`.
 
+**Tarifs de livraison** (ERP, connecté en propriétaire ; base fraîche) :
+
+| À essayer | Résultat attendu |
+|---|---|
+| ERP → **Livraison** | Les 3 zones, leurs frais, le nombre de commandes des 30 derniers jours ; à droite, l'aperçu « Sur le site » |
+| Dakar Plateau : 500, délai « Le jour même » ; décocher Rufisque ; Livraison offerte : Oui, à partir de 10 000 ; Enregistrer | « Tarifs enregistrés… » ; « Dernières modifications » : Dakar Plateau 1 000 → 500 F, Rufisque cachée, livraison offerte 10 000 F |
+| Site : un spray (5 000 F) au panier | « Plus que 5 000 F pour la livraison offerte » |
+| Valider la commande → Livraison | Rufisque n'est plus proposée ; Dakar Plateau — 500 F ; « Délai annoncé : Le jour même » |
+| Deux sprays (10 000 F) | Livraison « Offerte », total 10 000 F, et la commande est enregistrée à 10 000 F |
+
+Le même parcours tourne tout seul : `node frontend/e2e/parcours-livraison.cjs ./captures`.
+
 **La gamme au prix membre** (lancement du 15 décembre ; après `php artisan migrate:fresh --seed`). Dans la démo, la crème est en rupture, donc la gamme aussi : d'abord ERP → **Fabrication** → un lot de 24 « Crème capillaire ». Ensuite, sur le téléphone ou en mode téléphone du navigateur (F12, icône téléphone) :
 
 | À essayer | Résultat attendu |

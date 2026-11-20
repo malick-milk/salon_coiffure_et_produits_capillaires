@@ -167,6 +167,23 @@ ERP → **Promotions** (`PromotionsPages.tsx`, `PromotionAdminController`). Maqu
 
 > Concept d'analyse de données : la promotion est réussie quand le **volume** compense la **remise**. Exemple : −20 % sur le spray (5 000 F, coût 350 F) ; la marge par unité passe de 4 650 F à 3 650 F (−21 %). Il faut donc vendre au moins 4 650 / 3 650 = 1,27 fois plus (+27 %) pour gagner autant par jour. À +100 % de ventes, la marge du jour monte de 57 %.
 
+### 5 quinquies. Tarifs de livraison (21 novembre 2026)
+
+ERP → **Livraison** (`DeliveryPage.tsx`, `DeliveryAdminController`). Maquette validée le 21 novembre 2026. Lecture avec `products.view`, modification avec `products.manage` (propriétaire, gérante).
+
+| Règle | Où |
+|---|---|
+| Chaque zone : nom, frais, **délai annoncé** (« 24 h », « Le jour même »), proposée ou non sur le site | `delivery_zones.delay_label`, `is_active` |
+| Une zone **ne se supprime pas** : on la cache. Les anciennes commandes gardent leur zone et leurs frais | `update()` |
+| Changer des frais vaut pour les **nouvelles** commandes : les frais sont copiés dans la commande au moment où elle est passée | `orders.delivery_fee`, `PlaceOrderAction` |
+| **Livraison offerte** facultative, à partir d'un montant d'achats (hors livraison), dans toutes les zones ; le serveur décide, le navigateur ne fait qu'afficher | `Setting::freeDeliveryThreshold()`, `PlaceOrderAction` |
+| Site : « Plus que 3 000 F pour la livraison offerte » au panier et à la commande, « Offerte » dans le récapitulatif, délai sous la zone choisie | `CartPage`, `CheckoutPage`, `missingForFreeDelivery()` |
+| Chaque changement passe par le journal d'audit (nom de journal `delivery`) ; les 8 derniers s'affichent sur la page | `DeliveryZone` (`LogsActivity`), `updateSettings()` |
+
+> Concept : un **réglage** (le seuil de livraison offerte) n'est pas une ligne de catalogue ; il vit dans la table `settings` (clé `delivery.free_threshold`), lu par `Setting::get` avec un cache de 10 minutes que `Setting::put` vide aussitôt.
+
+**Bug trouvé par le parcours e2e :** le formulaire est recréé après chaque enregistrement (pour repartir des valeurs du serveur), et il emportait avec lui le message « Tarifs enregistrés » : la gérante n'aurait jamais vu la confirmation. Le message vit maintenant dans le composant parent, qui, lui, n'est pas recréé.
+
 ## 6. Le journal d'audit (RG-SEC-01)
 
 `spatie/laravel-activitylog` enregistre automatiquement, avec l'**auteur**, la **date** et les **valeurs avant et après** :

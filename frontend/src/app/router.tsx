@@ -73,6 +73,7 @@ export const router = createBrowserRouter([
       { path: 'produits/nouveau', lazy: async () => ({ Component: (await admin()).NewProductPage }) },
       { path: 'produits/:id/modifier', lazy: async () => ({ Component: (await admin()).EditProductPage }) },
       { path: 'receptions', lazy: async () => ({ Component: (await admin()).PurchaseReceiptsPage }) },
+      { path: 'livraison', lazy: async () => ({ Component: (await admin()).DeliveryPage }) },
       { path: 'promotions', lazy: async () => ({ Component: (await admin()).PromotionsPage }) },
       { path: 'promotions/nouvelle', lazy: async () => ({ Component: (await admin()).PromotionFormPage }) },
       { path: 'promotions/:id/modifier', lazy: async () => ({ Component: (await admin()).PromotionFormPage }) },

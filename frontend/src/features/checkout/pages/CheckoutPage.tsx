@@ -20,7 +20,7 @@ import { formatPrice } from '@/lib/format'
 import { apiErrorMessage, apiErrorStatus, type ValidationErrorBody } from '@/lib/http'
 import { cn } from '@/lib/utils'
 import type { OrderDetail, StockConflict } from '@/types/api'
-import { useDeliveryZones, usePickupPoints, usePlaceOrder } from '../api'
+import { missingForFreeDelivery, useDeliveryZones, useFreeDeliveryThreshold, usePickupPoints, usePlaceOrder } from '../api'
 import { checkoutSchema, type CheckoutInput, type CheckoutValues } from '../schema'
 
 const FORM_ID = 'checkout-form'
@@ -59,7 +59,12 @@ export function CheckoutPage() {
   const zone = zones.data?.find((z) => String(z.id) === zoneId)
   const pointId = useWatch({ control, name: 'pickup_point_id' })
   const point = points.data?.find((p) => String(p.id) === pointId)
-  const shippingFee = method === 'delivery' ? (zone?.fee ?? 0) : 0
+  // Livraison offerte à partir du seuil réglé dans l'ERP (calculé sur les produits, remises déduites) ; le serveur confirme
+  const threshold = useFreeDeliveryThreshold()
+  const productsTotal = subtotal - member.discount
+  const freeDelivery = threshold !== null && productsTotal >= threshold
+  const shippingFee = method === 'delivery' && !freeDelivery ? (zone?.fee ?? 0) : 0
+  const missing = missingForFreeDelivery(threshold, productsTotal)
 
   if (confirmed) return <OrderConfirmation order={confirmed} isGuest={!user} />
   if (items.length === 0) return <Navigate to="/panier" replace />
@@ -164,7 +169,7 @@ export function CheckoutPage() {
               )}
               {method === 'delivery' && (
                 <div className="grid gap-5 pt-2 sm:grid-cols-2">
-                  <Field label="Zone de livraison *" error={errors.delivery_zone_id?.message}>
+                  <Field label="Zone de livraison *" hint={zone?.delay_label ? `Délai annoncé : ${zone.delay_label}` : undefined} error={errors.delivery_zone_id?.message}>
                     {(id, d) => (
                       <select id={id} aria-invalid={!!errors.delivery_zone_id} aria-describedby={d} className="min-h-12 rounded-[10px] border border-[#3a3a3a] bg-ink px-3.5" {...register('delivery_zone_id')}>
                         <option value="">Choisir…</option>
@@ -215,7 +220,8 @@ export function CheckoutPage() {
             <dl className="flex flex-col gap-2 text-[15px]">
               <div className="flex justify-between"><dt className="text-[#52525b]">Sous-total</dt><dd>{formatPrice(subtotal)}</dd></div>
               {member.discount > 0 && <div className="flex justify-between text-[#15803d]"><dt>{member.hasPromotion ? 'Remises' : 'Prix membre'}</dt><dd>−{formatPrice(member.discount)}</dd></div>}
-              <div className="flex justify-between"><dt className="text-[#52525b]">Livraison</dt><dd>{method !== 'delivery' ? 'Gratuite' : zone ? formatPrice(shippingFee) : 'Choisir une zone'}</dd></div>
+              <div className="flex justify-between"><dt className="text-[#52525b]">Livraison</dt><dd>{method !== 'delivery' ? 'Gratuite' : freeDelivery ? 'Offerte' : zone ? formatPrice(shippingFee) : 'Choisir une zone'}</dd></div>
+              {method === 'delivery' && missing !== null && <p className="text-xs text-gold-text">Plus que {formatPrice(missing)} pour la livraison offerte</p>}
               <div className="flex justify-between border-t border-[#e4e4e7] pt-3 text-lg"><dt>Total</dt><dd className="font-semibold">{formatPrice(subtotal - member.discount + shippingFee)}</dd></div>
             </dl>
             <p className="text-[13px] leading-relaxed text-[#52525b]">Paiement à la réception : espèces, Wave, Orange Money ou Free Money. Montant définitif confirmé par le serveur.</p>
