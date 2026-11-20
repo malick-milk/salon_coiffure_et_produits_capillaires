@@ -30,7 +30,7 @@ class ErrorReporter
     {
         $this->record('server', $e::class, $e->getMessage(), $this->relative($e->getFile()).':'.$e->getLine(), [
             'route' => request()->route()?->uri(), 'method' => request()->method(),
-            'trace' => collect($e->getTrace())->take(5)->map(fn ($f) => ($f['class'] ?? '').($f['type'] ?? '').($f['function'] ?? '').(isset($f['line']) ? ':'.$f['line'] : ''))->all(),
+            'trace' => collect($e->getTrace())->take(5)->map(fn ($f) => ($f['class'] ?? '').($f['type'] ?? '').$f['function'].(isset($f['line']) ? ':'.$f['line'] : ''))->all(),
         ]);
     }
 
