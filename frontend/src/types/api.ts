@@ -54,6 +54,16 @@ export interface ProductSummary {
   is_bundle?: boolean // gamme : plusieurs soins vendus ensemble
   member_price?: Money | null // prix réservé aux clientes connectées (lancement du 15 décembre)
   member_offer?: MemberOffer | null
+  promotion?: ProductPromotion | null // promotion en cours (le prix initial « price » ne change pas)
+}
+
+/** Promotion en cours sur un produit ; applies : vaut-elle pour CETTE visiteuse (« membres » : il faut un compte) */
+export interface ProductPromotion {
+  percent: number
+  price: Money
+  ends_on: string
+  audience: 'all' | 'members'
+  applies: boolean
 }
 
 /**

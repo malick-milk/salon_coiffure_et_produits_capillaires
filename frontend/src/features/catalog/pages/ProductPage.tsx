@@ -13,7 +13,7 @@ import { apiErrorMessage, apiErrorStatus } from '@/lib/http'
 import { cn } from '@/lib/utils'
 import { NotFoundPage } from '@/pages/NotFoundPage'
 import { hasMemberOffer, MemberCounter, MemberPriceBlock } from '../components/MemberOffer'
-import { stockLabel } from '../components/ProductCard'
+import { stockLabel, untilLabel } from '../components/ProductCard'
 import { useProduct } from '../hooks'
 
 export function ProductPage() {
@@ -86,11 +86,28 @@ export function ProductPage() {
                 <MemberPriceBlock product={product} />
                 {product.member_offer!.status !== 'sold_out' && <MemberCounter remaining={product.member_offer!.remaining} limit={product.member_offer!.limit} />}
               </>
+            ) : product.promotion?.applies ? (
+              // Promotion en cours : prix promo, prix initial barré, date de fin (le prix initial ne change pas)
+              <div className="flex flex-col gap-1">
+                <p className="flex flex-wrap items-baseline gap-3">
+                  <strong className="text-3xl font-semibold text-gold">{formatPrice(product.promotion.price)}</strong>
+                  <s className="text-lg text-[#8a857b]">{formatPrice(product.price)}</s>
+                  <span className="rounded-full bg-gold px-2.5 py-0.5 text-sm font-bold text-ink">−{product.promotion.percent} %</span>
+                </p>
+                <span className="text-sm text-[#a3a3a3]">Promotion {untilLabel(product.promotion.ends_on)}{product.unit_size && ` · ${product.unit_size}`}</span>
+              </div>
             ) : (
-              <p className="flex items-baseline gap-3">
-                <strong className="text-3xl font-semibold">{formatPrice(product.price)}</strong>
-                <span className="text-sm text-[#a3a3a3]">TTC{product.unit_size && ` · ${product.unit_size}`}</span>
-              </p>
+              <div className="flex flex-col gap-1">
+                <p className="flex items-baseline gap-3">
+                  <strong className="text-3xl font-semibold">{formatPrice(product.price)}</strong>
+                  <span className="text-sm text-[#a3a3a3]">TTC{product.unit_size && ` · ${product.unit_size}`}</span>
+                </p>
+                {product.promotion && (
+                  <p className="text-sm text-gold">
+                    −{product.promotion.percent} % pour les membres {untilLabel(product.promotion.ends_on)} : <Link to={`/inscription?redirect=${encodeURIComponent(`/produits/${product.slug}`)}`} className="font-semibold underline underline-offset-4">créer mon compte gratuit</Link>
+                  </p>
+                )}
+              </div>
             )}
 
             {product.variants.length > 0 && (

@@ -44,6 +44,7 @@ Exemples : le prix du sérum se change dans l'ERP. Le titre « L'art du soin cap
 | Je veux changer… | Où |
 |---|---|
 | Prix, activation d'un produit, stock | ERP → **Produits et stock** |
+| Promotion en pourcentage sur des produits (dates, membres ou tout le monde) | ERP → **Promotions** → **Nouvelle promotion** (le prix initial ne change pas) |
 | Coût de revient (marge) | ERP → **Fabrication** pour un produit Dabo Hair ; ERP → **Réceptions d’achat** pour un produit acheté et revendu |
 | Statut d'une commande, d'un rendez-vous | ERP → **Commandes**, **Planning** |
 | Comptes du personnel | ERP → **Équipe et rôles** |

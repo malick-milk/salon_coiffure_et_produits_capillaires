@@ -214,7 +214,7 @@ export function CheckoutPage() {
             </ul>
             <dl className="flex flex-col gap-2 text-[15px]">
               <div className="flex justify-between"><dt className="text-[#52525b]">Sous-total</dt><dd>{formatPrice(subtotal)}</dd></div>
-              {member.discount > 0 && <div className="flex justify-between text-[#15803d]"><dt>Prix membre</dt><dd>−{formatPrice(member.discount)}</dd></div>}
+              {member.discount > 0 && <div className="flex justify-between text-[#15803d]"><dt>{member.hasPromotion ? 'Remises' : 'Prix membre'}</dt><dd>−{formatPrice(member.discount)}</dd></div>}
               <div className="flex justify-between"><dt className="text-[#52525b]">Livraison</dt><dd>{method !== 'delivery' ? 'Gratuite' : zone ? formatPrice(shippingFee) : 'Choisir une zone'}</dd></div>
               <div className="flex justify-between border-t border-[#e4e4e7] pt-3 text-lg"><dt>Total</dt><dd className="font-semibold">{formatPrice(subtotal - member.discount + shippingFee)}</dd></div>
             </dl>

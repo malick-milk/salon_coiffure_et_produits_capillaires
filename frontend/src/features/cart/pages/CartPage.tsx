@@ -51,7 +51,9 @@ export function CartPage() {
                     <div className="flex min-w-0 flex-1 flex-col gap-1">
                       <Link to={`/produits/${item.slug}`} className="font-display text-lg hover:text-gold">{label}</Link>
                       <span className="text-sm text-muted">{formatPrice(item.price)} l'unité</span>
-                      {saving > 0 && <span className="text-sm font-semibold text-gold">1 au prix membre : <span className="whitespace-nowrap">{formatPrice(item.price - saving)}</span></span>}
+                      {member.promoFor(item.productId) ? (
+                        <span className="text-sm font-semibold text-gold">Promotion −{member.promoFor(item.productId)!.percent} % : <span className="whitespace-nowrap">{formatPrice(member.promoFor(item.productId)!.price)} l'unité</span></span>
+                      ) : saving > 0 && <span className="text-sm font-semibold text-gold">1 au prix membre : <span className="whitespace-nowrap">{formatPrice(item.price - saving)}</span></span>}
                       {status === 'already_used' && <span className="text-xs text-muted">Prix membre déjà utilisé sur ce compte (une gamme par compte)</span>}
                       {status === 'sold_out' && <span className="text-xs text-muted">Les gammes au prix membre sont toutes parties</span>}
                     </div>
@@ -81,7 +83,7 @@ export function CartPage() {
               <div className="flex justify-between text-[15px]"><span className="text-[#52525b]">{count} article{count > 1 ? 's' : ''}{member.discount > 0 ? ' · prix normal' : ''}</span><strong>{formatPrice(subtotal)}</strong></div>
               {member.discount > 0 && (
                 <>
-                  <div className="flex justify-between text-[15px] text-[#15803d]"><span>Prix membre</span><strong>−{formatPrice(member.discount)}</strong></div>
+                  <div className="flex justify-between text-[15px] text-[#15803d]"><span>{member.hasPromotion ? (member.applied.length ? 'Promotions et prix membre' : 'Promotions') : 'Prix membre'}</span><strong>−{formatPrice(member.discount)}</strong></div>
                   <div className="flex justify-between border-t border-[#e4e4e7] pt-3 text-lg"><span>Total</span><strong>{formatPrice(total)}</strong></div>
                 </>
               )}

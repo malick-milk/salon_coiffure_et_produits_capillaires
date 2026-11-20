@@ -7,6 +7,9 @@ import { useCart } from '@/features/cart/store'
 import { formatPrice } from '@/lib/format'
 import type { ProductSummary } from '@/types/api'
 
+/** « jusqu'au 31 déc. » : fin d'une promotion */
+export const untilLabel = (iso: string) => `jusqu’au ${new Date(`${iso}T12:00:00`).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}`
+
 export function stockLabel(p: Pick<ProductSummary, 'stock_status' | 'stock_left'>): string {
   if (p.stock_status === 'out_of_stock') return 'Rupture de stock'
   if (p.stock_status === 'low_stock') return `Plus que ${p.stock_left} en stock`
@@ -27,7 +30,9 @@ export function ProductCard({ product }: { product: ProductSummary }) {
         ) : (
           <ImagePlaceholder label="Photo produit" className="aspect-[4/5] border-0" />
         )}
-        {product.is_featured && !soldOut && <Badge tone="gold" className="absolute top-3 left-3">Produit phare</Badge>}
+        {/* Promotion en cours (20 novembre 2026) : son badge passe avant « Produit phare » */}
+        {product.promotion && !soldOut && <Badge tone="gold" className="absolute top-3 left-3">−{product.promotion.percent} %{product.promotion.audience === 'members' ? ' membres' : ''}</Badge>}
+        {product.is_featured && !soldOut && !product.promotion && <Badge tone="gold" className="absolute top-3 left-3">Produit phare</Badge>}
         {product.stock_status === 'low_stock' && <Badge tone="warning" className="absolute top-3 left-3">Stock limité</Badge>}
         {soldOut && <Badge tone="neutral" className="absolute top-3 left-3">Rupture</Badge>}
       </Link>
@@ -42,7 +47,13 @@ export function ProductCard({ product }: { product: ProductSummary }) {
         <p className="text-[13px] text-muted">{stockLabel(product)}</p>
         <div className="mt-auto flex items-center justify-between pt-2">
           <span className="flex flex-col">
-            <strong className="text-lg">{formatPrice(product.price)}</strong>
+            {product.promotion?.applies ? (
+              <>
+                <span className="flex flex-wrap items-baseline gap-2"><strong className="text-lg text-gold">{formatPrice(product.promotion.price)}</strong><s className="text-[13px] text-[#8a857b]">{formatPrice(product.price)}</s></span>
+                <span className="text-xs text-muted">{untilLabel(product.promotion.ends_on)}</span>
+              </>
+            ) : <strong className="text-lg">{formatPrice(product.price)}</strong>}
+            {product.promotion && !product.promotion.applies && <span className="text-[13px] font-semibold text-gold">−{product.promotion.percent} % pour les membres</span>}
             {product.member_price != null && product.member_offer && ['eligible', 'sign_in'].includes(product.member_offer.status) && (
               <span className="text-[13px] font-semibold text-gold">{formatPrice(product.member_price)} pour les membres</span>
             )}

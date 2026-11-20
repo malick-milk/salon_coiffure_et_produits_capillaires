@@ -46,3 +46,11 @@ export function productMargin(salePrice: number, cost: number): { amount: number
   return { amount, rate: Math.round((1000 * amount) / salePrice) / 10, loss: amount < 0 }
 }
 
+
+/**
+ * Prix promo (maquettes du 20 novembre 2026) : même calcul que le serveur (PromotionService::discounted),
+ * arrondi à la dizaine de francs INFÉRIEURE : 3 500 F à −15 % = 2 975 F -> 2 970 F.
+ */
+export function discountedPrice(price: number, percent: number): number {
+  return Math.floor(Math.floor((price * (100 - percent)) / 100) / 10) * 10
+}

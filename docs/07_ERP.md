@@ -149,6 +149,24 @@ Le verrou se calcule avec `Product::hasStockEntries()`. Dans la liste, `withExis
 
 L'écran n'envoie **que les champs modifiés** : le journal d'audit ne contient que de vrais changements. « Dernières modifications » (`GET admin/products/{id}/history`) affiche les 5 dernières lignes du journal pour ce produit, en phrases courtes (« prix 6 000 → 6 500 F »).
 
+### 5 quater. Promotions en pourcentage (20 novembre 2026)
+
+ERP → **Promotions** (`PromotionsPages.tsx`, `PromotionAdminController`). Maquettes validées le 20 novembre 2026.
+
+| Règle | Où |
+|---|---|
+| Le **prix initial ne change jamais** (`products.price`) : le serveur calcule le prix promo à la commande, pendant les dates | `PromotionService`, `PlaceOrderAction` |
+| Prix promo arrondi à la **dizaine inférieure** (3 500 F à −15 % = 2 975 F → 2 970 F) ; même calcul dans le navigateur | `PromotionService::discounted()`, `discountedPrice()` |
+| 5 à 70 % ; au-delà de 50 %, case de confirmation obligatoire | `PromotionAdminController::validated()` |
+| Un produit dans **une** promotion à la fois (dates qui se chevauchent refusées) ; la gamme garde son prix membre (exclue) | idem |
+| « Membres seulement » : la promotion ne vaut que pour une cliente connectée | `PromotionService::applicable()` |
+| Chaque vente garde son prix initial (`regular_unit_price`) et sa promotion (`promotion_id`) | `order_items` |
+| En cours : seuls le nom et la date de fin changent ; « Arrêter maintenant » remet le prix initial tout de suite | `update()`, `stop()` |
+
+**Les résultats (savoir quand refaire une promotion).** On compare **les 7 jours avant** le début et **les jours de promotion**, ramenés à une journée (sinon 7 jours contre 3 ne se comparent pas) : unités, chiffre d'affaires, marge (prix payé − coût de revient), remise accordée. Les commandes annulées ne comptent pas. La phrase « Ce que disent les chiffres » n'apparaît qu'à partir de 3 jours : avant, un seul jour de pluie ou de fête fausse tout.
+
+> Concept d'analyse de données : la promotion est réussie quand le **volume** compense la **remise**. Exemple : −20 % sur le spray (5 000 F, coût 350 F) ; la marge par unité passe de 4 650 F à 3 650 F (−21 %). Il faut donc vendre au moins 4 650 / 3 650 = 1,27 fois plus (+27 %) pour gagner autant par jour. À +100 % de ventes, la marge du jour monte de 57 %.
+
 ## 6. Le journal d'audit (RG-SEC-01)
 
 `spatie/laravel-activitylog` enregistre automatiquement, avec l'**auteur**, la **date** et les **valeurs avant et après** :

@@ -366,3 +366,56 @@ export interface NewPurchaseReceipt {
   extra_costs: number | null
 }
 
+
+// ---------- Promotions en pourcentage (maquettes validées le 20 novembre 2026) ----------
+export type PromotionStatus = 'current' | 'upcoming' | 'ended'
+export type PromotionAudience = 'all' | 'members'
+
+/** Par jour, sur une période : unités, chiffre d'affaires, marge, remise accordée */
+export interface PromotionPeriod {
+  units: number
+  revenue: Money
+  margin: Money
+  margin_partial: boolean // des ventes sans coût connu : marge sous-estimée
+  discount: Money
+}
+
+export interface PromotionComparison {
+  before: PromotionPeriod
+  during: PromotionPeriod | null // null tant que la promotion n'a pas commencé
+  change: { units: number | null; revenue: number | null; margin: number | null } // en %
+}
+
+export interface AdminPromotion {
+  id: number
+  name: string
+  percent: number
+  audience: PromotionAudience
+  status: PromotionStatus
+  starts_on: string
+  ends_on: string
+  last_day: string
+  stopped_at: string | null
+  products: { id: number; name: string; price: Money; promo_price: Money; cost_price: number | null }[]
+  min_margin_rate: number | null
+  unknown_cost: boolean
+  summary?: PromotionComparison & { units_sold: number }
+}
+
+export interface PromotionResults extends AdminPromotion {
+  days_before: number
+  days_during: number
+  series: { date: string; units: number; during: boolean }[]
+  totals: PromotionComparison & { units_sold: number }
+  products: (AdminPromotion['products'][number] & PromotionComparison & { stock: number })[]
+}
+
+export interface PromotionInput {
+  name: string
+  percent?: number
+  confirm_high_discount?: boolean
+  starts_on?: string
+  ends_on: string
+  audience?: PromotionAudience
+  product_ids?: number[]
+}

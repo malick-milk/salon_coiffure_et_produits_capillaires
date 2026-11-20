@@ -367,6 +367,23 @@ Mêmes fenêtres que le Test 4 : Docker allumé, `php artisan serve` et `npm run
 | Fabrication → liste des produits | Le produit revendu n'y figure pas (son stock entre par les réceptions) |
 | Se connecter en caissier | Pas de bouton « Nouveau produit », pas de formulaire de réception (lecture seule) |
 
+**Promotions en pourcentage** (ERP, connecté en propriétaire ; base fraîche) :
+
+| À essayer | Résultat attendu |
+|---|---|
+| ERP → **Promotions** → **Nouvelle promotion** | Formulaire : nom, réduction (10 à 30 % ou autre), dates, pour qui, produits ; à droite « Avant de lancer : la marge » |
+| 20 %, fin dans un mois, cocher Spray hydratant et Shampooing | Spray : 5 000 → 4 000 F, marge 3 650 F (91,3 %) ; la gamme ne peut pas être cochée |
+| « Autre… » → 60 | Case « Je confirme une réduction de 60 % » ; sans elle, « Programmer » reste grisé |
+| Programmer (20 %) | Liste : « Fêtes… » En cours |
+| Site → fiche du spray | 4 000 F, 5 000 F barré, badge −20 %, « Promotion jusqu’au … » |
+| Ajouter au panier, commander | Panier : « Promotion −20 % », total 4 000 F ; commande à 4 000 F |
+| ERP → Produits et stock | Le prix du spray est toujours **5 000** |
+| Promotions → Voir | Résultats : ventes, chiffre d’affaires, marge par jour avant / pendant ; « trop tôt pour conclure » avant 3 jours |
+| « Arrêter maintenant » | Le site affiche de nouveau 5 000 F, sans badge |
+| Une 2e promotion avec le spray sur les mêmes dates | Refusée : « Déjà en promotion sur ces dates : Spray hydratant 250 ml (« … ») » |
+
+Le même parcours tourne tout seul : `node frontend/e2e/parcours-promotions.cjs ./captures`.
+
 **La gamme au prix membre** (lancement du 15 décembre ; après `php artisan migrate:fresh --seed`). Dans la démo, la crème est en rupture, donc la gamme aussi : d'abord ERP → **Fabrication** → un lot de 24 « Crème capillaire ». Ensuite, sur le téléphone ou en mode téléphone du navigateur (F12, icône téléphone) :
 
 | À essayer | Résultat attendu |

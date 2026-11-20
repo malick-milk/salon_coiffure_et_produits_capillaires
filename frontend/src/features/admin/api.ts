@@ -3,7 +3,7 @@ import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tansta
 import { http } from '@/lib/http'
 import type { BookingStatus, OrderStatus } from '@/types/api'
 import type {
-  AdminBooking, AdminCustomer, BrandOption, CategoryOption, NewProduct, NewPurchaseReceipt, ProductChanges, ProductHistoryEntry, PurchaseReceipt, AdminOrderDetail, AdminOrderRow, AdminProduct, AuditEntry, CostCategory, Dashboard,
+  AdminBooking, AdminCustomer, BrandOption, CategoryOption, AdminPromotion, NewProduct, NewPurchaseReceipt, ProductChanges, ProductHistoryEntry, PromotionInput, PromotionResults, PurchaseReceipt, AdminOrderDetail, AdminOrderRow, AdminProduct, AuditEntry, CostCategory, Dashboard,
   AdminPickupPoint, AdminSurvey, PageMeta, PickupPointDetail, PickupPointsIndex, StatementPreview, PaymentMethod, ProductionBatch, RoleWithPermissions, StaffRole, StaffUser, StockMovementRow, SurveyFilter, SurveyStats,
 } from '@/types/admin'
 import type { Analytics, ExportDataset } from '@/types/analytics'
@@ -205,3 +205,15 @@ export const useStatementPayment = () =>
 
 export const deliveryPdfUrl = (deliveryId: number) => `/api/v1${A}/consignment-deliveries/${deliveryId}/pdf`
 export const statementPdfUrl = (statementId: number) => `/api/v1${A}/consignment-statements/${statementId}/pdf`
+
+// ---------- Promotions en pourcentage (maquettes validées le 20 novembre 2026) ----------
+// Une promotion change le prix affiché du site : on rafraîchit aussi le catalogue
+const promotionKeys = [['admin', 'promotions'], ['admin', 'promotion-results'], ['products'], ['product']]
+export const usePromotions = () => useQuery({ queryKey: ['admin', 'promotions'], queryFn: () => get<AdminPromotion[]>(`${A}/promotions`) })
+export const usePromotionResults = (id: number) =>
+  useQuery({ queryKey: ['admin', 'promotion-results', id], queryFn: () => get<PromotionResults>(`${A}/promotions/${id}/results`) })
+export const useCreatePromotion = () =>
+  useAdminMutation(async (v: PromotionInput) => (await http.post<{ data: AdminPromotion }>(`${A}/promotions`, v)).data.data, promotionKeys)
+export const useUpdatePromotion = (id: number) =>
+  useAdminMutation(async (v: PromotionInput) => (await http.patch<{ data: AdminPromotion }>(`${A}/promotions/${id}`, v)).data.data, promotionKeys)
+export const useStopPromotion = () => useAdminMutation((id: number) => http.post(`${A}/promotions/${id}/stop`), promotionKeys)
