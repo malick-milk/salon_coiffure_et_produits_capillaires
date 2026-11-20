@@ -11,6 +11,6 @@ class DeliveryZoneResource extends JsonResource
 {
     public function toArray(Request $request): array
     {
-        return ['id' => $this->id, 'name' => $this->name, 'fee' => $this->fee];
+        return ['id' => $this->id, 'name' => $this->name, 'fee' => $this->fee, 'delay_label' => $this->delay_label];
     }
 }

@@ -13,6 +13,7 @@ use App\Models\Order;
 use App\Models\PickupPoint;
 use App\Models\Product;
 use App\Models\ProductBundleItem;
+use App\Models\Setting;
 use App\Models\User;
 use App\Services\Catalog\MemberPriceService;
 use App\Services\Catalog\PromotionService;
@@ -78,7 +79,9 @@ class PlaceOrderAction
             $lines = $this->priceLines($wanted, $products, $locked, $components, $user);
 
             $subtotal = collect($lines)->sum(fn ($l) => $l['unit_price'] * $l['quantity']);
-            $shippingFee = $zone->fee ?? 0; // « ?? » couvre aussi $zone = null (retrait)
+            // « ?? » couvre aussi $zone = null (retrait). Livraison offerte au-delà du seuil réglé dans l'ERP (21 novembre 2026)
+            $threshold = Setting::freeDeliveryThreshold();
+            $shippingFee = $threshold !== null && $subtotal >= $threshold ? 0 : ($zone->fee ?? 0);
             $address = $method === FulfillmentMethod::Delivery ? $data['shipping_address'] : null;
             $customer = $this->customers->resolve($user, $data['customer']);
 

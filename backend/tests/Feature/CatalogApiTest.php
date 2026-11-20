@@ -117,7 +117,7 @@ class CatalogApiTest extends TestCase
         foreach ($hours as $h) {
             $this->assertSame([false, '09:00', '19:00', null], [$h['is_closed'], $h['opens_at'], $h['closes_at'], $h['break_start']]);
         }
-        $this->getJson('/api/v1/delivery-zones')->assertJsonPath('data.0', ['id' => 1, 'name' => 'Dakar Plateau', 'fee' => 1000]);
+        $this->getJson('/api/v1/delivery-zones')->assertJsonPath('data.0', ['id' => 1, 'name' => 'Dakar Plateau', 'fee' => 1000, 'delay_label' => null]);
     }
 
     public function test_une_coiffeuse_ne_propose_que_ses_prestations(): void

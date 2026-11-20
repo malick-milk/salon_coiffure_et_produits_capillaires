@@ -11,6 +11,7 @@ use App\Http\Resources\StylistResource;
 use App\Models\BusinessHour;
 use App\Models\DeliveryZone;
 use App\Models\Service;
+use App\Models\Setting;
 use App\Models\Stylist;
 use App\Services\Booking\AvailabilityService;
 use Illuminate\Http\JsonResponse;
@@ -42,7 +43,9 @@ class SalonController extends Controller
 
     public function deliveryZones(): AnonymousResourceCollection
     {
-        return DeliveryZoneResource::collection(DeliveryZone::query()->active()->orderBy('fee')->get());
+        // meta.free_delivery_threshold : livraison offerte à partir de ce montant (null = pas d'offre)
+        return DeliveryZoneResource::collection(DeliveryZone::query()->active()->orderBy('fee')->get())
+            ->additional(['meta' => ['free_delivery_threshold' => Setting::freeDeliveryThreshold()]]);
     }
 
     public function availability(AvailabilityRequest $request, AvailabilityService $availability): JsonResponse

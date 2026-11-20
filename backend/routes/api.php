@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\V1\Admin\BookingAdminController;
 use App\Http\Controllers\Api\V1\Admin\CatalogAdminController;
 use App\Http\Controllers\Api\V1\Admin\CustomerAdminController;
 use App\Http\Controllers\Api\V1\Admin\DashboardController;
+use App\Http\Controllers\Api\V1\Admin\DeliveryAdminController;
 use App\Http\Controllers\Api\V1\Admin\OrderAdminController;
 use App\Http\Controllers\Api\V1\Admin\PickupPointAdminController;
 use App\Http\Controllers\Api\V1\Admin\ProductAdminController;
@@ -107,6 +108,11 @@ Route::prefix('v1')->middleware('throttle:api')->group(function () {
             Route::get('products', [CatalogAdminController::class, 'products'])->middleware('permission:products.view');
             Route::patch('products/{product}', [CatalogAdminController::class, 'updateProduct'])->middleware('permission:products.manage');
             Route::get('products/{product}/history', [CatalogAdminController::class, 'history'])->middleware('permission:products.view');
+            // Tarifs de livraison (maquette validée le 21 novembre 2026)
+            Route::get('delivery', [DeliveryAdminController::class, 'index'])->middleware('permission:products.view');
+            Route::post('delivery-zones', [DeliveryAdminController::class, 'store'])->middleware('permission:products.manage');
+            Route::patch('delivery-zones/{zone}', [DeliveryAdminController::class, 'update'])->middleware('permission:products.manage');
+            Route::put('delivery-settings', [DeliveryAdminController::class, 'updateSettings'])->middleware('permission:products.manage');
             // Promotions en pourcentage (maquettes validées le 20 novembre 2026)
             Route::get('promotions', [PromotionAdminController::class, 'index'])->middleware('permission:products.view');
             Route::get('promotions/{promotion}/results', [PromotionAdminController::class, 'results'])->middleware('permission:products.view');
