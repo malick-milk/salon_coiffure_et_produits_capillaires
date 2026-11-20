@@ -6,6 +6,7 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { App } from './app/App'
+import { installErrorReporting } from './lib/errorReporter'
 // Polices hébergées SUR NOTRE SERVEUR (étape 11) et non chez Google Fonts : aucune adresse IP de visiteur
 // envoyée à un tiers (données personnelles), une connexion réseau de moins depuis Dakar, et une politique
 // de sécurité (CSP) qui n'autorise que notre propre domaine.
@@ -34,6 +35,8 @@ function showMockBadge() {
   badge.style.cssText = 'position:fixed;left:8px;bottom:8px;z-index:9999;padding:6px 10px;border-radius:8px;background:#7a5a00;color:#fff;font:600 12px/1.3 system-ui,sans-serif;max-width:calc(100vw - 16px);pointer-events:none'
   document.body.appendChild(badge)
 }
+
+installErrorReporting() // erreurs JavaScript des visiteuses -> notre serveur -> e-mail à la propriétaire
 
 enableMocks().then(() => {
   createRoot(document.getElementById('root')!).render(

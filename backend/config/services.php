@@ -2,6 +2,9 @@
 
 return [
 
+    // Suivi des erreurs (21 novembre 2026) : la propriétaire reçoit un e-mail quand une erreur apparaît sur le site
+    'alerts' => ['email' => env('ALERT_EMAIL')],
+
     /*
     |--------------------------------------------------------------------------
     | Third Party Services

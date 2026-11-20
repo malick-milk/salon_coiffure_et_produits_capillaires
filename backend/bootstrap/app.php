@@ -3,6 +3,7 @@
 use App\Exceptions\InsufficientStockException;
 use App\Exceptions\SlotUnavailableException;
 use App\Http\Middleware\SecurityHeaders;
+use App\Services\Monitoring\ErrorReporter;
 use App\Support\SecurityLog;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Application;
@@ -42,6 +43,10 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
+        // Suivi des erreurs (21 novembre 2026) : chaque erreur RAPPORTÉE (pas les 404, 422, 401…) est enregistrée et
+        // signalée par e-mail à la propriétaire. Laravel continue ensuite son traitement normal (journal).
+        $exceptions->report(fn (Throwable $e) => app(ErrorReporter::class)->fromException($e));
+
         $exceptions->shouldRenderJsonWhen(
             fn (Request $request) => $request->is('api/*') || $request->expectsJson(),
         );

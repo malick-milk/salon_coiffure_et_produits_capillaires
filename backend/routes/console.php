@@ -11,6 +11,7 @@ Artisan::command('inspire', function () {
 // Job nocturne de l'ADR-008 : agrégats d'hier (définitifs) et d'aujourd'hui (provisoires).
 // En production, une seule tâche cron appelle Laravel chaque minute : « php artisan schedule:run » (étape 11).
 Schedule::command('analytics:snapshot')->dailyAt('00:30')->withoutOverlapping();
+Schedule::command('errors:purge')->dailyAt('03:15')->withoutOverlapping();
 
 // Étape 13 : messages aux clientes (Dakar est à l'heure UTC, comme le serveur)
 Schedule::command('bookings:remind')->dailyAt('17:00')->withoutOverlapping();

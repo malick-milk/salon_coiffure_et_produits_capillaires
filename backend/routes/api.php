@@ -15,6 +15,7 @@ use App\Http\Controllers\Api\V1\Admin\TeamAdminController;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\BookingController;
 use App\Http\Controllers\Api\V1\CatalogController;
+use App\Http\Controllers\Api\V1\ClientErrorController;
 use App\Http\Controllers\Api\V1\InvoiceController;
 use App\Http\Controllers\Api\V1\Me\AccountController;
 use App\Http\Controllers\Api\V1\Me\NotificationController;
@@ -63,6 +64,8 @@ Route::prefix('v1')->middleware('throttle:api')->group(function () {
 
     // Authentification (la limite des 5 essais est gérée dans le contrôleur, par email + IP)
     Route::post('auth/login', [AuthController::class, 'login']);
+    // Suivi des erreurs du navigateur (21 novembre 2026) : 20 envois par minute et par adresse IP
+    Route::post('client-errors', [ClientErrorController::class, 'store'])->middleware('throttle:20,1');
     Route::post('auth/register', [AuthController::class, 'register'])->middleware('throttle:checkout');
 
     // Routes protégées : 401 si l'utilisateur n'est pas connecté

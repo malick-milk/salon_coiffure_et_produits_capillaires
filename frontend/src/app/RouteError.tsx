@@ -1,7 +1,14 @@
-import { Link } from 'react-router'
+import { useEffect } from 'react'
+import { isRouteErrorResponse, Link, useRouteError } from 'react-router'
+import { reportError } from '@/lib/errorReporter'
 
 /** Affiché si un composant plante : l'utilisateur voit un message clair, pas une page blanche */
 export function RouteError() {
+  const error = useRouteError()
+  // Un composant a planté : on le signale (une page introuvable, 404, n'est pas une panne)
+  useEffect(() => {
+    if (!(isRouteErrorResponse(error) && error.status === 404)) reportError(error, 'RouteError')
+  }, [error])
   return (
     <main className="mx-auto flex min-h-screen max-w-xl flex-col items-center justify-center gap-6 px-4 text-center">
       <h1 className="font-display text-4xl">Un incident est survenu</h1>
