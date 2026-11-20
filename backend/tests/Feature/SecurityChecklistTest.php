@@ -74,7 +74,7 @@ class SecurityChecklistTest extends TestCase
         // Seules les variables VITE_ partent dans le code du navigateur : aucune ne doit être un secret
         $example = file_get_contents($this->repo('frontend/.env.example'));
         preg_match_all('/^([A-Z_]+)=/m', $example, $m);
-        $this->assertSame(['VITE_ENABLE_MOCKS'], $m[1]);
+        $this->assertSame(['VITE_ENABLE_MOCKS', 'VITE_REPORT_ERRORS'], $m[1]);
 
         $used = [];
         $it = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($this->repo('frontend/src')));
@@ -84,7 +84,7 @@ class SecurityChecklistTest extends TestCase
                 $used = [...$used, ...$mm[1]];
             }
         }
-        $this->assertSame([], array_values(array_diff(array_unique($used), ['DEV', 'PROD', 'MODE', 'VITE_ENABLE_MOCKS'])));
+        $this->assertSame([], array_values(array_diff(array_unique($used), ['DEV', 'PROD', 'MODE', 'VITE_ENABLE_MOCKS', 'VITE_REPORT_ERRORS'] /* interrupteur du suivi des erreurs, pas un secret */)));
     }
 
     public function test_1c_l_api_ne_renvoie_jamais_de_mot_de_passe_ni_d_empreinte_de_jeton(): void
