@@ -13,6 +13,7 @@ use Illuminate\Support\Carbon;
  *
  * @property int $unit_price
  * @property int|null $regular_unit_price
+ * @property int|null $promotion_id
  * @property string|null $unit_cost
  * @property int $quantity
  * @property int $line_total
@@ -21,7 +22,7 @@ use Illuminate\Support\Carbon;
  */
 class OrderItem extends Model
 {
-    protected $fillable = ['order_id', 'product_id', 'product_name', 'sku', 'unit_price', 'regular_unit_price', 'unit_cost', 'quantity', 'line_total'];
+    protected $fillable = ['order_id', 'product_id', 'product_name', 'sku', 'unit_price', 'regular_unit_price', 'promotion_id', 'unit_cost', 'quantity', 'line_total'];
 
     protected function casts(): array
     {

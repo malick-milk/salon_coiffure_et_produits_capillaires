@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\V1\Admin\DashboardController;
 use App\Http\Controllers\Api\V1\Admin\OrderAdminController;
 use App\Http\Controllers\Api\V1\Admin\PickupPointAdminController;
 use App\Http\Controllers\Api\V1\Admin\ProductAdminController;
+use App\Http\Controllers\Api\V1\Admin\PromotionAdminController;
 use App\Http\Controllers\Api\V1\Admin\PurchaseReceiptAdminController;
 use App\Http\Controllers\Api\V1\Admin\SurveyAdminController;
 use App\Http\Controllers\Api\V1\Admin\TeamAdminController;
@@ -103,6 +104,12 @@ Route::prefix('v1')->middleware('throttle:api')->group(function () {
             Route::get('products', [CatalogAdminController::class, 'products'])->middleware('permission:products.view');
             Route::patch('products/{product}', [CatalogAdminController::class, 'updateProduct'])->middleware('permission:products.manage');
             Route::get('products/{product}/history', [CatalogAdminController::class, 'history'])->middleware('permission:products.view');
+            // Promotions en pourcentage (maquettes validées le 20 novembre 2026)
+            Route::get('promotions', [PromotionAdminController::class, 'index'])->middleware('permission:products.view');
+            Route::get('promotions/{promotion}/results', [PromotionAdminController::class, 'results'])->middleware('permission:products.view');
+            Route::post('promotions', [PromotionAdminController::class, 'store'])->middleware('permission:products.manage');
+            Route::patch('promotions/{promotion}', [PromotionAdminController::class, 'update'])->middleware('permission:products.manage');
+            Route::post('promotions/{promotion}/stop', [PromotionAdminController::class, 'stop'])->middleware('permission:products.manage');
             Route::get('products/{product}/movements', [CatalogAdminController::class, 'movements'])->middleware('permission:stock.view');
             Route::post('products/{product}/stock-adjustments', [CatalogAdminController::class, 'adjustStock'])->middleware('permission:stock.adjust');
             Route::get('production-batches', [CatalogAdminController::class, 'batches'])->middleware('permission:stock.view');

@@ -68,7 +68,7 @@ return [
         'origin' => 'l’origine du produit', 'name' => 'le nom', 'brand_id' => 'la marque', 'category_id' => 'la catégorie',
         'unit_size' => 'la contenance', 'image' => 'la photo', 'supplier_name' => 'le fournisseur',
         'supplier_invoice' => 'le numéro de facture du fournisseur', 'received_on' => 'la date de réception',
-        'unit_price' => 'le prix d’achat unitaire', 'purchase_price' => 'le prix d’achat unitaire', 'cost_price' => 'le coût de revient', 'extra_costs' => 'les frais du lot',
+        'unit_price' => 'le prix d’achat unitaire', 'purchase_price' => 'le prix d’achat unitaire', 'ends_on' => 'la date de fin', 'confirm_high_discount' => 'la confirmation de la réduction', 'cost_price' => 'le coût de revient', 'extra_costs' => 'les frais du lot',
         // Étape 14 : points de retrait partenaires
         'code' => 'le code de retrait',
         'commission_rate' => 'le taux de commission',

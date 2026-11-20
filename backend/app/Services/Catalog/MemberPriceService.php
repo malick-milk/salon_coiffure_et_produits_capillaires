@@ -26,7 +26,7 @@ class MemberPriceService
     /** Unités déjà vendues au prix membre (commandes annulées exclues) */
     public function used(Product $product): int
     {
-        return (int) OrderItem::query()->where('product_id', $product->id)->whereNotNull('regular_unit_price')
+        return (int) OrderItem::query()->where('product_id', $product->id)->whereNotNull('regular_unit_price')->whereNull('promotion_id')
             ->whereHas('order', fn ($q) => $q->where('status', '!=', OrderStatus::Cancelled->value))
             ->sum('quantity');
     }
@@ -40,7 +40,7 @@ class MemberPriceService
     /** Ce compte a-t-il déjà acheté ce produit au prix membre ? */
     public function alreadyUsedBy(User $user, Product $product): bool
     {
-        return OrderItem::query()->where('product_id', $product->id)->whereNotNull('regular_unit_price')
+        return OrderItem::query()->where('product_id', $product->id)->whereNotNull('regular_unit_price')->whereNull('promotion_id')
             ->whereHas('order', fn ($q) => $q->where('status', '!=', OrderStatus::Cancelled->value)
                 ->whereHas('customer', fn ($c) => $c->where('user_id', $user->id)))
             ->exists();

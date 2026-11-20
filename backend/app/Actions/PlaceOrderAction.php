@@ -15,6 +15,7 @@ use App\Models\Product;
 use App\Models\ProductBundleItem;
 use App\Models\User;
 use App\Services\Catalog\MemberPriceService;
+use App\Services\Catalog\PromotionService;
 use App\Services\Customers\CustomerResolver;
 use App\Services\Inventory\StockService;
 use App\Services\PickupPoints\PickupPointService;
@@ -38,6 +39,7 @@ class PlaceOrderAction
         private ReferenceGenerator $references,
         private PickupPointService $pickupPoints,
         private MemberPriceService $memberPrices,
+        private PromotionService $promotions,
     ) {}
 
     /** @param array{items:list<array{product_id:int,quantity:int}>,fulfillment_method:string,delivery_zone_id:?int,pickup_point_id?:?int,customer:array,shipping_address:?array,notes:?string} $data */
@@ -114,6 +116,7 @@ class PlaceOrderAction
                     'sku' => $product->sku,
                     'unit_price' => $line['unit_price'],
                     'regular_unit_price' => $line['regular_unit_price'],
+                    'promotion_id' => $line['promotion_id'],
                     'unit_cost' => $line['unit_cost'],
                     'quantity' => $line['quantity'],
                     'line_total' => $line['unit_price'] * $line['quantity'],
@@ -172,7 +175,7 @@ class PlaceOrderAction
      * @param  Collection<int|string, Product>  $products
      * @param  Collection<int|string, Product>  $locked
      * @param  Collection<int|string, EloquentCollection<int, ProductBundleItem>>  $components
-     * @return list<array{product:Product,quantity:int,unit_price:int,regular_unit_price:?int,unit_cost:?string}>
+     * @return list<array{product:Product,quantity:int,unit_price:int,regular_unit_price:?int,promotion_id:?int,unit_cost:?string}>
      */
     private function priceLines(Collection $wanted, Collection $products, Collection $locked, Collection $components, ?User $user): array
     {
@@ -187,11 +190,15 @@ class PlaceOrderAction
             }
             // Le produit est verrouillé : deux commandes simultanées ne peuvent pas prendre la même place
             if ($this->memberPrices->status($user, $product) === 'eligible') {
-                $lines[] = ['product' => $product, 'quantity' => 1, 'unit_price' => (int) $product->member_price, 'regular_unit_price' => $product->price, 'unit_cost' => $cost];
+                $lines[] = ['product' => $product, 'quantity' => 1, 'unit_price' => (int) $product->member_price, 'regular_unit_price' => $product->price, 'promotion_id' => null, 'unit_cost' => $cost];
                 $qty--;
             }
             if ($qty > 0) {
-                $lines[] = ['product' => $product, 'quantity' => $qty, 'unit_price' => $product->price, 'regular_unit_price' => null, 'unit_cost' => $cost];
+                // Promotion en cours (maquettes du 20 novembre 2026) : prix promo, le prix initial reste noté sur la ligne
+                $promotion = $this->promotions->applicable($product, $user);
+                $lines[] = $promotion
+                    ? ['product' => $product, 'quantity' => $qty, 'unit_price' => PromotionService::discounted($product->price, $promotion->percent), 'regular_unit_price' => $product->price, 'promotion_id' => $promotion->id, 'unit_cost' => $cost]
+                    : ['product' => $product, 'quantity' => $qty, 'unit_price' => $product->price, 'regular_unit_price' => null, 'promotion_id' => null, 'unit_cost' => $cost];
             }
         }
 

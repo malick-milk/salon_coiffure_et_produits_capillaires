@@ -136,6 +136,12 @@ class Product extends Model
     }
 
     /** Le statut public du stock (le chiffre exact n'est jamais exposé) */
+    /** @return BelongsToMany<Promotion, $this> */
+    public function promotions(): BelongsToMany
+    {
+        return $this->belongsToMany(Promotion::class);
+    }
+
     /** @return HasMany<ProductBundleItem, $this> */
     public function bundleItems(): HasMany
     {

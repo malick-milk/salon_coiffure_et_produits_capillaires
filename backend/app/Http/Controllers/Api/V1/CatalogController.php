@@ -39,7 +39,7 @@ class CatalogController extends Controller
     public function products(ProductIndexRequest $request): JsonResponse
     {
         $f = $request->validated();
-        $query = Product::query()->active()->with(['brand', 'category', 'images', 'bundleItems.component']);
+        $query = Product::query()->active()->with(['brand', 'category', 'images', 'bundleItems.component', 'promotions' => fn ($q) => $q->running()]);
 
         if (! empty($f['category'])) {
             $category = Category::query()->where('slug', $f['category'])->first();
@@ -80,7 +80,7 @@ class CatalogController extends Controller
     {
         // firstOrFail() -> 404 automatique si le produit n'existe pas ou n'est pas en vente
         $product = Product::query()->active()->where('slug', $slug)
-            ->with(['brand', 'category', 'images', 'hairTypes', 'mainProduct', 'bundleItems.component'])->firstOrFail();
+            ->with(['brand', 'category', 'images', 'hairTypes', 'mainProduct', 'bundleItems.component', 'promotions' => fn ($q) => $q->running()])->firstOrFail();
 
         return new ProductDetailResource($product);
     }
