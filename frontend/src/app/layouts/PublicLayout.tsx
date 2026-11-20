@@ -1,10 +1,11 @@
 import { Bell, CalendarDays, House, LayoutDashboard, Search, ShoppingBag, Store, User } from 'lucide-react'
+import { useEffect } from 'react'
 import { Link, NavLink, Outlet, ScrollRestoration } from 'react-router'
 import { Logo } from '@/components/common/Logo'
 import { useMyNotifications } from '@/features/account/hooks'
 import { useMe } from '@/features/auth/hooks'
 import { isStaff } from '@/features/auth/permissions'
-import { useCartCount } from '@/features/cart/store'
+import { useCart, useCartCount } from '@/features/cart/store'
 import { cn } from '@/lib/utils'
 
 const NAV = [
@@ -17,7 +18,11 @@ const NAV = [
 /** Mise en page de la vitrine : bandeau, en-tête, contenu de la page, pied de page, navigation mobile */
 export function PublicLayout() {
   const cartCount = useCartCount()
-  const { data: user } = useMe()
+  const { data: user, isSuccess } = useMe()
+  // Le panier (enregistré dans le navigateur) doit appartenir à la personne connectée : vérifié à chaque chargement
+  useEffect(() => {
+    if (isSuccess) useCart.getState().syncOwner(user?.id ?? null)
+  }, [isSuccess, user?.id])
 
   return (
     <div className="flex min-h-screen flex-col">

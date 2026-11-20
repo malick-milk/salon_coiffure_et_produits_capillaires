@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useCart } from '@/features/cart/store'
 import { fetchMe, login, logout, register } from './api'
 
 export const ME_KEY = ['me'] as const
@@ -17,6 +18,7 @@ const previousAccountData = (q: { queryKey: readonly unknown[] }) => !(q.queryKe
 
 /** Connectée, la visiteuse peut avoir droit au prix membre : les fiches produits sont redemandées */
 function signedIn(qc: ReturnType<typeof useQueryClient>, user: Awaited<ReturnType<typeof login>>) {
+  useCart.getState().syncOwner(user.id) // panier d'un autre compte : vidé ; panier de visiteuse : gardé
   // Changement de compte : les données de l'ancien compte disparaissent AVANT d'afficher le nouveau
   void qc.resetQueries({ predicate: previousAccountData })
   qc.setQueryData(ME_KEY, user)
@@ -45,6 +47,8 @@ export function useLogout(onLoggedOut?: () => void) {
     mutationFn: logout,
     onSuccess: async () => {
       onLoggedOut?.()
+      // Le panier est dans le navigateur : il part avec la personne qui se déconnecte
+      useCart.getState().clear()
       // 1. Personne n'est connecté : setQueryData PRÉVIENT tous les composants affichés (l'en-tête aussi).
       //    Piège corrigé le 18 novembre 2026 : qc.clear() vidait le cache SANS prévenir les composants déjà
       //    à l'écran ; l'en-tête gardait le prénom de la cliente précédente (« Soukey » au-dessus d'« Astou »).

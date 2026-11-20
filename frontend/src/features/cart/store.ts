@@ -26,6 +26,19 @@ export const MAX_QUANTITY_PER_ITEM = 99
 
 interface CartState {
   items: CartItem[]
+  /**
+   * À qui appartient ce panier : l'id du compte, ou null pour une visiteuse sans compte.
+   * Le panier est enregistré dans le NAVIGATEUR (localStorage), pas dans le compte : sans ce champ, la personne
+   * suivante sur le même ordinateur retrouvait le panier de la précédente (bug du 20 novembre 2026).
+   */
+  ownerId: number | null
+  /**
+   * Le panier suit la personne connectée (appelé à la connexion et à chaque chargement du site) :
+   * - panier de visiteuse + connexion : gardé, il devient le sien (prix membre après l'inscription) ;
+   * - panier d'un AUTRE compte, ou panier d'avant ce correctif (propriétaire inconnu) : vidé ;
+   * - panier d'un compte alors que plus personne n'est connecté (déconnexion ailleurs, session expirée) : vidé.
+   */
+  syncOwner: (userId: number | null) => void
   add: (item: Omit<CartItem, 'quantity'>, quantity?: number) => void
   setQuantity: (productId: number, quantity: number) => void
   remove: (productId: number) => void
@@ -38,6 +51,13 @@ export const useCart = create<CartState>()(
   persist(
     (set) => ({
       items: [],
+      ownerId: null,
+      syncOwner: (userId) => set((state) => {
+        const owner = state.ownerId as number | null | undefined // undefined : panier enregistré avant le correctif
+        if (userId === null) return typeof owner === 'number' ? { items: [], ownerId: null } : state
+        if (owner === null) return { ownerId: userId }
+        return owner === userId ? state : { items: [], ownerId: userId }
+      }),
       add: (item, quantity = 1) =>
         set((state) => {
           const existing = state.items.find((i) => i.productId === item.productId)
@@ -56,7 +76,7 @@ export const useCart = create<CartState>()(
           items: state.items.map((i) => (i.productId === productId ? { ...i, quantity: clamp(quantity) } : i)),
         })),
       remove: (productId) => set((state) => ({ items: state.items.filter((i) => i.productId !== productId) })),
-      clear: () => set({ items: [] }),
+      clear: () => set({ items: [], ownerId: null }),
     }),
     { name: 'dabo-hair-cart', version: 1 },
   ),
