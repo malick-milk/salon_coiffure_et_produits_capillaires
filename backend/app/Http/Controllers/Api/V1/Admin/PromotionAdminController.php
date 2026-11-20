@@ -197,7 +197,7 @@ class PromotionAdminController extends Controller
      * Lignes de commande (non annulées) de ces produits entre deux dates, avec leur jour
      *
      * @param  Collection<int, int>  $productIds
-     * @return Collection<int, object>
+     * @return Collection<int, \stdClass>
      */
     private function sales(Collection $productIds, Carbon $from, Carbon $to): Collection
     {
@@ -211,7 +211,7 @@ class PromotionAdminController extends Controller
     /**
      * Par jour, avant contre pendant : unités, chiffre d'affaires, marge, remise accordée
      *
-     * @param  Collection<int, object>  $items
+     * @param  Collection<int, \stdClass>  $items
      * @param  array{0: Carbon, 1: Carbon}  $before
      * @param  array{0: Carbon, 1: Carbon}|null  $during
      * @return array<string, mixed>
