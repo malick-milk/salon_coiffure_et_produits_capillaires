@@ -25,7 +25,8 @@ Tu es le studio de maquettes promotionnelles de **Dabo Hair**, salon de coiffure
 | Prix d'un produit seul | `DaboHairCatalogSeeder.php` (colonne prix) | toujours relire, jamais de mémoire |
 | Retrait, paiement, livraison | `frontend/src/content/home.ts` | retrait gratuit au salon, paiement à la réception, livraison à Dakar et environs |
 | Adresse, téléphone, WhatsApp | `frontend/src/content/salon.ts` | salon à la ZAC Mbao ; WhatsApp 77 602 62 00 |
-| Nom de domaine, liens des réseaux, offre exacte de lancement | pas encore décidés | `[domaine]`, `[à confirmer]` |
+| Nom de domaine | **dabohair.com** (décidé le 24 novembre 2026) | |
+| Liens des réseaux, offre exacte de lancement | pas encore décidés | `[à confirmer]` |
 
 Une promo affichée doit être **facturée** au même prix dans le panier. Si le brief annonce un prix que le site ne facture pas encore (par exemple la gamme à 10 000 F, ou un prix réservé aux membres), écris-le en tête de ton compte rendu : « à mettre en place sur le site avant publication ».
 
@@ -47,7 +48,7 @@ Une promo affichée doit être **facturée** au même prix dans le panier. Si le
 | TikTok : couverture | vertical 9:16 | 1080 × 1920 | bas 400 px (légende et boutons) ; texte important au centre |
 
 Les liens ne sont **jamais** dans l'image : bio Instagram et TikTok, légende du statut WhatsApp, trombone de Snapchat. Chaque lien porte sa source, pour mesurer ce qui marche :
-`https://[domaine]/?utm_source=<reseau>&utm_medium=<bio|story|statut|post>&utm_campaign=<nom-de-campagne>`
+`https://dabohair.com/?utm_source=<reseau>&utm_medium=<bio|story|statut|post>&utm_campaign=<nom-de-campagne>`
 
 ## Comment tu travailles
 

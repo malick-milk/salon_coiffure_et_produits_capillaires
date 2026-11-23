@@ -42,13 +42,13 @@ Jamais dans l'image. Un lien par réseau, le même pendant toute la campagne :
 
 | Réseau | Où mettre le lien | Lien |
 |---|---|---|
-| Instagram | bio | `https://[domaine]/?utm_source=instagram&utm_medium=bio&utm_campaign=lancement-2026-12` |
-| Facebook | texte de la publication | `https://[domaine]/?utm_source=facebook&utm_medium=post&utm_campaign=lancement-2026-12` |
-| WhatsApp | légende du statut, message de diffusion | `https://[domaine]/?utm_source=whatsapp&utm_medium=statut&utm_campaign=lancement-2026-12` |
-| TikTok | bio | `https://[domaine]/?utm_source=tiktok&utm_medium=bio&utm_campaign=lancement-2026-12` |
-| Snapchat | trombone (lien attaché) | `https://[domaine]/?utm_source=snapchat&utm_medium=story&utm_campaign=lancement-2026-12` |
+| Instagram | bio | `https://dabohair.com/?utm_source=instagram&utm_medium=bio&utm_campaign=lancement-2026-12` |
+| Facebook | texte de la publication | `https://dabohair.com/?utm_source=facebook&utm_medium=post&utm_campaign=lancement-2026-12` |
+| WhatsApp | légende du statut, message de diffusion | `https://dabohair.com/?utm_source=whatsapp&utm_medium=statut&utm_campaign=lancement-2026-12` |
+| TikTok | bio | `https://dabohair.com/?utm_source=tiktok&utm_medium=bio&utm_campaign=lancement-2026-12` |
+| Snapchat | trombone (lien attaché) | `https://dabohair.com/?utm_source=snapchat&utm_medium=story&utm_campaign=lancement-2026-12` |
 
-Le Jour J, on peut aussi envoyer directement vers la création de compte (la page existe : `/inscription`), en gardant la source, par exemple `https://[domaine]/inscription?utm_source=whatsapp&utm_medium=statut&utm_campaign=lancement-2026-12`. À décider avec Awa `[à confirmer]`.
+Le Jour J, on peut aussi envoyer directement vers la création de compte (la page existe : `/inscription`), en gardant la source, par exemple `https://dabohair.com/inscription?utm_source=whatsapp&utm_medium=statut&utm_campaign=lancement-2026-12`. À décider avec Awa `[à confirmer]`.
 
 Avant le Jour J, le site n'est pas ouvert : J-21 à J-1, les légendes ne donnent **pas** de lien, elles invitent à suivre le compte ou à enregistrer le numéro.
 
@@ -114,8 +114,8 @@ Remplacer le dernier selon le moment : `#Bientot` (J-21), `#NouveauSite` (J-14),
 | Fichier | Réseau | Légende |
 |---|---|---|
 | `04-JourJ-instagram-publication` | Instagram, publication | C'est en ligne ! Commandez vos soins Dabo Hair et payez à la réception. Pour notre communauté : la gamme complète à 10 000 F au lieu de 15 000 F pour les membres. Créez votre compte gratuit sur le site, 30 secondes. Seulement 20 gammes. Lien en bio. #DaboHair #FaitADakar #CheveuxNaturels #SoinsCapillaires #Dakar #Senegal #Lancement |
-| `04-JourJ-facebook-publication` | Facebook, publication | C'est en ligne ! Le site Dabo Hair est ouvert : https://[domaine]/?utm_source=facebook&utm_medium=post&utm_campaign=lancement-2026-12 — Créez votre compte gratuit (30 secondes) et la gamme complète est à 10 000 F au lieu de 15 000 F. Sans compte : 15 000 F. Seulement 20 gammes. Livraison à Dakar et environs ou retrait gratuit au salon, paiement à la réception. #DaboHair #FaitADakar #CheveuxNaturels #Dakar #Lancement |
-| `04-JourJ-whatsapp-statut` | Statut WhatsApp (+ message de diffusion) | Le site Dabo Hair est en ligne : https://[domaine]/?utm_source=whatsapp&utm_medium=statut&utm_campaign=lancement-2026-12 — Créez votre compte gratuit (30 secondes) : la gamme complète est à 10 000 F au lieu de 15 000 F. Seulement 20 gammes. |
+| `04-JourJ-facebook-publication` | Facebook, publication | C'est en ligne ! Le site Dabo Hair est ouvert : https://dabohair.com/?utm_source=facebook&utm_medium=post&utm_campaign=lancement-2026-12 — Créez votre compte gratuit (30 secondes) et la gamme complète est à 10 000 F au lieu de 15 000 F. Sans compte : 15 000 F. Seulement 20 gammes. Livraison à Dakar et environs ou retrait gratuit au salon, paiement à la réception. #DaboHair #FaitADakar #CheveuxNaturels #Dakar #Lancement |
+| `04-JourJ-whatsapp-statut` | Statut WhatsApp (+ message de diffusion) | Le site Dabo Hair est en ligne : https://dabohair.com/?utm_source=whatsapp&utm_medium=statut&utm_campaign=lancement-2026-12 — Créez votre compte gratuit (30 secondes) : la gamme complète est à 10 000 F au lieu de 15 000 F. Seulement 20 gammes. |
 | `04-JourJ-tiktok-couverture` | TikTok, couverture (vidéo partie 4) | Partie 4 sur 4 : le site est en ligne ! Lien dans la bio. Membres (compte gratuit) : la gamme complète à 10 000 F au lieu de 15 000 F. #DaboHair #FaitADakar #CheveuxNaturels #Dakar #PourToi #Lancement |
 | `04-JourJ-snapchat` | Snapchat, story + lien attaché (trombone) | C'est en ligne ! Touchez le lien attaché. Gamme complète à 10 000 F pour les membres, compte gratuit. |
 
@@ -123,11 +123,11 @@ Remplacer le dernier selon le moment : `#Bientot` (J-21), `#NouveauSite` (J-14),
 
 | Visuel ou texte | Provisoire | Il faut | Qui |
 |---|---|---|---|
-| `04-JourJ-instagram-publication`, `04-JourJ-facebook-publication`, `04-JourJ-whatsapp-statut`, `04-JourJ-snapchat` (image) et tous les liens ci-dessus | `[domaine]` | le nom de domaine | Awa |
+| Tous les visuels J-7 → Jour J | « gamme complète », « seulement 20 gammes » | refaire avec les **3 gammes** (avocat, palme, coco), **200 unités**, et la décision sur la livraison (incluse ou non) — décisions du 23 novembre | agent `maquettes-promo` |
 | Liens des comptes (bio Instagram et TikTok, page Facebook, compte Snapchat) | non connus | les adresses des comptes | Awa |
 | `03-J3-…-tiktok-couverture` (vidéo avis de clientes) | `[à confirmer]` | l'accord écrit de chaque cliente filmée | Awa |
 | Offre membres : modalités | absentes | une gamme par membre ou plus ? vérification du compte (SMS) ? date de fin ? | Awa |
-| Story J-1 Instagram (sans maquette) | « demain à [heure à confirmer] » | l'heure d'ouverture du site | Awa |
+| Story J-1 Instagram (sans maquette) | « demain à 18 h » | ouverture le 15 décembre à **18 h** (décidé le 23 novembre) | fait |
 | Tous les visuels J-7 → Jour J | prix 10 000 F membre | que le site facture vraiment 10 000 F à un membre et 15 000 F sans compte, et vende la gamme en un seul article (voir ci-dessous) | session principale |
 | « compte gratuit, 30 secondes » | à vérifier | le formulaire `/inscription` demande 6 champs + une case : chronométrer sur téléphone | Awa |
 

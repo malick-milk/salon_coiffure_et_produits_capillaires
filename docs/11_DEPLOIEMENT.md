@@ -10,7 +10,7 @@
 
 ### 1.1 Le nom de domaine
 
-**Recommandation : `dabohair.com`, acheté chez Cloudflare Registrar ou Porkbun.**
+**Décidé le 24 novembre 2026 : `dabohair.com`**, acheté chez Cloudflare Registrar ou Porkbun. Le `.sn` est écarté pour l'instant.
 
 | Bureau d'enregistrement | Prix d'un .com par an (renouvellement) | Pour | Contre |
 |---|---|---|---|
@@ -56,10 +56,40 @@ ping -n 10 gra.proof.ovh.net
 | Serveur VPS | 6 à 9 € TTC (4 000 à 6 000 F CFA) |
 | Domaine .com (11 $ par an) | environ 600 F CFA |
 | Copie des sauvegardes hors du serveur (stockage objet, quelques Go) | moins de 1 € (500 F CFA) |
+| Boîtes e-mail Zoho Mail Lite (2 adresses, environ 1 $ chacune, payé à l'année) | environ 1 200 F CFA |
+| E-mails envoyés par le site (Brevo, offre gratuite, 300 par jour) | gratuit |
 | Certificat HTTPS (Let's Encrypt), surveillance (UptimeRobot) | gratuit |
-| **Total** | **environ 7 000 F CFA par mois** |
+| **Total** | **environ 7 000 à 8 000 F CFA par mois** (environ 75 000 à 100 000 F CFA la première année) |
 
 Le taux euro / franc CFA est fixe : 1 € = 655,957 F CFA.
+
+### 1.4 L'e-mail (décidé le 24 novembre 2026 : Zoho Mail)
+
+Deux besoins différents, deux services :
+
+| Besoin | Service | Exemple |
+|---|---|---|
+| **Les boîtes de l'équipe** : lire et répondre | **Zoho Mail Lite** (environ 1 $ par personne et par mois, payé à l'année) | `contact@dabohair.com` (clientes), `awa@dabohair.com` (propriétaire, reçoit aussi les alertes d'erreur `ALERT_EMAIL`) |
+| **Les e-mails envoyés par le site** : confirmations, rappels, alertes | **Brevo**, offre gratuite (300 par jour) | expéditeur `contact@dabohair.com` : si une cliente répond, la réponse arrive dans la boîte Zoho |
+
+Pourquoi pas une seule boîte pour tout ? Une boîte personnelle qui envoie des centaines de messages automatiques finit bloquée ou classée en indésirable. Brevo est fait pour ça, et Gmail ou Outlook le reconnaissent.
+
+**Mise en place (30 minutes, après l'achat du domaine) :**
+
+1. Créer le compte Zoho Mail, choisir **Mail Lite**, ajouter le domaine `dabohair.com`, créer `contact@` et `awa@`.
+2. Zoho affiche les enregistrements DNS à créer chez le bureau d'enregistrement : **copiez exactement les valeurs que Zoho affiche** (elles dépendent du centre de données choisi, `zoho.com` ou `zoho.eu`).
+
+| Type | Nom | Rôle |
+|---|---|---|
+| TXT | `@` | prouver à Zoho que le domaine est à vous (`zoho-verification=…`) |
+| MX (3 lignes, priorités 10, 20, 50) | `@` | **recevoir** les e-mails chez Zoho |
+| TXT (SPF) | `@` | dire au monde qui a le droit d'envoyer pour `dabohair.com` |
+| TXT (DKIM) | `zmail._domainkey` (Zoho) et celui donné par Brevo | signer chaque e-mail : preuve qu'il n'a pas été modifié |
+| TXT (DMARC) | `_dmarc` | consigne aux autres messageries si un e-mail échoue aux contrôles, par exemple `v=DMARC1; p=none; rua=mailto:awa@dabohair.com` au début |
+
+3. **Piège classique : un seul enregistrement SPF.** Zoho et Brevo envoient tous les deux pour votre domaine : leurs autorisations vont dans **la même** ligne, par exemple `v=spf1 include:zohomail.com include:spf.brevo.com ~all` (vérifiez les noms exacts dans chaque console). Deux lignes `v=spf1` séparées annulent les deux.
+4. Créer le compte Brevo, ajouter et authentifier le domaine (Brevo donne son DKIM), puis mettre les accès SMTP dans `/var/www/dabohair/shared/.env` sur le serveur, jamais dans Git ([13_NOTIFICATIONS_ET_AVIS.md §5](13_NOTIFICATIONS_ET_AVIS.md)).
+5. Tester : envoyer un e-mail de `contact@dabohair.com` vers une adresse Gmail, ouvrir « Afficher l'original » : SPF, DKIM et DMARC doivent indiquer **PASS**.
 
 ---
 
@@ -281,7 +311,6 @@ bash /var/www/dabohair/current/deploy/restore.sh /var/backups/dabohair/FICHIER.s
 ## 8. Plus tard (quand le besoin apparaîtra)
 
 - **Déploiement automatique** depuis GitHub Actions : la CI se connecte en SSH et lance `deploy.sh` quand tout est vert. À mettre en place quand les mises à jour deviendront fréquentes.
-- **Email professionnel** `contact@dabohair.com` : Zoho Mail (offre gratuite pour quelques adresses) ou l'offre email de l'hébergeur, avec les enregistrements DNS MX, SPF et DKIM pour ne pas tomber dans les indésirables.
 - **Paiement en ligne** (Wave, Orange Money) : prévoir la vérification des signatures des notifications ([10_SECURITE.md](10_SECURITE.md), A08).
 - **Serveur plus puissant** : surveiller la mémoire et le disque dans `sante.sh`. Chez OVHcloud, passer à l'offre supérieure prend quelques minutes.
 

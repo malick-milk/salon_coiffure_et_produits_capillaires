@@ -32,7 +32,7 @@ Les autres questions ouvertes (modalités de l'offre, heure d'ouverture, « 30 s
 | Sujet | Décision | Conséquence sur les images |
 |---|---|---|
 | Ouverture du site | **mardi 15 décembre à 18 h** | J-1 et Jour J : ajouter l'heure ; légendes J-14 : « à 18 h » (fait dans le zip du 23 novembre) |
-| Nom de domaine | `dabohair.com` ou `dabohair.sn` (choix final à confirmer) | Jour J : ré-export une fois le choix fait |
+| Nom de domaine | **`dabohair.com`** (décidé le 24 novembre) | Jour J : domaine ajouté dans les sources et les images ré-exportées (le prix et la quantité restent à refaire) |
 | Gammes | **3 variétés** : à base d'avocat, de palme, de coco ; **200 gammes** en stock | J-7, J-3, J-1, Jour J et `promo-gamme/` sont **périmées** (« la gamme complète », « seulement 20 gammes ») : à refaire avec l'agent `maquettes-promo` |
 | Livraison | Frais selon la zone (1 500 à 2 000 F) ; étudié : livraison gratuite, frais inclus dans le prix des gammes | Prix et mentions de livraison des images J-7 à Jour J en attente de cette décision |
 | Réseaux sociaux | liens envoyés bientôt | — |
