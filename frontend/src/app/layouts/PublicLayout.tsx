@@ -31,9 +31,9 @@ export function PublicLayout() {
         Aller au contenu
       </a>
 
-      <div className="bg-gold px-4 py-2 text-center text-xs font-medium text-ink sm:text-sm">
+      <aside aria-label="Nos services" className="bg-gold px-4 py-2 text-center text-xs font-medium text-ink sm:text-sm">
         Retrait gratuit en boutique · Livraison à Dakar et environs · Paiement à la réception
-      </div>
+      </aside>
 
       <header className="sticky top-0 z-40 border-b border-ink-line bg-ink/95 px-4 backdrop-blur sm:px-6">
         <div className="mx-auto flex min-h-[72px] max-w-7xl items-center justify-between gap-4">
@@ -65,7 +65,7 @@ export function PublicLayout() {
             {user && <NotificationsBell />}
             <Link
               to={user ? '/compte' : '/connexion'}
-              aria-label={user ? `Mon compte (${user.first_name})` : 'Se connecter'}
+              aria-label={user ? `${user.first_name}, mon compte` : 'Se connecter'}
               className="hidden min-h-11 items-center gap-2 rounded-full px-2.5 hover:bg-ink-soft sm:flex"
             >
               <User className="size-[22px]" aria-hidden="true" />
@@ -134,10 +134,10 @@ function Footer() {
 
 function FooterNav({ title, links }: { title: string; links: [string, string][] }) {
   return (
-    <nav aria-label={title} className="flex flex-col gap-2.5">
+    <nav aria-label={title} className="flex flex-col items-start gap-1">
       <p className="text-[13px] font-semibold tracking-[0.14em] text-gold uppercase">{title}</p>
       {links.map(([label, to]) => (
-        <Link key={to} to={to} className="hover:text-gold">
+        <Link key={to} to={to} className="py-1.5 hover:text-gold">
           {label}
         </Link>
       ))}

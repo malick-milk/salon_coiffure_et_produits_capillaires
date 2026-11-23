@@ -6,7 +6,7 @@
  * - la page reste correcte après un rechargement.
  */
 import { ChevronLeft, ChevronRight, Search, SlidersHorizontal, X } from 'lucide-react'
-import { useEffect, useState, type FormEvent } from 'react'
+import { useEffect, useState, type FormEvent, useId } from 'react'
 import { useSearchParams } from 'react-router'
 import { Seo } from '@/components/common/Seo'
 import { EmptyState, QueryError } from '@/components/common/States'
@@ -92,8 +92,8 @@ export function CatalogPage() {
       <fieldset className="flex flex-col gap-3">
         <legend className="mb-3 text-[13px] font-semibold tracking-[0.14em] text-gold uppercase">Prix (F CFA)</legend>
         <div className="grid grid-cols-2 gap-2.5">
-          <PriceInput id="min-price" label="Min" value={filters.min_price} onCommit={(v) => update({ min_price: v })} />
-          <PriceInput id="max-price" label="Max" value={filters.max_price} onCommit={(v) => update({ max_price: v })} />
+          <PriceInput label="Min" value={filters.min_price} onCommit={(v) => update({ min_price: v })} />
+          <PriceInput label="Max" value={filters.max_price} onCommit={(v) => update({ max_price: v })} />
         </div>
       </fieldset>
 
@@ -176,6 +176,8 @@ export function CatalogPage() {
           </aside>
 
           <section aria-label="Résultats" className="flex min-w-0 flex-1 flex-col gap-8" aria-busy={products.isFetching}>
+            {/* Titre lu par les lecteurs d'écran : les cartes produit (h3) suivent un h2, pas directement le h1 */}
+            <h2 className="sr-only">Produits</h2>
             {products.isError ? (
               <QueryError message={apiErrorMessage(products.error)} onRetry={() => products.refetch()} />
             ) : products.isPending ? (
@@ -239,8 +241,13 @@ function Chip({ label, onRemove }: { label: string; onRemove: () => void }) {
   )
 }
 
-/** Champ de prix : la valeur n'est appliquée qu'en quittant le champ ou avec Entrée */
-function PriceInput({ id, label, value, onCommit }: { id: string; label: string; value?: number; onCommit: (v: string | undefined) => void }) {
+/**
+ * Champ de prix : la valeur n'est appliquée qu'en quittant le champ ou avec Entrée.
+ * Identifiant unique (useId) : le panneau de filtres existe deux fois (colonne sur ordinateur, tiroir sur
+ * téléphone). Avec un id fixe, le libellé « Min » du téléphone visait le champ caché de l'ordinateur (audit du 24 novembre 2026).
+ */
+function PriceInput({ label, value, onCommit }: { label: string; value?: number; onCommit: (v: string | undefined) => void }) {
+  const id = useId()
   const [draft, setDraft] = useState(value?.toString() ?? '')
   useEffect(() => setDraft(value?.toString() ?? ''), [value])
   const commit = () => onCommit(draft.trim() === '' ? undefined : String(Math.max(0, Math.floor(Number(draft)))))

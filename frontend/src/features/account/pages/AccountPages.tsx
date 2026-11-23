@@ -7,6 +7,7 @@ import { useForm } from 'react-hook-form'
 import { Link, useParams } from 'react-router'
 import { z } from 'zod'
 import { applyServerErrors, Field } from '@/components/common/FormField'
+import { onInvalidFocus } from '@/lib/focusFirstInvalid'
 import { Seo } from '@/components/common/Seo'
 import { EmptyState, QueryError } from '@/components/common/States'
 import { StatusBadge } from '@/components/common/StatusBadge'
@@ -314,6 +315,7 @@ export function ProfilePage() {
   const update = useUpdateProfile()
   const [saved, setSaved] = useState(false)
   const { register, handleSubmit, setError, formState: { errors, isDirty } } = useForm<z.input<typeof profileSchema>, unknown, z.output<typeof profileSchema>>({
+    shouldFocusError: false, // remplacé par onInvalidFocus
     resolver: zodResolver(profileSchema),
     values: { first_name: user?.first_name ?? '', last_name: user?.last_name ?? '', phone: user?.phone ?? '', email: user?.email ?? '' },
   })
@@ -332,13 +334,13 @@ export function ProfilePage() {
               onSuccess: () => setSaved(true),
               onError: (e) => { if (apiErrorStatus(e) === 422 && axios.isAxiosError<ValidationErrorBody>(e)) applyServerErrors(e.response?.data.errors, setError) },
             })
-          })}
+          }, onInvalidFocus)}
         >
           <div className="grid gap-5 sm:grid-cols-2">
             <Field label="Prénom" error={errors.first_name?.message}>{(id, d) => <Input id={id} autoComplete="given-name" aria-invalid={!!errors.first_name} aria-describedby={d} {...register('first_name')} />}</Field>
             <Field label="Nom (facultatif)" error={errors.last_name?.message}>{(id, d) => <Input id={id} autoComplete="family-name" aria-invalid={!!errors.last_name} aria-describedby={d} {...register('last_name')} />}</Field>
           </div>
-          <Field label="Téléphone mobile" error={errors.phone?.message}>{(id, d) => <Input id={id} type="tel" autoComplete="tel" aria-invalid={!!errors.phone} aria-describedby={d} {...register('phone')} />}</Field>
+          <Field label="Téléphone mobile" error={errors.phone?.message}>{(id, d) => <Input id={id} type="tel" inputMode="tel" autoComplete="tel" aria-invalid={!!errors.phone} aria-describedby={d} {...register('phone')} />}</Field>
           {user?.email ? (
             <Field label="Email" hint="Pour changer d’email, contactez le salon (vérification d’identité).">{(id, d) => <Input id={id} value={user.email ?? ''} readOnly aria-describedby={d} className="text-muted" />}</Field>
           ) : (

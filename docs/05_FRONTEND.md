@@ -253,3 +253,19 @@ L'adresse n'est obligatoire **que** pour une livraison. Zod l'exprime avec `supe
    - *Ordre de la déconnexion* : l'écran apprenait « personne n'est connecté » avant le retour à l'accueil ; la page protégée renvoyait alors vers `/connexion?redirect=/compte/reservations`, et la gérante qui se connectait juste après y était envoyée. Maintenant : le serveur ferme la session, puis retour à l'accueil, puis mise à jour de l'écran. Et le personnel va toujours dans l'ERP (`staffRedirect`), une cliente toujours dans son espace (`customerRedirect`).
    > Leçon : un filtre écrit « en négatif » (« tout sauf ce qui commence par… ») épargne plus qu'on ne croit. Le parcours `parcours-compte` rejoue maintenant le scénario exact : cliente, déconnexion, gérante.
 8. **Profil d'un compte sans e-mail** : le champ e-mail était bloqué (« contactez le salon ») et le nom obligatoire. Maintenant : nom facultatif, e-mail **ajouté** par la cliente quand il n'y en a pas (le changer passe toujours par le salon), et le nouveau numéro suit sur la fiche cliente (avant, l'ancien y restait et bloquait une inscription par une erreur 500).
+
+
+## Audit d'expérience utilisateur et d'accessibilité (24 novembre 2026)
+
+Outil : un script Playwright passe sur **41 pages** (visiteuse, cliente, gérante ; téléphone et ordinateur), lance **axe-core** (règles WCAG 2.2 AA) et mesure les erreurs JavaScript, les erreurs serveur, le débordement horizontal, les zones tactiles et les liens internes.
+
+| Constat | Gravité | Correction |
+|---|---|---|
+| **Commande refusée sur téléphone** : le curseur partait sur la dernière case (accord), en bas ; les erreurs du prénom et du nom restaient hors de l'écran, le bouton semblait « ne rien faire ». Cause probable de la commande « qui ne passait pas » | **Important** | `focusFirstInvalid()` (`FormField.tsx`) : 1er champ en erreur dans l'ordre de la page, centré, curseur dedans ; sur les 5 formulaires, et après les erreurs du serveur. Tests unitaires + parcours livraison |
+| Boutique : les champs de prix Min/Max existaient deux fois avec le même identifiant ; sur téléphone, le libellé visait le champ caché | Moyen | `useId()` dans `PriceInput` |
+| Bouton du compte : nom lu « Mon compte (Mariama) » alors que l'écran affiche « Mariama » (la commande vocale « Mariama » ne marchait pas, WCAG 2.5.3) | Moyen | « Mariama, mon compte » ; idem pour le logo de l'ERP |
+| Bandeau doré hors des zones repères ; titres produits (h3) directement sous le h1 ; colonne de tableau sans titre ; régions de l'ERP en gris trop pâle (4,39:1) | Faible | `<aside>`, `h2` invisible « Produits », « Actions » lu par les lecteurs d'écran, gris #52525b |
+| Liens du pied de page, du fil d'Ariane et de la composition de la gamme : 20 à 23 px de haut (minimum 24 px) ; case « J'accepte » écrasée à 13 px | Faible | marges verticales, `shrink-0` |
+| Téléphone du profil : pas de clavier numérique | Faible | `inputMode="tel"` |
+
+Résultat après corrections : **0 violation axe** sur les 41 pages, aucun débordement, aucune erreur JavaScript.

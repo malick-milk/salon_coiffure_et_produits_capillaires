@@ -12,6 +12,7 @@ import { QueryError } from '@/components/common/States'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { formatLongDate, formatPrice } from '@/lib/format'
+import { focusFirstInvalid } from '@/lib/focusFirstInvalid'
 import { apiErrorMessage, apiErrorStatus, type ValidationErrorBody } from '@/lib/http'
 import { useMe } from '@/features/auth/hooks'
 import type { BookingConfirmation, Service } from '@/types/api'
@@ -123,6 +124,7 @@ export function BookingPage() {
               const field = key.replace('customer.', '') as Parameters<ContactSetError>[0]
               setError(field, { message: messages[0] })
             }
+            focusFirstInvalid()
           }
         },
       },

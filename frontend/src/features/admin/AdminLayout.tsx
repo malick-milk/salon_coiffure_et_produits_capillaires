@@ -68,7 +68,7 @@ export function AdminLayout() {
   return (
     <div className="flex min-h-screen flex-col bg-[#f4f4f5] text-ink [color-scheme:light] lg:flex-row">
       <nav aria-label="Menu ERP" className="flex w-full flex-col gap-5 bg-ink p-4 text-ivory lg:min-h-screen lg:w-64 lg:shrink-0">
-        <Link to="/admin" aria-label="Dabo Hair, ERP : tableau de bord" className="flex items-center gap-3 px-1"><Logo variant="icon" /><span className="flex flex-col leading-tight"><span className="font-display text-lg text-gold">Dabo Hair</span><span className="text-xs tracking-[0.2em] text-[#a3a3a3] uppercase">ERP</span></span></Link>
+        <Link to="/admin" title="Tableau de bord" className="flex items-center gap-3 px-1"><Logo variant="icon" /><span className="flex flex-col leading-tight"><span className="font-display text-lg text-gold">Dabo Hair</span><span className="text-xs tracking-[0.2em] text-[#a3a3a3] uppercase">ERP</span></span></Link>
         <div className="flex gap-4 overflow-x-auto lg:flex-col lg:gap-5 lg:overflow-visible">
           {menu.map((g) => (
             <div key={g.group} className="flex shrink-0 gap-1 lg:flex-col">

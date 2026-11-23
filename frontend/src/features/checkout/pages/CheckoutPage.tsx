@@ -10,6 +10,7 @@ import { useEffect, useState } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
 import { Link, Navigate } from 'react-router'
 import { applyServerErrors, Field } from '@/components/common/FormField'
+import { onInvalidFocus } from '@/lib/focusFirstInvalid'
 import { Seo } from '@/components/common/Seo'
 import { Button } from '@/components/ui/button'
 import { Input, Textarea } from '@/components/ui/input'
@@ -40,6 +41,7 @@ export function CheckoutPage() {
   const [conflict, setConflict] = useState<StockConflict | null>(null)
 
   const { register, handleSubmit, control, setError, reset, formState: { errors } } = useForm<CheckoutInput, unknown, CheckoutValues>({
+    shouldFocusError: false, // remplacé par onInvalidFocus : le 1er champ en erreur DANS L'ORDRE DE LA PAGE
     resolver: zodResolver(checkoutSchema),
     defaultValues: {
       fulfillment_method: 'pickup', delivery_zone_id: '', pickup_point_id: '', first_name: '', last_name: '', phone: '', email: '',
@@ -130,7 +132,7 @@ export function CheckoutPage() {
         )}
 
         <div className="flex flex-col gap-8 lg:flex-row lg:items-start">
-          <form id={FORM_ID} noValidate onSubmit={handleSubmit(onSubmit)} className="flex min-w-0 flex-1 flex-col gap-6">
+          <form id={FORM_ID} noValidate onSubmit={handleSubmit(onSubmit, onInvalidFocus)} className="flex min-w-0 flex-1 flex-col gap-6">
             <fieldset className="flex flex-col gap-4 rounded-[20px] border border-ink-line bg-ink-soft p-5 sm:p-7">
               <legend className="sr-only">Mode de réception</legend>
               <h2 className="font-display text-2xl font-semibold" aria-hidden="true">1. Mode de réception</h2>
@@ -199,7 +201,7 @@ export function CheckoutPage() {
               <Field label="Remarque (facultatif)" error={errors.notes?.message}>{(id, d) => <Textarea id={id} rows={2} maxLength={500} aria-describedby={d} {...register('notes')} />}</Field>
               <div className="flex flex-col gap-1.5">
                 <label className="flex items-start gap-3 text-sm leading-relaxed text-[#d9d9d9]">
-                  <input type="checkbox" className="mt-0.5 size-[18px] accent-gold" aria-invalid={!!errors.consent} {...register('consent')} />
+                  <input type="checkbox" className="mt-0.5 size-[18px] shrink-0 accent-gold" aria-invalid={!!errors.consent} {...register('consent')} />
                   J'accepte les conditions de vente et l'utilisation de mes données pour traiter la commande.
                 </label>
                 {errors.consent && <p role="alert" className="text-sm font-medium text-[#f87171]">{errors.consent.message}</p>}

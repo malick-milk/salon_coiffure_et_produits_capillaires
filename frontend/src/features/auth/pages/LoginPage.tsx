@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { Link, Navigate, useNavigate, useSearchParams } from 'react-router'
 import { applyServerErrors, Field } from '@/components/common/FormField'
+import { onInvalidFocus } from '@/lib/focusFirstInvalid'
 import { Seo } from '@/components/common/Seo'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -31,6 +32,7 @@ export function LoginPage() {
   const login = useLogin()
   const [submitted, setSubmitted] = useState(false)
   const { register, handleSubmit, setError, formState: { errors } } = useForm<LoginValues>({
+    shouldFocusError: false, // remplacé par onInvalidFocus : le 1er champ en erreur DANS L'ORDRE DE LA PAGE
     resolver: zodResolver(loginSchema),
     defaultValues: { email: '', password: '', remember: true },
   })
@@ -52,7 +54,7 @@ export function LoginPage() {
   const status = apiErrorStatus(login.error)
   return (
     <AuthShell title="Connexion" subtitle="Suivez vos commandes et vos rendez-vous.">
-      <form noValidate onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5">
+      <form noValidate onSubmit={handleSubmit(onSubmit, onInvalidFocus)} className="flex flex-col gap-5">
         <Field label="E-mail ou téléphone" error={errors.email?.message}>
           {(id, d) => <Input id={id} autoComplete="username" placeholder="vous@exemple.sn ou 77 123 45 67" aria-invalid={!!errors.email} aria-describedby={d} {...register('email')} />}
         </Field>
@@ -60,7 +62,7 @@ export function LoginPage() {
           {(id, d) => <PasswordInput id={id} autoComplete="current-password" aria-invalid={!!errors.password} aria-describedby={d} {...register('password')} />}
         </Field>
         <label className="flex items-center gap-2.5 text-sm">
-          <input type="checkbox" className="size-[18px] accent-gold" {...register('remember')} />
+          <input type="checkbox" className="size-[18px] shrink-0 accent-gold" {...register('remember')} />
           Rester connecté sur cet appareil
         </label>
         {login.isError && status !== 422 && <p role="alert" className="text-sm font-medium text-[#f87171]">{apiErrorMessage(login.error)}</p>}

@@ -62,7 +62,8 @@ export function Table({ head, children, minWidth = 640 }: { head: string[]; chil
       <table className="w-full border-collapse text-sm text-ink" style={{ minWidth }}>
         <thead>
           <tr className="border-b border-[#e4e4e7] text-left text-xs text-[#52525b]">
-            {head.map((h, i) => <th key={i} scope="col" className="px-2 py-2.5 font-semibold">{h}</th>)}
+            {/* Colonne sans titre (boutons) : un titre lu par les lecteurs d'écran seulement */}
+            {head.map((h, i) => <th key={i} scope="col" className="px-2 py-2.5 font-semibold">{h || <span className="sr-only">Actions</span>}</th>)}
           </tr>
         </thead>
         <tbody className="[&_tr]:border-b [&_tr]:border-[#f4f4f5] [&_td]:px-2 [&_td]:py-3">{children}</tbody>

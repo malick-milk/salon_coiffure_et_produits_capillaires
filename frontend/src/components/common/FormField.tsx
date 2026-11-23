@@ -1,5 +1,6 @@
 import { useId, type ReactNode } from 'react'
 import { Label } from '@/components/ui/input'
+import { focusFirstInvalid } from '@/lib/focusFirstInvalid'
 
 /** Champ accessible : libellé, aide et erreur reliés au champ (aria-describedby) */
 export function Field({ label, hint, error, children }: { label: string; hint?: string; error?: string; children: (id: string, describedBy?: string) => ReactNode }) {
@@ -17,9 +18,10 @@ export function Field({ label, hint, error, children }: { label: string; hint?: 
   )
 }
 
-/** Applique les erreurs 422 du serveur (« customer.phone ») sur les champs du formulaire */
+/** Applique les erreurs 422 du serveur (« customer.phone ») sur les champs du formulaire, puis montre la première */
 export function applyServerErrors(errors: Record<string, string[]> | undefined, setError: (field: never, e: { message: string }) => void, prefix = '') {
   for (const [key, messages] of Object.entries(errors ?? {})) {
     setError(key.replace(prefix, '') as never, { message: messages[0] ?? 'Valeur invalide.' })
   }
+  focusFirstInvalid()
 }

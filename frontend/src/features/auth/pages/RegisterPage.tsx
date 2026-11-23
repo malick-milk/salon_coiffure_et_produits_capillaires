@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { Link, Navigate, useLocation, useNavigate, useSearchParams } from 'react-router'
 import { applyServerErrors, Field } from '@/components/common/FormField'
+import { onInvalidFocus } from '@/lib/focusFirstInvalid'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { apiErrorMessage, apiErrorStatus, type ValidationErrorBody } from '@/lib/http'
@@ -34,6 +35,7 @@ export function RegisterPage() {
   // Venue de la confirmation d'une réservation : les coordonnées déjà saisies sont reprises
   const prefill = (useLocation().state as { prefill?: Partial<Record<'first_name' | 'last_name' | 'phone' | 'email', string>> } | null)?.prefill
   const { register, handleSubmit, setError, formState: { errors } } = useForm<RegisterInput, unknown, RegisterValues>({
+    shouldFocusError: false, // remplacé par onInvalidFocus : le 1er champ en erreur DANS L'ORDRE DE LA PAGE
     resolver: zodResolver(registerSchema),
     defaultValues: {
       first_name: prefill?.first_name ?? '', last_name: prefill?.last_name ?? '', email: prefill?.email ?? '', phone: prefill?.phone ?? '',
@@ -65,7 +67,7 @@ export function RegisterPage() {
           Votre {memberItem.name.toLowerCase().startsWith('gamme') ? 'gamme' : 'article'} à <strong className="text-gold">{formatPrice(memberItem.memberPrice ?? 0)}</strong> vous attend dans le panier.
         </p>
       )}
-      <form noValidate onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5">
+      <form noValidate onSubmit={handleSubmit(onSubmit, onInvalidFocus)} className="flex flex-col gap-5">
         <Field label="Prénom" error={errors.first_name?.message}>
           {(id, d) => <Input id={id} autoComplete="given-name" aria-invalid={!!errors.first_name} aria-describedby={d} {...register('first_name')} />}
         </Field>
@@ -81,7 +83,7 @@ export function RegisterPage() {
         {(errors.last_name || errors.email) && <p role="alert" className="text-sm text-[#f87171]">{errors.last_name?.message ?? errors.email?.message}</p>}
         <div className="flex flex-col gap-1.5">
           <label className="flex items-start gap-3 text-sm leading-relaxed text-[#d9d9d9]">
-            <input type="checkbox" className="mt-0.5 size-[18px] accent-gold" aria-invalid={!!errors.consent} {...register('consent')} />
+            <input type="checkbox" className="mt-0.5 size-[18px] shrink-0 accent-gold" aria-invalid={!!errors.consent} {...register('consent')} />
             J'accepte la politique de confidentialité (gestion de mon compte, de mes commandes et rendez-vous).
           </label>
           {errors.consent && <p role="alert" className="text-sm font-medium text-[#f87171]">{errors.consent.message}</p>}

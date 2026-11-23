@@ -35,7 +35,7 @@ const log = (ok, msg) => { if (!ok) failures++; console.log(`${ok ? 'OK  ' : 'FA
   await page.getByRole('button', { name: 'Se connecter' }).click()
   await page.waitForURL('**/compte/reservations')
   log(true, 'Connexion réussie : retour automatique sur /compte/reservations')
-  log((await page.getByRole('link', { name: 'Mon compte (Mariama)' }).count()) === 1, 'En-tête : prénom affiché')
+  log((await page.getByRole('link', { name: 'Mariama, mon compte' }).count()) === 1, 'En-tête : prénom affiché')
 
   // 4. Annulation d'une réservation à plus de 24 h
   await page.getByText('RDV-2026-000201').waitFor()

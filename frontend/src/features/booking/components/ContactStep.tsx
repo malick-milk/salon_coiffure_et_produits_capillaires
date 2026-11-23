@@ -7,6 +7,7 @@ import { useEffect } from 'react'
 import { useForm, type UseFormSetError } from 'react-hook-form'
 import { useMe } from '@/features/auth/hooks'
 import { Field } from '@/components/common/FormField'
+import { onInvalidFocus } from '@/lib/focusFirstInvalid'
 import { Input, Textarea } from '@/components/ui/input'
 import { contactSchema, type ContactInput, type ContactValues } from '../schema'
 
@@ -21,6 +22,7 @@ export function ContactStep({ formId, onSubmit }: { formId: string; onSubmit: (v
     reset,
     formState: { errors },
   } = useForm<ContactInput, unknown, ContactValues>({
+    shouldFocusError: false, // remplacé par onInvalidFocus : le 1er champ en erreur DANS L'ORDRE DE LA PAGE
     resolver: zodResolver(contactSchema),
     defaultValues: { first_name: '', last_name: '', phone: '', email: '', notes: '', consent: false as unknown as true },
     mode: 'onTouched', // erreur affichée en quittant le champ, pas pendant la saisie
@@ -34,7 +36,7 @@ export function ContactStep({ formId, onSubmit }: { formId: string; onSubmit: (v
   }, [user, reset])
 
   return (
-    <form id={formId} noValidate onSubmit={handleSubmit((values) => onSubmit(values, setError))} className="flex flex-col gap-5">
+    <form id={formId} noValidate onSubmit={handleSubmit((values) => onSubmit(values, setError), onInvalidFocus)} className="flex flex-col gap-5">
       {user && (
         <p className="rounded-xl border border-ink-line bg-ink-soft px-4 py-3 text-sm text-[#d9d9d9]">
           Coordonnées reprises de votre compte : vérifiez-les, puis envoyez la demande. Le rendez-vous apparaîtra dans « Mes réservations ».
@@ -59,7 +61,7 @@ export function ContactStep({ formId, onSubmit }: { formId: string; onSubmit: (v
       </Field>
       <div className="flex flex-col gap-1.5">
         <label className="flex items-start gap-3 text-sm leading-relaxed text-[#d9d9d9]">
-          <input type="checkbox" className="mt-0.5 size-[18px] accent-gold" aria-invalid={!!errors.consent} {...register('consent')} />
+          <input type="checkbox" className="mt-0.5 size-[18px] shrink-0 accent-gold" aria-invalid={!!errors.consent} {...register('consent')} />
           J'accepte que mes données soient utilisées pour gérer ce rendez-vous (politique de confidentialité).
         </label>
         {errors.consent && <p role="alert" className="text-sm font-medium text-[#f87171]">{errors.consent.message}</p>}

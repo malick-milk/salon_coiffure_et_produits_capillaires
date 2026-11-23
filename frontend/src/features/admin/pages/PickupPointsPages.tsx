@@ -72,7 +72,7 @@ export function PickupPointsPage() {
             <Card title="Régions couvertes">
               <div className="flex flex-wrap gap-2">
                 {points.data.summary.regions.map((r) => (
-                  <span key={r} className={cn('rounded-full px-3 py-1.5 text-sm', points.data.summary.regions_covered.includes(r) ? 'bg-ink text-gold' : 'bg-[#f4f4f5] text-[#71717a]')}>{r}</span>
+                  <span key={r} className={cn('rounded-full px-3 py-1.5 text-sm', points.data.summary.regions_covered.includes(r) ? 'bg-ink text-gold' : 'bg-[#f4f4f5] text-[#52525b]')}>{r}</span>
                 ))}
               </div>
             </Card>

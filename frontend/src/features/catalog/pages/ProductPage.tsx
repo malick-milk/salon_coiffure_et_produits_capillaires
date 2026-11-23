@@ -60,11 +60,11 @@ export function ProductPage() {
       <Seo title={fullName} description={product.short_description ?? `${fullName} — ${formatPrice(product.price)}. Soin capillaire Dabo Hair.`} />
       <div className="mx-auto flex max-w-7xl flex-col gap-10">
         <nav aria-label="Fil d'Ariane" className="flex flex-wrap items-center gap-2 text-sm text-[#a3a3a3]">
-          <Link to="/" className="hover:text-gold">Accueil</Link>
+          <Link to="/" className="py-2 hover:text-gold">Accueil</Link>
           <span aria-hidden="true">/</span>
-          <Link to="/boutique" className="hover:text-gold">Boutique</Link>
+          <Link to="/boutique" className="py-2 hover:text-gold">Boutique</Link>
           <span aria-hidden="true">/</span>
-          <Link to={`/boutique?category=${product.category.slug}`} className="hover:text-gold">{product.category.name}</Link>
+          <Link to={`/boutique?category=${product.category.slug}`} className="py-2 hover:text-gold">{product.category.name}</Link>
           <span aria-hidden="true">/</span>
           <span className="text-ivory" aria-current="page">{fullName}</span>
         </nav>
@@ -162,11 +162,11 @@ export function ProductPage() {
             {product.bundle_items && product.bundle_items.length > 0 && (
               <div className="flex flex-col gap-2">
                 <h2 className="text-sm font-semibold text-muted">Dans la gamme</h2>
-                <ul className="grid grid-cols-2 gap-x-4 gap-y-1.5 text-[15px] text-[#e6e1d6]">
+                <ul className="grid grid-cols-2 gap-x-4 gap-y-0.5 text-[15px] text-[#e6e1d6]">
                   {product.bundle_items.map((i) => (
                     <li key={i.slug} className="flex items-center gap-2">
                       <span aria-hidden="true" className="size-1.5 rounded-full bg-gold" />
-                      <Link to={`/produits/${i.slug}`} className="hover:text-gold">{i.quantity > 1 ? `${i.quantity} × ` : ''}{i.name}</Link>
+                      <Link to={`/produits/${i.slug}`} className="py-1 hover:text-gold">{i.quantity > 1 ? `${i.quantity} × ` : ''}{i.name}</Link>
                     </li>
                   ))}
                 </ul>

@@ -60,6 +60,9 @@ const text = async (locator) => (await locator.textContent()).replace(/[\u202f\u
   await page.getByRole('link', { name: 'Valider la commande' }).click()
   await page.getByRole('radio', { name: /Livraison/ }).check()
   await page.getByLabel('Zone de livraison *').selectOption({ label: options.find((o) => o.includes('Dakar Plateau')) })
+  // Bug du 24 novembre 2026 : bouton pressé avec des champs vides → le curseur doit aller au 1er champ en erreur (Prénom), pas en bas
+  await page.getByRole('button', { name: 'Confirmer la commande' }).click()
+  await page.waitForFunction(() => document.activeElement?.labels?.[0]?.textContent?.startsWith('Prénom'), null, { timeout: 5000 }).then(() => log(true, 'Commande incomplète : le curseur va sur « Prénom », le 1er champ en erreur'), () => log(false, 'Commande incomplète : le curseur ne va pas sur « Prénom »'))
   await page.getByLabel('Prénom *').fill('Khady')
   await page.getByLabel('Nom *', { exact: true }).fill('Fall')
   await page.getByLabel('Téléphone mobile *').fill('76 444 55 66')
