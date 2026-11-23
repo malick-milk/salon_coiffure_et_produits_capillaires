@@ -9,7 +9,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { homeContent } from '@/content/home'
 import { salon, salonMapsUrl } from '@/content/salon'
 import { useBusinessHours, useServices } from '@/features/booking/hooks'
-import { MemberOfferHero } from '@/features/catalog/components/MemberOffer'
+import { MemberOfferSlide, useLaunchOffer } from '@/features/catalog/components/MemberOffer'
 import { ProductCard } from '@/features/catalog/components/ProductCard'
 import { AdCarousel } from '@/features/home/components/AdCarousel'
 import { useProducts } from '@/features/catalog/hooks'
@@ -40,6 +40,7 @@ export function HomePage() {
   const featured = useProducts({ featured: true, sort: 'newest' })
   const services = useServices()
   const hours = useBusinessHours()
+  const launch = useLaunchOffer()
 
   return (
     <>
@@ -51,10 +52,11 @@ export function HomePage() {
         openingHours: 'Mo-Su 09:00-19:00',
       })}</script>
 
-      {/* Lancement du 15 décembre : la gamme au prix membre (rien ne s'affiche si l'offre n'existe pas) */}
-      <MemberOfferHero />
-
-      <AdCarousel ads={homeContent.ads} />
+      {/* Un seul carrousel. Lancement du 15 décembre : la gamme au prix membre passe en premier (si l'offre est active) */}
+      <AdCarousel
+        ads={homeContent.ads}
+        lead={launch && { label: 'Offre de lancement · Réservée aux membres', render: (first) => <MemberOfferSlide product={launch} first={first} /> }}
+      />
 
       <section aria-label="Nos engagements" className="border-y border-ink-line px-4 py-7 sm:px-6">
         <ul className="mx-auto grid max-w-7xl gap-6 sm:grid-cols-2 lg:grid-cols-4">

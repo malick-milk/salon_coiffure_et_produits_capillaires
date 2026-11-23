@@ -41,13 +41,16 @@ export interface Ad {
   imageTall: string
   imageAlt: string
   badge: string | null
+  /** true = masquée tant que l'offre de lancement (prix membre) est en tête du carrousel : évite d'afficher deux fois la même gamme (facultatif) */
+  hiddenDuringMemberOffer?: boolean
 }
 
 export const homeContent = {
   /**
    * PUBLICITÉS du haut de l'accueil (carrousel). Une publicité = une image, un message, un prix, un bouton.
-   * Pour en ajouter une : copier un bloc { … } et le coller à la suite (3 au maximum : au-delà, presque
-   * personne ne voit les suivantes). Avec une seule publicité, les flèches et les points sont masqués.
+   * Pour en ajouter une : copier un bloc { … } et le coller à la suite (5 au maximum : chaque publicité
+   * reste 10 secondes, au-delà presque personne ne voit les dernières). Avec une seule publicité, les flèches,
+   * les points et le bouton Pause sont masqués. La gamme au prix membre, quand l'offre est active, passe en premier.
    * Images : imageWide pour ordinateur (environ 1600 × 1200 px), imageTall pour téléphone (1200 × 1600 px).
    * Les publicités s'affichent dans l'ordre de la liste.
    */
@@ -83,6 +86,7 @@ export const homeContent = {
       imageTall: '/images/publicites/gamme-verticale.webp',
       imageAlt: 'Les six soins Dabo Hair sur une table : Leave In, sérum, masque, crème, spray hydratant et shampooing',
       badge: 'Fabrication maison · Dakar',
+      hiddenDuringMemberOffer: true,
     },
   ] satisfies Ad[] as Ad[],
   /** Bandeau des 4 engagements sous les publicités */

@@ -128,4 +128,21 @@ Maquettes validées le 18 novembre 2026 (canevas, section « Lancement du 15 dé
 
 **À confirmer avec Awa :** le sérum de la gamme (Activ'Pousse ou Booster). Pour changer : la liste des 6 références dans `DaboHairCatalogSeeder`, puis `php artisan db:seed --class=DaboHairCatalogSeeder`.
 
+## 9. Un seul carrousel en haut de l'accueil (maquette validée le 24 novembre 2026)
+
+Avant : l'offre membre, puis le carrousel, l'un sous l'autre : deux fois la même gamme, encombrant. Après : **un seul carrousel**, l'offre membre en première publicité, puis les publicités de `home.ts` (les 3 gammes avocat, palme, coco quand elles seront au catalogue).
+
+| Règle | Où |
+|---|---|
+| Une publicité toutes les **10 s**, fondu de 0,7 s, la photo zoome lentement (de 100 à 106 %) | `AdCarousel.tsx` (`SLIDE_SECONDS`), `index.css` |
+| La barre dorée sous le point actif **est** la minuterie : la fin de son animation passe à la suivante | `onAnimationEnd` |
+| **Pause** : bouton toujours visible ; arrêt aussi quand la souris est dessus, au clavier dans le carrousel, onglet caché (WCAG 2.2.2) | `data-paused` |
+| « Réduire les animations » sur le téléphone : aucun défilement ni zoom, flèches et points restent | `prefers-reduced-motion` |
+| Téléphone : glisser du doigt (au moins 50 px) | `onTouchStart` / `onTouchEnd` |
+| Toutes les publicités empilées dans la même case : **hauteur stable**, la page ne saute pas ; les cachées sont inertes et ignorées des lecteurs d'écran | `inert`, `aria-hidden` |
+| Un seul titre principal (`h1`) : celui de la 1re publicité ; les suivantes ont un `h2` | `AdSlide`, `MemberOfferSlide` |
+| Le numéro « 2 / 4 » n'est annoncé aux lecteurs d'écran que si la visiteuse change elle-même (pas toutes les 10 s) | `aria-live` |
+
+> Concept React : plutôt qu'un `setInterval` qu'il faudrait arrêter et relancer à chaque pause, on laisse **le navigateur** compter (une animation CSS de 10 s) et on écoute sa fin. Mettre en pause = `animation-play-state: paused` : la barre et le temps restant se figent ensemble, il n'y a qu'une seule « vérité ».
+
 **Limite connue :** un compte créé sans e-mail ne peut pas utiliser « mot de passe oublié » (le lien part par e-mail). La cliente passe par le salon ; une réinitialisation par SMS est à prévoir avec le chiffrage des SMS.

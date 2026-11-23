@@ -71,6 +71,8 @@ php artisan db:seed --class=ReferenceDataSeeder
 
 Les publicités du haut de l'accueil sont dans `frontend/src/content/home.ts`, dans la liste `ads`. Chaque publicité est un bloc `{ … }`.
 
+**Le carrousel (depuis le 24 novembre 2026).** Une seule publicité à la fois, qui change toute seule **toutes les 10 secondes**, en fondu. Quand l'offre de lancement (prix membre) est active, elle passe **en premier**, et la publicité marquée `hiddenDuringMemberOffer: true` se retire pour ne pas montrer deux fois la même gamme. Pour ajouter les gammes avocat, palme et coco : un bloc par gamme, dans l'ordre voulu ; **5 publicités au maximum**. La durée (10 s) se change dans `frontend/src/features/home/components/AdCarousel.tsx`, constante `SLIDE_SECONDS`.
+
 **Changer le prix** : modifiez la ligne `price: '15 000 F CFA',`. Avec `price: null,`, aucun prix n'est affiché.
 
 **Lancer ou arrêter la promotion « 20 gammes à 10 000 F »** : elle est déjà prête, c'est le premier bloc de la liste. Pour l'afficher, changez `visible: false,` en `visible: true,`. Elle passe alors en premier ; la publicité normale à 15 000 F reste en 2e position.

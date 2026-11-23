@@ -94,11 +94,81 @@ describe('Publicités de l’accueil', () => {
     unmount()
     setAds(standard(), { ...standard(), title: 'Le masque à la kératine' })
     renderHome()
+    // Un seul titre principal (h1) dans la page : les publicités suivantes sont des h2
+    expect(screen.queryByRole('heading', { name: 'Le masque à la kératine' })).not.toBeInTheDocument() // cachée : ignorée des lecteurs d'écran
     fireEvent.click(screen.getByRole('button', { name: 'Publicité suivante' }))
-    expect(screen.getByRole('heading', { level: 1, name: 'Le masque à la kératine' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 2, name: 'Le masque à la kératine' })).toBeInTheDocument()
+    expect(screen.queryByRole('heading', { level: 1 })).not.toBeInTheDocument() // la 1re est maintenant cachée
     expect(screen.getByText('2 / 2')).toBeInTheDocument()
     fireEvent.click(screen.getByRole('button', { name: 'Publicité suivante' })) // revient à la première
     expect(screen.getByRole('heading', { level: 1, name: standard().title })).toBeInTheDocument()
+  })
+
+  // Carrousel (maquette validée le 24 novembre 2026) : défilement toutes les 10 s, pause, pas de doublon
+  it('défilement automatique : la fin de la barre dorée (10 s) passe à la publicité suivante', () => {
+    setAds(standard(), { ...standard(), title: 'Deuxième' })
+    renderHome()
+    fireEvent.animationEnd(screen.getByTestId('carousel-progress'))
+    expect(screen.getByRole('heading', { level: 2, name: 'Deuxième' })).toBeInTheDocument()
+    expect(screen.getByText('2 / 2')).toBeInTheDocument()
+    fireEvent.animationEnd(screen.getByTestId('carousel-progress')) // et on recommence au début
+    expect(screen.getByText('1 / 2')).toBeInTheDocument()
+  })
+
+  it('bouton Pause : fige le défilement, le compteur est alors annoncé ; Reprendre relance', () => {
+    setAds(standard(), { ...standard(), title: 'Deuxième' })
+    renderHome()
+    const carousel = screen.getByRole('region', { name: 'Offres du moment' })
+    expect(carousel).toHaveAttribute('data-paused', 'false')
+    expect(screen.getByText('1 / 2')).toHaveAttribute('aria-live', 'off') // pas d'annonce toutes les 10 s
+    fireEvent.click(screen.getByRole('button', { name: 'Mettre en pause le défilement' }))
+    expect(carousel).toHaveAttribute('data-paused', 'true')
+    expect(screen.getByText('1 / 2')).toHaveAttribute('aria-live', 'polite')
+    fireEvent.click(screen.getByRole('button', { name: 'Reprendre le défilement' }))
+    expect(carousel).toHaveAttribute('data-paused', 'false')
+  })
+
+  it('pause aussi quand la souris est dessus ou quand on navigue au clavier dedans', () => {
+    setAds(standard(), { ...standard(), title: 'Deuxième' })
+    renderHome()
+    const carousel = screen.getByRole('region', { name: 'Offres du moment' })
+    fireEvent.mouseEnter(carousel)
+    expect(carousel).toHaveAttribute('data-paused', 'true')
+    fireEvent.mouseLeave(carousel)
+    expect(carousel).toHaveAttribute('data-paused', 'false')
+    fireEvent.focus(screen.getByRole('button', { name: 'Publicité suivante' }))
+    expect(carousel).toHaveAttribute('data-paused', 'true')
+  })
+
+  it('téléphone : glisser vers la gauche montre la suivante, vers la droite la précédente', () => {
+    setAds(standard(), { ...standard(), title: 'Deuxième' })
+    renderHome()
+    const carousel = screen.getByRole('region', { name: 'Offres du moment' })
+    fireEvent.touchStart(carousel, { touches: [{ clientX: 300 }] })
+    fireEvent.touchEnd(carousel, { changedTouches: [{ clientX: 100 }] })
+    expect(screen.getByText('2 / 2')).toBeInTheDocument()
+    fireEvent.touchStart(carousel, { touches: [{ clientX: 100 }] })
+    fireEvent.touchEnd(carousel, { changedTouches: [{ clientX: 120 }] }) // trop court : rien ne change
+    expect(screen.getByText('2 / 2')).toBeInTheDocument()
+    fireEvent.touchStart(carousel, { touches: [{ clientX: 100 }] })
+    fireEvent.touchEnd(carousel, { changedTouches: [{ clientX: 300 }] })
+    expect(screen.getByText('1 / 2')).toBeInTheDocument()
+  })
+
+  it('« réduire les animations » : pas de défilement automatique ni de bouton Pause, les flèches restent', () => {
+    const mm = window.matchMedia
+    window.matchMedia = ((q: string) => ({ matches: q.includes('reduce'), addEventListener: () => {}, removeEventListener: () => {} })) as unknown as typeof window.matchMedia
+    try {
+      setAds(standard(), { ...standard(), title: 'Deuxième' })
+      renderHome()
+      expect(screen.queryByTestId('carousel-progress')).not.toBeInTheDocument()
+      expect(screen.queryByRole('button', { name: 'Mettre en pause le défilement' })).not.toBeInTheDocument()
+      expect(screen.getByRole('button', { name: 'Publicité suivante' })).toBeInTheDocument()
+    } finally { window.matchMedia = mm }
+  })
+
+  it('le fichier de contenu : la publicité de la gamme se retire pendant l’offre membre (pas de doublon)', () => {
+    expect(homeContent.ads.find((a) => a.visible !== false && !a.promo)?.hiddenDuringMemberOffer).toBe(true)
   })
 
   it('bannière promotionnelle : image du fichier de contenu, texte alternatif et lien', () => {

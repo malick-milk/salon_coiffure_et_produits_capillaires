@@ -7,7 +7,7 @@ import { Link, useLocation } from 'react-router'
 import { Button } from '@/components/ui/button'
 import { useMe } from '@/features/auth/hooks'
 import { formatPrice } from '@/lib/format'
-import type { ProductSummary } from '@/types/api'
+import type { ProductDetail, ProductSummary } from '@/types/api'
 import { useProduct } from '../hooks'
 
 /** Slug de la gamme du lancement (créée par DaboHairCatalogSeeder) */
@@ -85,31 +85,38 @@ export function MemberPriceBlock({ product }: { product: ProductSummary }) {
   )
 }
 
-/** Accueil : la gamme du lancement, si elle existe et que son offre est active */
-export function MemberOfferHero() {
+/** Accueil : la gamme du lancement, si elle existe et que son offre est active (sinon null) */
+export function useLaunchOffer(): ProductDetail | null {
   const { data: product } = useProduct(LAUNCH_BUNDLE_SLUG)
-  if (!product || !hasMemberOffer(product)) return null
+  return product && hasMemberOffer(product) ? product : null
+}
+
+/**
+ * Accueil : la gamme du lancement, PREMIÈRE publicité du carrousel (maquette validée le 24 novembre 2026).
+ * Même disposition que les autres publicités : texte à gauche, photo à droite (photo en haut sur téléphone).
+ */
+export function MemberOfferSlide({ product, first }: { product: ProductDetail; first: boolean }) {
   const offer = product.member_offer!
   const image = product.images[0]
-
+  const Heading = first ? 'h1' : 'h2'
   return (
-    <section aria-labelledby="offre-lancement" className="px-4 pt-6 sm:px-6">
-      <div className="mx-auto grid max-w-7xl gap-5 lg:grid-cols-2 lg:items-center">
-        <Link to={`/produits/${product.slug}`} className="relative block overflow-hidden rounded-[22px] border border-[#2b2516]" tabIndex={-1} aria-hidden="true">
-          {image && <img src={image.url} alt="" className="aspect-[4/3] w-full object-cover object-[center_64%]" />}
-          <span className="absolute top-3 left-3 rounded-full bg-ink px-3 py-1.5 text-[11px] font-semibold tracking-[0.14em] text-gold uppercase">Réservé aux membres</span>
-        </Link>
-        <div className="flex flex-col gap-3.5">
-          <h2 id="offre-lancement" className="font-display text-3xl leading-tight font-semibold sm:text-4xl">
-            <Link to={`/produits/${product.slug}`} className="hover:text-gold">La gamme complète, six soins</Link>
-          </h2>
-          <MemberPriceBlock product={product} />
-          {offer.status !== 'sold_out' && <MemberCounter remaining={offer.remaining} limit={offer.limit} />}
-          {offer.status !== 'sign_in' && (
-            <Button asChild variant="outline"><Link to={`/produits/${product.slug}`}>Voir la gamme</Link></Button>
-          )}
-        </div>
+    <div className="flex flex-col-reverse gap-4 sm:gap-6 lg:grid lg:grid-cols-[5fr_7fr] lg:items-stretch lg:gap-12">
+      <div className="flex flex-col justify-center gap-3.5 sm:gap-5">
+        <span className="self-start rounded-full border border-gold px-3.5 py-1.5 text-xs font-semibold tracking-[0.12em] text-gold uppercase">Offre de lancement<span className="hidden sm:inline"> · Réservée aux membres</span></span>
+        <Heading id="offre-lancement" className="font-display text-[30px] leading-[1.08] font-semibold sm:text-5xl xl:text-[54px]">
+          <Link to={`/produits/${product.slug}`} className="hover:text-gold">La gamme complète, six soins</Link>
+        </Heading>
+        <MemberPriceBlock product={product} />
+        {offer.status !== 'sold_out' && <MemberCounter remaining={offer.remaining} limit={offer.limit} />}
+        {offer.status !== 'sign_in' && (
+          <Button asChild variant="outline" className="self-start"><Link to={`/produits/${product.slug}`}>Voir la gamme</Link></Button>
+        )}
       </div>
-    </section>
+      <Link to={`/produits/${product.slug}`} tabIndex={-1} aria-hidden="true" className="relative block overflow-hidden rounded-[26px] border border-[#2b2516]">
+        {image && <img src={image.url} alt="" width={1600} height={1200} fetchPriority={first ? 'high' : 'auto'}
+          className="aspect-[4/3] max-h-[280px] w-full object-cover object-[center_64%] sm:max-h-[460px] lg:aspect-auto lg:h-full lg:max-h-[600px] slide-photo" />}
+        <span className="absolute top-3 left-3 rounded-full bg-ink px-3 py-1.5 text-[11px] font-semibold tracking-[0.14em] text-gold uppercase">Réservé aux membres</span>
+      </Link>
+    </div>
   )
 }
