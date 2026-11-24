@@ -203,7 +203,7 @@ class CatalogAdminController extends Controller
         if ($p->is_bundle) {
             $p->loadMissing('bundleItems.component');
             $costs = $p->bundleItems->map(fn ($i) => $i->component->cost_price === null ? null : (float) $i->component->cost_price * $i->quantity);
-            $cost = $costs->isEmpty() || $costs->contains(null) ? null : round((float) $costs->sum(), 2);
+            $cost = $costs->contains(null) ? null : round((float) $costs->sum(), 2); // une gamme a toujours au moins 2 produits
         }
 
         return [
