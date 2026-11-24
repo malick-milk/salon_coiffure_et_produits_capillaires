@@ -52,6 +52,8 @@ export interface ProductSummary {
   category: CategoryRef
   image_url: string | null
   is_bundle?: boolean // gamme : plusieurs soins vendus ensemble
+  bundle_contents?: string[] | null // gamme : ce qu'il y a dedans (menu « Gammes » de l'en-tête)
+  short_description?: string | null
   member_price?: Money | null // prix réservé aux clientes connectées (lancement du 15 décembre)
   member_offer?: MemberOffer | null
   promotion?: ProductPromotion | null // promotion en cours (le prix initial « price » ne change pas)

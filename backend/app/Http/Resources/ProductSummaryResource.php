@@ -32,6 +32,11 @@ class ProductSummaryResource extends JsonResource
             'stock_status' => $status,
             'stock_left' => $status === 'low_stock' ? $this->availableQuantity() : null, // « Plus que 4 en stock »
             'is_bundle' => $this->is_bundle,
+            // Menu « Gammes » de l'en-tête (24 novembre 2026) : ce qu'il y a dedans, en une ligne, et à qui elle s'adresse
+            'bundle_contents' => $this->is_bundle
+                ? $this->bundleItems->map(fn ($i) => ($i->quantity > 1 ? "{$i->quantity} × " : '').$i->component->displayName())->values()
+                : null,
+            'short_description' => $this->short_description,
             // Promotion en cours (le prix initial « price » ne change pas) ; applies : vaut-elle pour CETTE visiteuse ?
             'promotion' => $this->promotionData($request),
             // Prix membre (lancement du 15 décembre) : le prix, les places restantes, et la situation de CETTE visiteuse

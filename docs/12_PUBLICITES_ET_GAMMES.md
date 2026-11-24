@@ -169,3 +169,17 @@ Produit à part : **shampoing savon**, 5 000 F (photo à confirmer).
 **Attendu à la 2e réunion :** les coûts restants (spray, sérums, crèmes coco et palme…), les prix de vente des nouveaux produits (huiles, Virgin Hair, shampoing savon), les photos de chaque gamme.
 
 **Point signalé :** « Avocat · Tout type » à 15 000 F coûte plus cher que ses 4 produits achetés séparément (14 000 F aux prix actuels). Le prix membre de 10 000 F règle la question pendant le lancement ; à revoir après.
+
+## 11. Le menu « Gammes » de l'en-tête (maquette validée le 24 novembre 2026)
+
+| Règle | Où |
+|---|---|
+| Entrée « Gammes » en premier dans l'en-tête ; sur téléphone, bouton « Gammes » à côté du panier | `PublicLayout.tsx`, `GammesMenu.tsx` |
+| Ordinateur : bande horizontale de cartes (image, nom, description courte, contenu, prix), flèches ; téléphone : liste façon panier | `GammesMenu.tsx` (une seule liste, mise en page selon la largeur) |
+| Les gammes viennent du catalogue (catégorie « Gammes ») : une gamme créée dans l'ERP apparaît toute seule | API `products?category=gammes`, champ `bundle_contents` |
+| Chargées à la première ouverture (ou au survol) seulement : l'en-tête reste léger sur toutes les pages | `useProducts(…, { enabled })` |
+| Filtres Avocat · Coco · Palme · Enfants · Locs · Petits prix, affichés seulement s'ils servent | `gammeFilters.ts` (testé) |
+| Prix membre (cadre et badge dorés, prix barré) ; promotion en cours ; en rupture : « Bientôt de retour », jamais mise en avant | `GammeItem` |
+| Fermeture : Échap, clic dehors, re-clic, changement de page | `GammesMenu.tsx` |
+
+À la saisie d'une gamme dans l'ERP, la **description courte** devient le titre de la carte (« Pour les débutants », « Longueur, volume, réparatrice ») : la remplir pour chaque gamme.

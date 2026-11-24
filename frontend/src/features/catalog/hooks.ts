@@ -13,11 +13,12 @@ export const catalogKeys = {
   categories: ['categories'] as const,
 }
 
-export function useProducts(filters: ProductFilters) {
+export function useProducts(filters: ProductFilters, options: { enabled?: boolean } = {}) {
   return useQuery({
     queryKey: catalogKeys.products(filters),
     queryFn: () => fetchProducts(filters),
     placeholderData: keepPreviousData, // garde l'ancienne liste affichée pendant le changement de filtre
+    enabled: options.enabled ?? true,
   })
 }
 
