@@ -184,6 +184,25 @@ ERP → **Livraison** (`DeliveryPage.tsx`, `DeliveryAdminController`). Maquette 
 
 **Bug trouvé par le parcours e2e :** le formulaire est recréé après chaque enregistrement (pour repartir des valeurs du serveur), et il emportait avec lui le message « Tarifs enregistrés » : la gérante n'aurait jamais vu la confirmation. Le message vit maintenant dans le composant parent, qui, lui, n'est pas recréé.
 
+### 5 sexies. Créer une gamme (24 novembre 2026)
+
+ERP → **Produits et stock** → **Nouvelle gamme** (`NewBundlePage.tsx`, `ProductAdminController::storeBundle`, route `POST admin/bundles`, droit `products.manage`). Maquette validée le 24 novembre 2026. Pour les gammes avocat, palme et coco du lancement.
+
+| Règle | Où |
+|---|---|
+| Au moins 2 produits, 12 au plus, chacun une seule fois (on change la quantité) ; jamais une gamme dans une gamme | `storeBundle()` (validation) |
+| Prix membre facultatif, **inférieur** au prix de la gamme, avec le nombre de gammes au prix membre (une par compte) | idem, `MemberPriceService` à la commande |
+| Naît en **brouillon** ; « Publier » exige une photo ; référence `DAB-GAM-002…`, catégorie « Gammes », marque maison | `storeBundle()`, `updateProduct()` |
+| Pas de stock à elle : **le produit le plus rare limite tout** ; vendre une gamme retire chacun de ses produits | `Product::availableQuantity()`, `PlaceOrderAction` |
+| Coût = somme des coûts de ses produits ; inconnu si l'un d'eux n'a pas de coût (la marge n'est pas inventée) | `CatalogAdminController::row()`, `bundleSummary()` |
+| La composition ne change plus après création (une cliente garde ce qu'elle a acheté) : pour changer, nouvelle gamme | pas de route de modification de la composition |
+
+**L'écran calcule en direct** (`bundleSummary()`, testé) : prix des produits achetés un par un, économie pour la cliente, marge au prix normal et au prix membre, **gammes possibles aujourd'hui**, produit(s) limitant(s), et ce qu'il faut encore fabriquer pour atteindre l'objectif.
+
+> Concept d'analyse : le stock d'une gamme est un **minimum**, pas une somme. 47 shampooings, 23 masques et 47 sprays ne font que 23 gammes. Pour 200 gammes, il faut 177 masques de plus ; fabriquer des shampooings en plus n'y change rien tant que les masques manquent. C'est la notion de **goulot d'étranglement**.
+
+**Bug évité :** « Gamme à l’avocat » donnait l'adresse `gamme-a-lavocat` (apostrophe typographique supprimée, mots collés) ; l'apostrophe sépare maintenant les mots : `gamme-a-l-avocat` (aussi pour les nouveaux produits).
+
 ## 6. Le journal d'audit (RG-SEC-01)
 
 `spatie/laravel-activitylog` enregistre automatiquement, avec l'**auteur**, la **date** et les **valeurs avant et après** :

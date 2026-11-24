@@ -3,7 +3,7 @@ import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tansta
 import { http } from '@/lib/http'
 import type { BookingStatus, OrderStatus } from '@/types/api'
 import type {
-  AdminBooking, AdminCustomer, BrandOption, CategoryOption, AdminDeliveryZone, AdminPromotion, DeliveryOverview, NewProduct, NewPurchaseReceipt, ProductChanges, ProductHistoryEntry, PromotionInput, PromotionResults, PurchaseReceipt, AdminOrderDetail, AdminOrderRow, AdminProduct, AuditEntry, CostCategory, Dashboard,
+  AdminBooking, AdminCustomer, BrandOption, CategoryOption, AdminDeliveryZone, AdminPromotion, DeliveryOverview, NewBundle, NewProduct, NewPurchaseReceipt, ProductChanges, ProductHistoryEntry, PromotionInput, PromotionResults, PurchaseReceipt, AdminOrderDetail, AdminOrderRow, AdminProduct, AuditEntry, CostCategory, Dashboard,
   AdminPickupPoint, AdminSurvey, PageMeta, PickupPointDetail, PickupPointsIndex, StatementPreview, PaymentMethod, ProductionBatch, RoleWithPermissions, StaffRole, StaffUser, StockMovementRow, SurveyFilter, SurveyStats,
 } from '@/types/admin'
 import type { Analytics, ExportDataset } from '@/types/analytics'
@@ -83,6 +83,9 @@ export const usePurchaseReceipts = () => useQuery({ queryKey: ['admin', 'purchas
 
 export const useCreateBrand = () =>
   useAdminMutation(async (v: { name: string }) => (await http.post<{ data: BrandOption }>(`${A}/brands`, v)).data.data, [['admin', 'brands']])
+
+export const useCreateBundle = () =>
+  useAdminMutation(async (v: NewBundle) => (await http.post<{ data: AdminProduct }>(`${A}/bundles`, v)).data.data, [['admin', 'products']])
 
 export const useCreateProduct = () =>
   useAdminMutation(async (v: NewProduct) => (await http.post<{ data: AdminProduct }>(`${A}/products`, v)).data.data, [['admin', 'products']])

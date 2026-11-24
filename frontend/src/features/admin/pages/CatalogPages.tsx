@@ -30,7 +30,7 @@ export function ProductsPage() {
   const [selected, setSelected] = useState<AdminProduct | null>(null)
   const [photosOf, setPhotosOf] = useState<number | null>(null)
   const location = useLocation()
-  const created = location.state as { created?: string; published?: boolean; updated?: string } | null
+  const created = location.state as { created?: string; published?: boolean; updated?: string; bundle?: boolean } | null
   // « gérer le stock » depuis l'écran Modifier : ouvre directement le panneau Stock du produit
   const stockOf = (location.state as { stockOf?: number } | null)?.stockOf
   useEffect(() => {
@@ -44,11 +44,14 @@ export function ProductsPage() {
       <PageHeader
         title="Produits et stock"
         subtitle="Le stock ne se modifie jamais directement : chaque variation passe par le grand livre."
-        actions={canManage && <Button asChild variant="dark"><Link to="/admin/produits/nouveau"><Plus aria-hidden="true" /> Nouveau produit</Link></Button>}
+        actions={canManage && <>
+          <Button asChild variant="subtle"><Link to="/admin/produits/nouvelle-gamme"><Plus aria-hidden="true" /> Nouvelle gamme</Link></Button>
+          <Button asChild variant="dark"><Link to="/admin/produits/nouveau"><Plus aria-hidden="true" /> Nouveau produit</Link></Button>
+        </>}
       />
       {created?.created && (
         <Feedback kind="success">
-          « {created.created} » est créé {created.published ? 'et en vente sur le site.' : 'en brouillon (invisible sur le site). Cochez « En vente » quand il est prêt.'}
+          « {created.created} » est {created.bundle ? 'créée' : 'créé'} {created.published ? 'et en vente sur le site.' : `en brouillon (invisible sur le site). Cochez « En vente » quand ${created.bundle ? 'elle' : 'il'} est prêt${created.bundle ? 'e' : ''}.`}
         </Feedback>
       )}
       {created?.updated && <Feedback kind="success">Modifications de « {created.updated} » enregistrées.</Feedback>}

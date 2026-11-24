@@ -54,3 +54,37 @@ export function productMargin(salePrice: number, cost: number): { amount: number
 export function discountedPrice(price: number, percent: number): number {
   return Math.floor(Math.floor((price * (100 - percent)) / 100) / 10) * 10
 }
+
+/** Une ligne de gamme, telle que l'ERP la connaît (prix seul, coût de revient, stock) */
+export interface BundleLine { name: string; price: number; cost: number | null; stock: number; quantity: number }
+
+/**
+ * NOUVELLE GAMME (maquette validée le 24 novembre 2026) : tous les chiffres de l'écran, en un seul calcul.
+ * - separate : prix si la cliente achetait les produits un par un ; saving : ce qu'elle économise avec la gamme.
+ * - margin : prix de la gamme − coût de revient de ses produits (null si un coût manque : marge incomplète).
+ * - possible : gammes qu'on peut former avec le stock actuel = le produit le plus rare (comme le serveur).
+ * - shortfalls : pour atteindre `target` gammes, combien il manque de chaque produit.
+ */
+export function bundleSummary(lines: BundleLine[], price: number, memberPrice: number | null, target: number | null) {
+  const separate = lines.reduce((s, l) => s + l.price * l.quantity, 0)
+  const unknownCost = lines.filter((l) => l.cost === null).map((l) => l.name)
+  const cost = unknownCost.length ? null : lines.reduce((s, l) => s + (l.cost ?? 0) * l.quantity, 0)
+  const perLine = lines.map((l) => ({ name: l.name, possible: Math.floor(Math.max(0, l.stock) / l.quantity), line: l }))
+  const possible = perLine.length ? Math.min(...perLine.map((p) => p.possible)) : 0
+  const limiting = perLine.length > 1 ? perLine.filter((p) => p.possible === possible).map((p) => p.name) : []
+  const shortfalls = target && target > possible
+    ? perLine.map((p) => ({ name: p.name, missing: target * p.line.quantity - p.line.stock })).filter((s) => s.missing > 0)
+    : []
+  return {
+    separate,
+    saving: separate - price,
+    savingRate: separate > 0 ? Math.round((1000 * (separate - price)) / separate) / 10 : 0,
+    cost: cost === null ? null : Math.round(cost),
+    unknownCost,
+    margin: cost === null ? null : productMargin(price, cost),
+    memberMargin: cost === null || memberPrice === null ? null : productMargin(memberPrice, cost),
+    possible,
+    limiting,
+    shortfalls,
+  }
+}

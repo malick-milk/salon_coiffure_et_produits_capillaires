@@ -127,6 +127,7 @@ Route::prefix('v1')->middleware('throttle:api')->group(function () {
             // Ajouter un produit depuis l'ERP : fiche, marque, photos (16 novembre 2026)
             Route::middleware('permission:products.manage')->group(function () {
                 Route::post('products', [ProductAdminController::class, 'store']);
+                Route::post('bundles', [ProductAdminController::class, 'storeBundle']); // créer une gamme (24 novembre 2026)
                 Route::get('brands', [ProductAdminController::class, 'brands']);
                 Route::post('brands', [ProductAdminController::class, 'storeBrand']);
                 Route::get('categories', [ProductAdminController::class, 'categories']);

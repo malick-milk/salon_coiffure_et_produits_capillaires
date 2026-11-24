@@ -192,6 +192,8 @@ jobs:
         run: (cd backend && php artisan migrate:fresh --seed --force) && node frontend/e2e/parcours-promotions.cjs captures
       - name: Parcours tarifs de livraison ERP et site (base remise à zéro)
         run: (cd backend && php artisan migrate:fresh --seed --force) && node frontend/e2e/parcours-livraison.cjs captures
+      - name: Parcours création d'une gamme ERP et achat (base remise à zéro)
+        run: (cd backend && php artisan migrate:fresh --seed --force) && node frontend/e2e/parcours-gamme.cjs captures
       - name: Concurrence et charge (base remise à zéro)
         run: (cd backend && php artisan migrate:fresh --seed --force) && node backend/tests/charge/concurrence.mjs
       - name: Captures d'écran et journaux (en cas d'échec, pour comprendre)

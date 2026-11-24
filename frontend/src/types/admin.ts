@@ -99,7 +99,8 @@ export interface AdminProduct {
   stock_status: 'in_stock' | 'low_stock' | 'out_of_stock'
   stock_entries_locked: boolean
   is_bundle?: boolean // gamme : stock = gammes complètes formables avec le stock des soins
-  member_price?: Money | null // un lot ou une réception existe : origine et coût verrouillés
+  member_price?: Money | null
+  member_price_limit?: number | null
   is_active: boolean
   is_featured: boolean
   short_description: string | null
@@ -311,6 +312,18 @@ export interface BrandOption {
 export interface CategoryOption {
   id: number
   name: string
+}
+
+/** Nouvelle gamme (24 novembre 2026) */
+export interface NewBundle {
+  name: string
+  price: number
+  member_price: number | null
+  member_price_limit: number | null
+  low_stock_threshold: number
+  short_description: string | null
+  description: string | null
+  items: { product_id: number; quantity: number }[]
 }
 
 export interface NewProduct {

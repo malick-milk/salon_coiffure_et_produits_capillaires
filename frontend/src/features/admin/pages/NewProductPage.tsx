@@ -19,10 +19,10 @@ import { AdminField, AdminInput, AdminSelect, AdminTextarea, Card, Feedback, Pag
 import { productMargin } from '../purchaseMath'
 import { firstError } from './OrdersPages'
 
-const MAX_PHOTOS = 4
+export const MAX_PHOTOS = 4
 const NEW_BRAND = 'new'
 
-interface LocalPhoto {
+export interface LocalPhoto {
   file: File
   url: string // aperçu local (URL.createObjectURL), libéré quand la photo est retirée
 }
@@ -242,7 +242,7 @@ function OriginChoice({ value, current, onChange, title, text }: { value: Produc
 }
 
 /** Choix des photos AVANT l'enregistrement : aperçu local, la première est la principale */
-function PhotoPicker({ photos, onAdd, onRemove, onMakeFirst }: { photos: LocalPhoto[]; onAdd: (f: FileList | null) => void; onRemove: (i: number) => void; onMakeFirst: (i: number) => void }) {
+export function PhotoPicker({ photos, onAdd, onRemove, onMakeFirst }: { photos: LocalPhoto[]; onAdd: (f: FileList | null) => void; onRemove: (i: number) => void; onMakeFirst: (i: number) => void }) {
   const [over, setOver] = useState(false)
   return (
     <div className="flex flex-col gap-3">

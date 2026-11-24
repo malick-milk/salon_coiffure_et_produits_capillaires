@@ -48,6 +48,7 @@ return [
     'regex' => 'Le format de :attribute est invalide.',
     'required' => ':Attribute est obligatoire.',
     'required_if' => ':Attribute est obligatoire quand :other vaut :value.',
+    'required_with' => ':Attribute est obligatoire quand :values est renseigné.',
     'string' => ':Attribute doit être un texte.',
     'unique' => ':Attribute est déjà utilisé.',
     'url' => ':Attribute doit être une adresse web valide.',
@@ -64,6 +65,8 @@ return [
     ],
 
     'attributes' => [
+        // Nouvelle gamme (24 novembre 2026)
+        'member_price' => 'le prix membre', 'member_price_limit' => 'le nombre de gammes au prix membre',
         // Nouveau produit et réceptions d'achat (16 novembre 2026)
         'origin' => 'l’origine du produit', 'name' => 'le nom', 'brand_id' => 'la marque', 'category_id' => 'la catégorie',
         'unit_size' => 'la contenance', 'image' => 'la photo', 'supplier_name' => 'le fournisseur',

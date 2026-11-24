@@ -137,7 +137,7 @@ class CatalogAdminController extends Controller
             'reason' => ['required', 'string', 'min:3', 'max:255'],
         ]);
         if ($product->is_bundle) {
-            throw ValidationException::withMessages(['type' => 'Une gamme n’a pas de stock à elle : son stock, c’est celui de ses 6 soins. Faites entrer les soins un par un.']);
+            throw ValidationException::withMessages(['type' => 'Une gamme n’a pas de stock à elle : son stock, c’est celui de ses soins. Faites entrer les soins un par un.']);
         }
         $type = StockMovementType::from($data['type']);
         // Une perte est toujours une SORTIE, un retour toujours une ENTRÉE ; un ajustement peut être les deux
@@ -185,7 +185,7 @@ class CatalogAdminController extends Controller
         ], ['batch_number.unique' => 'Ce numéro de lot existe déjà.']);
         $target = Product::query()->find($data['product_id']);
         if ($target?->is_bundle) {
-            throw ValidationException::withMessages(['product_id' => 'Une gamme n’a pas de stock à elle : son stock, c’est celui de ses 6 soins. Faites entrer les soins un par un.']);
+            throw ValidationException::withMessages(['product_id' => 'Une gamme n’a pas de stock à elle : son stock, c’est celui de ses soins. Faites entrer les soins un par un.']);
         }
         if ($target?->origin === ProductOrigin::Resold) {
             throw ValidationException::withMessages(['product_id' => "Ce produit est acheté et revendu : son stock entre par une réception d'achat."]);
@@ -198,12 +198,20 @@ class CatalogAdminController extends Controller
     /** Ligne « produit » de l'ERP (coût de revient visible : personnel autorisé uniquement) */
     public static function row(Product $p): array
     {
+        // Gamme : son coût de revient = celui de ses produits (null si l'un d'eux n'a pas encore de coût)
+        $cost = $p->cost_price !== null ? (float) $p->cost_price : null;
+        if ($p->is_bundle) {
+            $p->loadMissing('bundleItems.component');
+            $costs = $p->bundleItems->map(fn ($i) => $i->component->cost_price === null ? null : (float) $i->component->cost_price * $i->quantity);
+            $cost = $costs->isEmpty() || $costs->contains(null) ? null : round((float) $costs->sum(), 2);
+        }
+
         return [
             'id' => $p->id, 'sku' => $p->sku, 'origin' => $p->origin->value, 'brand_id' => $p->brand_id, 'category_id' => $p->category_id,
             'images' => $p->images->map(fn ($i) => ['id' => $i->id, 'url' => $i->path, 'alt' => $i->alt_text, 'is_primary' => $i->is_primary])->values(), 'name' => $p->name, 'unit_size' => $p->unit_size, 'slug' => $p->slug,
             'category' => $p->category->name, 'brand' => $p->brand?->name, 'price' => $p->price, 'compare_at_price' => $p->compare_at_price,
-            'cost_price' => $p->cost_price !== null ? (float) $p->cost_price : null,
-            'margin_rate' => $p->cost_price !== null && $p->price > 0 ? round(100 * ($p->price - (float) $p->cost_price) / $p->price, 1) : null,
+            'cost_price' => $cost,
+            'margin_rate' => $cost !== null && $p->price > 0 ? round(100 * ($p->price - $cost) / $p->price, 1) : null,
             // Gamme : nombre de gammes complètes qu'on peut former avec le stock des composants
             'is_bundle' => $p->is_bundle, 'member_price' => $p->member_price, 'member_price_limit' => $p->member_price_limit,
             'stock_quantity' => $p->availableQuantity(), 'low_stock_threshold' => $p->low_stock_threshold, 'stock_status' => $p->stockStatus(),

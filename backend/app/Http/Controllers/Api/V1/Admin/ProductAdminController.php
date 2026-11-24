@@ -11,6 +11,7 @@ use App\Models\ProductImage;
 use App\Services\Catalog\ProductImageService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
@@ -61,6 +62,83 @@ class ProductAdminController extends Controller
         ]);
 
         return response()->json(['data' => CatalogAdminController::row($product->fresh(['category', 'brand', 'images']))], 201);
+    }
+
+    /**
+     * Créer une GAMME (maquette « Nouvelle gamme », validée le 24 novembre 2026) : plusieurs produits vendus ensemble,
+     * à un prix unique, avec un prix membre facultatif. La gamme n'a pas de stock à elle : vendre une gamme retire
+     * chacun de ses produits (PlaceOrderAction). Elle naît en BROUILLON ; on la publie quand elle a une photo.
+     * Sa composition ne change plus ensuite : une cliente garde ce qu'elle a acheté ; pour changer, on en crée une autre.
+     */
+    public function storeBundle(Request $request): JsonResponse
+    {
+        $data = $request->validate([
+            'name' => ['required', 'string', 'min:2', 'max:120'],
+            'price' => ['required', 'integer', 'min:0', 'max:10000000'],
+            'member_price' => ['nullable', 'integer', 'min:0', 'lt:price'],
+            'member_price_limit' => ['nullable', 'required_with:member_price', 'integer', 'min:1', 'max:100000'],
+            'low_stock_threshold' => ['sometimes', 'integer', 'min:0', 'max:100000'],
+            'short_description' => ['nullable', 'string', 'max:160'],
+            'description' => ['nullable', 'string', 'max:10000'],
+            'items' => ['required', 'array', 'min:2', 'max:12'],
+            'items.*.product_id' => ['required', 'integer', 'distinct', Rule::exists('products', 'id')->where('is_bundle', false)->whereNull('deleted_at')],
+            'items.*.quantity' => ['required', 'integer', 'min:1', 'max:20'],
+        ], [
+            'member_price.lt' => 'Le prix membre doit être inférieur au prix de la gamme.',
+            'items.min' => 'Une gamme contient au moins 2 produits.',
+            'items.*.product_id.distinct' => 'Ce produit est déjà dans la gamme : changez plutôt sa quantité.',
+            'items.*.product_id.exists' => 'Ce produit n’existe pas ou est lui-même une gamme.',
+        ]);
+
+        $name = trim($data['name']);
+        if (Product::withTrashed()->where('name', $name)->exists()) {
+            throw ValidationException::withMessages(['name' => 'Un produit ou une gamme porte déjà ce nom.']);
+        }
+        $house = Brand::query()->where('is_house_brand', true)->orderBy('id')->first();
+        $category = Category::query()->firstOrCreate(['slug' => 'gammes'], ['name' => 'Gammes', 'position' => 0, 'is_active' => true]);
+        $count = collect($data['items'])->sum('quantity');
+
+        $bundle = DB::transaction(function () use ($data, $name, $house, $category, $count, $request) {
+            $bundle = Product::create([
+                'origin' => ProductOrigin::Made,
+                'name' => $name,
+                'sku' => $this->uniqueBundleSku(),
+                'slug' => $this->uniqueSlug($name),
+                'brand_id' => $house?->id,
+                'category_id' => $category->id,
+                'unit_size' => $count.' soin'.($count > 1 ? 's' : ''),
+                'price' => $data['price'],
+                'member_price' => $data['member_price'] ?? null,
+                'member_price_limit' => isset($data['member_price']) ? $data['member_price_limit'] : null,
+                'is_bundle' => true,
+                'low_stock_threshold' => $data['low_stock_threshold'] ?? 5,
+                'short_description' => $data['short_description'] ?? null,
+                'description' => $data['description'] ?? null,
+                'cost_price' => null, // le coût d'une gamme se calcule à chaque vente, à partir de ses produits
+                'is_active' => false, // brouillon : invisible sur le site tant qu'elle n'est pas publiée
+                'is_featured' => false,
+            ]);
+            foreach ($data['items'] as $item) {
+                $bundle->bundleItems()->create(['component_id' => $item['product_id'], 'quantity' => $item['quantity']]);
+            }
+            activity('products')->performedOn($bundle)->causedBy($request->user())
+                ->withProperties(['items' => $data['items']])->event('created')->log('bundle created');
+
+            return $bundle;
+        });
+
+        return response()->json(['data' => CatalogAdminController::row($bundle->fresh(['category', 'brand', 'images']))], 201);
+    }
+
+    /** DAB-GAM-001, DAB-GAM-002… */
+    private function uniqueBundleSku(): string
+    {
+        for ($n = 1; ; $n++) {
+            $sku = sprintf('DAB-GAM-%03d', $n);
+            if (! Product::withTrashed()->where('sku', $sku)->exists()) {
+                return $sku;
+            }
+        }
     }
 
     public function brands(): JsonResponse
@@ -144,7 +222,8 @@ class ProductAdminController extends Controller
 
     private function uniqueSlug(string $label): string
     {
-        $base = Str::slug($label) ?: 'produit';
+        // « Gamme à l’avocat » -> gamme-a-l-avocat (l'apostrophe sépare les mots au lieu de les coller)
+        $base = Str::slug(str_replace(['’', "'"], ' ', $label)) ?: 'produit';
         $slug = $base;
         for ($n = 2; Product::withTrashed()->where('slug', $slug)->exists(); $n++) {
             $slug = "{$base}-{$n}";
