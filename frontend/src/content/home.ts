@@ -100,6 +100,6 @@ export const homeContent = {
   promoBanner: {
     image: '/images/publicites/banniere-twists.webp',
     imageAlt: 'Twists sur vos propres cheveux dès 5 000 F, réservez en ligne',
-    link: '/reserver',
+    link: '/reserver?prestation=twist-simple', // « Twist simple » déjà choisi (24 novembre 2026)
   },
 }

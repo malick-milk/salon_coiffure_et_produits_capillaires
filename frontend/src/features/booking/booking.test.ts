@@ -23,6 +23,11 @@ describe('tunnel de réservation (reducer)', () => {
     expect(next.step).toBe(3)
     expect(next.time).toBeNull()
   })
+  it('réservation express (créneau touché sur l’accueil) : directement la dernière étape, « Retour » ramène au choix de l’heure', () => {
+    const next = bookingReducer(start, { type: 'express', serviceId: 7, date: '2026-11-25', time: '09:00' })
+    expect(next).toMatchObject({ step: 4, serviceId: 7, stylist: 'any', date: '2026-11-25', time: '09:00' })
+    expect(bookingReducer(next, { type: 'back' }).step).toBe(3) // « Changer de créneau »
+  })
 })
 
 describe('validation des coordonnées (Zod)', () => {

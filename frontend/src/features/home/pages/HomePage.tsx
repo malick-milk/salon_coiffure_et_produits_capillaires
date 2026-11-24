@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { homeContent } from '@/content/home'
 import { salon, salonMapsUrl } from '@/content/salon'
+import { TwistExpress } from '@/features/booking/components/TwistExpress'
 import { useBusinessHours, useServices } from '@/features/booking/hooks'
 import { MemberOfferSlide, useLaunchOffer } from '@/features/catalog/components/MemberOffer'
 import { ProductCard } from '@/features/catalog/components/ProductCard'
@@ -72,12 +73,14 @@ export function HomePage() {
         </ul>
       </section>
 
-      <section className="px-4 pt-[72px] sm:px-6">
+      <section className="flex flex-col gap-4 px-4 pt-[72px] sm:px-6">
         {promo.image ? (
           <PromoBanner image={promo.image} alt={promo.imageAlt} link={promo.link} />
         ) : (
           <ImagePlaceholder label="Bannière promotionnelle" hint="1280 × 320 px · à déposer dans public/images, puis src/content/home.ts" className="mx-auto min-h-56 max-w-7xl rounded-3xl border-gold-dark bg-gold-soft text-gold" />
         )}
+        {/* Réservation express (maquette validée le 24 novembre 2026) : 3 touchers au lieu d'environ 10 */}
+        <TwistExpress />
       </section>
 
       <section className="px-4 py-20 sm:px-6">

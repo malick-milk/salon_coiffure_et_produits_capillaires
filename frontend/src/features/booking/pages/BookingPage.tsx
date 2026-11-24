@@ -35,6 +35,8 @@ interface State {
 
 type Action =
   | { type: 'service'; id: number }
+  /** Réservation express depuis l'accueil (24 novembre 2026) : prestation, coiffeuse « peu importe » et créneau déjà choisis */
+  | { type: 'express'; serviceId: number; date: string; time: string }
   | { type: 'stylist'; value: number | 'any' }
   | { type: 'date'; date: string }
   | { type: 'time'; time: string }
@@ -48,6 +50,8 @@ const initialState: State = { step: 1, serviceId: null, stylist: null, date: nul
 
 export function bookingReducer(state: State, action: Action): State {
   switch (action.type) {
+    case 'express': // un créneau touché sur l'accueil : directement la dernière étape (coordonnées)
+      return { ...state, step: 4, serviceId: action.serviceId, stylist: 'any', date: action.date, time: action.time }
     case 'service': // changer de prestation invalide le coiffeur et l'heure choisis
       return { ...state, serviceId: action.id, stylist: null, time: null }
     case 'stylist':
@@ -84,12 +88,18 @@ export function BookingPage() {
   const [contact, setContact] = useState<ContactValues | null>(null)
   const services = useServices()
 
-  // ?prestation=resserrage-micro-twist : lien d'un rappel de resserrage, la prestation est déjà choisie
+  // ?prestation=resserrage-micro-twist : lien d'un rappel de resserrage (ou de la bannière Twists), la prestation est déjà choisie.
+  // ?prestation=twist-simple&date=2026-11-25&heure=09:00 : créneau touché sur l'accueil, directement la dernière étape.
   const [params] = useSearchParams()
   const wanted = params.get('prestation')
+  const wantedDate = params.get('date')
+  const wantedTime = params.get('heure')
+  const express = Boolean(wanted && wantedDate && wantedTime && /^\d{4}-\d{2}-\d{2}$/.test(wantedDate) && /^\d{2}:\d{2}$/.test(wantedTime))
   useEffect(() => {
     const match = wanted && services.data?.find((s) => s.slug === wanted)
-    if (match && state.serviceId === null) dispatch({ type: 'service', id: match.id })
+    if (!match || state.serviceId !== null) return
+    if (express) dispatch({ type: 'express', serviceId: match.id, date: wantedDate!, time: wantedTime! })
+    else dispatch({ type: 'service', id: match.id })
   }, [wanted, services.data]) // eslint-disable-line react-hooks/exhaustive-deps
   const stylists = useStylists(state.serviceId)
   const hours = useBusinessHours()
@@ -139,6 +149,8 @@ export function BookingPage() {
   }
 
   const loading = services.isPending || hours.isPending
+  // Arrivée par un créneau de l'accueil, toujours à la dernière étape
+  const expressStep = express && state.step === 4
   const loadError = services.error ?? hours.error
 
   return (
@@ -155,8 +167,18 @@ export function BookingPage() {
         <div className="flex flex-col gap-8 lg:flex-row lg:items-start">
           <section aria-labelledby="step-title" className="flex min-w-0 flex-1 flex-col gap-7 rounded-[20px] border border-ink-line bg-ink-soft p-5 sm:p-8">
             <h2 id="step-title" className="font-display text-[28px] font-semibold">
-              {state.step}. {['Choisissez votre prestation', 'Avec qui ?', 'Date et heure', 'Vos coordonnées'][state.step - 1]}
+              {expressStep ? 'Confirmer votre rendez-vous' : `${state.step}. ${['Choisissez votre prestation', 'Avec qui ?', 'Date et heure', 'Vos coordonnées'][state.step - 1]}`}
             </h2>
+
+            {/* Réservation express : le créneau choisi sur l'accueil, en tête (sur téléphone, le récapitulatif est tout en bas) */}
+            {expressStep && service && state.date && state.time && (
+              <div className="flex flex-col gap-1.5 rounded-2xl border-2 border-gold bg-ink p-4">
+                <strong className="text-base">{service.name} · {formatPrice(service.price)}</strong>
+                <span className="text-[15px] text-[#e6e1d6]">{formatLongDate(state.date)}, {state.time} – {addMinutes(state.time, service.duration_minutes)}</span>
+                <span className="text-sm text-[#c9c4b8]">Avec la première coiffeuse libre</span>
+                <button type="button" onClick={() => dispatch({ type: 'back' })} className="self-start py-1.5 text-sm font-semibold text-gold underline underline-offset-4">Changer de créneau</button>
+              </div>
+            )}
 
             {conflictMessage && state.step === 3 && (
               <p role="alert" className="rounded-xl border border-[#b45309] bg-[#2a1a05] p-4 text-[15px]">{conflictMessage}</p>
@@ -198,7 +220,7 @@ export function BookingPage() {
                 <Button disabled={!canContinue(state)} onClick={() => dispatch({ type: 'next' })}>Continuer</Button>
               ) : (
                 <Button type="submit" form={CONTACT_FORM_ID} disabled={createBooking.isPending}>
-                  {createBooking.isPending ? 'Envoi…' : 'Envoyer la demande'}
+                  {createBooking.isPending ? 'Envoi…' : expressStep ? 'Réserver ce créneau' : 'Envoyer la demande'}
                 </Button>
               )}
             </div>
@@ -245,4 +267,11 @@ function Confirmation({ confirmation, service, contact, onRestart }: { confirmat
       </div>
     </div>
   )
+}
+
+/** « 09:00 » + 120 min → « 11:00 » */
+function addMinutes(time: string, minutes: number): string {
+  const [h, m] = time.split(':').map(Number) as [number, number]
+  const total = h * 60 + m + minutes
+  return `${String(Math.floor(total / 60) % 24).padStart(2, '0')}:${String(total % 60).padStart(2, '0')}`
 }

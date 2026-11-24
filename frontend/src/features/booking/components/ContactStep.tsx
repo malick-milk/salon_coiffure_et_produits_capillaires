@@ -3,7 +3,7 @@
  * React Hook Form évite de re-rendre toute la page à chaque lettre tapée (formulaires rapides).
  */
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useForm, type UseFormSetError } from 'react-hook-form'
 import { useMe } from '@/features/auth/hooks'
 import { Field } from '@/components/common/FormField'
@@ -55,14 +55,30 @@ export function ContactStep({ formId, onSubmit, onMissingChange }: {
     if (user) reset((v) => ({ ...v, first_name: user.first_name, last_name: user.last_name ?? '', phone: user.phone ?? '', email: user.email ?? '' }), { keepDirtyValues: true })
   }, [user, reset])
 
+  // Réservation express (24 novembre 2026) : compte complet (prénom, nom, téléphone) → un résumé au lieu de 4 champs
+  // à relire ; « Modifier » rouvre les champs. Une erreur sur l'un d'eux les rouvre aussi (sinon elle serait invisible).
+  const [editing, setEditing] = useState(false)
+  const accountComplete = Boolean(user?.first_name && user?.last_name && user?.phone)
+  const identityError = Boolean(errors.first_name || errors.last_name || errors.phone || errors.email)
+  const compact = accountComplete && !editing && !identityError
+
   return (
     <form id={formId} noValidate onSubmit={handleSubmit((values) => onSubmit(values, setError), onInvalidFocus)} className="flex flex-col gap-5">
-      {user && (
+      {user && compact && (
+        <div className="flex flex-col gap-1 rounded-xl border border-ink-line bg-ink px-4 py-3 text-[15px] leading-relaxed">
+          <span className="text-sm text-muted">Coordonnées reprises de votre compte</span>
+          <span>{user.first_name} {user.last_name}</span>
+          <span>{user.phone}</span>
+          {user.email && <span className="text-sm text-[#c9c4b8]">{user.email}</span>}
+          <button type="button" onClick={() => setEditing(true)} className="self-start py-1.5 text-sm font-semibold text-gold underline underline-offset-4">Modifier</button>
+        </div>
+      )}
+      {user && !compact && (
         <p className="rounded-xl border border-ink-line bg-ink-soft px-4 py-3 text-sm text-[#d9d9d9]">
           Coordonnées reprises de votre compte : vérifiez-les, puis envoyez la demande. Le rendez-vous apparaîtra dans « Mes réservations ».
         </p>
       )}
-      <div className="grid gap-5 sm:grid-cols-2">
+      <div hidden={compact} className="grid gap-5 sm:grid-cols-2">
         <Field label="Prénom *" error={errors.first_name?.message}>
           {(id, describedBy) => <Input id={id} autoComplete="given-name" aria-invalid={!!errors.first_name} aria-describedby={describedBy} {...register('first_name')} />}
         </Field>

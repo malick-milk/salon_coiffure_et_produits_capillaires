@@ -287,3 +287,19 @@ Tests : `MissingFields.test.tsx` (ordre, singulier, lien qui amène au champ, di
 Le parcours `parcours-compte` échouait parfois sur la CI (« la pastille de la cloche disparaît »), jamais en local. La cause était **dans le test** : deux liens portent « non lue » (la cloche de l'en-tête et le lien du menu du compte). `locator.waitFor()` exige UN seul élément : avec deux, il échoue aussitôt (« mode strict ») au lieu d'attendre. Sur une machine rapide, la lecture était déjà faite (zéro lien) ; sur la CI, plus lente, les deux liens étaient encore là. Correction : attendre que leur **nombre** tombe à 0. La vérification précédente (« 1 non lue ») comptait aussi trop tôt : elle attend maintenant le chargement.
 
 > Méthode pour un test instable : le rejouer en **ralentissant exprès** le réseau (`page.route` qui retarde les réponses de 600 ms). Si le test échoue alors en local, le défaut est un problème de timing dans le test, pas dans le site.
+
+
+### Réserver un twist en 3 touchers (maquette validée le 24 novembre 2026)
+
+Avant : environ 10 clics depuis la bannière Twists. Après : **3 touchers** pour une cliente connectée (créneau, accord, « Réserver ce créneau »).
+
+| Règle | Où |
+|---|---|
+| Sous la bannière Twists, « Réserver un twist en 1 clic » : les **4 prochains créneaux libres** du twist simple, avec la première coiffeuse libre | `TwistExpress.tsx` ; logique pure `nextSlots.ts` (testée) |
+| Les jours sont demandés un par un (aujourd'hui, demain…) jusqu'à 4 créneaux, **7 jours au plus** : peu d'appels au serveur | `useQueries`, même cache que l'étape « Date et heure » |
+| Un créneau ouvre `/reserver?prestation=twist-simple&date=…&heure=…` : action `express` du reducer, **directement l'étape 4** ; « Changer de créneau » revient au choix de l'heure | `BookingPage.tsx` (`bookingReducer`) |
+| Cliente connectée avec prénom, nom et téléphone : un **résumé** de ses coordonnées et « Modifier » (les champs restent envoyés) ; une erreur rouvre les champs | `ContactStep.tsx` |
+| La bannière Twists ouvre la réservation avec « Twist simple » déjà choisi | `content/home.ts` (`promoBanner.link`) |
+| Créneau pris entre-temps : la règle du serveur (409) ramène au choix de l'heure, avec le message | inchangé |
+
+Parcours : `e2e/parcours-twist-express.cjs` (ajouté à la CI).
