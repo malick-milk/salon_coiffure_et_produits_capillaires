@@ -18,3 +18,12 @@ export function focusFirstInvalid(form?: Element | null) {
 export function onInvalidFocus(_errors: unknown, event?: { target?: EventTarget | null }) {
   focusFirstInvalid(event?.target instanceof Element ? event.target.closest('form') : null)
 }
+
+/** Amène sur le champ nommé (attribut name posé par react-hook-form) : centré à l'écran, curseur dedans */
+export function goToField(name: string) {
+  const field = document.querySelector<HTMLElement>(`[name="${CSS.escape(name)}"]`)
+  if (!field) return
+  const smooth = !window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
+  field.scrollIntoView?.({ block: 'center', behavior: smooth ? 'smooth' : 'auto' })
+  field.focus({ preventScroll: true })
+}

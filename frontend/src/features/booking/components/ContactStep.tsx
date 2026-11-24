@@ -8,25 +8,45 @@ import { useForm, type UseFormSetError } from 'react-hook-form'
 import { useMe } from '@/features/auth/hooks'
 import { Field } from '@/components/common/FormField'
 import { onInvalidFocus } from '@/lib/focusFirstInvalid'
+import { missingFields, type MissingItem } from '@/lib/missingFields'
 import { Input, Textarea } from '@/components/ui/input'
 import { contactSchema, type ContactInput, type ContactValues } from '../schema'
 
 export type ContactSetError = UseFormSetError<ContactInput>
 
-export function ContactStep({ formId, onSubmit }: { formId: string; onSubmit: (values: ContactValues, setError: ContactSetError) => void }) {
+/** « Il manque … » : libellés simples, dans l'ordre de la page */
+const CONTACT_LABELS: Record<string, string> = {
+  first_name: 'Votre prénom',
+  last_name: 'Votre nom',
+  phone: 'Votre téléphone (exemple : 77 123 45 67)',
+  email: 'Votre e-mail (ou laissez vide)',
+  consent: 'Votre accord (case à cocher)',
+}
+
+export function ContactStep({ formId, onSubmit, onMissingChange }: {
+  formId: string
+  onSubmit: (values: ContactValues, setError: ContactSetError) => void
+  /** Ce qui manque après un essai refusé (vide sinon) : le bouton d'envoi est dans la page parente */
+  onMissingChange?: (items: MissingItem[]) => void
+}) {
   const { data: user } = useMe()
   const {
     register,
     handleSubmit,
     setError,
     reset,
-    formState: { errors },
+    formState: { errors, submitCount },
   } = useForm<ContactInput, unknown, ContactValues>({
     shouldFocusError: false, // remplacé par onInvalidFocus : le 1er champ en erreur DANS L'ORDRE DE LA PAGE
     resolver: zodResolver(contactSchema),
     defaultValues: { first_name: '', last_name: '', phone: '', email: '', notes: '', consent: false as unknown as true },
     mode: 'onTouched', // erreur affichée en quittant le champ, pas pendant la saisie
   })
+
+  const missing = submitCount > 0 ? missingFields(errors, CONTACT_LABELS) : []
+  const missingKey = missing.map((m) => m.name).join(',')
+  useEffect(() => { onMissingChange?.(missing) }, [missingKey]) // eslint-disable-line react-hooks/exhaustive-deps -- on ne prévient le parent que si la liste change
+  useEffect(() => () => onMissingChange?.([]), []) // eslint-disable-line react-hooks/exhaustive-deps -- en quittant l'étape, plus rien ne manque
 
   // Cliente connectée : ses coordonnées sont reprises de son compte (comme à la commande), elle n'a rien à
   // retaper. keepDirtyValues : si elle a déjà commencé à écrire, sa saisie n'est pas écrasée.

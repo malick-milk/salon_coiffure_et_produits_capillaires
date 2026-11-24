@@ -4,6 +4,8 @@ import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { Link, Navigate, useLocation, useNavigate, useSearchParams } from 'react-router'
 import { applyServerErrors, Field } from '@/components/common/FormField'
+import { MissingFieldsSummary } from '@/components/common/MissingFields'
+import { missingFields } from '@/lib/missingFields'
 import { onInvalidFocus } from '@/lib/focusFirstInvalid'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -23,6 +25,15 @@ import { AuthShell } from './LoginPage'
  */
 const WELCOME = { welcome: true } as const
 
+/** « Il manque … » : libellés simples, dans l'ordre de la page */
+const REGISTER_LABELS: Record<string, string> = {
+  first_name: 'Votre prénom',
+  phone: 'Votre téléphone (exemple : 77 123 45 67)',
+  password: 'Votre mot de passe (10 caractères, majuscule, minuscule, chiffre)',
+  password_confirmation: 'Le même mot de passe, une 2e fois',
+  consent: 'Votre accord (case à cocher)',
+}
+
 export function RegisterPage() {
   const [params] = useSearchParams()
   const redirect = customerRedirect(params.get('redirect')) // un compte créé ici est un compte CLIENT : jamais l'ERP
@@ -34,7 +45,7 @@ export function RegisterPage() {
   const registerUser = useRegister()
   // Venue de la confirmation d'une réservation : les coordonnées déjà saisies sont reprises
   const prefill = (useLocation().state as { prefill?: Partial<Record<'first_name' | 'last_name' | 'phone' | 'email', string>> } | null)?.prefill
-  const { register, handleSubmit, setError, formState: { errors } } = useForm<RegisterInput, unknown, RegisterValues>({
+  const { register, handleSubmit, setError, formState: { errors, submitCount } } = useForm<RegisterInput, unknown, RegisterValues>({
     shouldFocusError: false, // remplacé par onInvalidFocus : le 1er champ en erreur DANS L'ORDRE DE LA PAGE
     resolver: zodResolver(registerSchema),
     defaultValues: {
@@ -89,6 +100,7 @@ export function RegisterPage() {
           {errors.consent && <p role="alert" className="text-sm font-medium text-[#f87171]">{errors.consent.message}</p>}
         </div>
         {registerUser.isError && apiErrorStatus(registerUser.error) !== 422 && <p role="alert" className="text-sm text-[#f87171]">{apiErrorMessage(registerUser.error)}</p>}
+        {submitCount > 0 && <MissingFieldsSummary items={missingFields(errors, REGISTER_LABELS)} />}
         <Button type="submit" disabled={registerUser.isPending}>{registerUser.isPending ? 'Création…' : 'Créer mon compte'}</Button>
         <p className="text-center text-xs text-muted">Nom et e-mail : à compléter plus tard, à votre première commande (facultatifs).</p>
       </form>

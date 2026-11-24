@@ -269,3 +269,14 @@ Outil : un script Playwright passe sur **41 pages** (visiteuse, cliente, gérant
 | Téléphone du profil : pas de clavier numérique | Faible | `inputMode="tel"` |
 
 Résultat après corrections : **0 violation axe** sur les 41 pages, aucun débordement, aucune erreur JavaScript.
+
+
+### « Il manque … » près du bouton (maquette validée le 24 novembre 2026)
+
+Complète la correction du curseur : après un essai refusé, un encadré au-dessus du bouton d'envoi dit combien d'informations manquent et lesquelles, avec des mots simples (« Votre nom », « Votre téléphone (exemple : 77 123 45 67) », « Votre accord (case à cocher) »). Chaque ligne amène sur le champ. Il se met à jour pendant la saisie et disparaît quand tout est bon.
+
+| Où | Fichiers |
+|---|---|
+| Commande (avec « Votre panier est gardé : rien n'est perdu »), inscription, réservation (le formulaire prévient la page, qui affiche l'encadré au-dessus de « Envoyer la demande ») | `components/common/MissingFields.tsx`, `lib/missingFields.ts` (libellés dans l'ordre de la page), `lib/focusFirstInvalid.ts` (`goToField`) |
+
+Tests : `MissingFields.test.tsx` (ordre, singulier, lien qui amène au champ, disparition) et le parcours livraison (« Il manque 4 informations », « Votre nom » amène sur le champ Nom, l'encadré disparaît une fois tout rempli).

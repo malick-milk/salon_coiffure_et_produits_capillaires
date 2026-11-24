@@ -10,6 +10,8 @@ import { useEffect, useState } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
 import { Link, Navigate } from 'react-router'
 import { applyServerErrors, Field } from '@/components/common/FormField'
+import { MissingFieldsSummary } from '@/components/common/MissingFields'
+import { missingFields } from '@/lib/missingFields'
 import { onInvalidFocus } from '@/lib/focusFirstInvalid'
 import { Seo } from '@/components/common/Seo'
 import { Button } from '@/components/ui/button'
@@ -26,6 +28,19 @@ import { checkoutSchema, type CheckoutInput, type CheckoutValues } from '../sche
 
 const FORM_ID = 'checkout-form'
 
+/** « Il manque … » : libellés simples, dans l'ordre de la page */
+const CHECKOUT_LABELS: Record<string, string> = {
+  pickup_point_id: 'Le point de retrait',
+  delivery_zone_id: 'La zone de livraison',
+  city: 'Votre ville',
+  address_line: 'Votre adresse',
+  first_name: 'Votre prénom',
+  last_name: 'Votre nom',
+  phone: 'Votre téléphone (exemple : 77 123 45 67)',
+  email: 'Votre e-mail (ou laissez vide)',
+  consent: 'Votre accord (case à cocher)',
+}
+
 export function CheckoutPage() {
   const items = useCart((s) => s.items)
   const clear = useCart((s) => s.clear)
@@ -40,7 +55,7 @@ export function CheckoutPage() {
   const [confirmed, setConfirmed] = useState<OrderDetail | null>(null)
   const [conflict, setConflict] = useState<StockConflict | null>(null)
 
-  const { register, handleSubmit, control, setError, reset, formState: { errors } } = useForm<CheckoutInput, unknown, CheckoutValues>({
+  const { register, handleSubmit, control, setError, reset, formState: { errors, submitCount } } = useForm<CheckoutInput, unknown, CheckoutValues>({
     shouldFocusError: false, // remplacé par onInvalidFocus : le 1er champ en erreur DANS L'ORDRE DE LA PAGE
     resolver: zodResolver(checkoutSchema),
     defaultValues: {
@@ -228,6 +243,7 @@ export function CheckoutPage() {
             </dl>
             <p className="text-[13px] leading-relaxed text-[#52525b]">Paiement à la réception : espèces, Wave, Orange Money ou Free Money. Montant définitif confirmé par le serveur.</p>
             {placeOrder.isError && ![409, 422].includes(apiErrorStatus(placeOrder.error) ?? 0) && <p role="alert" className="text-sm text-[#b91c1c]">{apiErrorMessage(placeOrder.error)}</p>}
+            {submitCount > 0 && <MissingFieldsSummary items={missingFields(errors, CHECKOUT_LABELS)} reassurance="Votre panier est gardé : rien n’est perdu." />}
             <Button type="submit" form={FORM_ID} variant="dark" disabled={placeOrder.isPending}>{placeOrder.isPending ? 'Envoi…' : 'Confirmer la commande'}</Button>
           </aside>
         </div>

@@ -12,7 +12,9 @@ import { QueryError } from '@/components/common/States'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { formatLongDate, formatPrice } from '@/lib/format'
+import { MissingFieldsSummary } from '@/components/common/MissingFields'
 import { focusFirstInvalid } from '@/lib/focusFirstInvalid'
+import type { MissingItem } from '@/lib/missingFields'
 import { apiErrorMessage, apiErrorStatus, type ValidationErrorBody } from '@/lib/http'
 import { useMe } from '@/features/auth/hooks'
 import type { BookingConfirmation, Service } from '@/types/api'
@@ -97,6 +99,7 @@ export function BookingPage() {
   const stylistId = typeof state.stylist === 'number' ? state.stylist : null
   const stylistName = state.stylist === 'any' ? 'Peu importe' : stylists.data?.find((s) => s.id === state.stylist)?.display_name ?? null
 
+  const [missing, setMissing] = useState<MissingItem[]>([])
   const submit = (values: ContactValues, setError: ContactSetError) => {
     if (!state.serviceId || !state.date || !state.time) return
     setConflictMessage(null)
@@ -179,13 +182,15 @@ export function BookingPage() {
                     onTime={(time) => dispatch({ type: 'time', time })}
                   />
                 )}
-                {state.step === 4 && <ContactStep formId={CONTACT_FORM_ID} onSubmit={submit} />}
+                {state.step === 4 && <ContactStep formId={CONTACT_FORM_ID} onSubmit={submit} onMissingChange={setMissing} />}
               </>
             )}
 
             {createBooking.isError && ![409, 422].includes(apiErrorStatus(createBooking.error) ?? 0) && (
               <p role="alert" className="text-[15px] text-[#f87171]">{apiErrorMessage(createBooking.error)}</p>
             )}
+
+            {state.step === 4 && <MissingFieldsSummary items={missing} />}
 
             <div className="flex justify-between gap-3 border-t border-ink-line pt-6">
               <Button variant="outline" disabled={state.step === 1} onClick={() => dispatch({ type: 'back' })}>Retour</Button>

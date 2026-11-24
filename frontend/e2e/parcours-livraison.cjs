@@ -63,6 +63,12 @@ const text = async (locator) => (await locator.textContent()).replace(/[\u202f\u
   // Bug du 24 novembre 2026 : bouton pressé avec des champs vides → le curseur doit aller au 1er champ en erreur (Prénom), pas en bas
   await page.getByRole('button', { name: 'Confirmer la commande' }).click()
   await page.waitForFunction(() => document.activeElement?.labels?.[0]?.textContent?.startsWith('Prénom'), null, { timeout: 5000 }).then(() => log(true, 'Commande incomplète : le curseur va sur « Prénom », le 1er champ en erreur'), () => log(false, 'Commande incomplète : le curseur ne va pas sur « Prénom »'))
+  // Maquette du 24 novembre 2026 : « Il manque … » près du bouton, chaque ligne amène sur le champ
+  const recapBox = page.getByRole('group', { name: /Il manque \d+ informations?/ })
+  await recapBox.waitFor()
+  log(/Votre nom/.test(await recapBox.textContent()), `Près du bouton : « ${(await recapBox.locator('strong').textContent()).trim()} », avec « Votre nom »`)
+  await recapBox.getByRole('link', { name: 'Votre nom' }).click()
+  await page.waitForFunction(() => document.activeElement?.getAttribute('name') === 'last_name', null, { timeout: 5000 }).then(() => log(true, '« Votre nom » amène sur le champ Nom'), () => log(false, '« Votre nom » n’amène pas sur le champ Nom'))
   await page.getByLabel('Prénom *').fill('Khady')
   await page.getByLabel('Nom *', { exact: true }).fill('Fall')
   await page.getByLabel('Téléphone mobile *').fill('76 444 55 66')
@@ -72,6 +78,7 @@ const text = async (locator) => (await locator.textContent()).replace(/[\u202f\u
   log(/Livraison\s*Offerte/.test(recap) && /Total\s*10 000 F CFA/.test(recap), 'Commande : 2 sprays (10 000 F), livraison « Offerte »')
   const consent = page.getByRole('checkbox', { name: /accepte|confidentialité/ })
   if (await consent.count()) await consent.first().check()
+  log(await page.getByRole('group', { name: /Il manque/ }).waitFor({ state: 'detached', timeout: 5000 }).then(() => true, () => false), 'Tout rempli : l’encadré « Il manque » disparaît')
   await page.getByRole('button', { name: 'Confirmer la commande' }).click()
   await page.getByRole('heading', { name: 'Commande enregistrée' }).waitFor()
   log((await text(page.locator('main'))).includes('10 000 F CFA'), 'Commande enregistrée à 10 000 F, livraison comprise (serveur)')
