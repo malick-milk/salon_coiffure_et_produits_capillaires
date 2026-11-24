@@ -146,3 +146,26 @@ Avant : l'offre membre, puis le carrousel, l'un sous l'autre : deux fois la mêm
 > Concept React : plutôt qu'un `setInterval` qu'il faudrait arrêter et relancer à chaque pause, on laisse **le navigateur** compter (une animation CSS de 10 s) et on écoute sa fin. Mettre en pause = `animation-play-state: paused` : la barre et le temps restant se figent ensemble, il n'y a qu'une seule « vérité ».
 
 **Limite connue :** un compte créé sans e-mail ne peut pas utiliser « mot de passe oublié » (le lien part par e-mail). La cliente passe par le salon ; une réinitialisation par SMS est à prévoir avec le chiffrage des SMS.
+
+## 10. Le vrai catalogue des gammes (réunion du 24 novembre 2026)
+
+| Gamme | Pour qui | Contenu | Prix |
+|---|---|---|---|
+| Avocat · Débutants | premières routines | crème, shampoing sans sulfate, spray hydratant | 10 000 F |
+| Avocat · Tout type | longueur, volume, réparatrice | crème, shampoing sans sulfate, sérum Activ'Pousse, spray hydratant | 15 000 F · **prix membre 10 000 F** (lancement) |
+| Coco | longueur et volume | crème **au coco**, Leave In, spray hydratant, sérum Booster, masque | 15 000 F |
+| Palme | — | crème, Virgin Hair, sérum Activ'Pousse, spray, shampoing | 15 000 F |
+| Salma Hair | enfants | crème, huile, spray, sérum à l'avocat | 8 000 F |
+| Locs | locks | 2 huiles 30 ml (olive, menthe), spray, shampoing | 13 000 F |
+| Petit format 1 | — | crème, huile, shampoing | 5 000 F |
+| Petit format 2 | — | crème, spray, shampoing | 5 000 F |
+
+Produit à part : **shampoing savon**, 5 000 F (photo à confirmer).
+
+**Règles décidées :** les produits **diffèrent selon la base** (la crème de la gamme coco est au coco) ; crème au format **300 ml**.
+
+**Coûts connus (prix de revient ou d'achat) :** crème à l'avocat 300 ml 579 F (150 ml : 500 F) ; shampoing à l'avocat 500 ml 558 F (250 ml : 416 F) ; masque à la kératine 300 ml 491 F ; Leave In 250 ml 500 F ; Virgin Hair 1 500 F ; huile à l'olive 500 F ; huiles Locs (olive, menthe) 500 F.
+
+**Attendu à la 2e réunion :** les coûts restants (spray, sérums, crèmes coco et palme…), les prix de vente des nouveaux produits (huiles, Virgin Hair, shampoing savon), les photos de chaque gamme.
+
+**Point signalé :** « Avocat · Tout type » à 15 000 F coûte plus cher que ses 4 produits achetés séparément (14 000 F aux prix actuels). Le prix membre de 10 000 F règle la question pendant le lancement ; à revoir après.
