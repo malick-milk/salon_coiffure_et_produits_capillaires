@@ -53,3 +53,12 @@ Tu es <rôle> de Dabo Hair. <Son seul travail, en une phrase.>
 ```
 
 Pour t'en inspirer, relis `.claude/agents/maquettes-promo.md` : chaque partie y est remplie. Dans Claude Code, la commande `/agents` affiche et gère les agents du projet. Pense à ajouter chaque nouvel agent à l'annuaire ci-dessus.
+
+## Outils branchés au projet (24 novembre 2026)
+
+| Outil | Ce qu'il apporte | Où | Précautions |
+|---|---|---|---|
+| **Chrome DevTools MCP** 1.13.0 (officiel, équipe Chrome de Google) | Claude pilote un vrai Chrome : console, requêtes réseau, captures, **audit Lighthouse** (vitesse, accessibilité, référencement), enregistrement de performance | `.mcp.json` à la racine du dépôt (Claude Code le propose à la première ouverture : accepter) | `--isolated` : profil Chrome jetable, jamais vos comptes ni vos mots de passe enregistrés ; `--no-usage-statistics` : aucune statistique envoyée à Google. Version **fixée** : on monte de version volontairement, après lecture des notes de version |
+| **Vercel** (plugin officiel, annuaire Anthropic) | Compétences et commandes pour déployer sur Vercel | installé depuis claude.ai, pas dans le dépôt | Le site est prévu sur un serveur OVHcloud (Laravel + MySQL, `11_DEPLOIEMENT.md`). Vercel ne fait pas tourner ce serveur PHP : utile seulement si un jour la vitrine React y est déplacée seule |
+
+**Pas installé : « oh-my-claudecode ».** Le paquet npm de ce nom appartient à un autre auteur que le projet connu (`Yeachan-Heo/oh-my-claudecode` sur GitHub) : risque d'usurpation. Ce plugin ajoute aussi des « hooks » qui s'exécutent à chaque message et changent la façon de travailler (modes automatiques). À n'installer, si on le décide, que depuis le dépôt GitHub officiel, après lecture de ses hooks.
