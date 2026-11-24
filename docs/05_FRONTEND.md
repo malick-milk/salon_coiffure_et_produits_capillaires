@@ -280,3 +280,10 @@ Complète la correction du curseur : après un essai refusé, un encadré au-des
 | Commande (avec « Votre panier est gardé : rien n'est perdu »), inscription, réservation (le formulaire prévient la page, qui affiche l'encadré au-dessus de « Envoyer la demande ») | `components/common/MissingFields.tsx`, `lib/missingFields.ts` (libellés dans l'ordre de la page), `lib/focusFirstInvalid.ts` (`goToField`) |
 
 Tests : `MissingFields.test.tsx` (ordre, singulier, lien qui amène au champ, disparition) et le parcours livraison (« Il manque 4 informations », « Votre nom » amène sur le champ Nom, l'encadré disparaît une fois tout rempli).
+
+
+### Test instable sur la CI : la pastille de la cloche (24 novembre 2026)
+
+Le parcours `parcours-compte` échouait parfois sur la CI (« la pastille de la cloche disparaît »), jamais en local. La cause était **dans le test** : deux liens portent « non lue » (la cloche de l'en-tête et le lien du menu du compte). `locator.waitFor()` exige UN seul élément : avec deux, il échoue aussitôt (« mode strict ») au lieu d'attendre. Sur une machine rapide, la lecture était déjà faite (zéro lien) ; sur la CI, plus lente, les deux liens étaient encore là. Correction : attendre que leur **nombre** tombe à 0. La vérification précédente (« 1 non lue ») comptait aussi trop tôt : elle attend maintenant le chargement.
+
+> Méthode pour un test instable : le rejouer en **ralentissant exprès** le réseau (`page.route` qui retarde les réponses de 600 ms). Si le test échoue alors en local, le défaut est un problème de timing dans le test, pas dans le site.

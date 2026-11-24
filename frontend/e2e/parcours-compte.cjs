@@ -46,7 +46,8 @@ const log = (ok, msg) => { if (!ok) failures++; console.log(`${ok ? 'OK  ' : 'FA
   await page.screenshot({ path: `${SHOTS}/11-mes-reservations.png`, fullPage: true })
 
   // 4 bis. Rappel de resserrage (démo : twist simple il y a 30 jours, délai de 4 semaines) — maquette du 16 novembre
-  log((await page.getByRole('link', { name: 'Notifications, 1 non lue' }).count()) === 1, 'Cloche : 1 notification non lue')
+  // On ATTEND le chargement du compteur (sur une machine lente, il arrive après l'affichage de la page)
+  log(await page.getByRole('link', { name: 'Notifications, 1 non lue' }).waitFor({ timeout: 10000 }).then(() => true, () => false), 'Cloche : 1 notification non lue')
   await page.goto(BASE + '/compte')
   await page.getByRole('heading', { name: 'Votre resserrage approche' }).waitFor()
   log((await page.getByText(/Votre twist simple a été fait le/).count()) === 1, 'Vue d’ensemble : la carte « Votre resserrage approche » est en tête')
@@ -57,8 +58,12 @@ const log = (ok, msg) => { if (!ok) failures++; console.log(`${ok ? 'OK  ' : 'FA
   log(await page.getByRole('button', { name: 'Continuer' }).isEnabled(), 'Réserver : le « Resserrage twist simple » est déjà choisi (Continuer actif)')
   await page.goto(BASE + '/compte/notifications')
   await page.getByRole('link', { name: 'Notifications', exact: true }).first().waitFor()
-  // La page marque les notifications lues puis recharge le compteur : on ATTEND la disparition (CI plus lente)
-  const gone = await page.getByRole('link', { name: /non lue/ }).waitFor({ state: 'detached', timeout: 10000 }).then(() => true, () => false)
+  // La page marque les notifications lues puis recharge le compteur : on ATTEND la disparition (CI plus lente).
+  // Deux liens portent « non lue » (cloche de l'en-tête + menu du compte) : waitFor exige UN élément et échouait
+  // aussitôt en « mode strict » sur une machine lente ; on attend donc que leur nombre tombe à 0.
+  const unreadLinks = page.getByRole('link', { name: /non lue/ })
+  let gone = false
+  for (let i = 0; i < 40 && !gone; i++) { gone = (await unreadLinks.count()) === 0; if (!gone) await page.waitForTimeout(250) }
   log(gone, 'Rubrique ouverte : la pastille de la cloche disparaît')
   await page.getByRole('button', { name: 'Me le rappeler dans 1 semaine' }).click()
   await page.getByText('Aucune notification').waitFor()
