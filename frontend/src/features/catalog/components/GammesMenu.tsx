@@ -113,7 +113,7 @@ function GammeItem({ gamme: g }: { gamme: ProductSummary }) {
         <span className="relative size-[76px] shrink-0 overflow-hidden rounded-xl bg-[#1a1712] md:h-40 md:w-full md:rounded-none">
           {g.image_url
             ? <img src={g.image_url} alt="" loading="lazy" className="size-full object-cover" />
-            : <span className="grid size-full place-items-center p-1 text-center text-[10px] text-[#a8a29e] md:text-[13px]">Photo à venir</span>}
+            : <span aria-hidden="true" className="grid size-full place-items-center font-display text-lg text-gold md:text-3xl">Dabo Hair</span>}
           {member && <span className="absolute top-2.5 left-2.5 hidden rounded-full bg-gold px-2.5 py-1 text-[11px] font-bold tracking-wider text-ink uppercase md:block">Prix membre</span>}
         </span>
         <span className="flex min-w-0 flex-col gap-1 md:p-3.5">

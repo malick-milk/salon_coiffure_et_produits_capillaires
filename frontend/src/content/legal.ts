@@ -31,17 +31,13 @@ export const legalPages: LegalPage[] = [
         paragraphs: [
           `• Nom commercial : ${COMPANY}`,
           '• Forme juridique : [À COMPLÉTER : entreprise individuelle, SARL, SUARL…]',
-          '• Nom de la responsable : [À COMPLÉTER : prénom et nom d’Awa, gérante]',
+          '• Gérante et directrice de la publication : [À COMPLÉTER : prénom et nom d’Awa]',
           `• Adresse : ${ADDRESS}`,
           `• Téléphone : ${PHONE}`,
           `• E-mail : ${EMAIL}`,
           '• NINEA : [À COMPLÉTER : numéro NINEA]',
           '• Registre du commerce (RCCM) : [À COMPLÉTER : numéro RCCM, ex. SN-DKR-2026-A-…]',
         ],
-      },
-      {
-        title: 'Directrice de la publication',
-        paragraphs: ['[À COMPLÉTER : prénom et nom de la personne responsable du contenu du site]'],
       },
       {
         title: 'Hébergement',
@@ -52,6 +48,7 @@ export const legalPages: LegalPage[] = [
       {
         title: 'Propriété des contenus',
         paragraphs: [
+          'La directrice de la publication est la gérante : elle répond du contenu publié (textes, prix, photos, avis).',
           `Les textes, photos, logos et la devise « Vos cheveux à l’état pur » appartiennent à ${COMPANY}. Toute reproduction sans accord écrit est interdite.`,
           'Les avis publiés sont ceux de nos clientes, avec leur accord, sous leur prénom et l’initiale de leur nom.',
         ],

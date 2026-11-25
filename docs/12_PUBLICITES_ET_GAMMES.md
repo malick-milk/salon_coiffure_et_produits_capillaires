@@ -183,3 +183,20 @@ Produit à part : **shampoing savon**, 5 000 F (photo à confirmer).
 | Fermeture : Échap, clic dehors, re-clic, changement de page | `GammesMenu.tsx` |
 
 À la saisie d'une gamme dans l'ERP, la **description courte** devient le titre de la carte (« Pour les débutants », « Longueur, volume, réparatrice ») : la remplir pour chaque gamme.
+
+
+## 12. Moins de choix, plus de ventes (maquettes validées le 25 novembre 2026)
+
+Principe : **trop de choix ne fait pas vendre**. Le site propose UNE réponse au lieu d'une liste.
+
+| Fonction | Règle | Où |
+|---|---|---|
+| « Quelle gamme pour moi ? » (accueil) | 2 questions, UNE gamme, « Ajouter au panier ». Une réponse dont la gamme n'est pas en vente est masquée ; sans aucune, le bloc est caché | `GammeQuiz.tsx`, correspondances dans `content/quiz.ts` (à ajuster aux adresses réelles des gammes) |
+| « Mieux en routine » (fiche d'un produit seul) | LA gamme en vente et en stock la moins chère qui contient ce produit, avec l'économie ; le produit seul passe au second plan | API `in_bundle` (`ProductDetailResource::bundleOffer`), `ProductPage.tsx` |
+| « Racheter la même chose » (Mes commandes, commandes livrées) | Remplit le panier, **prix et stock du jour** ; ce qui n'est plus en vente est signalé | `account/rebuy.ts` (`planRebuy`, testé) |
+| Carrousel | Une seule gamme mise en avant à la fois (contenu `home.ts`) | — |
+| Volontairement absent | Nouveaux filtres, tris, comparateur | — |
+
+## 13. Pages légales (25 novembre 2026)
+
+`/mentions-legales`, `/conditions-de-vente`, `/confidentialite` : texte dans `frontend/src/content/legal.ts`, liens dans le pied de page et dans les cases « J'accepte » (commande, inscription, réservation, ouverts dans un nouvel onglet). Les **[À COMPLÉTER : …]** restent surlignés en jaune tant qu'Awa ne les a pas remplis : NINEA, RCCM, forme juridique, nom de la gérante (aussi directrice de la publication), délais (retrait, échange, retard), fournisseur SMS, conservation des factures, récépissé CDP. À faire relire par un juriste si possible.

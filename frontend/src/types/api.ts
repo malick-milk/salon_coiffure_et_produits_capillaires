@@ -94,6 +94,8 @@ export interface ProductDetail extends ProductSummary {
   images: { url: string; alt: string }[]
   variants: ProductVariant[] // autres contenances (products.variant_of_id)
   bundle_items?: { name: string; slug: string; quantity: number }[] // contenu d'une gamme
+  /** « Mieux en routine » : LA gamme en vente qui contient ce produit (25 novembre 2026) */
+  in_bundle?: { id: number; slug: string; name: string; unit_size: string | null; price: Money; member_price: Money | null; separate_price: Money; saving: Money; contents: string[] } | null
 }
 
 export type ProductSort = 'newest' | 'price_asc' | 'price_desc' | 'name'

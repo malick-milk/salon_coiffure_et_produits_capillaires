@@ -196,6 +196,8 @@ jobs:
         run: (cd backend && php artisan migrate:fresh --seed --force) && node frontend/e2e/parcours-gamme.cjs captures
       - name: Parcours twist express depuis l'accueil (base remise à zéro)
         run: (cd backend && php artisan migrate:fresh --seed --force) && node frontend/e2e/parcours-twist-express.cjs captures
+      - name: Parcours moins de choix et pages légales (base remise à zéro)
+        run: (cd backend && php artisan migrate:fresh --seed --force) && node frontend/e2e/parcours-moins-de-choix.cjs captures
       - name: Concurrence et charge (base remise à zéro)
         run: (cd backend && php artisan migrate:fresh --seed --force) && node backend/tests/charge/concurrence.mjs
       - name: Captures d'écran et journaux (en cas d'échec, pour comprendre)

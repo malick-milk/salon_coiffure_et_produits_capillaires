@@ -1,6 +1,7 @@
 /** Réservation par une cliente connectée : ses coordonnées sont reprises de son compte (18 novembre 2026) */
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { MemoryRouter } from 'react-router'
 import { describe, expect, it } from 'vitest'
 import { ME_KEY } from '@/features/auth/hooks'
 import { ContactStep } from './ContactStep'
@@ -8,7 +9,7 @@ import { ContactStep } from './ContactStep'
 const renderStep = (me: unknown) => {
   const qc = new QueryClient()
   qc.setQueryData(ME_KEY, me) // la session est déjà connue : pas d'appel réseau
-  return render(<QueryClientProvider client={qc}><ContactStep formId="f" onSubmit={() => {}} /></QueryClientProvider>)
+  return render(<QueryClientProvider client={qc}><MemoryRouter><ContactStep formId="f" onSubmit={() => {}} /></MemoryRouter></QueryClientProvider>)
 }
 
 describe('Réservation : coordonnées', () => {

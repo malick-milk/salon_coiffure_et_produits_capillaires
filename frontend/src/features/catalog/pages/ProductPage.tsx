@@ -1,7 +1,7 @@
 /** FICHE PRODUIT : photos, prix, contenances (variantes), quantité, ajout au panier */
 import { Check, Minus, Plus, ShoppingBag, Store, Truck } from 'lucide-react'
 import { useState } from 'react'
-import { Link, useParams } from 'react-router'
+import { Link, useNavigate, useParams } from 'react-router'
 import { ImagePlaceholder } from '@/components/common/Placeholder'
 import { Seo } from '@/components/common/Seo'
 import { QueryError } from '@/components/common/States'
@@ -14,6 +14,7 @@ import { cn } from '@/lib/utils'
 import { NotFoundPage } from '@/pages/NotFoundPage'
 import { hasMemberOffer, MemberCounter, MemberPriceBlock } from '../components/MemberOffer'
 import { stockLabel, untilLabel } from '../components/ProductCard'
+import type { ProductDetail } from '@/types/api'
 import { useProduct } from '../hooks'
 
 export function ProductPage() {
@@ -148,9 +149,10 @@ export function ProductPage() {
                   <Plus aria-hidden="true" />
                 </Button>
               </div>
-              <Button className="min-h-[52px] flex-1 basis-60" disabled={soldOut} onClick={addToCart}>
+              {/* Une gamme le contient : le produit seul passe au second plan, la gamme est mise en avant juste dessous */}
+              <Button className="min-h-[52px] flex-1 basis-60" variant={product.in_bundle ? 'outline' : undefined} disabled={soldOut} onClick={addToCart}>
                 {added ? <Check aria-hidden="true" /> : <ShoppingBag aria-hidden="true" />}
-                {soldOut ? 'Indisponible' : added ? 'Ajouté au panier' : 'Ajouter au panier'}
+                {soldOut ? 'Indisponible' : added ? 'Ajouté au panier' : product.in_bundle ? 'Ajouter ce produit seul' : 'Ajouter au panier'}
               </Button>
             </div>
             {/* Annonce vocale pour les lecteurs d'écran */}
@@ -158,6 +160,7 @@ export function ProductPage() {
             {added && (
               <Link to="/panier" className="w-fit text-sm font-semibold text-gold underline underline-offset-4">Voir le panier</Link>
             )}
+            {product.in_bundle && <BundleOffer offer={product.in_bundle} productName={product.name} />}
 
             {product.bundle_items && product.bundle_items.length > 0 && (
               <div className="flex flex-col gap-2">
@@ -176,7 +179,7 @@ export function ProductPage() {
             <ul className="flex flex-col gap-3.5 border-y border-ink-line py-5 text-[15px] text-[#d9d9d9]">
               <li className="flex items-center gap-3"><Store className="size-5 text-gold" aria-hidden="true" />Retrait gratuit en boutique</li>
               <li className="flex items-center gap-3"><Truck className="size-5 text-gold" aria-hidden="true" />Livraison à Dakar selon la zone</li>
-              <li className="flex items-center gap-3"><Check className="size-5 text-gold" aria-hidden="true" />Paiement à la réception (espèces, Wave, Orange Money)</li>
+              <li className="flex items-center gap-3"><Check className="size-5 text-gold" aria-hidden="true" />Paiement à la réception (espèces, Wave, Orange Money ou Free Money)</li>
             </ul>
             <p className="text-[13px] text-[#a3a3a3]">Référence : {product.sku} · Numéro de lot et date de péremption imprimés sur le flacon</p>
           </div>
@@ -191,5 +194,31 @@ export function ProductPage() {
         </section>
       </div>
     </div>
+  )
+}
+
+/**
+ * « MIEUX EN ROUTINE » (maquette validée le 25 novembre 2026) : la gamme qui contient ce produit, avec l'économie.
+ * Une seule proposition, choisie par le serveur (la moins chère en stock) : trop de choix ne fait pas vendre.
+ */
+function BundleOffer({ offer, productName }: { offer: NonNullable<ProductDetail['in_bundle']>; productName: string }) {
+  const add = useCart((s) => s.add)
+  const navigate = useNavigate()
+  const take = () => {
+    add({ productId: offer.id, slug: offer.slug, name: offer.name, unitSize: offer.unit_size, price: offer.price, memberPrice: offer.member_price })
+    navigate('/panier')
+  }
+  return (
+    <section aria-labelledby="mieux-en-routine" className="flex flex-col gap-2 rounded-2xl border-2 border-gold bg-[#1a1710] p-4">
+      <span className="text-[11px] font-bold tracking-[0.12em] text-gold uppercase">Mieux en routine</span>
+      <h2 id="mieux-en-routine" className="text-base font-semibold">
+        {productName} est dans la <Link to={`/produits/${offer.slug}`} className="underline underline-offset-4 hover:text-gold">{offer.name}</Link>
+      </h2>
+      <p className="text-sm text-[#c9c4b8]">
+        {offer.contents.join(' · ')} — {formatPrice(offer.price)}{offer.saving > 0 && <> au lieu de {formatPrice(offer.separate_price)} séparément</>}
+      </p>
+      {offer.saving > 0 && <span className="self-start rounded-full bg-gold px-2.5 py-0.5 text-xs font-bold text-ink">{formatPrice(offer.saving)} d’économie</span>}
+      <Button className="min-h-[52px]" onClick={take}>Prendre la gamme</Button>
+    </section>
   )
 }

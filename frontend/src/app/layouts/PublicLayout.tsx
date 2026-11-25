@@ -133,7 +133,11 @@ function Footer() {
         </div>
         <div className="flex flex-wrap justify-between gap-4 border-t border-ink-line pt-6 text-[13px] text-[#a3a3a3]">
           <span>© {new Date().getFullYear()} Dabo Hair</span>
-          <span>Mentions légales · Confidentialité · Conditions de vente</span>
+          <nav aria-label="Informations légales" className="flex flex-wrap gap-x-4">
+            <Link to="/mentions-legales" className="py-1.5 hover:text-gold">Mentions légales</Link>
+            <Link to="/confidentialite" className="py-1.5 hover:text-gold">Confidentialité</Link>
+            <Link to="/conditions-de-vente" className="py-1.5 hover:text-gold">Conditions de vente</Link>
+          </nav>
         </div>
       </div>
     </footer>

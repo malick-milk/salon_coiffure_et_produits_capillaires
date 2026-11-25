@@ -1,7 +1,7 @@
 /** Pages de l'espace client (EF-CLI-06 à 11) */
 import { zodResolver } from '@hookform/resolvers/zod'
 import axios from 'axios'
-import { ArrowRight, Bell, CalendarDays, Check, ChevronLeft, FileText, Package, type LucideIcon } from 'lucide-react'
+import { ArrowRight, Bell, CalendarDays, Check, ChevronLeft, Package, type LucideIcon } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { Link, useParams } from 'react-router'
@@ -17,6 +17,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { useMe } from '@/features/auth/hooks'
 import { normalizePhone, SENEGAL_MOBILE } from '@/features/booking/schema'
 import { formatDuration, formatLongDate, formatPrice, fulfillmentLabel } from '@/lib/format'
+import { useRebuy } from '../rebuy'
 import { apiErrorMessage, apiErrorStatus, type ValidationErrorBody } from '@/lib/http'
 import type { AccountNotification, CustomerBooking, OrderSummary } from '@/types/api'
 import { ResserrageCard } from '../components/ResserrageCard'
@@ -160,8 +161,9 @@ export function OrdersPage() {
 }
 
 function OrderRow({ order: o }: { order: OrderSummary }) {
+  const { rebuy, busy } = useRebuy()
   return (
-    <li>
+    <li className="flex flex-col gap-2">
       <Link to={`/compte/commandes/${o.reference}`} className="flex flex-wrap items-center gap-x-6 gap-y-2 rounded-2xl border border-ink-line bg-ink-soft p-5 hover:border-gold">
         <div className="flex min-w-48 flex-1 flex-col gap-1">
           <strong>{o.reference}</strong>
@@ -171,6 +173,12 @@ function OrderRow({ order: o }: { order: OrderSummary }) {
         <strong className="w-32 text-right">{formatPrice(o.total)}</strong>
         <ArrowRight className="size-5 text-muted" aria-hidden="true" />
       </Link>
+      {/* Racheter en 1 clic (maquette validée le 25 novembre 2026) : hors de la carte, pour ne pas ouvrir la commande par erreur */}
+      {o.status === 'delivered' && (
+        <Button variant="outline" className="self-end" disabled={busy !== null} onClick={() => void rebuy(o.reference)}>
+          {busy === o.reference ? 'Préparation du panier…' : 'Racheter la même chose'}
+        </Button>
+      )}
     </li>
   )
 }
@@ -232,7 +240,7 @@ export function OrderDetailPage() {
             ) : <p className="text-[#d9d9d9]">Nous vous prévenons par SMS dès que la commande est prête.</p>}
           </Card>
           {order.data.invoice_available ? (
-            <Button variant="outline" className="w-fit" disabled title="Génération PDF : étape 6 (Laravel)"><FileText aria-hidden="true" />Facture PDF (bientôt)</Button>
+            <p className="text-sm text-muted">Votre facture vous a été remise au paiement. Besoin d’un duplicata ? Appelez le salon au 77 602 62 00.</p>
           ) : <p className="text-sm text-muted">La facture sera disponible après le paiement.</p>}
         </>
       )}

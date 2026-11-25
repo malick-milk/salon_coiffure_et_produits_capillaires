@@ -52,6 +52,10 @@ export const router = createBrowserRouter([
       // Lien « Ne plus recevoir les rappels de resserrage » des e-mails (URL signée)
       { path: 'rappels/desinscription/:customer', lazy: async () => ({ Component: (await import('@/features/account/pages/UnsubscribePage')).UnsubscribePage }) },
       { path: 'retrait/:token', lazy: async () => ({ Component: (await import('@/features/pickup/pages/HandoverPage')).HandoverPage }) },
+      // Pages légales (25 novembre 2026)
+      ...['mentions-legales', 'conditions-de-vente', 'confidentialite'].map((path) => ({
+        path, lazy: async () => ({ Component: (await import('@/features/legal/LegalPage')).LegalPage }),
+      })),
       { path: '*', element: <NotFoundPage /> },
     ],
   },

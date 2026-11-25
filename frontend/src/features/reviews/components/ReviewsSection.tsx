@@ -16,7 +16,7 @@ export function ReviewsSection() {
     <section aria-labelledby="avis-titre" className="border-t border-ink-line px-4 py-20 sm:px-6">
       <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[340px_1fr]">
         <div className="flex flex-col gap-4">
-          <Eyebrow>Ils nous font confiance</Eyebrow>
+          <Eyebrow>Elles en parlent mieux que nous</Eyebrow>
           <h2 id="avis-titre" className="font-display text-4xl font-semibold">Avis clients</h2>
           {reviews.data ? <ReviewsSummaryBlock summary={reviews.data.summary} /> : <Skeleton className="h-48" />}
         </div>

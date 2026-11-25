@@ -5,6 +5,7 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useEffect, useState } from 'react'
 import { useForm, type UseFormSetError } from 'react-hook-form'
+import { Link } from 'react-router'
 import { useMe } from '@/features/auth/hooks'
 import { Field } from '@/components/common/FormField'
 import { onInvalidFocus } from '@/lib/focusFirstInvalid'
@@ -92,13 +93,13 @@ export function ContactStep({ formId, onSubmit, onMissingChange }: {
           {(id, describedBy) => <Input id={id} type="email" autoComplete="email" aria-invalid={!!errors.email} aria-describedby={describedBy} {...register('email')} />}
         </Field>
       </div>
-      <Field label="Précisions pour le coiffeur (facultatif)" error={errors.notes?.message}>
+      <Field label="Précisions pour la coiffeuse (facultatif)" error={errors.notes?.message}>
         {(id, describedBy) => <Textarea id={id} rows={3} maxLength={500} aria-describedby={describedBy} {...register('notes')} />}
       </Field>
       <div className="flex flex-col gap-1.5">
         <label className="flex items-start gap-3 text-sm leading-relaxed text-[#d9d9d9]">
           <input type="checkbox" className="mt-0.5 size-[18px] shrink-0 accent-gold" aria-invalid={!!errors.consent} {...register('consent')} />
-          J'accepte que mes données soient utilisées pour gérer ce rendez-vous (politique de confidentialité).
+          J'accepte que mes données soient utilisées pour gérer ce rendez-vous (<Link to="/confidentialite" target="_blank" className="text-gold underline underline-offset-2">politique de confidentialité</Link>).
         </label>
         {errors.consent && <p role="alert" className="text-sm font-medium text-[#f87171]">{errors.consent.message}</p>}
       </div>

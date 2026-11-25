@@ -66,8 +66,8 @@ const log = (ok, msg) => { if (!ok) failures++; console.log(`${ok ? 'OK  ' : 'FA
   log((await page.getByRole('link', { name: /Panier, 2 articles/ }).count()) === 1, 'Panier : compteur = 2 après ajout de 2 unités')
   await page.screenshot({ path: `${SHOTS}/03-fiche-produit.png`, fullPage: true })
   await page.goto(BASE + '/produits/produit-inexistant')
-  await page.getByText('Cette page n\'existe pas').waitFor()
-  log(true, 'Fiche produit : un produit inexistant affiche la page 404')
+  await page.getByRole('heading', { name: 'Cette page n’existe plus' }).waitFor()
+  log(await page.getByRole('link', { name: 'Voir les gammes' }).count() === 1, 'Fiche produit : un produit inexistant affiche la page 404, qui renvoie vers les gammes')
 
   // 4. Panier persistant (localStorage) après rechargement
   await page.goto(BASE + '/panier')

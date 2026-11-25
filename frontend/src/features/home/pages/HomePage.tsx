@@ -10,6 +10,7 @@ import { homeContent } from '@/content/home'
 import { salon, salonMapsUrl } from '@/content/salon'
 import { TwistExpress } from '@/features/booking/components/TwistExpress'
 import { useBusinessHours, useServices } from '@/features/booking/hooks'
+import { GammeQuiz } from '@/features/catalog/components/GammeQuiz'
 import { MemberOfferSlide, useLaunchOffer } from '@/features/catalog/components/MemberOffer'
 import { ProductCard } from '@/features/catalog/components/ProductCard'
 import { AdCarousel } from '@/features/home/components/AdCarousel'
@@ -58,6 +59,9 @@ export function HomePage() {
         ads={homeContent.ads}
         lead={launch && { label: 'Offre de lancement · Réservée aux membres', render: (first) => <MemberOfferSlide product={launch} first={first} /> }}
       />
+
+      {/* « Quelle gamme pour moi ? » (25 novembre 2026) : caché tant qu'aucune gamme du questionnaire n'est en vente */}
+      <div className="px-4 pb-10 empty:hidden sm:px-6"><GammeQuiz /></div>
 
       <section aria-label="Nos engagements" className="border-y border-ink-line px-4 py-7 sm:px-6">
         <ul className="mx-auto grid max-w-7xl gap-6 sm:grid-cols-2 lg:grid-cols-4">
@@ -111,7 +115,7 @@ export function HomePage() {
           <div className="flex max-w-2xl flex-col gap-2.5">
             <Eyebrow light>Le salon</Eyebrow>
             <h2 className="font-display text-4xl font-semibold">Nos prestations</h2>
-            <p className="text-[17px] leading-relaxed text-[#3f3f46]">Durée et prix affichés à l'avance. Réservez en ligne avec Awa Dabo, tous les jours de 9 h à 19 h. Twists uniquement sur vos propres cheveux, sans mèches.</p>
+            <p className="text-[17px] leading-relaxed text-[#3f3f46]">Durée et prix affichés à l'avance. Réservez en ligne avec Awa Dabo, aux horaires ci-dessous. Twists uniquement sur vos propres cheveux, sans mèches.</p>
           </div>
           {services.isError ? (
             <QueryError message={apiErrorMessage(services.error)} onRetry={() => services.refetch()} />

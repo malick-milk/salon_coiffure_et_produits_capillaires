@@ -10,7 +10,7 @@ import type { BusinessHour, Service, Stylist } from '@/types/api'
 import { MONTHS, monthGrid, todayIso } from '../calendar'
 import { useAvailability } from '../hooks'
 
-export const STEPS = ['Prestation', 'Coiffeur', 'Date et heure', 'Coordonnées', 'Confirmation'] as const
+export const STEPS = ['Prestation', 'Coiffeuse', 'Date et heure', 'Coordonnées', 'Confirmation'] as const
 
 /** Indicateur d'étapes. aria-current="step" annonce l'étape en cours aux lecteurs d'écran. */
 export function Stepper({ current }: { current: number }) {
@@ -74,10 +74,10 @@ export function ServiceStep({ services, selectedId, onSelect }: { services: Serv
 }
 
 export function StylistStep({ stylists, selected, onSelect }: { stylists: Stylist[]; selected: number | 'any' | null; onSelect: (v: number | 'any') => void }) {
-  const options = [{ id: 'any' as const, name: 'Peu importe', initial: '?', hint: 'Premier coiffeur disponible' }, ...stylists.map((s) => ({ id: s.id, name: s.display_name, initial: s.display_name.charAt(0), hint: 'Coiffeur du salon' }))]
+  const options = [{ id: 'any' as const, name: 'Peu importe', initial: '?', hint: 'Première coiffeuse libre' }, ...stylists.map((s) => ({ id: s.id, name: s.display_name, initial: s.display_name.charAt(0), hint: 'Coiffeuse du salon' }))]
   return (
     <div className="flex flex-col gap-4">
-      <p className="text-[15px] text-muted">Seuls les coiffeurs qui réalisent cette prestation sont proposés.</p>
+      <p className="text-[15px] text-muted">Seules les coiffeuses qui réalisent cette prestation sont proposées.</p>
       <div className="grid gap-4 sm:grid-cols-3">
         {options.map((o) => (
           <ChoiceCard key={o.id} selected={selected === o.id} onSelect={() => onSelect(o.id)} className="min-h-[120px] items-center justify-center text-center">
@@ -196,7 +196,7 @@ export function DateTimeStep({
                 </button>
               ))}
             </div>
-            <p className="text-[13px] leading-relaxed text-[#a3a3a3]">Créneaux calculés selon la durée de la prestation, la pause de midi et les rendez-vous existants. Barré = déjà pris.</p>
+            <p className="text-[13px] leading-relaxed text-[#a3a3a3]">Les heures barrées sont déjà prises. Tous les créneaux tiennent compte de la durée de la prestation.</p>
           </>
         )}
       </div>
@@ -207,7 +207,7 @@ export function DateTimeStep({
 export function BookingSummary({ service, stylistName, date, time }: { service: Service | null; stylistName: string | null; date: string | null; time: string | null }) {
   const rows: [string, string][] = [
     ['Prestation', service?.name ?? '—'],
-    ['Coiffeur', stylistName ?? '—'],
+    ['Coiffeuse', stylistName ?? '—'],
     ['Date', date ? `${formatLongDate(date)}${time ? ` à ${time}` : ''}` : '—'],
     ['Durée', service ? formatDuration(service.duration_minutes) : '—'],
   ]

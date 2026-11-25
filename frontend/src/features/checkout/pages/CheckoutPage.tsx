@@ -217,7 +217,7 @@ export function CheckoutPage() {
               <div className="flex flex-col gap-1.5">
                 <label className="flex items-start gap-3 text-sm leading-relaxed text-[#d9d9d9]">
                   <input type="checkbox" className="mt-0.5 size-[18px] shrink-0 accent-gold" aria-invalid={!!errors.consent} {...register('consent')} />
-                  J'accepte les conditions de vente et l'utilisation de mes données pour traiter la commande.
+                  J'accepte les <Link to="/conditions-de-vente" target="_blank" className="text-gold underline underline-offset-2">conditions de vente</Link> et l'utilisation de mes données pour traiter la commande (<Link to="/confidentialite" target="_blank" className="text-gold underline underline-offset-2">confidentialité</Link>).
                 </label>
                 {errors.consent && <p role="alert" className="text-sm font-medium text-[#f87171]">{errors.consent.message}</p>}
               </div>
@@ -241,7 +241,7 @@ export function CheckoutPage() {
               {method === 'delivery' && missing !== null && <p className="text-xs text-gold-text">Plus que {formatPrice(missing)} pour la livraison offerte</p>}
               <div className="flex justify-between border-t border-[#e4e4e7] pt-3 text-lg"><dt>Total</dt><dd className="font-semibold">{formatPrice(subtotal - member.discount + shippingFee)}</dd></div>
             </dl>
-            <p className="text-[13px] leading-relaxed text-[#52525b]">Paiement à la réception : espèces, Wave, Orange Money ou Free Money. Montant définitif confirmé par le serveur.</p>
+            <p className="text-[13px] leading-relaxed text-[#52525b]">Paiement à la réception : espèces, Wave, Orange Money ou Free Money. Vous ne payez rien avant.</p>
             {placeOrder.isError && ![409, 422].includes(apiErrorStatus(placeOrder.error) ?? 0) && <p role="alert" className="text-sm text-[#b91c1c]">{apiErrorMessage(placeOrder.error)}</p>}
             {submitCount > 0 && <MissingFieldsSummary items={missingFields(errors, CHECKOUT_LABELS)} reassurance="Votre panier est gardé : rien n’est perdu." />}
             <Button type="submit" form={FORM_ID} variant="dark" disabled={placeOrder.isPending}>{placeOrder.isPending ? 'Envoi…' : 'Confirmer la commande'}</Button>

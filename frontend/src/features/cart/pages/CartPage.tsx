@@ -22,7 +22,9 @@ export function CartPage() {
   const total = subtotal - member.discount
   const missingDelivery = missingForFreeDelivery(useFreeDeliveryThreshold(), total)
   // Retour de l'inscription (ou de la connexion) : on confirme que le prix membre est appliqué
-  const welcome = (useLocation().state as { welcome?: boolean } | null)?.welcome && member.applied.length > 0
+  const navState = useLocation().state as { welcome?: boolean; rebuy?: { reference: string; unavailable: string[] } } | null
+  const welcome = navState?.welcome && member.applied.length > 0
+  const rebuy = navState?.rebuy
 
   return (
     <div className="px-4 pt-10 pb-24 sm:px-6">
@@ -33,12 +35,18 @@ export function CartPage() {
             Bienvenue{me.data ? ` ${me.data.first_name}` : ''} : votre prix membre est appliqué.
           </p>
         )}
+        {rebuy && (
+          <p role="status" className="rounded-xl border border-[#1f4d2b] bg-[#0f1f14] px-4 py-3 text-sm text-[#a7e3bd]">
+            Votre commande {rebuy.reference} est dans le panier, aux prix du jour. Vous n’avez plus qu’à valider.
+            {rebuy.unavailable.length > 0 && <span className="mt-1 block text-[#fde68a]">Plus disponible pour l’instant : {rebuy.unavailable.join(', ')}.</span>}
+          </p>
+        )}
         <h1 className="font-display text-4xl font-semibold sm:text-5xl">Panier</h1>
 
         {items.length === 0 ? (
           <EmptyState title="Votre panier est vide">
-            <p className="text-muted">Découvrez les soins Dabo Hair.</p>
-            <Button asChild><Link to="/boutique"><ShoppingBag aria-hidden="true" />Voir la boutique</Link></Button>
+            <p className="text-muted">Commencez par une gamme : tout ce qu’il faut pour vos cheveux, à un seul prix.</p>
+            <Button asChild><Link to="/boutique?category=gammes"><ShoppingBag aria-hidden="true" />Voir les gammes</Link></Button>
           </EmptyState>
         ) : (
           <div className="flex flex-col gap-8 lg:flex-row lg:items-start">
@@ -90,7 +98,7 @@ export function CartPage() {
                 </>
               )}
               {missingDelivery !== null && <p className="rounded-lg bg-[#fff8e6] px-3 py-2 text-[13px] font-semibold text-gold-text">Plus que {formatPrice(missingDelivery)} pour la livraison offerte</p>}
-              <p className="text-[13px] leading-relaxed text-[#52525b]">Frais de livraison calculés à l'étape suivante selon votre zone. Retrait en boutique gratuit. Les prix sont confirmés par le serveur à la validation.</p>
+              <p className="text-[13px] leading-relaxed text-[#52525b]">Frais de livraison calculés à l'étape suivante selon votre zone. Retrait en boutique gratuit.</p>
               <Button asChild variant="dark"><Link to="/commande">{member.signIn ? `Commander sans compte · ${formatPrice(total)}` : 'Valider la commande'}</Link></Button>
               <p className="text-center text-xs text-[#52525b]">Commande possible sans compte. Paiement à la réception.</p>
             </aside>
