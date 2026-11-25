@@ -21,6 +21,10 @@ class SatisfactionTest extends TestCase
 
     protected function setUp(): void
     {
+        // Horloge figée AVANT les données de démonstration : elles sont datées par rapport à « maintenant »
+        // (« terminé il y a 30 jours »…). Figée après, elles glissaient chaque jour et le test cassait selon la date réelle
+        // (SatisfactionTest, 25 novembre 2026).
+        Carbon::setTestNow(Carbon::parse('2026-11-08 10:00:00', 'UTC'));
         parent::setUp();
         $this->travelTo(Carbon::parse('2026-11-08 10:00:00', 'UTC'));
     }
@@ -78,6 +82,9 @@ class SatisfactionTest extends TestCase
     public function test_pas_d_enquete_le_jour_meme_ni_trop_tard_ni_deux_fois_en_14_jours(): void
     {
         Notification::fake();
+        // Seule la réservation préparée ici compte : les livraisons récentes des données de démonstration
+        // (CMD-2026-000101…) déclencheraient sinon leur propre enquête, légitimement
+        Order::query()->where('status', 'delivered')->update(['delivered_at' => now()->subDays(30)]);
         $booking = Booking::where('reference', 'RDV-2026-000105')->first();
         $booking->update(['completed_at' => now()->subHour()]);
         $this->artisan('surveys:send')->expectsOutput('0 enquête(s) envoyée(s).'); // aujourd'hui : on attend demain

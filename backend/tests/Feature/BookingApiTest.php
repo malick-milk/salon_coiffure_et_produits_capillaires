@@ -19,6 +19,10 @@ class BookingApiTest extends TestCase
 
     protected function setUp(): void
     {
+        // Horloge figée AVANT les données de démonstration : elles sont datées par rapport à « maintenant »
+        // (« terminé il y a 30 jours »…). Figée après, elles glissaient chaque jour et le test cassait selon la date réelle
+        // (SatisfactionTest, 25 novembre 2026).
+        Carbon::setTestNow(Carbon::parse('2026-11-08 10:00:00', 'UTC'));
         parent::setUp();
         $this->seed(SalonTestScenarioSeeder::class); // deux coiffeuses, pause de midi, dimanche fermé
         $this->travelTo(Carbon::parse('2026-11-08 10:00:00', 'UTC'));
