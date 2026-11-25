@@ -121,7 +121,11 @@ function Footer() {
         <div className="grid gap-8 text-[15px] sm:grid-cols-2 lg:grid-cols-4">
           <div className="flex flex-col gap-3">
             <Logo />
-            <p className="leading-relaxed text-muted">Soins capillaires fabriqués par nos soins et salon de coiffure.</p>
+            {/* La devise de Dabo Hair, comme sur les étiquettes des produits (25 novembre 2026) */}
+            <p className="flex flex-col gap-0.5">
+              <span className="font-display text-xl text-ivory">Vos cheveux à l’état pur</span>
+              <span lang="en" className="text-sm text-muted italic">Your hair in the pure state</span>
+            </p>
           </div>
           <FooterNav title="Boutique" links={[['Tous les produits', '/boutique'], ['Sérums', '/boutique?category=serums'], ['Hydratants et crèmes', '/boutique?category=hydratants-et-cremes'], ['Soins traitants', '/boutique?category=soins-traitants']]} />
           <FooterNav title="Salon" links={[['Prestations', '/#prestations'], ['Réserver', '/reserver'], ['Horaires', '/#salon']]} />
