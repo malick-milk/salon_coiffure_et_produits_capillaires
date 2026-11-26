@@ -37,20 +37,20 @@ class HrAdminController extends Controller
     public function index(): JsonResponse
     {
         $employees = Employee::query()->with(['currentContract', 'contracts'])->orderBy('first_name')->get();
-        $current = $employees->filter(fn (Employee $e) => $e->currentContract !== null);
+        $current = $employees->filter(fn (Employee $e) => $this->current($e) !== null);
         $month = now();
 
-        $alerts = $current->flatMap(fn (Employee $e) => collect(ContractRules::alerts($this->withEmployee($e->currentContract, $e)))
+        $alerts = $current->flatMap(fn (Employee $e) => collect(ContractRules::alerts($this->withEmployee($this->current($e), $e)))
             ->map(fn ($a) => $a + ['employee_id' => $e->id]))->sortBy(fn ($a) => [$a['level'] === 'danger' ? 0 : 1, $a['date'] ?? '9999'])->values();
 
-        $commissions = $current->sum(fn (Employee $e) => ContractRules::commission($this->withEmployee($e->currentContract, $e), $month)['commission']);
+        $commissions = $current->sum(fn (Employee $e) => ContractRules::commission($this->withEmployee($this->current($e), $e), $month)['commission']);
 
         return response()->json([
-            'data' => $current->map(fn (Employee $e) => $this->listRow($e, $e->currentContract))->values(),
-            'ended' => $employees->filter(fn (Employee $e) => $e->currentContract === null && $e->contracts->isNotEmpty())
-                ->map(fn (Employee $e) => $this->listRow($e, $e->contracts->sortByDesc('starts_on')->first()))->values(),
+            'data' => $current->map(fn (Employee $e) => $this->listRow($e, $this->current($e)))->values(),
+            'ended' => $employees->filter(fn (Employee $e) => $this->current($e) === null && $this->latest($e) !== null)
+                ->map(fn (Employee $e) => $this->listRow($e, $this->latest($e)))->values(),
             'alerts' => $alerts,
-            'payroll' => ['month' => $month->format('Y-m'), 'base_total' => (int) $current->sum(fn (Employee $e) => $e->currentContract->base_salary ?? 0), 'commissions' => $commissions],
+            'payroll' => ['month' => $month->format('Y-m'), 'base_total' => (int) $current->sum(fn (Employee $e) => $this->current($e)?->base_salary ?? 0), 'commissions' => $commissions],
         ]);
     }
 
@@ -77,7 +77,7 @@ class HrAdminController extends Controller
     /** « Enregistrer » sur la fiche : la personne et son contrat en cours */
     public function update(Request $request, Employee $employee): JsonResponse
     {
-        $contract = $employee->currentContract;
+        $contract = $this->current($employee);
         $data = $this->validated($request, $employee);
         $contractData = collect($data)->only($this->contractFields())->all();
         if ($contract && $contractData) {
@@ -158,7 +158,7 @@ class HrAdminController extends Controller
         ], ['document.max' => 'Le fichier dépasse 5 Mo.', 'document.mimes' => 'Formats acceptés : PDF, JPG ou PNG.']);
         $file = $request->file('document');
         $path = $file->storeAs('hr/'.$employee->id, Str::random(32).'.'.$file->extension(), self::DISK);
-        $contract = $employee->currentContract;
+        $contract = $this->current($employee);
         $employee->documents()->create([
             'employment_contract_id' => $contract?->id, 'kind' => $data['kind'], 'original_name' => Str::limit($file->getClientOriginalName(), 180, ''),
             'path' => $path, 'mime' => (string) $file->getMimeType(), 'size' => (int) $file->getSize(), 'uploaded_by' => $request->user()->id,
@@ -269,14 +269,38 @@ class HrAdminController extends Controller
         return ['type', 'position', 'starts_on', 'ends_on', 'trial_ends_on', 'weekly_hours', 'work_days', 'base_salary', 'commission_rate', 'pay_method', 'signed_on'];
     }
 
-    /** Évite de recharger la personne pour chaque contrat de la liste */
-    private function withEmployee(EmploymentContract $c, Employee $e): EmploymentContract
+    /** Le contrat en cours, typé (la relation latestOfMany est vue comme un Model générique par l'analyse statique) */
+    private function current(Employee $e): ?EmploymentContract
     {
+        $c = $e->currentContract;
+
+        return $c instanceof EmploymentContract ? $c : null;
+    }
+
+    /** Le contrat en cours, sinon le plus récent */
+    private function latest(Employee $e): ?EmploymentContract
+    {
+        $c = $this->current($e) ?? $e->contracts->sortByDesc('starts_on')->first();
+
+        return $c instanceof EmploymentContract ? $c : null;
+    }
+
+    /** Évite de recharger la personne pour chaque contrat de la liste */
+    private function withEmployee(?EmploymentContract $c, Employee $e): EmploymentContract
+    {
+        if ($c === null) {
+            throw new \LogicException('Contrat attendu.');
+        }
+
         return $c->setRelation('employee', $e);
     }
 
-    private function listRow(Employee $e, EmploymentContract $c): array
+    private function listRow(Employee $e, ?EmploymentContract $c): array
     {
+        if ($c === null) {
+            throw new \LogicException('Contrat attendu.');
+        }
+
         $alerts = ContractRules::alerts($this->withEmployee($c, $e));
         $kinds = array_column($alerts, 'kind');
         $state = match (true) {
@@ -295,7 +319,7 @@ class HrAdminController extends Controller
     private function sheet(Employee $e): array
     {
         $e->loadMissing(['contracts', 'documents', 'leaves']);
-        $c = $e->currentContract ?? $e->contracts->sortByDesc('starts_on')->first();
+        $c = $this->latest($e);
         $contractIds = $e->contracts->pluck('id');
         $history = Activity::query()->with('causer')->where('log_name', 'hr')
             ->where(fn ($q) => $q->where(fn ($q) => $q->where('subject_type', $e->getMorphClass())->where('subject_id', $e->id))

@@ -13,7 +13,7 @@ const SHOTS = process.argv[2]
 const BASE = 'http://localhost:5173'
 let failures = 0
 const log = (ok, msg) => { if (!ok) failures++; console.log(`${ok ? 'OK  ' : 'FAIL'} ${msg}`) }
-const text = async (l) => (await l.textContent()).replace(/[  ]/g, ' ')
+const text = async (l) => (await l.textContent()).replace(/[\u202f\u00a0]/g, ' ')
 const iso = (d) => d.toISOString().slice(0, 10)
 
 async function login(page, email, pw) {

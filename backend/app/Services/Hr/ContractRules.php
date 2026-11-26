@@ -70,7 +70,7 @@ final class ContractRules
     public static function pastCddMonths(Employee $employee, ?int $exceptContractId = null): float
     {
         return $employee->contracts()->where('type', 'cdd')->when($exceptContractId, fn ($q, $id) => $q->whereKeyNot($id))->get()
-            ->sum(fn (EmploymentContract $c) => $c->starts_on->floatDiffInMonths($c->ended_on ?? $c->ends_on ?? now()));
+            ->sum(fn (EmploymentContract $c) => $c->starts_on->diffInMonths($c->ended_on ?? $c->ends_on ?? now()));
     }
 
     /** Pourquoi on ne peut PAS renouveler ce CDD jusqu'à cette date (null = c'est possible) */
@@ -85,7 +85,7 @@ final class ContractRules
         if (! $contract->ends_on || $newEndsOn->lte($contract->ends_on)) {
             return 'La nouvelle date de fin doit être après la fin actuelle.';
         }
-        $total = self::pastCddMonths($contract->employee, $contract->id) + $contract->starts_on->floatDiffInMonths($newEndsOn);
+        $total = self::pastCddMonths($contract->employee, $contract->id) + $contract->starts_on->diffInMonths($newEndsOn);
         if ($total > self::CDD_MAX_TOTAL_MONTHS + 0.01) {
             return 'Avec ce renouvellement, les CDD dépasseraient '.(self::CDD_MAX_TOTAL_MONTHS / 12).' ans au total chez Dabo Hair (art. 100) : passez en CDI.';
         }
@@ -150,7 +150,7 @@ final class ContractRules
     {
         $today = ($today ?? now())->copy();
         $from = $c->starts_on->copy()->max($today->copy()->startOfYear());
-        $months = $from->gt($today) ? 0 : (int) floor($from->floatDiffInMonths($today));
+        $months = $from->gt($today) ? 0 : (int) floor($from->diffInMonths($today));
         $taken = (float) $employee->leaves()->where('kind', 'paid')->whereYear('starts_on', $today->year)->sum('days');
 
         return ['acquired' => $months * self::LEAVE_DAYS_PER_MONTH, 'taken' => $taken, 'per_month' => self::LEAVE_DAYS_PER_MONTH];
@@ -163,7 +163,7 @@ final class ContractRules
             return null;
         }
 
-        return (int) round($c->base_salary * $c->starts_on->floatDiffInMonths($endOn) * self::END_OF_CDD_INDEMNITY_PERCENT / 100);
+        return (int) round($c->base_salary * $c->starts_on->diffInMonths($endOn) * self::END_OF_CDD_INDEMNITY_PERCENT / 100);
     }
 
     public static function label(string $type): string
