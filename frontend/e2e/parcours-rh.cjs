@@ -4,7 +4,7 @@
  * 2. Fiche de Fatou (CDD qui finit) : « Passer en CDI » → le contrat devient un CDI.
  * 3. Mariama (apprentie) : ajouter le contrat signé (PDF) → l'alerte « Contrat non signé » disparaît.
  * 4. Nouveau contrat : la fin d'un CDD est exigée, 2 ans au plus (règle du serveur), puis enregistré.
- * 5. « Imprimer le contrat » : un PDF. Une caissière ne voit ni le menu ni les contrats.
+ * 5. « Télécharger le contrat » : un PDF enregistré ; une pièce du dossier aussi. Une caissière ne voit ni le menu ni les contrats.
  * Utilisation : API Laravel + site lancés (base fraîche), puis
  *   node e2e/parcours-rh.cjs ./captures
  */
@@ -59,7 +59,7 @@ async function login(page, email, pw) {
   await page.getByRole('link', { name: /Ajouter le contrat signé de Mariama Diop/ }).click()
   await page.getByRole('heading', { level: 1, name: /Mariama Diop/ }).waitFor()
   await page.locator('input[type=file]').setInputFiles({ name: 'contrat-mariama.pdf', mimeType: 'application/pdf', buffer: Buffer.from('%PDF-1.4\n1 0 obj<<>>endobj\ntrailer<<>>\n%%EOF') })
-  await page.getByRole('link', { name: /Contrat signé ·/ }).waitFor()
+  await page.getByRole('button', { name: /Télécharger Contrat signé/ }).waitFor()
   await page.goto(BASE + '/admin/contrats')
   await page.getByRole('region', { name: 'À traiter' }).waitFor()
   const after = await text(page.getByRole('region', { name: 'À traiter' }))
@@ -86,10 +86,13 @@ async function login(page, email, pw) {
   await page.getByRole('heading', { level: 1, name: 'Aïda Sy · Coiffeuse' }).waitFor()
   log(await page.getByRole('status').filter({ hasText: 'Contrat enregistré.' }).count() === 1, 'Nouveau contrat enregistré, fiche ouverte')
 
-  // 5. Imprimer ; la caissière n'y a pas accès
-  const href = await page.getByRole('link', { name: 'Imprimer le contrat' }).getAttribute('href')
-  const pdf = await page.request.get(BASE + href, { headers: { Referer: BASE + '/admin' } })
-  log(pdf.ok() && pdf.headers()['content-type'] === 'application/pdf', '« Imprimer le contrat » : un PDF')
+  // 5. Télécharger le contrat, en CLIQUANT comme la gérante (bug du 26 novembre : le lien « Imprimer » ouvrait
+  //    un onglet sans Referer → « Non authentifié ». Le test d'avant ajoutait lui-même le Referer et ne le voyait pas.)
+  const [download] = await Promise.all([page.waitForEvent('download'), page.getByRole('button', { name: 'Télécharger le contrat (PDF)' }).click()])
+  const pdfHead = require('node:fs').readFileSync(await download.path()).subarray(0, 5).toString()
+  log(download.suggestedFilename() === 'contrat-aida-sy.pdf' && pdfHead === '%PDF-', `« Télécharger le contrat » : ${download.suggestedFilename()} enregistré, c’est bien un PDF (${pdfHead})`)
+  const [docDownload] = await Promise.all([page.waitForEvent('download'), page.goto(BASE + '/admin/contrats/3').then(() => page.getByRole('button', { name: /Télécharger Contrat signé/ }).click())])
+  log(docDownload.suggestedFilename() === 'contrat-mariama.pdf', 'Pièce du dossier : le contrat signé de Mariama se télécharge')
 
   const xsrf = decodeURIComponent((await page.context().cookies()).find((c) => c.name === 'XSRF-TOKEN').value)
   const created = await page.request.post(`${BASE}/api/v1/admin/users`, { headers: { Accept: 'application/json', 'X-XSRF-TOKEN': xsrf, Referer: BASE + '/admin' },

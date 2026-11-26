@@ -204,12 +204,12 @@ class HrAdminController extends Controller
         return response()->json(['data' => $this->sheet($employee->fresh())], 201);
     }
 
-    /** « Imprimer le contrat » : un modèle rempli, à faire relire puis signer en deux exemplaires */
+    /** « Télécharger le contrat » : un modèle rempli (pièce jointe), à imprimer, relire puis signer en deux exemplaires */
     public function pdf(EmploymentContract $contract): Response
     {
         return Pdf::loadView('pdf.employment-contract', ['contract' => $contract, 'employee' => $contract->employee, 'company' => Setting::get('company.identity', []) ?? [],
             'rules' => ['cdd_months' => ContractRules::CDD_MAX_MONTHS, 'indemnity' => ContractRules::END_OF_CDD_INDEMNITY_PERCENT, 'leave' => ContractRules::LEAVE_DAYS_PER_MONTH]])
-            ->setPaper('a4')->stream('contrat-'.Str::slug($contract->employee->fullName()).'.pdf');
+            ->setPaper('a4')->download('contrat-'.Str::slug($contract->employee->fullName()).'.pdf');
     }
 
     // ---------------------------------------------------------------------------------------------------------

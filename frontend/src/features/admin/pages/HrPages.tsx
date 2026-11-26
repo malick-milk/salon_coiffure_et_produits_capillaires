@@ -5,7 +5,7 @@
  *    les congés et l'historique. Les règles du Code du travail sont appliquées par le serveur.
  */
 import axios from 'axios'
-import { FileText, Plus, Printer, Trash2 } from 'lucide-react'
+import { Download, FileText, Plus, Trash2 } from 'lucide-react'
 import { useEffect, useId, useState, type FormEvent, type ReactNode } from 'react'
 import { Link, useLocation, useNavigate, useParams } from 'react-router'
 import { Seo } from '@/components/common/Seo'
@@ -13,6 +13,7 @@ import { QueryError } from '@/components/common/States'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
+import { downloadFile } from '@/lib/downloadFile'
 import { formatPrice } from '@/lib/format'
 import { apiErrorMessage, type ValidationErrorBody } from '@/lib/http'
 import { cn } from '@/lib/utils'
@@ -138,6 +139,7 @@ function HrForm({ sheet, options }: { sheet: HrSheet | null; options: HrOptions 
   const [form, setForm] = useState<HrFormValues>(() => (sheet ? formFromSheet(sheet) : { ...EMPTY_FORM, starts_on: todayIso() }))
   const [errors, setErrors] = useState<Partial<Record<keyof HrFormValues, string>>>({})
   const [done, setDone] = useState<string | null>(saved ?? null)
+  const [downloadError, setDownloadError] = useState<string | null>(null)
   const create = useCreateEmployee()
   const update = useUpdateEmployee(sheet?.id ?? 0)
   const mutation = sheet ? update : create
@@ -186,10 +188,11 @@ function HrForm({ sheet, options }: { sheet: HrSheet | null; options: HrOptions 
       <Seo title={`ERP — ${sheet ? sheet.employee.name : 'Nouveau contrat'}`} />
       <nav aria-label="Fil d’Ariane" className="text-[13px] text-[#52525b]"><Link to="/admin/contrats" className="underline">Contrats et RH</Link> / {sheet?.employee.name ?? 'Nouveau contrat'}</nav>
       <PageHeader title={title} actions={<>
-        {contract && <Button asChild variant="subtle"><a href={hrContractPdfUrl(contract.id)} target="_blank" rel="noreferrer"><Printer aria-hidden="true" /> Imprimer le contrat</a></Button>}
+        {contract && <DownloadButton url={hrContractPdfUrl(contract.id)} fileName={`contrat-${sheet?.employee.name ?? ''}.pdf`} onError={setDownloadError}>Télécharger le contrat (PDF)</DownloadButton>}
         {!ended && <Button type="submit" form={`${p}-form`} variant="dark" disabled={mutation.isPending}>{mutation.isPending ? 'Enregistrement…' : 'Enregistrer'}</Button>}
       </>} />
       {done && <Feedback kind="success">{done}</Feedback>}
+      {downloadError && <Feedback kind="error">{downloadError}</Feedback>}
       {mutation.isError && Object.keys(errors).length === 0 && <Feedback kind="error">{firstError(mutation.error)}</Feedback>}
       {ended && contract && <Feedback kind="success">Contrat terminé le {longDate(contract.ended_on)} ({contract.end_reason ? END_LABEL[contract.end_reason] : '—'}). La fiche reste consultable.</Feedback>}
 
@@ -291,7 +294,7 @@ function HrForm({ sheet, options }: { sheet: HrSheet | null; options: HrOptions 
               <ul className="flex list-disc flex-col gap-1.5 pl-5 text-sm text-[#52525b]">
                 <li>Un CDD doit être écrit ; il est à déposer à l’inspection du travail avant le début (à confirmer).</li>
                 <li>Déclarez la salariée à l’IPRES et à la Caisse de sécurité sociale.</li>
-                <li>Après l’enregistrement : « Imprimer le contrat », faites signer en deux exemplaires, puis ajoutez le PDF signé.</li>
+                <li>Après l’enregistrement : « Télécharger le contrat », imprimez-le, faites signer en deux exemplaires, puis ajoutez le PDF signé.</li>
               </ul>
             </Card>
           )}
@@ -299,6 +302,23 @@ function HrForm({ sheet, options }: { sheet: HrSheet | null; options: HrOptions 
       </div>
     </>
   )
+}
+
+/** Bouton « Télécharger » : le fichier arrive dans Téléchargements, on l'ouvre ensuite pour l'imprimer */
+function DownloadButton({ url, fileName, onError, children }: { url: string; fileName: string; onError: (m: string | null) => void; children: ReactNode }) {
+  const [busy, setBusy] = useState(false)
+  async function click() {
+    onError(null)
+    setBusy(true)
+    try {
+      await downloadFile(url, fileName)
+    } catch (e) {
+      onError(apiErrorMessage(e, 'Le contrat n’a pas pu être téléchargé. Réessayez.'))
+    } finally {
+      setBusy(false)
+    }
+  }
+  return <Button type="button" variant="subtle" onClick={click} disabled={busy}><Download aria-hidden="true" /> {busy ? 'Préparation…' : children}</Button>
 }
 
 function Commission({ contract, base }: { contract: HrContract; base: number | null }) {
@@ -392,6 +412,7 @@ function Documents({ sheet }: { sheet: HrSheet }) {
   const add = useAddEmployeeDocument(sheet.id)
   const remove = useRemoveEmployeeDocument()
   const [kind, setKind] = useState<keyof typeof DOC_KIND>(sheet.contract?.signed_on ? 'id_card' : 'contract')
+  const [docError, setDocError] = useState<string | null>(null)
   const p = useId()
   return (
     <Card title="Documents">
@@ -399,7 +420,10 @@ function Documents({ sheet }: { sheet: HrSheet }) {
         <ul className="flex flex-col gap-2 text-sm">
           {sheet.documents.map((d) => (
             <li key={d.id} className="flex items-center justify-between gap-2 rounded-[10px] border border-[#e4e4e7] px-3 py-2.5">
-              <a href={hrDocumentUrl(d.id)} className="flex min-w-0 items-center gap-2 underline-offset-2 hover:underline"><FileText className="size-4 shrink-0" aria-hidden="true" /><span className="truncate">{DOC_KIND[d.kind]} · {d.created_at ? shortDate(d.created_at) : ''}</span></a>
+              <button type="button" onClick={() => { setDocError(null); downloadFile(hrDocumentUrl(d.id), d.name).catch((e) => setDocError(apiErrorMessage(e, 'Le fichier n’a pas pu être téléchargé.'))) }}
+                className="flex min-w-0 items-center gap-2 text-left underline-offset-2 hover:underline" aria-label={`Télécharger ${DOC_KIND[d.kind]} (${d.name})`}>
+                <FileText className="size-4 shrink-0" aria-hidden="true" /><span className="truncate">{DOC_KIND[d.kind]} · {d.created_at ? shortDate(d.created_at) : ''}</span>
+              </button>
               <button type="button" onClick={() => { if (window.confirm(`Retirer « ${d.name} » du dossier ?`)) remove.mutate(d.id) }} className="grid size-9 shrink-0 place-items-center rounded-full hover:bg-[#f4f4f5]" aria-label={`Retirer ${DOC_KIND[d.kind]} (${d.name})`}>
                 <Trash2 className="size-4" aria-hidden="true" />
               </button>
@@ -419,6 +443,7 @@ function Documents({ sheet }: { sheet: HrSheet }) {
             onChange={(e) => { const file = e.target.files?.[0]; if (file) add.mutate({ file, kind }); e.target.value = '' }} />
         </label>
         {add.isError && <Feedback kind="error">{firstError(add.error)}</Feedback>}
+        {docError && <Feedback kind="error">{docError}</Feedback>}
         <p className="text-xs text-[#52525b]">Les fichiers sont gardés hors du site public : seule la propriétaire peut les ouvrir.</p>
       </div>
     </Card>

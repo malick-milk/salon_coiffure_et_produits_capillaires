@@ -41,7 +41,9 @@ C'est une question de **confidentialité** : le module contient les salaires et 
 - **Les congés** : les jours acquis et les jours pris.
 - **L'historique** des modifications.
 
-**« Imprimer le contrat »** produit un **modèle de contrat** en PDF, rempli avec les informations de la fiche. Les cases à compléter apparaissent en doré. Le modèle est à faire relire avant signature.
+**« Télécharger le contrat (PDF) »** enregistre un **modèle de contrat** rempli avec les informations de la fiche, dans le dossier Téléchargements ; on l'ouvre ensuite pour l'imprimer. Les cases à compléter apparaissent en doré. Le modèle est à faire relire avant signature.
+
+> **Bug corrigé (26 novembre 2026).** Le premier bouton s'appelait « Imprimer le contrat » et ouvrait le PDF dans un nouvel onglet avec `rel="noreferrer"`. Sanctum ne reconnaît le cookie de session que si la requête dit d'où elle vient (en-tête `Referer`) : sans lui, l'API répondait « Non authentifié ». Désormais, le fichier est demandé par **axios** (même session que le reste de l'ERP) puis enregistré (`src/lib/downloadFile.ts`), et le serveur l'envoie comme **pièce jointe**. Le parcours de test clique maintenant sur le bouton comme la gérante : l'ancien test ajoutait lui-même le `Referer` et ne voyait donc pas le problème.
 
 ### Concepts de développement à retenir
 

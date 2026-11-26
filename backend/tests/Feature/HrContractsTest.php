@@ -209,10 +209,12 @@ class HrContractsTest extends TestCase
         $this->assertContains('leave_added', $events);
     }
 
-    public function test_le_contrat_s_imprime(): void
+    public function test_le_contrat_se_telecharge(): void
     {
         $this->actingAsRole('super_admin');
-        $this->get('/api/v1/admin/hr/contracts/'.$this->fatou()->id.'/pdf')->assertOk()->assertHeader('content-type', 'application/pdf');
+        $res = $this->get('/api/v1/admin/hr/contracts/'.$this->fatou()->id.'/pdf')->assertOk()->assertHeader('content-type', 'application/pdf');
+        // Pièce jointe : le navigateur l'enregistre, on l'ouvre ensuite pour l'imprimer
+        $this->assertStringContainsString('attachment; filename=contrat-fatou-ndiaye.pdf', (string) $res->headers->get('content-disposition'));
     }
 
     /** Bug du 26 novembre : le journal d'audit plantait (chargement paresseux de la personne d'un contrat) */

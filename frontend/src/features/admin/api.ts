@@ -257,6 +257,6 @@ export const useAddEmployeeDocument = (id: number) =>
 export const useRemoveEmployeeDocument = () => useAdminMutation((documentId: number) => http.delete(`${A}/hr/documents/${documentId}`), hrKeys)
 export const useAddLeave = (id: number) =>
   useAdminMutation((v: { kind: string; starts_on: string; ends_on: string; days: number; note: string | null }) => http.post(`${A}/hr/employees/${id}/leaves`, v), hrKeys)
-/** Liens directs (le navigateur envoie le cookie de session) : PDF du contrat, pièce du dossier */
-export const hrContractPdfUrl = (contractId: number) => `/api/v1${A}/hr/contracts/${contractId}/pdf`
-export const hrDocumentUrl = (documentId: number) => `/api/v1${A}/hr/documents/${documentId}`
+/** Fichiers protégés, téléchargés par axios (voir lib/downloadFile.ts : pas de lien direct) */
+export const hrContractPdfUrl = (contractId: number) => `${A}/hr/contracts/${contractId}/pdf`
+export const hrDocumentUrl = (documentId: number) => `${A}/hr/documents/${documentId}`
