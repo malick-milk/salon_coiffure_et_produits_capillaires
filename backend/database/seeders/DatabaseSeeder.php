@@ -16,6 +16,7 @@ class DatabaseSeeder extends Seeder
             DemoAccountsSeeder::class,
             DemoReviewsSeeder::class,
             DemoPickupPointsSeeder::class,
+            DemoHrSeeder::class,
         ]);
     }
 }

@@ -84,9 +84,11 @@ const log = (ok, msg) => { if (!ok) failures++; console.log(`${ok ? 'OK  ' : 'FA
   log((await page.getByRole('button', { name: /Fatou|Bineta/ }).count()) === 0, 'Réservation : une seule coiffeuse (le vrai salon)')
   await page.getByRole('button', { name: /Awa Dabo/ }).click()
   await page.getByRole('button', { name: 'Continuer' }).click()
-  // Premier dimanche du mois suivant : le salon est ouvert tous les jours, de 9 h à 19 h
+  // DERNIER dimanche du mois suivant : le salon est ouvert tous les jours, de 9 h à 19 h.
+  // Pas le premier : le rendez-vous de démonstration (aujourd'hui + 10 jours, toute la journée) pouvait
+  // tomber dessus (bug du 26 novembre 2026, le 6 décembre était complet). Le dernier dimanche est après le 21.
   await page.getByRole('button', { name: 'Mois suivant' }).click()
-  const sunday = page.getByRole('button', { name: /^dimanche \d+/ }).first()
+  const sunday = page.getByRole('button', { name: /^dimanche \d+/ }).last()
   const mondayLabel = await sunday.getAttribute('aria-label')
   log(!(await sunday.isDisabled()), `Réservation : le dimanche est réservable (${mondayLabel})`)
   await sunday.click()

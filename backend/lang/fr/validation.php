@@ -55,6 +55,7 @@ return [
     // Photos envoyées depuis l'ERP
     'file' => ':Attribute doit être un fichier.',
     'image' => ':Attribute doit être une image.',
+    'size' => ['numeric' => ':Attribute doit valoir :size.', 'file' => ':Attribute doit peser :size Ko.', 'string' => ':Attribute doit contenir :size caractères.', 'array' => ':Attribute doit contenir :size éléments.'],
     'mimes' => ':Attribute doit être un fichier de type : :values.',
     'dimensions' => 'Les dimensions de :attribute ne sont pas valides.',
     'password' => [
@@ -65,6 +66,13 @@ return [
     ],
 
     'attributes' => [
+        // Contrats et RH (26 novembre 2026)
+        'birth_date' => 'la date de naissance', 'address' => 'l’adresse', 'starts_on' => 'la date de début', 'id_number' => 'le numéro de pièce d’identité', 'ipres_number' => 'le numéro IPRES',
+        'css_number' => 'le numéro de Caisse de sécurité sociale', 'user_id' => 'le compte ERP', 'stylist_id' => 'la fiche planning',
+        'position' => 'le poste', 'trial_ends_on' => 'la fin de la période d’essai', 'weekly_hours' => 'les heures par semaine',
+        'work_days' => 'les jours de travail', 'base_salary' => 'le salaire fixe', 'commission_rate' => 'la commission',
+        'pay_method' => 'le mode de paiement', 'signed_on' => 'la date de signature', 'ended_on' => 'la date de fin',
+        'end_reason' => 'le motif de fin', 'end_note' => 'la précision', 'document' => 'le fichier', 'kind' => 'le type', 'days' => 'le nombre de jours',
         // Nouvelle gamme (24 novembre 2026)
         'member_price' => 'le prix membre', 'member_price_limit' => 'le nombre de gammes au prix membre',
         // Nouveau produit et réceptions d'achat (16 novembre 2026)

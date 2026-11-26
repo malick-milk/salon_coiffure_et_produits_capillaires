@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Api\V1\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Booking;
+use App\Models\Employee;
+use App\Models\EmploymentContract;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\ProductionBatch;
@@ -77,7 +79,8 @@ class TeamAdminController extends Controller
     public function audit(Request $request): JsonResponse
     {
         $request->validate(['page' => ['nullable', 'integer', 'min:1'], 'log' => ['nullable', 'string', 'max:30']]);
-        $page = Activity::query()->with(['causer', 'subject'])->when($request->input('log'), fn ($q, $l) => $q->where('log_name', $l))->latest('id')->paginate(30);
+        // morphWith : le libellé d'un contrat a besoin de la personne (sans chargement paresseux, interdit)
+        $page = Activity::query()->with(['causer', 'subject' => fn ($m) => $m->morphWith([EmploymentContract::class => ['employee']])])->when($request->input('log'), fn ($q, $l) => $q->where('log_name', $l))->latest('id')->paginate(30);
 
         return response()->json([
             'data' => $page->getCollection()->map(fn (Activity $a) => [
@@ -105,6 +108,8 @@ class TeamAdminController extends Controller
             $subject instanceof Order, $subject instanceof Booking => $subject->reference,
             $subject instanceof ProductionBatch => 'Lot '.$subject->batch_number,
             $subject instanceof User => trim($subject->first_name.' '.$subject->last_name),
+            $subject instanceof Employee => $subject->fullName(),
+            $subject instanceof EmploymentContract => 'Contrat de '.$subject->employee?->fullName(),
             default => null,
         };
     }

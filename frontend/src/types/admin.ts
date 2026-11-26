@@ -449,3 +449,37 @@ export interface DeliveryOverview {
   free_delivery_threshold: Money | null
   history: { id: number; event: string | null; causer: string; subject: string | null; changes: { old?: Record<string, unknown>; attributes?: Record<string, unknown> }; created_at: string | null }[]
 }
+
+// ---------------------------------------------------------------- Contrats et RH (26 novembre 2026)
+export type ContractType = 'cdi' | 'cdd' | 'apprentissage' | 'stage' | 'prestataire'
+export type PayMethod = 'cash' | 'wave' | 'orange_money' | 'free_money' | 'bank'
+export type HrState = 'active' | 'trial' | 'ending' | 'unsigned' | 'overdue' | 'ended'
+export type HrEndReason = 'converted' | 'end_of_term' | 'resigned' | 'dismissed' | 'trial' | 'other'
+export interface HrAlert { kind: 'ending' | 'overdue' | 'trial' | 'unsigned'; level: 'warning' | 'danger'; title: string; text: string; date: string | null; employee_id?: number }
+export interface HrRow { id: number; name: string; position: string; type: ContractType; starts_on: string; ends_on: string | null; base_salary: number | null; commission_rate: number; state: HrState }
+export interface HrIndex { data: HrRow[]; ended: HrRow[]; alerts: HrAlert[]; payroll: { month: string; base_total: number; commissions: number } }
+export interface HrEmployeeFields {
+  first_name: string; last_name: string; phone: string | null; birth_date: string | null; address: string | null
+  id_number: string | null; ipres_number: string | null; css_number: string | null; user_id: number | null; stylist_id: number | null
+}
+export interface HrContractFields {
+  type: ContractType; position: string; starts_on: string; ends_on: string | null; trial_ends_on: string | null; weekly_hours: number | null
+  work_days: string | null; base_salary: number | null; commission_rate: number; pay_method: PayMethod | null; signed_on: string | null
+}
+export interface HrContract extends HrContractFields {
+  id: number; renewal_count: number; ended_on: string | null; end_reason: HrEndReason | null; end_note: string | null
+  alerts: HrAlert[]; commission: { month: string; linked: boolean; revenue: number; rate: number; commission: number }
+  can_renew: boolean; renew_max: string | null; end_indemnity_estimate: number | null
+}
+export interface HrSheet {
+  id: number
+  employee: HrEmployeeFields & { name: string }
+  contract: HrContract | null
+  contracts: { id: number; type: ContractType; starts_on: string; ended_on: string | null; end_reason: HrEndReason | null }[]
+  documents: { id: number; kind: 'contract' | 'id_card' | 'other'; name: string; size: number; created_at: string | null }[]
+  leaves: { id: number; kind: 'paid' | 'maternity' | 'sick' | 'other'; starts_on: string; ends_on: string; days: number; note: string | null }[]
+  leave_balance: { acquired: number; taken: number; per_month: number } | null
+  history: { event: string; subject: 'employee' | 'contract'; changes: Record<string, unknown>; created_at: string | null; causer: string }[]
+}
+export interface HrOptions { users: { id: number; name: string }[]; stylists: { id: number; name: string }[] }
+export type HrInput = HrEmployeeFields & HrContractFields

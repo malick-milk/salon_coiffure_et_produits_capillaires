@@ -17,6 +17,7 @@ class RolesAndPermissionsSeeder extends Seeder
         'reviews.manage', // étape 13 : avis clients et satisfaction
         'partners.manage', // étape 14 : points de retrait partenaires
         'purchases.manage', // réceptions d'achat des produits revendus (16 novembre 2026)
+        'hr.manage', // contrats et RH (26 novembre 2026) : la propriétaire seulement
     ];
 
     public function run(): void
@@ -29,7 +30,7 @@ class RolesAndPermissionsSeeder extends Seeder
 
         $roles = [
             'super_admin' => self::PERMISSIONS, // propriétaire : tout
-            'manager' => array_values(array_diff(self::PERMISSIONS, ['analytics.view', 'users.manage', 'roles.manage', 'audit.view'])),
+            'manager' => array_values(array_diff(self::PERMISSIONS, ['analytics.view', 'users.manage', 'roles.manage', 'audit.view', 'hr.manage'])),
             'cashier' => ['products.view', 'stock.view', 'orders.view', 'orders.manage', 'customers.view', 'invoices.view'],
             'stylist' => ['bookings.view'],
             'stock_keeper' => ['products.view', 'stock.view', 'stock.adjust', 'production.manage', 'purchases.manage'],

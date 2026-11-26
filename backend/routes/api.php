@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\V1\Admin\CatalogAdminController;
 use App\Http\Controllers\Api\V1\Admin\CustomerAdminController;
 use App\Http\Controllers\Api\V1\Admin\DashboardController;
 use App\Http\Controllers\Api\V1\Admin\DeliveryAdminController;
+use App\Http\Controllers\Api\V1\Admin\HrAdminController;
 use App\Http\Controllers\Api\V1\Admin\OrderAdminController;
 use App\Http\Controllers\Api\V1\Admin\PickupPointAdminController;
 use App\Http\Controllers\Api\V1\Admin\ProductAdminController;
@@ -148,6 +149,22 @@ Route::prefix('v1')->middleware('throttle:api')->group(function () {
                 Route::get('roles', [TeamAdminController::class, 'roles']);
             });
             Route::get('audit', [TeamAdminController::class, 'audit'])->middleware('permission:audit.view');
+
+            // Contrats et RH (26 novembre 2026) : la propriétaire seulement (salaires, pièces d'identité)
+            Route::middleware('permission:hr.manage')->prefix('hr')->group(function () {
+                Route::get('employees', [HrAdminController::class, 'index']);
+                Route::post('employees', [HrAdminController::class, 'store']);
+                Route::get('employees/{employee}', [HrAdminController::class, 'show']);
+                Route::patch('employees/{employee}', [HrAdminController::class, 'update']);
+                Route::post('employees/{employee}/documents', [HrAdminController::class, 'storeDocument'])->middleware('throttle:30,1');
+                Route::post('employees/{employee}/leaves', [HrAdminController::class, 'storeLeave']);
+                Route::get('documents/{document}', [HrAdminController::class, 'downloadDocument']);
+                Route::delete('documents/{document}', [HrAdminController::class, 'destroyDocument']);
+                Route::post('contracts/{contract}/renew', [HrAdminController::class, 'renew']);
+                Route::post('contracts/{contract}/convert', [HrAdminController::class, 'convert']);
+                Route::post('contracts/{contract}/terminate', [HrAdminController::class, 'terminate']);
+                Route::get('contracts/{contract}/pdf', [HrAdminController::class, 'pdf']);
+            });
 
             // Étape 14 : points de retrait partenaires (dépôt-vente mensuel)
             Route::middleware('permission:partners.manage')->group(function () {

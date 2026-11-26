@@ -2,7 +2,7 @@
  * Mise en page de l'ERP : menu latéral (filtré selon les permissions) + zone de travail claire.
  * Le menu caché n'est qu'un CONFORT : chaque route de l'API revérifie la permission.
  */
-import { BadgePercent, BarChart3, Bike, CalendarDays, ClipboardList, Factory, LayoutDashboard, LogOut, MapPin, MessageSquareHeart, Package, ScrollText, Store, Truck, type LucideIcon, Users, UsersRound } from 'lucide-react'
+import { BadgePercent, FileSignature, BarChart3, Bike, CalendarDays, ClipboardList, Factory, LayoutDashboard, LogOut, MapPin, MessageSquareHeart, Package, ScrollText, Store, Truck, type LucideIcon, Users, UsersRound } from 'lucide-react'
 import { Link, NavLink, Navigate, Outlet, useLocation, useNavigate } from 'react-router'
 import { Logo } from '@/components/common/Logo'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -44,6 +44,7 @@ export const ADMIN_MENU: { group: string; items: MenuItem[] }[] = [
     group: 'Administration',
     items: [
       { to: '/admin/equipe', label: 'Équipe et rôles', Icon: Users, permission: 'users.manage' },
+      { to: '/admin/contrats', label: 'Contrats et RH', Icon: FileSignature, permission: 'hr.manage' },
       { to: '/admin/audit', label: 'Journal d’audit', Icon: ScrollText, permission: 'audit.view' },
     ],
   },

@@ -203,6 +203,10 @@ ERP → **Produits et stock** → **Nouvelle gamme** (`NewBundlePage.tsx`, `Prod
 
 **Bug évité :** « Gamme à l’avocat » donnait l'adresse `gamme-a-lavocat` (apostrophe typographique supprimée, mots collés) ; l'apostrophe sépare maintenant les mots : `gamme-a-l-avocat` (aussi pour les nouveaux produits).
 
+### 5 septies. Contrats et RH (26 novembre 2026)
+
+Menu **Administration → Contrats et RH**, réservé à la propriétaire (permission `hr.manage`). Liste de l'équipe avec alertes (fin de CDD, fin d'essai, contrat non signé), fiche de contrat (employée, contrat, rémunération avec commission calculée depuis le planning, documents privés, congés, historique), actions « Passer en CDI », « Renouveler le CDD (1 fois) », « Terminer le contrat », et contrat imprimable en PDF. Règles légales dans `app/Services/Hr/ContractRules.php`. Tout est expliqué, avec les règles du Code du travail 2026 et les impôts, dans **[15_RH_ET_IMPOTS.md](15_RH_ET_IMPOTS.md)**. Parcours de test : `node e2e/parcours-rh.cjs captures`.
+
 ## 6. Le journal d'audit (RG-SEC-01)
 
 `spatie/laravel-activitylog` enregistre automatiquement, avec l'**auteur**, la **date** et les **valeurs avant et après** :

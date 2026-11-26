@@ -11,6 +11,7 @@ const badgeVariants = cva('inline-flex items-center gap-1.5 rounded-full px-3 py
       neutral: 'bg-[#e4e4e7] text-[#3f3f46]',
       success: 'bg-[#dff3e4] text-[#14532d]',
       info: 'bg-[#dcebff] text-[#0b3d91]',
+      danger: 'bg-[#fde2e2] text-[#7f1d1d]',
     },
   },
   defaultVariants: { tone: 'neutral' },

@@ -6,6 +6,7 @@ import type {
   AdminBooking, AdminCustomer, BrandOption, CategoryOption, AdminDeliveryZone, AdminPromotion, DeliveryOverview, NewBundle, NewProduct, NewPurchaseReceipt, ProductChanges, ProductHistoryEntry, PromotionInput, PromotionResults, PurchaseReceipt, AdminOrderDetail, AdminOrderRow, AdminProduct, AuditEntry, CostCategory, Dashboard,
   AdminPickupPoint, AdminSurvey, PageMeta, PickupPointDetail, PickupPointsIndex, StatementPreview, PaymentMethod, ProductionBatch, RoleWithPermissions, StaffRole, StaffUser, StockMovementRow, SurveyFilter, SurveyStats,
 } from '@/types/admin'
+import type { HrIndex, HrInput, HrOptions, HrSheet } from '@/types/admin'
 import type { Analytics, ExportDataset } from '@/types/analytics'
 
 type Page<T> = { data: T[]; meta: PageMeta }
@@ -234,3 +235,28 @@ export const useUpdateDeliveryZone = () =>
   }, deliveryKeys)
 export const useUpdateDeliverySettings = () =>
   useAdminMutation((v: { free_delivery_threshold: number | null }) => http.put(`${A}/delivery-settings`, v), deliveryKeys)
+
+// ---------------------------------------------------------------- Contrats et RH (propriétaire seulement)
+const hrKeys = [['admin', 'hr'], ['admin', 'hr-employee'], ['admin', 'audit']]
+export const useHrEmployees = () => useQuery({ queryKey: ['admin', 'hr'], queryFn: async () => (await http.get<HrIndex>(`${A}/hr/employees`)).data })
+export const useHrEmployee = (id: number | null) =>
+  useQuery({ queryKey: ['admin', 'hr-employee', id], enabled: id !== null, queryFn: async () => (await http.get<{ data: HrSheet; options: HrOptions }>(`${A}/hr/employees/${id}`)).data })
+export const useCreateEmployee = () => useAdminMutation(async (v: HrInput) => (await http.post<{ data: HrSheet }>(`${A}/hr/employees`, v)).data.data, hrKeys)
+export const useUpdateEmployee = (id: number) => useAdminMutation(async (v: Partial<HrInput>) => (await http.patch<{ data: HrSheet }>(`${A}/hr/employees/${id}`, v)).data.data, hrKeys)
+export const useRenewContract = () => useAdminMutation((v: { contractId: number; ends_on: string }) => http.post(`${A}/hr/contracts/${v.contractId}/renew`, { ends_on: v.ends_on }), hrKeys)
+export const useConvertContract = () => useAdminMutation((v: { contractId: number; starts_on: string }) => http.post(`${A}/hr/contracts/${v.contractId}/convert`, { starts_on: v.starts_on }), hrKeys)
+export const useTerminateContract = () =>
+  useAdminMutation((v: { contractId: number; ended_on: string; end_reason: string; end_note: string | null }) => http.post(`${A}/hr/contracts/${v.contractId}/terminate`, v), hrKeys)
+export const useAddEmployeeDocument = (id: number) =>
+  useAdminMutation((v: { file: File; kind: string }) => {
+    const form = new FormData()
+    form.append('document', v.file)
+    form.append('kind', v.kind)
+    return http.post(`${A}/hr/employees/${id}/documents`, form)
+  }, hrKeys)
+export const useRemoveEmployeeDocument = () => useAdminMutation((documentId: number) => http.delete(`${A}/hr/documents/${documentId}`), hrKeys)
+export const useAddLeave = (id: number) =>
+  useAdminMutation((v: { kind: string; starts_on: string; ends_on: string; days: number; note: string | null }) => http.post(`${A}/hr/employees/${id}/leaves`, v), hrKeys)
+/** Liens directs (le navigateur envoie le cookie de session) : PDF du contrat, pièce du dossier */
+export const hrContractPdfUrl = (contractId: number) => `/api/v1${A}/hr/contracts/${contractId}/pdf`
+export const hrDocumentUrl = (documentId: number) => `/api/v1${A}/hr/documents/${documentId}`

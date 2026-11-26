@@ -12,3 +12,4 @@ export { PromotionFormPage, PromotionResultsPage, PromotionsPage } from './Promo
 export { AuditPage, CustomersPage, TeamPage } from './TeamPages'
 export { ReviewsAdminPage } from './ReviewsAdminPage'
 export { PickupPointDetailPage, PickupPointsPage } from './PickupPointsPages'
+export { HrListPage, HrSheetPage } from './HrPages'
