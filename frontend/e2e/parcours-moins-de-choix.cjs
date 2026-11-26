@@ -100,8 +100,12 @@ const cartNames = async (page) => (await page.getByRole('list', { name: 'Article
   await client.getByRole('heading', { level: 1, name: 'Mentions légales' }).waitFor()
   log((await text(client.locator('main'))).includes('OVHcloud'), 'Mentions légales : éditeur et hébergeur')
   await client.screenshot({ path: `${SHOTS}/97-mentions-legales.png`, fullPage: true })
-  await client.goto(BASE + '/inscription')
-  const consentLink = client.getByRole('link', { name: 'politique de confidentialité' })
+  // Inscription : une VISITEUSE (une cliente connectée est renvoyée vers son compte, plus ou moins vite :
+  // le test lisait parfois le lien avant la redirection, parfois après — échec aléatoire en CI le 26 novembre 2026)
+  const visitor = await (await browser.newContext(PHONE)).newPage()
+  visitor.on('pageerror', (e) => errors.push(e.message))
+  await visitor.goto(BASE + '/inscription')
+  const consentLink = visitor.getByRole('link', { name: 'politique de confidentialité' })
   log(await consentLink.getAttribute('href') === '/confidentialite' && await consentLink.getAttribute('target') === '_blank', 'Inscription : la case « J’accepte » mène à la politique de confidentialité (nouvel onglet)')
 
   log(errors.length === 0, `Console : ${errors.length} erreur(s) JavaScript${errors.length ? ' → ' + errors.join(' | ') : ''}`)
