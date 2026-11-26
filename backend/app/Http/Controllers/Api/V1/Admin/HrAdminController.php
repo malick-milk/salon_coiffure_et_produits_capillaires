@@ -50,7 +50,7 @@ class HrAdminController extends Controller
             'ended' => $employees->filter(fn (Employee $e) => $this->current($e) === null && $this->latest($e) !== null)
                 ->map(fn (Employee $e) => $this->listRow($e, $this->latest($e)))->values(),
             'alerts' => $alerts,
-            'payroll' => ['month' => $month->format('Y-m'), 'base_total' => (int) $current->sum(fn (Employee $e) => $this->current($e)?->base_salary ?? 0), 'commissions' => $commissions],
+            'payroll' => ['month' => $month->format('Y-m'), 'base_total' => (int) $current->sum(fn (Employee $e) => $this->current($e)->base_salary ?? 0), 'commissions' => $commissions],
         ]);
     }
 
