@@ -10,6 +10,7 @@ use App\Models\EmploymentContract;
 use App\Models\Service;
 use App\Models\Stylist;
 use App\Models\User;
+use Database\Seeders\DemoHrSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Carbon;
@@ -29,6 +30,10 @@ class HrContractsTest extends TestCase
         // Horloge figée AVANT les seeders : les contrats de démo sont datés par rapport à « aujourd'hui »
         Carbon::setTestNow('2026-11-26 10:00:00');
         parent::setUp();
+        // La base de démonstration n'est remplie qu'UNE fois par série de tests, parfois par une autre classe, à la
+        // vraie date du jour : on recrée l'équipe de démo sous l'horloge figée (bug du 27 novembre 2026, « 19 jours »).
+        Employee::query()->delete();
+        (new DemoHrSeeder)->run();
     }
 
     protected function tearDown(): void
@@ -66,7 +71,7 @@ class HrContractsTest extends TestCase
         foreach (['manager', 'cashier', 'stylist', 'stock_keeper', 'customer'] as $role) {
             $this->actingAsRole($role);
             $this->getJson('/api/v1/admin/hr/employees')->assertForbidden();
-            $this->getJson('/api/v1/admin/hr/employees/1')->assertForbidden();
+            $this->getJson('/api/v1/admin/hr/employees/'.Employee::value('id'))->assertForbidden();
         }
         $this->actingAsRole('super_admin');
         $this->getJson('/api/v1/admin/hr/employees')->assertOk()->assertJsonCount(4, 'data');
