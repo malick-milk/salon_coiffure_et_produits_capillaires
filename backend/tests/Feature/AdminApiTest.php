@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Booking;
+use App\Models\Invoice;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\User;
@@ -113,6 +114,12 @@ class AdminApiTest extends TestCase
 
         $pdf = $this->get('/api/v1/admin/invoices/FAC-2026-000001/pdf')->assertOk()->assertHeader('content-type', 'application/pdf');
         $this->assertStringStartsWith('%PDF', $pdf->getContent()); // signature d'un vrai fichier PDF
+        // Devise sur la facture (27 novembre 2026) : sous le nom, puis en remerciement en bas
+        $invoice = Invoice::where('number', 'FAC-2026-000001')->firstOrFail();
+        $html = view('pdf.invoice', ['invoice' => $invoice, 'order' => $invoice->order()->with(['items', 'payments', 'deliveryZone', 'pickupPoint'])->firstOrFail()])->render();
+        $this->assertStringContainsString('Vos cheveux à l’état pur · <i>Your hair in the pure state.</i>', $html);
+        $this->assertStringContainsString('Merci de votre confiance. Vos cheveux à l’état pur.', $html);
+        $this->assertLessThan(strpos($html, 'Vos cheveux'), strpos($html, 'class="brand"')); // logo, nom, puis devise
 
         $this->flushSession();
         $this->app['auth']->forgetGuards();

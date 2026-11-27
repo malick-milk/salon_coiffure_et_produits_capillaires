@@ -5,6 +5,7 @@ namespace App\Notifications;
 use App\Models\Booking;
 use App\Models\Service;
 use App\Notifications\Channels\SmsMessage;
+use App\Support\Resserrage;
 use Carbon\CarbonImmutable;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Support\Facades\URL;
@@ -25,6 +26,8 @@ class ResserrageReminder extends CustomerNotification
 
     public CarbonImmutable $advisedOn;
 
+    public string $delayLabel;
+
     /** @var array{slug:string,name:string,price:int,duration_minutes:int} */
     public array $resserrage;
 
@@ -35,6 +38,7 @@ class ResserrageReminder extends CustomerNotification
         $this->twist = $booking->service_name;
         $this->doneOn = CarbonImmutable::parse($booking->starts_at)->startOfDay();
         $this->advisedOn = $this->doneOn->addDays($afterDays);
+        $this->delayLabel = Resserrage::delayLabel($afterDays);
         $this->resserrage = ['slug' => $resserrage->slug, 'name' => $resserrage->name, 'price' => $resserrage->price, 'duration_minutes' => $resserrage->duration_minutes];
     }
 
@@ -86,7 +90,7 @@ class ResserrageReminder extends CustomerNotification
     private function sentence(): string
     {
         return 'Votre '.Str::lcfirst($this->twist).' a été fait le '.$this->doneOn->locale('fr')->isoFormat('D MMMM')
-            .'. Pour garder des twists nets, Awa conseille un resserrage vers le '.$this->advisedOn->locale('fr')->isoFormat('D MMMM').'.';
+            .'. Awa conseille un resserrage '.$this->delayLabel.' après, soit vers le '.$this->advisedOn->locale('fr')->isoFormat('D MMMM').'.';
     }
 
     private function bookingPath(): string

@@ -23,7 +23,7 @@ class SalonController extends Controller
 {
     public function services(): AnonymousResourceCollection
     {
-        return ServiceResource::collection(Service::query()->active()->with('category')->orderBy('position')->get());
+        return ServiceResource::collection(Service::query()->active()->with(['category', 'resserrageService'])->orderBy('position')->get());
     }
 
     public function stylists(Request $request): AnonymousResourceCollection

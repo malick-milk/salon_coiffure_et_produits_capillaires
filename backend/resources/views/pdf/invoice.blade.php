@@ -31,6 +31,8 @@
       {{-- Logo officiel en une couleur (lisible imprimé en noir et blanc), intégré au PDF : aucun appel réseau --}}
       <img src="data:image/png;base64,{{ base64_encode(file_get_contents(resource_path('images/logo-pdf.png'))) }}" alt="Dabo Hair" style="height: 80px; margin-bottom: 6px;">
       <div class="brand">{{ $company['name'] ?? 'Dabo Hair' }}</div>
+      {{-- Devise (27 novembre 2026) : logo, puis le nom, puis la devise --}}
+      <div class="gold" style="font-size: 12px; margin: 2px 0 4px;">Vos cheveux à l’état pur · <i>Your hair in the pure state.</i></div>
       <div class="muted">{{ $company['address'] ?? '' }}</div>
       <div class="muted">NINEA : {{ $company['ninea'] ?? '—' }} · RCCM : {{ $company['rccm'] ?? '—' }}</div>
     </td>
@@ -85,6 +87,6 @@
   <tr class="grand"><td>Total TTC</td><td class="right">{{ $fmt($invoice->total) }}</td></tr>
 </table>
 
-<div class="footer">{{ $company['name'] ?? 'Dabo Hair' }} · Facture {{ $invoice->number }} · Document généré automatiquement — toute correction donne lieu à un avoir.</div>
+<div class="footer"><div style="font-size: 11px; color: #0F0F0F; margin-bottom: 3px;">Merci de votre confiance. Vos cheveux à l’état pur.</div>{{ $company['name'] ?? 'Dabo Hair' }} · Facture {{ $invoice->number }} · Document généré automatiquement — toute correction donne lieu à un avoir.</div>
 </body>
 </html>

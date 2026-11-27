@@ -4,14 +4,15 @@
  * action, et renvoie le nouvel état. Toutes les transitions sont au même endroit, donc faciles
  * à lire et à tester.
  */
-import { Bell, CalendarCheck, Check } from 'lucide-react'
+import { Bell, CalendarCheck, CalendarClock, Check } from 'lucide-react'
 import { useEffect, useReducer, useState } from 'react'
 import { Link, useSearchParams } from 'react-router'
 import { Seo } from '@/components/common/Seo'
 import { QueryError } from '@/components/common/States'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
-import { formatLongDate, formatPrice } from '@/lib/format'
+import { formatDuration, formatLongDate, formatPrice } from '@/lib/format'
+import { addDaysIso, downloadIcs, resserrageIcs } from '@/lib/resserrage'
 import { MissingFieldsSummary } from '@/components/common/MissingFields'
 import { focusFirstInvalid } from '@/lib/focusFirstInvalid'
 import type { MissingItem } from '@/lib/missingFields'
@@ -252,6 +253,7 @@ function Confirmation({ confirmation, service, contact, onRestart }: { confirmat
           <strong className="text-2xl tracking-[0.08em] text-gold">{confirmation.reference}</strong>
         </div>
         <p className="text-sm text-muted">Annulation possible jusqu'à 24 h avant le rendez-vous avec ce code.</p>
+        {service?.resserrage && <ResserrageDate date={addDaysIso(date, service.resserrage.after_days)} resserrage={service.resserrage} reference={confirmation.reference} />}
         {!user && service?.resserrage_reminder && (
           <section aria-labelledby="invitation-compte" className="flex w-full flex-col gap-3 rounded-[18px] border-2 border-gold bg-[#1d1810] p-5 text-left">
             <h2 id="invitation-compte" className="flex items-center gap-2.5 text-lg font-semibold"><Bell className="size-5 text-gold" aria-hidden="true" />Ne ratez pas votre resserrage</h2>
@@ -266,6 +268,25 @@ function Confirmation({ confirmation, service, contact, onRestart }: { confirmat
         </div>
       </div>
     </div>
+  )
+}
+
+/** Date conseillée du resserrage, dès la réservation (maquette validée le 27 novembre 2026) */
+function ResserrageDate({ date, resserrage: r, reference }: { date: string; resserrage: NonNullable<Service['resserrage']>; reference: string }) {
+  const label = formatLongDate(date)
+  const addToCalendar = () => downloadIcs(
+    resserrageIcs(date, `${r.name}, Dabo Hair`, `Resserrage conseillé ${r.delay_label} après votre twist. Réservez sur dabohair.com/reserver?prestation=${r.slug} ou au 77 602 62 00.`, `${reference}-resserrage`),
+    `resserrage-${date}.ics`,
+  )
+  return (
+    <section aria-labelledby="resserrage-date" className="flex w-full gap-3 rounded-2xl border border-gold bg-[#1d1810] p-4 text-left">
+      <CalendarClock className="mt-0.5 size-6 shrink-0 text-gold" aria-hidden="true" />
+      <div className="flex flex-col gap-1">
+        <h2 id="resserrage-date" className="text-base font-semibold">Resserrage conseillé vers le {label}</h2>
+        <p className="text-sm leading-relaxed text-[#c9c4b8]">{r.delay_label.charAt(0).toUpperCase() + r.delay_label.slice(1)} après votre twist, pour garder des racines nettes. {r.name} : {formatDuration(r.duration_minutes)} · {formatPrice(r.price)}.</p>
+        <button type="button" onClick={addToCalendar} className="mt-1 self-start text-sm font-semibold text-gold underline underline-offset-2">Ajouter à mon agenda</button>
+      </div>
+    </section>
   )
 }
 

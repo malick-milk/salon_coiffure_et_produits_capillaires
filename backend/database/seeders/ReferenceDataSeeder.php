@@ -17,18 +17,18 @@ class ReferenceDataSeeder extends Seeder
     /** La coiffeuse du salon (une seule pour l'instant) */
     /**
      * RAPPELS DE RESSERRAGE (16 novembre 2026) : twist => [resserrage proposé, délai en JOURS après le twist].
-     * À REMPLIR avec les délais conseillés par Awa (par exemple 28 pour 4 semaines), puis, dans backend/ :
+     * Awa conseille un resserrage 2 MOIS après chaque twist (27 novembre 2026) : 60 jours. Pour changer, dans backend/ :
      *   php artisan db:seed --class=ReferenceDataSeeder
      * null = pas de rappel pour ce twist.
      */
     public const RESSERRAGE = [
-        'twist-simple' => ['resserrage-twist', null],
-        'mini-twist' => ['resserrage-twist', null],
-        'soin-shampooing-twist' => ['resserrage-twist', null],
-        'soin-shampooing-bain-huile-twist' => ['resserrage-twist', null],
-        'micro-twist-court' => ['resserrage-micro-twist', null],
-        'micro-twist-mi-long' => ['resserrage-micro-twist', null],
-        'micro-twist-long' => ['resserrage-micro-twist', null],
+        'twist-simple' => ['resserrage-twist', 60],
+        'mini-twist' => ['resserrage-twist', 60],
+        'soin-shampooing-twist' => ['resserrage-twist', 60],
+        'soin-shampooing-bain-huile-twist' => ['resserrage-twist', 60],
+        'micro-twist-court' => ['resserrage-micro-twist', 60],
+        'micro-twist-mi-long' => ['resserrage-micro-twist', 60],
+        'micro-twist-long' => ['resserrage-micro-twist', 60],
     ];
 
     public const STYLIST_NAME = 'Awa Dabo';

@@ -9,9 +9,11 @@ use App\Models\Service;
 use App\Models\Stylist;
 use App\Models\User;
 use App\Notifications\BookingConfirmed;
+use App\Notifications\BookingReceived;
 use App\Notifications\ResserrageReminder;
 use App\Notifications\SatisfactionSurveyRequest;
 use App\Services\Salon\ResserrageReminderService;
+use App\Support\Resserrage;
 use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Notification;
@@ -51,7 +53,7 @@ class ResserrageReminderTest extends TestCase
     public function test_rappel_dans_le_profil_et_par_e_mail_jamais_par_sms(): void
     {
         Notification::fake();
-        $booking = $this->twist(daysAgo: 30); // délai de démo : 28 jours
+        $booking = $this->twist(daysAgo: 55); // délai : 60 jours (2 mois), rappel 7 jours avant (jour 53)
 
         $this->assertSame(['sent' => 1, 'skipped' => 0], app(ResserrageReminderService::class)->run());
 
@@ -71,9 +73,10 @@ class ResserrageReminderTest extends TestCase
         Notification::fake();
         $service = app(ResserrageReminderService::class);
         $booking = $this->twist(daysAgo: 10);
-        $this->assertSame(0, $service->run()['sent']);                                   // 10 jours < 28
-        $this->assertSame(1, $service->run(CarbonImmutable::today()->addDays(18))['sent']); // 28 jours atteints
-        $this->assertSame(0, $service->run(CarbonImmutable::today()->addDays(40))['sent']); // déjà envoyé
+        $this->assertSame(0, $service->run()['sent']);                                   // 10 jours < 53
+        $this->assertSame(0, $service->run(CarbonImmutable::today()->addDays(42))['sent']); // 52 jours : pas encore
+        $this->assertSame(1, $service->run(CarbonImmutable::today()->addDays(43))['sent']); // 53 jours : 7 jours avant les 2 mois
+        $this->assertSame(0, $service->run(CarbonImmutable::today()->addDays(60))['sent']); // déjà envoyé
 
         Service::query()->update(['resserrage_after_days' => null]); // production tant qu'Awa n'a pas donné le délai
         $this->twist(daysAgo: 400);
@@ -85,12 +88,12 @@ class ResserrageReminderTest extends TestCase
     public function test_aucun_rappel_si_resserrage_deja_reserve_desinscrite_ou_injoignable(): void
     {
         Notification::fake();
-        $booked = $this->twist(daysAgo: 30);
+        $booked = $this->twist(daysAgo: 55);
         $this->twist('resserrage-micro-twist', daysAgo: -3, customer: $booked->customer, status: BookingStatus::Confirmed);
-        $optOut = $this->twist(daysAgo: 30, customer: tap($this->customer(email: 'awa@client.test'))->update(['resserrage_opt_out' => true]));
-        $this->twist(daysAgo: 30, customer: $this->customer(account: false, email: null));      // ni compte ni e-mail
-        $this->twist('brushing', daysAgo: 300);                                                // pas un twist
-        $this->twist(daysAgo: 30, status: BookingStatus::Cancelled, customer: $this->customer(email: 'k@client.test'));
+        $optOut = $this->twist(daysAgo: 55, customer: tap($this->customer(email: 'awa@client.test'))->update(['resserrage_opt_out' => true]));
+        $this->twist(daysAgo: 55, customer: $this->customer(account: false, email: null));      // ni compte ni e-mail
+        $this->twist('brushing', daysAgo: 550);                                                // pas un twist
+        $this->twist(daysAgo: 55, status: BookingStatus::Cancelled, customer: $this->customer(email: 'k@client.test'));
 
         $this->assertSame(['sent' => 0, 'skipped' => 3], app(ResserrageReminderService::class)->run());
         Notification::assertNothingSent();
@@ -100,14 +103,14 @@ class ResserrageReminderTest extends TestCase
     public function test_sans_compte_mais_avec_e_mail_le_rappel_part_par_e_mail_seulement(): void
     {
         Notification::fake();
-        $booking = $this->twist(daysAgo: 30, customer: $this->customer(account: false, email: 'invitee@client.test'));
+        $booking = $this->twist(daysAgo: 55, customer: $this->customer(account: false, email: 'invitee@client.test'));
         app(ResserrageReminderService::class)->run();
         Notification::assertSentTo($booking->customer, ResserrageReminder::class, fn ($n, array $channels) => $channels === ['mail']);
     }
 
     public function test_profil_lecture_report_d_une_semaine_une_seule_fois(): void
     {
-        $booking = $this->twist(daysAgo: 30);
+        $booking = $this->twist(daysAgo: 55);
         $this->actingAs($booking->customer->user);
         app(ResserrageReminderService::class)->run(); // file « sync » en test : notification enregistrée tout de suite
 
@@ -131,7 +134,7 @@ class ResserrageReminderTest extends TestCase
 
     public function test_impossible_de_reporter_la_notification_d_une_autre_cliente(): void
     {
-        $other = $this->twist(daysAgo: 30);
+        $other = $this->twist(daysAgo: 55);
         app(ResserrageReminderService::class)->run();
         $id = $other->customer->notifications()->value('id');
 
@@ -157,9 +160,13 @@ class ResserrageReminderTest extends TestCase
 
     public function test_l_e_mail_contient_le_bouton_de_reservation_et_le_lien_de_desinscription(): void
     {
-        $booking = $this->twist(daysAgo: 30);
-        $mail = (new ResserrageReminder($booking, Service::where('slug', 'resserrage-micro-twist')->first(), 28))->toMail($booking->customer);
+        $booking = $this->twist(daysAgo: 55);
+        $mail = (new ResserrageReminder($booking, Service::where('slug', 'resserrage-micro-twist')->first(), 60))->toMail($booking->customer);
         $html = (string) $mail->render();
+        $this->assertStringContainsString('Awa conseille un resserrage 2 mois après, soit vers le', $html);
+        // Devise sous le logo, sur le fond noir de l'en-tête, et nulle part ailleurs (maquette du 27 novembre 2026)
+        $this->assertSame(1, substr_count($html, 'Vos cheveux à l’état pur'));
+        $this->assertStringContainsString('Your hair in the pure state.', $html);
 
         $this->assertStringContainsString('Fatou, votre resserrage approche', $mail->subject);
         $this->assertStringContainsString('/reserver?prestation=resserrage-micro-twist', $html);
@@ -193,8 +200,35 @@ class ResserrageReminderTest extends TestCase
     public function test_la_commande_planifiee_chaque_matin(): void
     {
         Notification::fake();
-        $this->twist(daysAgo: 30);
+        $this->twist(daysAgo: 55);
         $this->artisan('bookings:resserrage')->expectsOutputToContain('1 rappel(s) de resserrage envoyé(s)')->assertSuccessful();
         $this->artisan('bookings:resserrage')->expectsOutputToContain('0 rappel(s) de resserrage envoyé(s)')->assertSuccessful();
+    }
+
+    public function test_la_date_du_resserrage_est_connue_des_la_reservation(): void
+    {
+        // Délai de 2 mois pour tous les twists
+        $this->assertSame([60], Service::whereNotNull('resserrage_service_id')->distinct()->pluck('resserrage_after_days')->all());
+        $this->assertSame(['2 mois', '1 mois', '4 semaines', '1 semaine', '10 jours', '1 jour'], array_map([Resserrage::class, 'delayLabel'], [60, 30, 28, 7, 10, 1]));
+
+        // API des prestations : délai et resserrage proposé
+        $service = collect($this->getJson('/api/v1/services')->json('data'))->firstWhere('slug', 'twist-simple');
+        $this->assertSame(['after_days' => 60, 'delay_label' => '2 mois', 'slug' => 'resserrage-twist'], array_intersect_key($service['resserrage'], array_flip(['after_days', 'delay_label', 'slug'])));
+        $this->assertNull(collect($this->getJson('/api/v1/services')->json('data'))->firstWhere('slug', 'brushing')['resserrage']);
+
+        // E-mail de demande de rendez-vous : la date conseillée
+        $booking = $this->twist('twist-simple', daysAgo: -3, status: BookingStatus::Pending);
+        $html = (string) (new BookingReceived($booking))->toMail($booking->customer)->render();
+        $advised = $booking->starts_at->copy()->startOfDay()->addDays(60)->locale('fr')->isoFormat('D MMMM YYYY');
+        $this->assertStringContainsString("Resserrage conseillé vers le {$advised} (2 mois après votre twist)", strip_tags($html));
+
+        // « Mes réservations » : chaque twist a sa date ; pas pour un brushing ni un rendez-vous annulé
+        $this->twist('brushing', daysAgo: 5, customer: $booking->customer);
+        $this->twist(daysAgo: 20, customer: $booking->customer, status: BookingStatus::Cancelled);
+        $this->actingAs($booking->customer->user);
+        $rows = collect($this->getJson('/api/v1/me/bookings')->assertOk()->json('data'))->keyBy('service_name');
+        $this->assertSame($booking->starts_at->copy()->addDays(60)->toDateString(), $rows['Twist simple']['resserrage']['advised_on']);
+        $this->assertNull($rows['Brushing']['resserrage']);
+        $this->assertNull($rows['Micro twist long']['resserrage']); // annulé
     }
 }

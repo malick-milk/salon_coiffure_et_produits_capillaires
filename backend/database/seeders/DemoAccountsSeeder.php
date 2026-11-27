@@ -77,7 +77,7 @@ class DemoAccountsSeeder extends Seeder
         $stylist = Stylist::where('display_name', ReferenceDataSeeder::STYLIST_NAME)->value('id');
         foreach ([
             ['RDV-2026-000201', BookingStatus::Confirmed, 'micro-twist-long', now()->addDays(10)->setTime(10, 0)],
-            ['RDV-2026-000105', BookingStatus::Completed, 'twist-simple', now()->subDays(30)->setTime(16, 0)],
+            ['RDV-2026-000105', BookingStatus::Completed, 'twist-simple', now()->subDays(55)->setTime(16, 0)],
         ] as [$reference, $status, $slug, $start]) {
             $service = Service::where('slug', $slug)->first();
             Booking::create([
@@ -87,11 +87,9 @@ class DemoAccountsSeeder extends Seeder
             ]);
         }
 
-        // DÉMO SEULEMENT (jamais en production) : un délai de 4 semaines sur les twists pour VOIR un rappel de
-        // resserrage. Le twist simple de Mariama date de 30 jours : le rappel apparaît dans son espace client.
-        // En production, le délai reste vide tant qu'Awa ne l'a pas donné (ReferenceDataSeeder).
+        // DÉMO SEULEMENT : le twist simple de Mariama date de 55 jours ; le resserrage est conseillé à 60 jours et le
+        // rappel part 7 jours avant : il apparaît tout de suite dans son espace client.
         if (! app()->isProduction()) {
-            Service::whereNotNull('resserrage_service_id')->update(['resserrage_after_days' => 28]);
             app(ResserrageReminderService::class)->run();
             Artisan::call('queue:work', ['--stop-when-empty' => true]); // la notification part tout de suite (file d'attente)
         }

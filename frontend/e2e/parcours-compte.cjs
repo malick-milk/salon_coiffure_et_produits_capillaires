@@ -43,9 +43,14 @@ const log = (ok, msg) => { if (!ok) failures++; console.log(`${ok ? 'OK  ' : 'FA
   await page.getByRole('button', { name: 'Oui, annuler' }).click()
   await page.getByText('Annulée').first().waitFor()
   log((await page.getByRole('button', { name: 'Annuler' }).count()) === 0, 'Réservation annulée (plus de bouton « Annuler »)')
+  // Date du resserrage (maquette du 27 novembre 2026) : le twist réalisé il y a 55 jours → conseillé dans 5 jours (2 mois)
+  const done = page.getByRole('listitem').filter({ hasText: 'Twist simple' }).filter({ hasText: 'Resserrage conseillé' })
+  const doneText = ((await done.textContent()) ?? '').replace(/[\u202f\u00a0]/g, ' ')
+  log(/Resserrage conseillé : vers le \S+ \d+ \S+ \d{4}/.test(doneText) && doneText.includes('Dans 5 jours · 2 mois après le twist') && await done.getByRole('link', { name: 'Réserver mon resserrage' }).count() === 1,
+    'Mes réservations : le twist réalisé affiche la date du resserrage (dans 5 jours, 2 mois après) et « Réserver mon resserrage »')
   await page.screenshot({ path: `${SHOTS}/11-mes-reservations.png`, fullPage: true })
 
-  // 4 bis. Rappel de resserrage (démo : twist simple il y a 30 jours, délai de 4 semaines) — maquette du 16 novembre
+  // 4 bis. Rappel de resserrage (démo : twist simple il y a 55 jours ; conseillé à 2 mois, rappel 7 jours avant) — maquette du 16 novembre
   // On ATTEND le chargement du compteur (sur une machine lente, il arrive après l'affichage de la page)
   log(await page.getByRole('link', { name: 'Notifications, 1 non lue' }).waitFor({ timeout: 10000 }).then(() => true, () => false), 'Cloche : 1 notification non lue')
   await page.goto(BASE + '/compte')

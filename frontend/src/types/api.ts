@@ -122,6 +122,8 @@ export interface Service {
   duration_minutes: number
   price: Money
   resserrage_reminder?: boolean // un rappel de resserrage existe pour cette prestation (délai fixé par Awa)
+  /** Délai conseillé et resserrage proposé (27 novembre 2026) ; null pour une prestation sans resserrage */
+  resserrage?: { after_days: number; delay_label: string; slug: string; name: string; price: Money; duration_minutes: number } | null
 }
 
 export interface Stylist {
@@ -291,6 +293,8 @@ export interface CustomerBooking {
   can_cancel: boolean // jusqu'à 24 h avant (RG-RES-04)
   cancelled_by: 'customer' | 'staff' | 'system' | null
   cancellation_reason: string | null // motif donné par le salon (étape 13)
+  /** Date conseillée du resserrage (twists, hors rendez-vous annulé ou manqué) */
+  resserrage?: { advised_on: string; delay_label: string; slug: string; name: string; price: Money; duration_minutes: number } | null
 }
 
 // ---------- Étape 13 : avis clients et enquête de satisfaction ----------

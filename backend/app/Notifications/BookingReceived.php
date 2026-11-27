@@ -18,6 +18,7 @@ class BookingReceived extends BookingNotification
         return $this->mail($notifiable, "Demande de rendez-vous reçue · {$this->reference}")
             ->line("Nous avons bien reçu votre demande de rendez-vous pour **{$this->service}**, le **{$this->whenText()}**.")
             ->line('Le salon la confirme dans les plus brefs délais : vous recevrez un message.')
+            ->lineIf((bool) $this->resserrageLine(), (string) $this->resserrageLine())
             ->action('Voir mes rendez-vous', self::link('compte/reservations'))
             ->line("Référence : {$this->reference}");
     }

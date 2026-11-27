@@ -139,7 +139,7 @@ Maquette validée le 16 novembre (canevas, « Rappels de resserrage »). **Pas d
 | Lien de désinscription **signé** dans chaque e-mail | Obligatoire ; la signature empêche de désinscrire une autre cliente en changeant le numéro dans l'adresse |
 | Cliente sans compte : invitation à créer un compte après sa réservation, formulaire pré-rempli | Sans compte, pas de profil ; à l'inscription, ses réservations passées sont rattachées (même téléphone) |
 
-**Saisir les délais d'Awa** : dans `backend/database/seeders/ReferenceDataSeeder.php`, la constante `RESSERRAGE` (par exemple `'micro-twist-long' => ['resserrage-micro-twist', 28]` pour 4 semaines), puis :
+**Délai d'Awa (27 novembre 2026) : 2 mois (60 jours) pour tous les twists.** Le rappel part **7 jours avant** la date conseillée (`ResserrageReminderService::REMIND_DAYS_BEFORE`), pour laisser le temps de réserver. Pour changer un délai : dans `backend/database/seeders/ReferenceDataSeeder.php`, la constante `RESSERRAGE` (par exemple `'micro-twist-long' => ['resserrage-micro-twist', 60]`), puis :
 
 ```bash
 php artisan db:seed --class=ReferenceDataSeeder
@@ -147,7 +147,11 @@ php artisan db:seed --class=ReferenceDataSeeder
 
 **Les autres messages arrivent aussi dans le profil** (canal `database` de Laravel, table `notifications`) quand la cliente a un compte. Exception volontaire : le message de l'enquête de satisfaction n'y recopie **pas** le lien personnel. Son secret n'est gardé en base que sous forme d'empreinte (§3). Le recopier en clair dans la table des notifications annulerait cette protection.
 
-**En local** : la démo donne à Mariama un twist fait il y a 30 jours et un délai de 4 semaines (seulement hors production). Connectez-vous avec `mariama@client.test` : la cloche affiche 1. Les e-mails s'affichent dans Mailpit, http://localhost:8025.
+**La cliente connaît la date dès la réservation** (maquette validée le 27 novembre 2026) : écran de confirmation (« Resserrage conseillé vers le … », bouton « Ajouter à mon agenda » qui enregistre un fichier `.ics` avec une alarme 7 jours avant), e-mails de demande et de confirmation du rendez-vous, et « Mes réservations » (date, nombre de jours restants, « Réserver mon resserrage » pour un twist réalisé). Calcul : `App\Support\Resserrage` (serveur) et `src/lib/resserrage.ts` (site).
+
+**La devise dans les e-mails et les factures** : « Vos cheveux à l'état pur · Your hair in the pure state. » est sous le logo, sur le fond noir de l'en-tête de **tous** les e-mails (`resources/views/vendor/mail/html/header.blade.php`), et sur chaque facture PDF : logo, nom, devise, puis « Merci de votre confiance. Vos cheveux à l'état pur. » en bas (`resources/views/pdf/invoice.blade.php`).
+
+**En local** : la démo donne à Mariama un twist fait il y a 55 jours ; conseillé à 60 jours, le rappel est donc déjà parti. Connectez-vous avec `mariama@client.test` : la cloche affiche 1. Les e-mails s'affichent dans Mailpit, http://localhost:8025.
 
 ## 7. Tests
 

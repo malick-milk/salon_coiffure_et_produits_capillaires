@@ -18,6 +18,7 @@ class BookingConfirmed extends BookingNotification
         return $this->mail($notifiable, "Rendez-vous confirmé · {$this->whenText()}")
             ->line("Votre rendez-vous pour **{$this->service}** est confirmé le **{$this->whenText()}**.")
             ->line('Un empêchement ? Vous pouvez annuler en ligne jusqu’à 24 h avant.')
+            ->lineIf((bool) $this->resserrageLine(), (string) $this->resserrageLine())
             ->action('Gérer mon rendez-vous', self::link('compte/reservations'))
             ->line("Référence : {$this->reference}");
     }

@@ -4,6 +4,7 @@ namespace App\Http\Resources;
 
 use App\Models\Booking;
 use App\Models\Setting;
+use App\Support\Resserrage;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -24,6 +25,9 @@ class CustomerBookingResource extends JsonResource
             // Étape 13 : la cliente voit qui a annulé et pourquoi (le motif du salon lui est aussi envoyé)
             'cancelled_by' => $this->cancelled_by,
             'cancellation_reason' => $this->cancelled_by === 'staff' ? $this->cancellation_reason : null,
+            // Date conseillée du resserrage (27 novembre 2026), sauf pour un rendez-vous annulé ou manqué
+            'resserrage' => in_array($this->status->value, ['pending', 'confirmed', 'completed'], true) && $this->relationLoaded('service')
+                ? Resserrage::forService($this->service, $this->starts_at) : null,
         ];
     }
 

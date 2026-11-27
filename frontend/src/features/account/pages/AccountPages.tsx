@@ -18,6 +18,7 @@ import { useMe } from '@/features/auth/hooks'
 import { normalizePhone, SENEGAL_MOBILE } from '@/features/booking/schema'
 import { formatDuration, formatLongDate, formatPrice, fulfillmentLabel } from '@/lib/format'
 import { useRebuy } from '../rebuy'
+import { daysFromToday } from '@/lib/resserrage'
 import { apiErrorMessage, apiErrorStatus, type ValidationErrorBody } from '@/lib/http'
 import type { AccountNotification, CustomerBooking, OrderSummary } from '@/types/api'
 import { ResserrageCard } from '../components/ResserrageCard'
@@ -292,6 +293,7 @@ function BookingRow({ booking: b, confirming, pending, onAsk, onAbort, onConfirm
       <div className="flex min-w-48 flex-1 flex-col gap-1">
         <strong>{b.service_name}</strong>
         <span className="text-sm text-muted">{time(b.starts_at)} · {formatDuration(b.duration_minutes)} · {b.stylist_name} · {formatPrice(b.price)} · {b.reference}</span>
+        {b.resserrage && <ResserrageLine booking={b} resserrage={b.resserrage} />}
         {b.status === 'cancelled' && b.cancellation_reason && (
           <span className="text-sm text-[#fca5a5]">Annulé par le salon · Motif : {b.cancellation_reason}. <Link to="/reserver" className="font-semibold text-gold underline">Choisir un autre créneau</Link></span>
         )}
@@ -306,6 +308,21 @@ function BookingRow({ booking: b, confirming, pending, onAsk, onAbort, onConfirm
         </div>
       )}
     </li>
+  )
+}
+
+/** Date conseillée du resserrage sur chaque twist (maquette validée le 27 novembre 2026) */
+function ResserrageLine({ booking: b, resserrage: r }: { booking: CustomerBooking; resserrage: NonNullable<CustomerBooking['resserrage']> }) {
+  const days = daysFromToday(r.advised_on)
+  const when = days > 1 ? `dans ${days} jours` : days === 1 ? 'demain' : days === 0 ? 'aujourd’hui' : 'date dépassée'
+  return (
+    <div className="mt-2 flex flex-col gap-1.5 border-t border-ink-line pt-2.5">
+      <span className="text-sm">Resserrage conseillé : <strong className="text-gold">vers le {formatLongDate(r.advised_on)}</strong></span>
+      <span className="text-[13px] text-muted">{b.status === 'completed' ? `${when.charAt(0).toUpperCase() + when.slice(1)} · ` : ''}{r.delay_label} après le twist</span>
+      {b.status === 'completed' && (
+        <Button asChild size="sm" className="mt-1 self-start"><Link to={`/reserver?prestation=${r.slug}`}>Réserver mon resserrage</Link></Button>
+      )}
+    </div>
   )
 }
 

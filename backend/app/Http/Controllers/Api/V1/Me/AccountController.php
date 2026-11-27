@@ -43,14 +43,14 @@ class AccountController extends Controller
     public function bookings(Request $request): AnonymousResourceCollection
     {
         $bookings = Booking::query()->whereHas('customer', fn ($q) => $q->where('user_id', $request->user()->id))
-            ->with('stylist')->latest('starts_at')->get();
+            ->with(['stylist', 'service.resserrageService'])->latest('starts_at')->get();
 
         return CustomerBookingResource::collection($bookings);
     }
 
     public function cancelBooking(string $reference): CustomerBookingResource
     {
-        $booking = Booking::query()->where('reference', $reference)->with(['customer', 'stylist'])->firstOrFail();
+        $booking = Booking::query()->where('reference', $reference)->with(['customer', 'stylist', 'service.resserrageService'])->firstOrFail();
         Gate::authorize('cancel', $booking);
 
         abort_unless(CustomerBookingResource::canCancel($booking), 422, 'Annulation impossible à moins de 24 h du rendez-vous. Merci d’appeler le salon.');

@@ -44,6 +44,13 @@ const PHONE = { viewport: { width: 390, height: 844 }, isMobile: true, hasTouch:
   await page.getByRole('checkbox', { name: /J'accepte/ }).check(); touches++
   await page.getByRole('button', { name: 'Réserver ce créneau' }).click(); touches++
   await page.getByRole('heading', { name: 'Demande de rendez-vous envoyée' }).waitFor()
+  // Date du resserrage connue dès la réservation (maquette du 27 novembre 2026)
+  const advised = page.getByRole('region', { name: /Resserrage conseillé vers le/ })
+  const advisedText = ((await advised.textContent()) ?? '').replace(/[\u202f\u00a0]/g, ' ')
+  const [download] = await Promise.all([page.waitForEvent('download'), advised.getByRole('button', { name: 'Ajouter à mon agenda' }).click()])
+  log(advisedText.includes('2 mois après votre twist') && advisedText.includes('Resserrage twist simple : 1 h 30 · 5 000 F CFA') && /^resserrage-\d{4}-\d{2}-\d{2}\.ics$/.test(download.suggestedFilename()),
+    `Confirmation : « Resserrage conseillé vers le … » (2 mois), « Ajouter à mon agenda » → ${download.suggestedFilename()}`)
+  await page.screenshot({ path: `${SHOTS}/94b-resserrage-date.png`, fullPage: true })
   log(touches === 3, `Réservé en ${touches} touchers depuis l’accueil (${firstLabel})`)
 
   // 2. « Changer de créneau » ramène au choix de l'heure ; la bannière Twists présélectionne le twist simple
