@@ -7,6 +7,20 @@ Un agent est un **fichier d'instructions** dans `.claude/agents/`. Quand on lui 
 | Agent | Son métier | Ce qu'il ne fait jamais |
 |---|---|---|
 | `maquettes-promo` | visuels de promotion de la boutique pour Instagram, Facebook, TikTok, Snapchat, statut WhatsApp ; légendes, hashtags, liens mesurés | toucher au code du site, publier, inventer un prix, commit ou push |
+| `superviseur` | **Executive Supervisor** : directeur technique et fonctionnel ; vision d'ensemble, risques, feuille de route jusqu'au 15 décembre, relit chaque fonctionnalité avant et après ; supervise les autres agents. Format : 📊 État du projet, 🚨 Risques, ✅ Actions recommandées, 🎯 Priorité actuelle | développer les fonctionnalités, modifier le code, commit ou push, effacer une base, lire des secrets |
+| `qa-testing` | **QA Testing & Monitoring** : à chaque modification, fichiers modifiés, bugs, logique, sécurité, UX, mobile, performances ; lance toutes les suites, écrit les tests manquants ; surveille les erreurs après la mise en ligne. Format : 🔍 Analyse, ✅ Éléments validés, ⚠️ Problèmes détectés, 🛠 Corrections proposées, 🚀 Prêt pour production | corriger le code de l'application, envoyer un vrai message, utiliser de vraies données, commit ou push |
+
+## Le circuit d'une fonctionnalité (27 novembre 2026)
+
+1. Maquette dans le canvas → **tu valides**.
+2. **superviseur** (avant) : relit la maquette et le plan, liste les trous et les tests à écrire.
+3. La session principale implémente.
+4. **qa-testing** : lance toutes les suites, explore sur téléphone et ordinateur, écrit les tests des bugs trouvés.
+5. La session corrige les bugs.
+6. **superviseur** (après) : relit le diff complet → « prêt ».
+7. Commit, push, CI verte → tu fais le `git pull`.
+
+> Exemple : « Utilise l'agent superviseur pour relire les maquettes de la fiche cliente et de WhatsApp avant l'implémentation. »
 
 ## Parler à un agent
 
