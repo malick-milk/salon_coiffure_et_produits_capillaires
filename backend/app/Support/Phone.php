@@ -2,7 +2,11 @@
 
 namespace App\Support;
 
-/** Téléphones sénégalais : on stocke une forme normalisée (sans espaces ni points) */
+/**
+ * Téléphones sénégalais : on stocke UNE forme normalisée, « 771234567 » (9 chiffres, sans indicatif).
+ * Bug du 27 novembre 2026 : « +221 77 123 45 67 » était gardé tel quel (« +221771234567 ») et créait une
+ * DEUXIÈME fiche cliente à côté de « 771234567 ». L'indicatif +221 (ou 00221) d'un mobile est donc retiré.
+ */
 final class Phone
 {
     /** Mobile : 70, 75, 76, 77 ou 78 + 7 chiffres, avec ou sans +221 */
@@ -10,7 +14,10 @@ final class Phone
 
     public static function normalize(?string $phone): string
     {
-        return preg_replace('/[\s.\-]/', '', (string) $phone);
+        $p = preg_replace('/[\s.\-()]/', '', (string) $phone) ?? '';
+
+        // Mobile sénégalais avec indicatif : on garde les 9 chiffres (un seul format en base, donc pas de doublon)
+        return preg_match('/^(?:\+221|00221|221)(7[05678]\d{7})$/', $p, $m) ? $m[1] : $p;
     }
 
     /** Format international exigé par les fournisseurs de SMS : « 77 123 45 67 » -> « +221771234567 » */

@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\Customer;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\User;
@@ -114,5 +115,24 @@ class OrderApiTest extends TestCase
         $this->app['auth']->forgetGuards();
         $this->actingAs($other, 'web')->getJson("/api/v1/me/orders/{$reference}")->assertForbidden()->assertJsonPath('message', 'Accès refusé.');
         $this->getJson('/api/v1/me/orders')->assertJsonCount(0, 'data');
+    }
+
+    /** Bug du 27 novembre 2026 : « +221 76… » et « 76… » créaient deux fiches clientes pour la même personne */
+    public function test_meme_numero_avec_ou_sans_indicatif_une_seule_fiche_cliente(): void
+    {
+        $item = [['product_id' => $this->id('DAB-SPH-250'), 'quantity' => 1]];
+        $first = $this->postJson('/api/v1/orders', $this->payload($item))->assertCreated();
+        $this->flushSession();
+        $second = $this->postJson('/api/v1/orders', $this->payload($item, ['customer' => ['first_name' => 'Khady', 'last_name' => 'Fall', 'phone' => '+221 76 111 22 33', 'email' => null]]))->assertCreated();
+
+        $ids = Order::whereIn('reference', [$first->json('data.reference'), $second->json('data.reference')])->pluck('customer_id')->unique();
+        $this->assertCount(1, $ids);
+        $this->assertSame(1, Customer::where('phone', 'like', '%761112233')->count());
+        $this->assertSame('761112233', Customer::find($ids->first())->phone);
+    }
+
+    public function test_connexion_avec_l_indicatif_pour_un_compte_enregistre_sans(): void
+    {
+        $this->postJson('/api/v1/auth/login', ['email' => '+221 77 000 00 03', 'password' => 'demo-dabo-2026'])->assertOk();
     }
 }

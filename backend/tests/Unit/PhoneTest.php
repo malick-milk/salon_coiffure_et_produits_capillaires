@@ -31,8 +31,18 @@ class PhoneTest extends TestCase
 
     public function test_la_normalisation_retire_espaces_points_et_tirets(): void
     {
-        $this->assertSame('+221771234567', Phone::normalize('+221 77-123.45 67'));
+        $this->assertSame('771234567', Phone::normalize('77-123.45 67'));
         $this->assertSame('', Phone::normalize(null));
+    }
+
+    /** Bug du 27 novembre 2026 : « +221 77… » et « 77… » créaient deux fiches clientes */
+    public function test_l_indicatif_du_senegal_est_retire_un_seul_format_en_base(): void
+    {
+        foreach (['+221 77 123 45 67', '00221771234567', '221771234567', '(+221) 77.123.45.67', '771234567'] as $saisi) {
+            $this->assertSame('771234567', Phone::normalize($saisi), $saisi);
+        }
+        $this->assertSame('+33612345678', Phone::normalize('+33 6 12 34 56 78')); // étranger : gardé tel quel
+        $this->assertSame('+221338234567', Phone::normalize('+221 33 823 45 67')); // fixe : pas un mobile, gardé
     }
 
     /** Étape 13 : format international exigé par les fournisseurs de SMS */
