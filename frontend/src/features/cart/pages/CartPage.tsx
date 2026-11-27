@@ -46,7 +46,7 @@ export function CartPage() {
         {items.length === 0 ? (
           <EmptyState title="Votre panier est vide">
             <p className="text-muted">Commencez par une gamme : tout ce qu’il faut pour vos cheveux, à un seul prix.</p>
-            <Button asChild><Link to="/boutique?category=gammes"><ShoppingBag aria-hidden="true" />Voir les gammes</Link></Button>
+            <Button asChild><Link to="/gammes"><ShoppingBag aria-hidden="true" />Voir les gammes</Link></Button>
           </EmptyState>
         ) : (
           <div className="flex flex-col gap-8 lg:flex-row lg:items-start">

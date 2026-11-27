@@ -10,7 +10,7 @@ export function NotFoundPage() {
       <h1 className="font-display text-3xl font-semibold">Cette page n’existe plus</h1>
       <p className="text-muted">Nos gammes, elles, sont toujours là : tout ce qu’il faut pour vos cheveux, à un seul prix.</p>
       <div className="flex flex-wrap justify-center gap-3">
-        <Button asChild><Link to="/boutique?category=gammes">Voir les gammes</Link></Button>
+        <Button asChild><Link to="/gammes">Voir les gammes</Link></Button>
         <Button asChild variant="outline"><Link to="/">Accueil</Link></Button>
       </div>
     </div>

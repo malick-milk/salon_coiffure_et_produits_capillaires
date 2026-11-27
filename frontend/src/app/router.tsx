@@ -2,6 +2,7 @@ import { createBrowserRouter } from 'react-router'
 import { PublicLayout } from './layouts/PublicLayout'
 import { RouteError } from './RouteError'
 import { HomePage } from '@/features/home/pages/HomePage'
+import { GammesPage } from '@/features/catalog/pages/GammesPage'
 import { CatalogPage } from '@/features/catalog/pages/CatalogPage'
 import { ProductPage } from '@/features/catalog/pages/ProductPage'
 import { CartPage } from '@/features/cart/pages/CartPage'
@@ -23,6 +24,7 @@ export const router = createBrowserRouter([
     children: [
       { index: true, element: <HomePage /> },
       { path: 'boutique', element: <CatalogPage /> },
+      { path: 'gammes', element: <GammesPage /> },
       { path: 'produits/:slug', element: <ProductPage /> },
       { path: 'panier', element: <CartPage /> },
       {

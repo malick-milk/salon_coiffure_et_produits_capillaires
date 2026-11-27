@@ -1,7 +1,6 @@
 import { Bell, CalendarDays, House, LayoutDashboard, Search, ShoppingBag, Store, User } from 'lucide-react'
 import { useEffect } from 'react'
 import { Link, NavLink, Outlet, ScrollRestoration } from 'react-router'
-import { GammesMenu } from '@/features/catalog/components/GammesMenu'
 import { Logo } from '@/components/common/Logo'
 import { useMyNotifications } from '@/features/account/hooks'
 import { useMe } from '@/features/auth/hooks'
@@ -37,14 +36,14 @@ export function PublicLayout() {
       </aside>
 
       <header className="sticky top-0 z-40 border-b border-ink-line bg-ink/95 px-4 backdrop-blur sm:px-6">
-        {/* « relative » sur le conteneur pleine largeur : le panneau « Gammes » s'ouvre juste sous l'en-tête */}
         <div className="mx-auto flex min-h-[72px] max-w-7xl items-center justify-between gap-4">
           <Link to="/" aria-label="Dabo Hair, accueil">
             <Logo className="h-14" />
           </Link>
 
           <nav aria-label="Navigation principale" className="hidden items-center gap-8 text-[15px] font-medium md:flex">
-            <GammesMenu variant="desktop" />
+            {/* « Gammes » : un simple lien vers la page des gammes (le panneau déroulant était encombrant, 27 novembre 2026) */}
+            <NavLink to="/gammes" className={({ isActive }) => cn('py-2 font-semibold hover:text-gold', isActive && 'border-b-2 border-gold text-gold')}>Gammes</NavLink>
             {NAV.map((item) => (
               <NavLink
                 key={item.to}
@@ -57,7 +56,7 @@ export function PublicLayout() {
           </nav>
 
           <div className="flex items-center gap-1">
-            <GammesMenu variant="mobile" />
+            <NavLink to="/gammes" className={({ isActive }) => cn('flex min-h-11 items-center rounded-full px-3.5 text-sm font-bold md:hidden', isActive ? 'bg-gold text-ink' : 'border border-gold text-gold')}>Gammes</NavLink>
             <Link to="/boutique" aria-label="Rechercher un produit" className="hidden size-11 items-center justify-center rounded-full hover:bg-ink-soft sm:flex">
               <Search className="size-[22px]" aria-hidden="true" />
             </Link>

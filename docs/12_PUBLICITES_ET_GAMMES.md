@@ -170,17 +170,24 @@ Produit à part : **shampoing savon**, 5 000 F (photo à confirmer).
 
 **Point signalé :** « Avocat · Tout type » à 15 000 F coûte plus cher que ses 4 produits achetés séparément (14 000 F aux prix actuels). Le prix membre de 10 000 F règle la question pendant le lancement ; à revoir après.
 
-## 11. Le menu « Gammes » de l'en-tête (maquette validée le 24 novembre 2026)
+## 11. La page « Nos gammes » (maquette validée le 27 novembre 2026)
+
+Le 24 novembre, « Gammes » ouvrait un **panneau déroulant** sous l'en-tête. Jugé **encombrant** (il recouvrait la page et obligeait à faire défiler avec des flèches), il est remplacé le 27 novembre par une **page** : `/gammes`.
 
 | Règle | Où |
 |---|---|
-| Entrée « Gammes » en premier dans l'en-tête ; sur téléphone, bouton « Gammes » à côté du panier | `PublicLayout.tsx`, `GammesMenu.tsx` |
-| Ordinateur : bande horizontale de cartes (image, nom, description courte, contenu, prix), flèches ; téléphone : liste façon panier | `GammesMenu.tsx` (une seule liste, mise en page selon la largeur) |
+| « Gammes » en premier dans l'en-tête est un simple **lien** ; sur téléphone, bouton « Gammes » à côté du panier | `PublicLayout.tsx` |
+| Toutes les gammes publiées d'un coup d'œil : 4 par ligne sur ordinateur (3 sur tablette), liste façon panier sur téléphone | `features/catalog/pages/GammesPage.tsx` |
 | Les gammes viennent du catalogue (catégorie « Gammes ») : une gamme créée dans l'ERP apparaît toute seule | API `products?category=gammes`, champ `bundle_contents` |
-| Chargées à la première ouverture (ou au survol) seulement : l'en-tête reste léger sur toutes les pages | `useProducts(…, { enabled })` |
+| « Ajouter au panier » directement sur la carte (bouton « + » sur téléphone), sans quitter la page ; le bouton devient « Ajoutée · Voir le panier » | `GammeCard` |
 | Filtres Avocat · Coco · Palme · Enfants · Locs · Petits prix, affichés seulement s'ils servent | `gammeFilters.ts` (testé) |
-| Prix membre (cadre et badge dorés, prix barré) ; promotion en cours ; en rupture : « Bientôt de retour », jamais mise en avant | `GammeItem` |
-| Fermeture : Échap, clic dehors, re-clic, changement de page | `GammesMenu.tsx` |
+| Prix membre (cadre et badge dorés, prix barré) ; promotion en cours ; en rupture : grisée, « Bientôt de retour », pas de bouton d'ajout | `GammeCard` |
+| « Pas sûre ? Quelle gamme pour moi » ouvre le questionnaire sur la page | `GammeQuiz` |
+| Les liens « Voir les gammes » (panier vide, page 404) mènent à cette page | `CartPage.tsx`, `NotFoundPage.tsx` |
+
+Tests : `GammesPage.test.tsx` (liste, filtre, ajout au panier, rupture) et `e2e/parcours-gamme.cjs` (la gamme créée dans l'ERP apparaît sur la page, ordinateur et téléphone).
+
+**Concept : un lien plutôt qu'un panneau.** Un panneau déroulant garde l'utilisatrice sur la page où elle est, mais il cache le contenu, demande de le refermer et ne s'adapte pas quand les gammes deviennent nombreuses. Une page a sa propre adresse (`/gammes`), qu'on peut partager sur WhatsApp ou mettre dans une publicité, et que Google peut indexer.
 
 À la saisie d'une gamme dans l'ERP, la **description courte** devient le titre de la carte (« Pour les débutants », « Longueur, volume, réparatrice ») : la remplir pour chaque gamme.
 
