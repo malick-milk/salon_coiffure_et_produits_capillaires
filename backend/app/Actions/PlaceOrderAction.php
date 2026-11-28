@@ -85,8 +85,10 @@ class PlaceOrderAction
             $shippingFee = $threshold !== null && $subtotal >= $threshold ? 0 : ($zone->fee ?? 0);
             $address = $method === FulfillmentMethod::Delivery ? $data['shipping_address'] : null;
             $customer = $this->customers->resolve($user, $data['customer']);
-            if (! empty($data['marketing_consent'])) {
-                MarketingConsent::record($customer, true, 'order'); // case cochée : accord ; non cochée : rien ne change
+            // Case cochée : accord ; non cochée : rien ne change. Sans connexion, seulement pour une fiche NOUVELLE :
+            // sinon n'importe qui taperait le numéro d'une cliente et l'abonnerait à sa place (bug QA du 28 novembre 2026)
+            if (! empty($data['marketing_consent']) && ($user !== null || $customer->wasRecentlyCreated)) {
+                MarketingConsent::record($customer, true, 'order');
             }
 
             $order = Order::create([

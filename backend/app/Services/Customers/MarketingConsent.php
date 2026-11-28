@@ -27,16 +27,21 @@ final class MarketingConsent
     /** Enregistre l'accord ou le retrait s'il change l'état actuel ; renvoie true si quelque chose a changé */
     public static function record(Customer $customer, bool $granted, string $source, ?User $by = null): bool
     {
-        if ($customer->marketing_consent === $granted) {
-            return false; // déjà dans cet état : pas de preuve en double
-        }
-        DB::transaction(function () use ($customer, $granted, $source, $by) {
-            $customer->forceFill(['marketing_consent' => $granted])->save();
+        $changed = DB::transaction(function () use ($customer, $granted, $source, $by) {
+            // Verrou sur la fiche, puis relecture : deux clics simultanés ne créent pas deux preuves (bug QA du 28 novembre 2026)
+            $current = (bool) Customer::query()->whereKey($customer->getKey())->lockForUpdate()->value('marketing_consent');
+            if ($current === $granted) {
+                return false; // déjà dans cet état : pas de preuve en double
+            }
+            Customer::query()->whereKey($customer->getKey())->update(['marketing_consent' => $granted]);
             CustomerConsent::create(['customer_id' => $customer->id, 'channel' => self::CHANNEL, 'granted' => $granted, 'source' => $source,
                 'text_version' => self::VERSION, 'recorded_by' => $by?->id]);
-        });
 
-        return true;
+            return true;
+        });
+        $customer->forceFill(['marketing_consent' => $granted])->syncOriginalAttribute('marketing_consent');
+
+        return $changed;
     }
 
     /** Dernière preuve (pour l'ERP et l'espace client) */

@@ -348,3 +348,16 @@ Les scripts ont été exécutés sur un **Ubuntu 24.04 neuf** (une image officie
 8. **Apostrophe dans un texte entre apostrophes** dans `verifier-tout.sh`, repérée par ShellCheck, désormais exécuté par l'intégration continue sur tous les scripts.
 
 **MySQL 8.0** (la version d'Ubuntu 24.04) a aussi passé les 117 tests du backend. L'intégration continue teste maintenant MySQL 8.0 **et** 8.4.
+
+
+## Mise à jour du 28 novembre 2026 : accord aux offres et nouvelles permissions
+
+À chaque mise en ligne qui ajoute des permissions (ici `customers.stats` et `customers.consent`), après `php artisan migrate --force` :
+
+```bash
+php artisan db:seed --class=RolesAndPermissionsSeeder --force
+```
+
+Sans cette commande, la gérante et le manager ne voient plus la colonne « Dépensé », et la caisse reçoit « interdit » sur « Elle accepte les offres ». **Attention** : ce seeder remet chaque rôle à sa liste de permissions par défaut ; une permission ajoutée à la main depuis l'ERP est à refaire après.
+
+Avant d'envoyer le **premier e-mail d'offre** (Brevo) : chaque e-mail doit contenir le lien de désinscription `MarketingConsent::unsubscribeUrl($customer)`, et partir seulement aux clientes avec `marketing_consent = true` et une adresse e-mail.

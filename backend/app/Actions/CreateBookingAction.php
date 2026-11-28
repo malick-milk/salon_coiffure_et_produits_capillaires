@@ -56,8 +56,9 @@ class CreateBookingAction
                 $start = CarbonImmutable::parse("{$data['date']} {$data['time']}", 'UTC');
 
                 $customer = $this->customers->resolve($user, $data['customer']);
-                if (! empty($data['marketing_consent'])) {
-                    MarketingConsent::record($customer, true, 'booking'); // case cochée : accord ; non cochée : rien ne change
+                // Sans connexion, seulement pour une fiche NOUVELLE (voir PlaceOrderAction : bug QA du 28 novembre 2026)
+                if (! empty($data['marketing_consent']) && ($user !== null || $customer->wasRecentlyCreated)) {
+                    MarketingConsent::record($customer, true, 'booking');
                 }
 
                 return Booking::create([

@@ -58,7 +58,7 @@ export function AdminField({ label, error, children, htmlFor }: { label: string;
 /** Tableau : défile horizontalement sur mobile au lieu de casser la page */
 export function Table({ head, children, minWidth = 640 }: { head: string[]; children: ReactNode; minWidth?: number }) {
   return (
-    <div className="overflow-x-auto">
+    <div className="relative overflow-x-auto">
       <table className="w-full border-collapse text-sm text-ink" style={{ minWidth }}>
         <thead>
           <tr className="border-b border-[#e4e4e7] text-left text-xs text-[#52525b]">

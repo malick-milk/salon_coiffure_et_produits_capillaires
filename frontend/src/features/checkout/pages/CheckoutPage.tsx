@@ -219,7 +219,7 @@ export function CheckoutPage() {
               <div className="flex flex-col gap-1.5">
                 <label className="flex items-start gap-3 text-sm leading-relaxed text-[#d9d9d9]">
                   <input type="checkbox" className="mt-0.5 size-[18px] shrink-0 accent-gold" aria-invalid={!!errors.consent} {...register('consent')} />
-                  J'accepte les <Link to="/conditions-de-vente" target="_blank" className="text-gold underline underline-offset-2">conditions de vente</Link> et l'utilisation de mes données pour traiter la commande (<Link to="/confidentialite" target="_blank" className="text-gold underline underline-offset-2">confidentialité</Link>).
+                  <span>J'accepte les <Link to="/conditions-de-vente" target="_blank" className="text-gold underline underline-offset-2">conditions de vente</Link> et l'utilisation de mes données pour traiter la commande (<Link to="/confidentialite" target="_blank" className="text-gold underline underline-offset-2">confidentialité</Link>).</span>
                 </label>
                 {errors.consent && <p role="alert" className="text-sm font-medium text-[#f87171]">{errors.consent.message}</p>}
               </div>

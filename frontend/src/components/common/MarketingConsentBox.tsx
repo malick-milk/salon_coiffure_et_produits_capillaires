@@ -9,6 +9,7 @@ import { usePreferences } from '@/features/account/hooks'
 
 export function MarketingConsentBox(props: ComponentProps<'input'>) {
   const prefs = usePreferences()
+  if (prefs.fetchStatus === 'fetching' && !prefs.data) return null // cliente connectée : on attend sa réponse
   if (prefs.data?.marketing_email) return null
   const [before, after] = MARKETING_TEXT.split('nouveautés et offres')
   return (

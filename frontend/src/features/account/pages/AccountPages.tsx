@@ -2,7 +2,7 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import axios from 'axios'
 import { ArrowRight, Bell, CalendarDays, Check, ChevronLeft, Package, type LucideIcon } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { useEffect, useId, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { Link, useParams } from 'react-router'
 import { z } from 'zod'
@@ -411,7 +411,7 @@ function MessagePreferences() {
         {update.isError && <p role="alert" className="text-sm text-[#f87171]">{apiErrorMessage(update.error)}</p>}
         {last && (
           <p role="status" className="text-[13px] text-muted">
-            « Nouveautés et offres » {last.granted ? 'accepté' : 'refusé'}{last.at ? ` le ${formatLongDate(last.at.slice(0, 10))}` : ''} ({SOURCE_LABEL[last.source]}).
+            « Nouveautés et offres » {last.granted ? 'accepté' : 'retiré'}{last.at ? ` le ${formatLongDate(last.at.slice(0, 10))}` : ''} ({SOURCE_LABEL[last.source]}).
           </p>
         )}
       </section>
@@ -421,10 +421,12 @@ function MessagePreferences() {
 
 /** Interrupteur accessible : un vrai bouton « switch », lu « activé / désactivé » par les lecteurs d'écran */
 function Toggle({ label, hint, checked, disabled, onChange }: { label: string; hint: string; checked: boolean; disabled?: boolean; onChange: (v: boolean) => void }) {
+  const hintId = useId()
+  // aria-disabled (et non disabled) : pendant l'envoi, le focus clavier reste sur l'interrupteur (bug QA du 28 novembre 2026)
   return (
-    <button type="button" role="switch" aria-checked={checked} disabled={disabled} onClick={() => onChange(!checked)}
-      className="flex min-h-14 items-center justify-between gap-3 rounded-[14px] border border-ink-line p-3.5 text-left disabled:opacity-60">
-      <span className="flex flex-col"><span className="text-[15px] text-ivory">{label}</span><span className="text-xs text-muted">{hint}</span></span>
+    <button type="button" role="switch" aria-checked={checked} aria-disabled={disabled} aria-describedby={hintId} onClick={() => { if (!disabled) onChange(!checked) }}
+      className="flex min-h-14 items-center justify-between gap-3 rounded-[14px] border border-ink-line p-3.5 text-left aria-disabled:opacity-60">
+      <span className="flex flex-col"><span className="text-[15px] text-ivory">{label}</span><span id={hintId} className="text-xs text-muted">{hint}</span></span>
       <span aria-hidden="true" className={`relative h-7 w-12 shrink-0 rounded-full transition-colors ${checked ? 'bg-gold' : 'bg-[#3a3a3a]'}`}>
         <span className={`absolute top-[3px] size-[22px] rounded-full bg-white transition-all ${checked ? 'right-[3px]' : 'left-[3px]'}`} />
       </span>

@@ -114,7 +114,11 @@ class MarketingConsentTest extends TestCase
         $this->postJson("/api/v1/admin/customers/{$customer->id}/marketing-consent")->assertOk()
             ->assertJsonPath('data.marketing.status', 'yes')->assertJsonPath('data.marketing.source', 'salon')->assertJsonPath('data.marketing.by', 'Khady Caisse');
         $this->assertSame($cashier->id, CustomerConsent::sole()->recorded_by);
-        $this->postJson("/api/v1/admin/customers/{$customer->id}/marketing-consent")->assertStatus(422);
+        // Double clic : réponse OK, pas de 2e preuve (bug QA du 28 novembre 2026 : la caisse croyait à un échec)
+        $this->postJson("/api/v1/admin/customers/{$customer->id}/marketing-consent")->assertOk()->assertJsonPath('data.marketing.status', 'yes');
+        $this->assertSame(1, CustomerConsent::count());
+        $noEmail = Customer::create(['first_name' => 'Sans', 'last_name' => 'Mail', 'phone' => '701234500']);
+        $this->postJson("/api/v1/admin/customers/{$noEmail->id}/marketing-consent")->assertUnprocessable();
         $this->assertSame([$customer->id], collect($this->getJson('/api/v1/admin/customers?marketing=1')->json('data'))->pluck('id')->all());
 
         $this->actingAsRole('super_admin');

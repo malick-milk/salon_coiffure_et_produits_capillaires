@@ -53,7 +53,7 @@ async function login(page, email, pw) {
   log(await offers.getAttribute('aria-checked') === 'true' && /accepté le .+ \(inscription sur le site\)/.test(await status.textContent()), 'Espace client : « Nouveautés et offres » activé, preuve « inscription sur le site »')
   await page.screenshot({ path: `${SHOTS}/101-accord-espace-client.png`, fullPage: true })
   await offers.click()
-  await page.getByText(/« Nouveautés et offres » refusé le/).waitFor()
+  await page.getByText(/« Nouveautés et offres » retiré le/).waitFor()
   const reminders = page.getByRole('switch', { name: /Rappels de resserrage/ })
   await reminders.click()
   await page.waitForFunction(() => document.querySelector('[role=switch]')?.getAttribute('aria-checked') === 'false')
@@ -71,6 +71,7 @@ async function login(page, email, pw) {
   await guest.getByLabel('Prénom *').fill('Ndèye')
   await guest.getByLabel('Nom *', { exact: true }).fill('Faye')
   await guest.getByLabel('Téléphone mobile *').fill('77 990 11 22')
+  await guest.getByLabel('Email (facultatif)').fill('ndeye.faye@example.test') // les offres partent par e-mail
   await guest.getByRole('checkbox', { name: /accepte les conditions de vente/ }).check()
   log(!(await guest.getByRole('checkbox', { name: MARKETING }).isChecked()), 'Commande : case des offres présente et décochée')
   await guest.getByRole('button', { name: 'Confirmer la commande' }).click()

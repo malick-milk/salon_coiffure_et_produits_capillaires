@@ -1,5 +1,5 @@
 /** Clients, équipe et rôles, journal d'audit (EF-ERP-05, 07 à 09) */
-import { useState, type FormEvent } from 'react'
+import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { useSearchParams } from 'react-router'
 import { Seo } from '@/components/common/Seo'
 import { QueryError } from '@/components/common/States'
@@ -22,6 +22,9 @@ export function CustomersPage() {
   const consent = useRecordMarketingConsent()
   const canConsent = useCan('customers.consent')
   const [confirming, setConfirming] = useState<AdminCustomer | null>(null)
+  const panel = useRef<HTMLElement>(null)
+  // Le panneau s'ouvre en haut de la page : on y amène le focus (clavier, lecteur d'écran), une seule fois à l'ouverture
+  useEffect(() => { if (confirming) panel.current?.focus() }, [confirming])
   const amounts = customers.data?.meta.can_see_amounts ?? false
   const [search, setSearch] = useState(filters.search ?? '')
   const update = (key: string, value: string) => {
@@ -46,7 +49,7 @@ export function CustomersPage() {
       </div>
       {consent.isError && <Feedback kind="error">{firstError(consent.error)}</Feedback>}
       {confirming && (
-        <section aria-labelledby="consent-title" className="flex max-w-2xl flex-col gap-2 rounded-2xl border border-[#fde68a] bg-[#fffbeb] p-4 text-sm">
+        <section aria-labelledby="consent-title" tabIndex={-1} ref={panel} className="flex max-w-2xl flex-col gap-2 rounded-2xl border border-[#fde68a] bg-[#fffbeb] p-4 text-sm outline-none">
           <h2 id="consent-title" className="font-semibold">Noter l’accord de {confirming.name}, donné au salon</h2>
           <p className="text-[#52525b]">À cocher seulement si la cliente a dit oui, aujourd’hui, devant vous. Votre nom et la date sont enregistrés.</p>
           <div className="flex flex-wrap gap-2.5">
@@ -98,7 +101,9 @@ function MarketingCell({ customer: c, onAsk }: { customer: AdminCustomer; onAsk?
     <span className="flex flex-col gap-1">
       <span>{m.status === 'yes' ? <Badge tone="success">Accepte</Badge> : m.status === 'withdrawn' ? <Badge tone="danger">Retiré</Badge> : <Badge tone="neutral">Non</Badge>}</span>
       {where && m.status !== 'no' && <span className="text-xs text-[#52525b]">{where}{m.at ? `, ${shortDay(m.at)}` : ''}</span>}
-      {m.status !== 'yes' && onAsk && <button type="button" onClick={onAsk} className="self-start text-xs font-semibold text-gold-text underline">Noter son accord donné au salon<span className="sr-only"> : {c.name}</span></button>}
+      {m.status !== 'yes' && onAsk && (c.email
+        ? <button type="button" onClick={onAsk} className="relative min-h-11 self-start text-left text-xs font-semibold text-gold-text underline">Noter son accord donné au salon<span className="sr-only"> : {c.name}</span></button>
+        : <span className="text-xs text-[#52525b]">Pas d’e-mail : pas d’offres possibles</span>)}
     </span>
   )
 }

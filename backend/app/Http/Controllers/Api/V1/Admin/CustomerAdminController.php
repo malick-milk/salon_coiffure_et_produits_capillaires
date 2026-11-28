@@ -47,7 +47,9 @@ class CustomerAdminController extends Controller
     /** « Elle accepte les offres par e-mail » : accord donné AU SALON, noté par la personne de la caisse (avec son nom) */
     public function recordMarketingConsent(Request $request, Customer $customer): JsonResponse
     {
-        abort_if($customer->marketing_consent, 422, 'Cette cliente a déjà accepté les offres.');
+        // Offres PAR E-MAIL : sans adresse, l'accord ne servirait à rien (et fausserait le compteur)
+        abort_if(! $customer->email, 422, 'Cette cliente n’a pas d’e-mail : ajoutez-le d’abord sur sa fiche.');
+        // Déjà accepté (double clic, autre poste) : on répond OK avec l'état actuel, sans nouvelle preuve
         MarketingConsent::record($customer, true, 'salon', $request->user());
 
         return response()->json(['data' => ['id' => $customer->id, 'marketing' => self::marketing($customer->fresh(['consents.recorder']))]]);
