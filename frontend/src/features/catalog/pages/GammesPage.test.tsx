@@ -47,4 +47,11 @@ describe('GammesPage', () => {
     renderPage([gamme('Gamme Locs', 13000, { stock_status: 'out_of_stock' })])
     expect(screen.queryByRole('button', { name: /Ajouter au panier/ })).not.toBeInTheDocument()
   })
+  it('« Pas sûre ? » n’apparaît que si le questionnaire peut proposer une gamme', () => {
+    const { unmount } = renderPage([gamme('Gamme complète', 15000)]) // adresse inconnue du questionnaire
+    expect(screen.queryByRole('button', { name: /Pas sûre/ })).not.toBeInTheDocument()
+    unmount()
+    renderPage([{ ...gamme('Gamme au coco', 15000), slug: 'gamme-au-coco' } as ProductSummary])
+    expect(screen.getByRole('button', { name: /Pas sûre/ })).toBeInTheDocument()
+  })
 })

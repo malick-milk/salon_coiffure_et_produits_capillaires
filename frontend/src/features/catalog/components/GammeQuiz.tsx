@@ -12,6 +12,7 @@ import { formatPrice } from '@/lib/format'
 import { cn } from '@/lib/utils'
 import type { ProductSummary } from '@/types/api'
 import { useProducts } from '../hooks'
+import { quizOptions } from '../quizOptions'
 
 export function GammeQuiz() {
   const gammes = useProducts({ category: 'gammes', sort: 'newest' })
@@ -20,9 +21,7 @@ export function GammeQuiz() {
   const [who, setWho] = useState<QuizChoice | null>(null)
   const [goal, setGoal] = useState<QuizChoice | null>(null)
 
-  const sellable = new Map((gammes.data?.data ?? []).filter((g) => g.is_bundle && g.stock_status !== 'out_of_stock').map((g) => [g.slug, g]))
-  const goals = quiz.goal.filter((c) => sellable.has(c.gamme))
-  const whos = quiz.who.filter((c) => (c.gamme ? sellable.has(c.gamme) : goals.length > 0))
+  const { sellable, goals, whos } = quizOptions(gammes.data?.data ?? [])
   if (whos.length === 0) return null // aucune gamme du questionnaire n'est en vente : on n'affiche rien
 
   const result: ProductSummary | undefined = who?.gamme ? sellable.get(who.gamme) : goal ? sellable.get(goal.gamme) : undefined

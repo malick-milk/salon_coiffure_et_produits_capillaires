@@ -21,6 +21,7 @@ import type { ProductSummary } from '@/types/api'
 import { GammeQuiz } from '../components/GammeQuiz'
 import { gammeFilters, GAMME_FILTERS } from '../gammeFilters'
 import { useProducts } from '../hooks'
+import { quizOptions } from '../quizOptions'
 
 export function GammesPage() {
   const gammes = useProducts({ category: 'gammes', sort: 'newest' })
@@ -39,10 +40,10 @@ export function GammesPage() {
           <h1 className="font-display text-[32px] font-semibold md:text-[44px]">Nos gammes</h1>
           <p className="mt-1.5 max-w-2xl text-[15px] text-[#c9c4b8] md:text-[17px]">Une routine complète, prête à l’emploi. Moins cher que les soins achetés séparément.</p>
         </div>
-        <button type="button" aria-expanded={quizOpen} onClick={() => setQuizOpen((o) => !o)}
+        {quizOptions(list).whos.length > 0 && <button type="button" aria-expanded={quizOpen} onClick={() => setQuizOpen((o) => !o)}
           className="min-h-11 shrink-0 rounded-full border border-gold px-5 text-sm font-semibold text-gold hover:bg-gold-soft md:text-[15px]">
           {quizOpen ? 'Fermer le questionnaire' : 'Pas sûre ? Quelle gamme pour moi'}
-        </button>
+        </button>}
       </div>
       {quizOpen && <div className="empty:hidden"><GammeQuiz /></div>}
 
