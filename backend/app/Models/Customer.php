@@ -76,7 +76,11 @@ class Customer extends Model
         return trim("{$this->first_name} {$this->last_name}");
     }
 
-    /** Preuves des accords et retraits pour les offres (customer_consents) @return \Illuminate\Database\Eloquent\Relations\HasMany<CustomerConsent, $this> */
+    /**
+     * Preuves des accords et retraits pour les offres (customer_consents)
+     *
+     * @return HasMany<CustomerConsent, $this>
+     */
     public function consents(): HasMany
     {
         return $this->hasMany(CustomerConsent::class);

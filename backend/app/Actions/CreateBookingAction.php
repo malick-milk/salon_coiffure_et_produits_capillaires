@@ -33,7 +33,7 @@ class CreateBookingAction
         private ReferenceGenerator $references,
     ) {}
 
-    /** @param array{service_id:int,stylist_id:?int,date:string,time:string,customer:array,notes:?string} $data */
+    /** @param array{service_id:int,stylist_id:?int,date:string,time:string,customer:array,notes:?string,marketing_consent?:bool} $data */
     public function execute(array $data, ?User $user): Booking
     {
         $service = Service::query()->active()->findOrFail($data['service_id']);

@@ -44,7 +44,7 @@ class PlaceOrderAction
         private PromotionService $promotions,
     ) {}
 
-    /** @param array{items:list<array{product_id:int,quantity:int}>,fulfillment_method:string,delivery_zone_id:?int,pickup_point_id?:?int,customer:array,shipping_address:?array,notes:?string} $data */
+    /** @param array{items:list<array{product_id:int,quantity:int}>,fulfillment_method:string,delivery_zone_id:?int,pickup_point_id?:?int,customer:array,shipping_address:?array,notes:?string,marketing_consent?:bool} $data */
     public function execute(array $data, ?User $user): Order
     {
         // Regrouper un produit envoyé deux fois

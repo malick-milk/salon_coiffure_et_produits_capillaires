@@ -80,7 +80,7 @@ class NotificationController extends Controller
     {
         $data = $request->validate(['resserrage_reminders' => ['sometimes', 'boolean'], 'marketing_email' => ['sometimes', 'boolean']]);
         $customer = $this->customer($request);
-        abort_unless($customer, 404, 'Aucune fiche cliente pour ce compte.');
+        abort_unless($customer !== null, 404, 'Aucune fiche cliente pour ce compte.');
         if (array_key_exists('resserrage_reminders', $data) && $customer->resserrage_opt_out === $data['resserrage_reminders']) {
             $customer->forceFill(['resserrage_opt_out' => ! $data['resserrage_reminders']])->save();
             activity('customers')->performedOn($customer)->causedBy($request->user())->event($data['resserrage_reminders'] ? 'resserrage_opt_in' : 'resserrage_opt_out')->log('resserrage reminders changed');
