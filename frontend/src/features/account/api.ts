@@ -1,5 +1,5 @@
 import { http } from '@/lib/http'
-import type { AccountNotification, CustomerBooking, OrderDetail, OrderSummary, User } from '@/types/api'
+import type { Preferences, AccountNotification, CustomerBooking, OrderDetail, OrderSummary, User } from '@/types/api'
 
 export const fetchMyOrders = async () => (await http.get<{ data: OrderSummary[] }>('/me/orders')).data.data
 export const fetchMyOrder = async (reference: string) => (await http.get<{ data: OrderDetail }>(`/me/orders/${encodeURIComponent(reference)}`)).data.data
@@ -14,3 +14,7 @@ type NotificationsPage = { data: AccountNotification[]; meta: { unread: number }
 export const fetchMyNotifications = async () => (await http.get<NotificationsPage>('/me/notifications')).data
 export const markMyNotificationsRead = async () => (await http.post('/me/notifications/read')).data
 export const snoozeMyNotification = async (id: string) => (await http.post(`/me/notifications/${encodeURIComponent(id)}/snooze`)).data
+
+export const fetchPreferences = async () => (await http.get<{ data: Preferences }>('/me/preferences')).data.data
+export const updatePreferences = async (body: Partial<Pick<Preferences, 'resserrage_reminders' | 'marketing_email'>>) =>
+  (await http.patch<{ data: Preferences }>('/me/preferences', body)).data.data

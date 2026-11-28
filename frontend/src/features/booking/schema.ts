@@ -19,6 +19,7 @@ export const contactSchema = z.object({
   email: z.union([z.literal(''), z.email('Adresse email invalide.')]),
   notes: z.string().max(500, '500 caractères maximum.'),
   consent: z.literal(true, { error: 'Votre accord est nécessaire pour enregistrer le rendez-vous.' }),
+  marketing_consent: z.boolean().optional(), // offres par e-mail : facultatif
 })
 
 export type ContactInput = z.input<typeof contactSchema>

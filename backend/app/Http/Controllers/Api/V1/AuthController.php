@@ -8,6 +8,7 @@ use App\Http\Requests\RegisterRequest;
 use App\Http\Resources\UserResource;
 use App\Models\Customer;
 use App\Models\User;
+use App\Services\Customers\MarketingConsent;
 use App\Support\Phone;
 use App\Support\SecurityLog;
 use Illuminate\Http\JsonResponse;
@@ -72,7 +73,10 @@ class AuthController extends Controller
             $customer = Customer::query()->where('phone', $data['phone'])->whereNull('user_id')->first();
             $customer
                 ? $customer->update(['user_id' => $user->id, 'email' => $data['email'] ?? $customer->email])
-                : Customer::create(['user_id' => $user->id, 'first_name' => $data['first_name'], 'last_name' => $data['last_name'] ?? null, 'phone' => $data['phone'], 'email' => $data['email'] ?? null]);
+                : $customer = Customer::create(['user_id' => $user->id, 'first_name' => $data['first_name'], 'last_name' => $data['last_name'] ?? null, 'phone' => $data['phone'], 'email' => $data['email'] ?? null]);
+            if (! empty($data['marketing_consent'])) {
+                MarketingConsent::record($customer, true, 'register');
+            }
 
             return $user;
         });

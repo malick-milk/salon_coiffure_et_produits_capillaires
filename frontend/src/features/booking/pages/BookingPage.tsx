@@ -124,6 +124,7 @@ export function BookingPage() {
         customer: { first_name: values.first_name, last_name: values.last_name, phone: values.phone, email: values.email || null },
         notes: values.notes || null,
         consent: values.consent,
+        marketing_consent: Boolean(values.marketing_consent),
       },
       {
         onSuccess: (confirmation) => dispatch({ type: 'confirmed', confirmation }),

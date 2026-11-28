@@ -20,6 +20,7 @@ export const checkoutSchema = z
     landmark: z.string().trim().max(255),
     notes: z.string().max(500),
     consent: z.literal(true, { error: 'Votre accord est nécessaire pour enregistrer la commande.' }),
+    marketing_consent: z.boolean().optional(), // offres par e-mail : facultatif
   })
   .superRefine((v, ctx) => {
     if (v.fulfillment_method === 'pickup_point' && !v.pickup_point_id) {

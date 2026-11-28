@@ -3,10 +3,10 @@ import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tansta
 import { http } from '@/lib/http'
 import type { BookingStatus, OrderStatus } from '@/types/api'
 import type {
-  AdminBooking, AdminCustomer, BrandOption, CategoryOption, AdminDeliveryZone, AdminPromotion, DeliveryOverview, NewBundle, NewProduct, NewPurchaseReceipt, ProductChanges, ProductHistoryEntry, PromotionInput, PromotionResults, PurchaseReceipt, AdminOrderDetail, AdminOrderRow, AdminProduct, AuditEntry, CostCategory, Dashboard,
+  AdminBooking, BrandOption, CategoryOption, AdminDeliveryZone, AdminPromotion, DeliveryOverview, NewBundle, NewProduct, NewPurchaseReceipt, ProductChanges, ProductHistoryEntry, PromotionInput, PromotionResults, PurchaseReceipt, AdminOrderDetail, AdminOrderRow, AdminProduct, AuditEntry, CostCategory, Dashboard,
   AdminPickupPoint, AdminSurvey, PageMeta, PickupPointDetail, PickupPointsIndex, StatementPreview, PaymentMethod, ProductionBatch, RoleWithPermissions, StaffRole, StaffUser, StockMovementRow, SurveyFilter, SurveyStats,
 } from '@/types/admin'
-import type { HrIndex, HrInput, HrOptions, HrSheet } from '@/types/admin'
+import type { CustomersPage, HrIndex, HrInput, HrOptions, HrSheet } from '@/types/admin'
 import type { Analytics, ExportDataset } from '@/types/analytics'
 
 type Page<T> = { data: T[]; meta: PageMeta }
@@ -34,8 +34,10 @@ export const useStockMovements = (productId: number | null) =>
 
 export const useBatches = () => useQuery({ queryKey: ['admin', 'batches'], queryFn: () => get<ProductionBatch[]>(`${A}/production-batches`) })
 
-export const useAdminCustomers = (filters: { search?: string; type?: string; page?: number }) =>
-  useQuery({ queryKey: ['admin', 'customers', filters], queryFn: () => getPage<AdminCustomer>(`${A}/customers`, filters), placeholderData: keepPreviousData })
+export const useAdminCustomers = (filters: { search?: string; type?: string; page?: number; marketing?: string }) =>
+  useQuery({ queryKey: ['admin', 'customers', filters], queryFn: async () => (await http.get<CustomersPage>(`${A}/customers`, { params: filters })).data, placeholderData: keepPreviousData })
+/** Accord aux offres donné AU SALON : noté avec le nom de la personne de la caisse */
+export const useRecordMarketingConsent = () => useAdminMutation((customerId: number) => http.post(`${A}/customers/${customerId}/marketing-consent`), [['admin', 'customers']])
 
 export const useStaff = () => useQuery({ queryKey: ['admin', 'users'], queryFn: () => get<StaffUser[]>(`${A}/users`) })
 export const useRoles = () => useQuery({ queryKey: ['admin', 'roles'], queryFn: () => get<RoleWithPermissions[]>(`${A}/roles`), staleTime: 10 * 60_000 })

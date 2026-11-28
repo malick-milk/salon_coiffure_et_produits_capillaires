@@ -2,6 +2,7 @@
  * Étape « Coordonnées » : formulaire géré par React Hook Form et validé par Zod.
  * React Hook Form évite de re-rendre toute la page à chaque lettre tapée (formulaires rapides).
  */
+import { MarketingConsentBox } from '@/components/common/MarketingConsentBox'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useEffect, useState } from 'react'
 import { useForm, type UseFormSetError } from 'react-hook-form'
@@ -40,7 +41,7 @@ export function ContactStep({ formId, onSubmit, onMissingChange }: {
   } = useForm<ContactInput, unknown, ContactValues>({
     shouldFocusError: false, // remplacé par onInvalidFocus : le 1er champ en erreur DANS L'ORDRE DE LA PAGE
     resolver: zodResolver(contactSchema),
-    defaultValues: { first_name: '', last_name: '', phone: '', email: '', notes: '', consent: false as unknown as true },
+    defaultValues: { first_name: '', last_name: '', phone: '', email: '', notes: '', consent: false as unknown as true, marketing_consent: false },
     mode: 'onTouched', // erreur affichée en quittant le champ, pas pendant la saisie
   })
 
@@ -103,6 +104,7 @@ export function ContactStep({ formId, onSubmit, onMissingChange }: {
         </label>
         {errors.consent && <p role="alert" className="text-sm font-medium text-[#f87171]">{errors.consent.message}</p>}
       </div>
+      <MarketingConsentBox {...register('marketing_consent')} />
     </form>
   )
 }

@@ -66,6 +66,8 @@ return [
     ],
 
     'attributes' => [
+        // Accord pour les offres (28 novembre 2026)
+        'marketing_consent' => 'l’accord pour les offres', 'marketing_email' => 'les nouveautés et offres', 'resserrage_reminders' => 'les rappels de resserrage', 'marketing' => 'le filtre des offres',
         // Contrats et RH (26 novembre 2026)
         'birth_date' => 'la date de naissance', 'address' => 'l’adresse', 'starts_on' => 'la date de début', 'id_number' => 'le numéro de pièce d’identité', 'ipres_number' => 'le numéro IPRES',
         'css_number' => 'le numéro de Caisse de sécurité sociale', 'user_id' => 'le compte ERP', 'stylist_id' => 'la fiche planning',

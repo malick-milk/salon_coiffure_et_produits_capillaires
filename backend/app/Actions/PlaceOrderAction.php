@@ -18,6 +18,7 @@ use App\Models\User;
 use App\Services\Catalog\MemberPriceService;
 use App\Services\Catalog\PromotionService;
 use App\Services\Customers\CustomerResolver;
+use App\Services\Customers\MarketingConsent;
 use App\Services\Inventory\StockService;
 use App\Services\PickupPoints\PickupPointService;
 use App\Services\Support\ReferenceGenerator;
@@ -84,6 +85,9 @@ class PlaceOrderAction
             $shippingFee = $threshold !== null && $subtotal >= $threshold ? 0 : ($zone->fee ?? 0);
             $address = $method === FulfillmentMethod::Delivery ? $data['shipping_address'] : null;
             $customer = $this->customers->resolve($user, $data['customer']);
+            if (! empty($data['marketing_consent'])) {
+                MarketingConsent::record($customer, true, 'order'); // case cochée : accord ; non cochée : rien ne change
+            }
 
             $order = Order::create([
                 'reference' => $this->references->next('order', 'CMD'),

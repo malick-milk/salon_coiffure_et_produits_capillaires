@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { ME_KEY, useMe } from '@/features/auth/hooks'
-import { cancelMyBooking, fetchMyBookings, fetchMyNotifications, fetchMyOrder, fetchMyOrders, markMyNotificationsRead, snoozeMyNotification, updateProfile } from './api'
+import { cancelMyBooking, fetchMyBookings, fetchPreferences, updatePreferences, fetchMyNotifications, fetchMyOrder, fetchMyOrders, markMyNotificationsRead, snoozeMyNotification, updateProfile } from './api'
 
 export const useMyOrders = () => useQuery({ queryKey: ['me', 'orders'], queryFn: fetchMyOrders })
 export const useMyOrder = (reference: string) => useQuery({ queryKey: ['me', 'orders', reference], queryFn: () => fetchMyOrder(reference) })
@@ -39,4 +39,15 @@ export function useMarkNotificationsRead() {
 export function useSnoozeNotification() {
   const qc = useQueryClient()
   return useMutation({ mutationFn: snoozeMyNotification, onSuccess: () => qc.invalidateQueries({ queryKey: ['me', 'notifications'] }) })
+}
+
+/** « Les messages que je reçois » : seulement si la personne est connectée */
+export function usePreferences() {
+  const { data: user } = useMe()
+  return useQuery({ queryKey: ['me', 'preferences'], queryFn: fetchPreferences, enabled: Boolean(user), staleTime: 60_000 })
+}
+
+export function useUpdatePreferences() {
+  const qc = useQueryClient()
+  return useMutation({ mutationFn: updatePreferences, onSuccess: (prefs) => qc.setQueryData(['me', 'preferences'], prefs) })
 }

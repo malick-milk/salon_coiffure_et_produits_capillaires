@@ -143,9 +143,12 @@ export interface AdminCustomer {
   has_account: boolean
   orders_count: number
   bookings_count: number
-  total_spent: Money
+  total_spent: Money | null // null pour la caisse (montants réservés à la gérante, 28 novembre 2026)
   since: string | null
+  marketing: { status: 'yes' | 'no' | 'withdrawn'; source: string | null; at: string | null; by: string | null }
 }
+
+export type CustomersPage = { data: AdminCustomer[]; meta: PageMeta & { marketing_total: number; can_see_amounts: boolean } }
 
 export type StaffRole = 'super_admin' | 'manager' | 'cashier' | 'stylist' | 'stock_keeper'
 

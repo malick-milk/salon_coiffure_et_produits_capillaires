@@ -28,6 +28,8 @@ class StoreBookingRequest extends FormRequest
             'customer.email' => ['nullable', 'email:rfc', 'max:191'],
             'notes' => ['nullable', 'string', 'max:500'],
             'consent' => ['accepted'],
+            // Offres par e-mail : case distincte, non cochée, FACULTATIVE (refuser n'empêche rien)
+            'marketing_consent' => ['sometimes', 'boolean'],
         ];
     }
 

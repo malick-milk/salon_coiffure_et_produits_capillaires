@@ -200,6 +200,8 @@ jobs:
         run: (cd backend && php artisan migrate:fresh --seed --force) && node frontend/e2e/parcours-moins-de-choix.cjs captures
       - name: Parcours contrats et RH (base remise à zéro)
         run: (cd backend && php artisan migrate:fresh --seed --force) && node frontend/e2e/parcours-rh.cjs captures
+      - name: Parcours accord pour les offres (base remise à zéro)
+        run: (cd backend && php artisan migrate:fresh --seed --force) && node frontend/e2e/parcours-accord.cjs captures
       - name: Concurrence et charge (base remise à zéro)
         run: (cd backend && php artisan migrate:fresh --seed --force) && node backend/tests/charge/concurrence.mjs
       - name: Captures d'écran et journaux (en cas d'échec, pour comprendre)

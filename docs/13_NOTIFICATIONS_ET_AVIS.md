@@ -162,3 +162,25 @@ php artisan db:seed --class=ReferenceDataSeeder
 | `tests/Unit/PhoneTest.php` | Format international des numéros (+221) |
 | `frontend/src/features/reviews/reviews.test.tsx` | Formulaire accessible (note obligatoire), envoi, message de rappel, lien expiré, affichage des avis |
 | `frontend/e2e/parcours-admin.cjs` (étape 7 bis) | Publier un avis avec une réponse, rappeler une cliente mécontente |
+
+
+## Accord pour les nouveautés et offres par e-mail (maquette validée le 28 novembre 2026)
+
+La loi sénégalaise n° 2008-12 demande, pour la prospection, un accord **préalable, distinct et prouvé**. Les confirmations, codes de retrait, factures et rappels de resserrage ne sont pas de la prospection : ils restent à part.
+
+| Règle | Où dans le code |
+|---|---|
+| Une case **distincte** de la politique de confidentialité, **non cochée**, **facultative** : à l'inscription, à la commande, à la réservation | `MarketingConsentBox.tsx` ; règle `marketing_consent` (`sometimes`, `boolean`) dans `RegisterRequest`, `StoreOrderRequest`, `StoreBookingRequest` |
+| Cochée : accord enregistré ; non cochée : **rien ne change** (une case vide ne retire jamais un accord donné ailleurs) | `MarketingConsent::record()` appelé seulement si la case est cochée |
+| Masquée pour une cliente connectée qui a déjà accepté | `usePreferences()` |
+| **Preuve** de chaque accord et de chaque retrait : date, endroit, personne de la caisse, version du texte | table `customer_consents` (jamais modifiée) ; état actuel dans `customers.marketing_consent` |
+| Le texte de la case est le même au serveur et au site | `MarketingConsent::TEXT` / `VERSION` et `src/content/consent.ts` : les changer ensemble |
+| Espace client, « Les messages que je reçois » : rappels de resserrage et offres, deux interrupteurs | `GET/PATCH /api/v1/me/preferences` ; `MessagePreferences` dans `AccountPages.tsx` |
+| Lien « Ne plus recevoir les offres » à mettre en bas de **chaque** e-mail d'offre : signé, sans connexion | `MarketingConsent::unsubscribeUrl($customer)` → page `/offres/desinscription/:customer` |
+| ERP Clients : colonne « Offres par e-mail » (accepte / non / retiré, où et quand), filtre « Acceptent les offres » | `CustomerAdminController` |
+| Accord donné **au salon** : noté par la caisse, avec son nom | `POST admin/customers/{id}/marketing-consent`, permission `customers.consent` (gérante, manager, caisse) |
+| La caisse voit les clientes **sans les montants dépensés** (retirés par le serveur, pas seulement cachés) | permission `customers.stats` (gérante et manager) |
+
+**Concept : l'état et la preuve.** `customers.marketing_consent` répond vite à « puis-je lui écrire ? ». La table `customer_consents` est un **journal en ajout seul** : on n'y modifie ni n'efface jamais une ligne. En cas de contrôle (CDP) ou de réclamation, on peut montrer quand, où et avec quel texte la cliente a dit oui, puis quand elle a dit non.
+
+Tests : `MarketingConsentTest.php` (case facultative, preuve, commande et réservation, espace client, lien signé, ERP et montants cachés), `MarketingConsentBox.test.tsx`, parcours `e2e/parcours-accord.cjs`.

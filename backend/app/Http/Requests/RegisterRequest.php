@@ -43,6 +43,8 @@ class RegisterRequest extends FormRequest
                 }
             }],
             'consent' => ['accepted'],
+            // Offres par e-mail : case distincte, non cochée, FACULTATIVE (refuser n'empêche rien)
+            'marketing_consent' => ['sometimes', 'boolean'],
         ];
     }
 

@@ -1,4 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod'
+import { MarketingConsentBox } from '@/components/common/MarketingConsentBox'
 import axios from 'axios'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
@@ -50,7 +51,7 @@ export function RegisterPage() {
     resolver: zodResolver(registerSchema),
     defaultValues: {
       first_name: prefill?.first_name ?? '', last_name: prefill?.last_name ?? '', email: prefill?.email ?? '', phone: prefill?.phone ?? '',
-      password: '', password_confirmation: '', consent: false as unknown as true,
+      password: '', password_confirmation: '', consent: false as unknown as true, marketing_consent: false,
     },
     mode: 'onTouched',
   })
@@ -99,6 +100,7 @@ export function RegisterPage() {
           </label>
           {errors.consent && <p role="alert" className="text-sm font-medium text-[#f87171]">{errors.consent.message}</p>}
         </div>
+        <MarketingConsentBox {...register('marketing_consent')} />
         {registerUser.isError && apiErrorStatus(registerUser.error) !== 422 && <p role="alert" className="text-sm text-[#f87171]">{apiErrorMessage(registerUser.error)}</p>}
         {submitCount > 0 && <MissingFieldsSummary items={missingFields(errors, REGISTER_LABELS)} />}
         <Button type="submit" disabled={registerUser.isPending}>{registerUser.isPending ? 'Création…' : 'Créer mon compte'}</Button>

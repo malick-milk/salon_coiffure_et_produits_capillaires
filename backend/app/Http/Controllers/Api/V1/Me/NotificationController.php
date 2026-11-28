@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V1\Me;
 use App\Http\Controllers\Controller;
 use App\Models\Booking;
 use App\Models\Customer;
+use App\Services\Customers\MarketingConsent;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Notifications\DatabaseNotification;
@@ -59,6 +60,49 @@ class NotificationController extends Controller
         activity('customers')->performedOn($customer)->event('resserrage_opt_out')->log('resserrage reminders disabled');
 
         return response()->json(['message' => 'Vous ne recevrez plus de rappels de resserrage.']);
+    }
+
+    /** Lien « Ne plus recevoir les offres » en bas de chaque e-mail d'offre : URL signée, sans connexion */
+    public function unsubscribeOffers(Customer $customer): JsonResponse
+    {
+        MarketingConsent::record($customer, false, 'email_link');
+
+        return response()->json(['message' => 'Vous ne recevrez plus nos nouveautés et offres par e-mail.']);
+    }
+
+    /** « Les messages que je reçois » (maquette du 28 novembre 2026) */
+    public function preferences(Request $request): JsonResponse
+    {
+        return response()->json(['data' => $this->preferencesOf($this->customer($request))]);
+    }
+
+    public function updatePreferences(Request $request): JsonResponse
+    {
+        $data = $request->validate(['resserrage_reminders' => ['sometimes', 'boolean'], 'marketing_email' => ['sometimes', 'boolean']]);
+        $customer = $this->customer($request);
+        abort_unless($customer, 404, 'Aucune fiche cliente pour ce compte.');
+        if (array_key_exists('resserrage_reminders', $data) && $customer->resserrage_opt_out === $data['resserrage_reminders']) {
+            $customer->forceFill(['resserrage_opt_out' => ! $data['resserrage_reminders']])->save();
+            activity('customers')->performedOn($customer)->causedBy($request->user())->event($data['resserrage_reminders'] ? 'resserrage_opt_in' : 'resserrage_opt_out')->log('resserrage reminders changed');
+        }
+        if (array_key_exists('marketing_email', $data)) {
+            MarketingConsent::record($customer, $data['marketing_email'], 'account');
+        }
+
+        return response()->json(['data' => $this->preferencesOf($customer->fresh())]);
+    }
+
+    /** @return array<string, mixed> */
+    private function preferencesOf(?Customer $customer): array
+    {
+        $last = $customer ? MarketingConsent::last($customer) : null;
+
+        return [
+            'resserrage_reminders' => $customer ? ! $customer->resserrage_opt_out : true,
+            'marketing_email' => (bool) $customer?->marketing_consent,
+            'marketing_text' => MarketingConsent::TEXT,
+            'last_change' => $last ? ['granted' => $last->granted, 'source' => $last->source, 'at' => $last->created_at?->format('Y-m-d\TH:i:s')] : null,
+        ];
     }
 
     private function customer(Request $request): ?Customer

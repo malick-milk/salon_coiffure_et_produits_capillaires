@@ -11,6 +11,7 @@ use App\Models\Stylist;
 use App\Models\User;
 use App\Services\Booking\AvailabilityService;
 use App\Services\Customers\CustomerResolver;
+use App\Services\Customers\MarketingConsent;
 use App\Services\Support\ReferenceGenerator;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\UniqueConstraintViolationException;
@@ -54,9 +55,14 @@ class CreateBookingAction
 
                 $start = CarbonImmutable::parse("{$data['date']} {$data['time']}", 'UTC');
 
+                $customer = $this->customers->resolve($user, $data['customer']);
+                if (! empty($data['marketing_consent'])) {
+                    MarketingConsent::record($customer, true, 'booking'); // case cochée : accord ; non cochée : rien ne change
+                }
+
                 return Booking::create([
                     'reference' => $this->references->next('booking', 'RDV'),
-                    'customer_id' => $this->customers->resolve($user, $data['customer'])->id,
+                    'customer_id' => $customer->id,
                     'service_id' => $service->id,
                     'stylist_id' => $slot['free_stylist_ids'][0], // « peu importe » : premier coiffeur libre
                     'source' => BookingSource::Online,

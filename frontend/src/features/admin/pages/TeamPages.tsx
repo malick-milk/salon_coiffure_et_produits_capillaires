@@ -7,18 +7,22 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useMe } from '@/features/auth/hooks'
-import { ROLE_LABELS } from '@/features/auth/permissions'
+import { ROLE_LABELS, useCan } from '@/features/auth/permissions'
 import { formatPrice } from '@/lib/format'
 import { apiErrorMessage } from '@/lib/http'
-import type { StaffRole } from '@/types/admin'
-import { useAdminCustomers, useAudit, useCreateStaff, useRoles, useStaff, useUpdateStaff } from '../api'
+import type { AdminCustomer, StaffRole } from '@/types/admin'
+import { useAdminCustomers, useAudit, useRecordMarketingConsent, useCreateStaff, useRoles, useStaff, useUpdateStaff } from '../api'
 import { AdminField, AdminInput, AdminSelect, Card, dateTime, Feedback, PageHeader, Table } from '../components/ui'
 import { firstError } from './OrdersPages'
 
 export function CustomersPage() {
   const [params, setParams] = useSearchParams()
-  const filters = { search: params.get('search') ?? undefined, type: params.get('type') ?? undefined, page: Number(params.get('page') ?? 1) }
+  const filters = { search: params.get('search') ?? undefined, type: params.get('type') ?? undefined, page: Number(params.get('page') ?? 1), marketing: params.get('marketing') ?? undefined }
   const customers = useAdminCustomers(filters)
+  const consent = useRecordMarketingConsent()
+  const canConsent = useCan('customers.consent')
+  const [confirming, setConfirming] = useState<AdminCustomer | null>(null)
+  const amounts = customers.data?.meta.can_see_amounts ?? false
   const [search, setSearch] = useState(filters.search ?? '')
   const update = (key: string, value: string) => {
     const next = new URLSearchParams(params)
@@ -31,7 +35,26 @@ export function CustomersPage() {
   return (
     <>
       <Seo title="ERP — Clients" />
-      <PageHeader title="Clients" subtitle="Inscrits et invités. « Dépensé » = commandes payées + prestations terminées (valeur vie client)." />
+      <PageHeader title="Clients" subtitle={amounts ? 'Inscrits et invités. « Dépensé » = commandes payées + prestations terminées (valeur vie client).' : 'Inscrits et invités.'} />
+      <div role="group" aria-label="Filtrer les clients" className="flex flex-wrap gap-2">
+        {[{ value: '', label: 'Toutes' }, { value: '1', label: `Acceptent les offres (${customers.data?.meta.marketing_total ?? '…'})` }].map((t) => (
+          <button key={t.value} type="button" aria-pressed={(filters.marketing ?? '') === t.value} onClick={() => update('marketing', t.value)}
+            className={(filters.marketing ?? '') === t.value ? 'min-h-10 rounded-full bg-ink px-4 text-sm font-semibold text-white' : 'min-h-10 rounded-full border border-[#d4d4d8] bg-white px-4 text-sm font-semibold'}>
+            {t.label}
+          </button>
+        ))}
+      </div>
+      {consent.isError && <Feedback kind="error">{firstError(consent.error)}</Feedback>}
+      {confirming && (
+        <section aria-labelledby="consent-title" className="flex max-w-2xl flex-col gap-2 rounded-2xl border border-[#fde68a] bg-[#fffbeb] p-4 text-sm">
+          <h2 id="consent-title" className="font-semibold">Noter l’accord de {confirming.name}, donné au salon</h2>
+          <p className="text-[#52525b]">À cocher seulement si la cliente a dit oui, aujourd’hui, devant vous. Votre nom et la date sont enregistrés.</p>
+          <div className="flex flex-wrap gap-2.5">
+            <Button variant="dark" size="sm" disabled={consent.isPending} onClick={() => consent.mutate(confirming.id, { onSuccess: () => setConfirming(null) })}>Elle accepte les offres par e-mail</Button>
+            <Button variant="subtle" size="sm" onClick={() => setConfirming(null)}>Annuler</Button>
+          </div>
+        </section>
+      )}
       <Card>
         <form role="search" className="flex flex-wrap items-end gap-3" onSubmit={(e) => { e.preventDefault(); update('search', search.trim()) }}>
           <div className="min-w-56 flex-1"><AdminField label="Rechercher (nom, téléphone, email)" htmlFor="c-search"><AdminInput id="c-search" type="search" value={search} onChange={(e) => setSearch(e.target.value)} /></AdminField></div>
@@ -44,15 +67,16 @@ export function CustomersPage() {
         </form>
         {customers.isError ? <QueryError message={apiErrorMessage(customers.error)} onRetry={() => customers.refetch()} />
           : customers.isPending ? <Skeleton className="h-60 bg-[#e4e4e7]" /> : (
-            <Table head={['Client', 'Contact', 'Compte', 'Commandes', 'RDV', 'Dépensé', 'Depuis']} minWidth={760}>
+            <Table head={['Client', 'Contact', 'Compte', 'Offres par e-mail', 'Commandes', 'RDV', ...(amounts ? ['Dépensé'] : []), 'Depuis']} minWidth={900}>
               {customers.data.data.map((c) => (
                 <tr key={c.id}>
                   <td className="font-semibold">{c.name}{c.type === 'reseller' && <> <Badge tone="info">Revendeur</Badge></>}</td>
                   <td>{c.phone}{c.email && <><br /><span className="text-xs text-[#52525b]">{c.email}</span></>}</td>
                   <td>{c.has_account ? 'Inscrit' : 'Invité'}</td>
+                  <td><MarketingCell customer={c} onAsk={canConsent ? () => setConfirming(c) : undefined} /></td>
                   <td>{c.orders_count}</td>
                   <td>{c.bookings_count}</td>
-                  <td className="font-semibold whitespace-nowrap">{formatPrice(c.total_spent)}</td>
+                  {amounts && <td className="font-semibold whitespace-nowrap">{c.total_spent === null ? '—' : formatPrice(c.total_spent)}</td>}
                   <td>{c.since ?? '—'}</td>
                 </tr>
               ))}
@@ -60,6 +84,22 @@ export function CustomersPage() {
           )}
       </Card>
     </>
+  )
+}
+
+const CONSENT_SOURCE: Record<string, string> = { register: 'inscription', order: 'commande', booking: 'réservation', salon: 'au salon', account: 'espace client', email_link: 'par e-mail' }
+const shortDay = (iso: string | null) => (iso ? new Date(`${iso}T12:00:00`).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' }) : '')
+
+/** Accord aux offres : état + preuve (où, quand, qui à la caisse) ; « Noter son accord donné au salon » */
+function MarketingCell({ customer: c, onAsk }: { customer: AdminCustomer; onAsk?: () => void }) {
+  const m = c.marketing
+  const where = m.source ? (m.source === 'salon' && m.by ? `au salon (${m.by.split(' ')[0]})` : CONSENT_SOURCE[m.source] ?? m.source) : null
+  return (
+    <span className="flex flex-col gap-1">
+      <span>{m.status === 'yes' ? <Badge tone="success">Accepte</Badge> : m.status === 'withdrawn' ? <Badge tone="danger">Retiré</Badge> : <Badge tone="neutral">Non</Badge>}</span>
+      {where && m.status !== 'no' && <span className="text-xs text-[#52525b]">{where}{m.at ? `, ${shortDay(m.at)}` : ''}</span>}
+      {m.status !== 'yes' && onAsk && <button type="button" onClick={onAsk} className="self-start text-xs font-semibold text-gold-text underline">Noter son accord donné au salon<span className="sr-only"> : {c.name}</span></button>}
+    </span>
   )
 }
 

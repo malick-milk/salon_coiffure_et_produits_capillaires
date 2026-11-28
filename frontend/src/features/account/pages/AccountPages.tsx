@@ -20,9 +20,9 @@ import { formatDuration, formatLongDate, formatPrice, fulfillmentLabel } from '@
 import { useRebuy } from '../rebuy'
 import { daysFromToday } from '@/lib/resserrage'
 import { apiErrorMessage, apiErrorStatus, type ValidationErrorBody } from '@/lib/http'
-import type { AccountNotification, CustomerBooking, OrderSummary } from '@/types/api'
+import type { AccountNotification, CustomerBooking, OrderSummary, Preferences } from '@/types/api'
 import { ResserrageCard } from '../components/ResserrageCard'
-import { useCancelBooking, useMarkNotificationsRead, useMyBookings, useMyNotifications, useMyOrder, useMyOrders, useUpdateProfile } from '../hooks'
+import { useCancelBooking, useMarkNotificationsRead, useMyBookings, useMyNotifications, useMyOrder, useMyOrders, usePreferences, useUpdatePreferences, useUpdateProfile } from '../hooks'
 
 const shortDate = (iso: string) => new Intl.DateTimeFormat('fr-FR', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' }).format(new Date(`${iso.slice(0, 19)}Z`))
 const time = (iso: string) => iso.slice(11, 16)
@@ -379,6 +379,55 @@ export function ProfilePage() {
           </div>
         </form>
       </Card>
+      <MessagePreferences />
     </div>
+  )
+}
+
+const SOURCE_LABEL: Record<NonNullable<Preferences['last_change']>['source'], string> = {
+  register: 'inscription sur le site', order: 'commande sur le site', booking: 'réservation sur le site', salon: 'au salon', account: 'espace client', email_link: 'lien de l’e-mail',
+}
+
+/** « Les messages que je reçois » (maquette validée le 28 novembre 2026) : la cliente choisit, et peut retirer son accord */
+function MessagePreferences() {
+  const prefs = usePreferences()
+  const update = useUpdatePreferences()
+  if (prefs.isError) return <QueryError message={apiErrorMessage(prefs.error)} onRetry={() => prefs.refetch()} />
+  if (prefs.isPending) return <Skeleton className="h-48" />
+  const p = prefs.data
+  const last = p.last_change
+  return (
+    <Card>
+      <section aria-labelledby="messages-title" className="flex flex-col gap-3">
+        <h2 id="messages-title" className="font-display text-2xl font-semibold">Les messages que je reçois</h2>
+        <Toggle label="Rappels de resserrage" hint="Par e-mail et dans mes notifications, 7 jours avant la date conseillée"
+          checked={p.resserrage_reminders} disabled={update.isPending} onChange={(v) => update.mutate({ resserrage_reminders: v })} />
+        <Toggle label="Nouveautés et offres" hint="Par e-mail, 2 par mois au plus"
+          checked={p.marketing_email} disabled={update.isPending} onChange={(v) => update.mutate({ marketing_email: v })} />
+        <div className="flex flex-col gap-1 rounded-[14px] border border-ink-line p-3.5 text-sm text-[#c9c4b8]">
+          <strong className="text-ivory">Toujours envoyés</strong>
+          Confirmations de commande et de rendez-vous, code de retrait, factures : ils sont nécessaires au service.
+        </div>
+        {update.isError && <p role="alert" className="text-sm text-[#f87171]">{apiErrorMessage(update.error)}</p>}
+        {last && (
+          <p role="status" className="text-[13px] text-muted">
+            « Nouveautés et offres » {last.granted ? 'accepté' : 'refusé'}{last.at ? ` le ${formatLongDate(last.at.slice(0, 10))}` : ''} ({SOURCE_LABEL[last.source]}).
+          </p>
+        )}
+      </section>
+    </Card>
+  )
+}
+
+/** Interrupteur accessible : un vrai bouton « switch », lu « activé / désactivé » par les lecteurs d'écran */
+function Toggle({ label, hint, checked, disabled, onChange }: { label: string; hint: string; checked: boolean; disabled?: boolean; onChange: (v: boolean) => void }) {
+  return (
+    <button type="button" role="switch" aria-checked={checked} disabled={disabled} onClick={() => onChange(!checked)}
+      className="flex min-h-14 items-center justify-between gap-3 rounded-[14px] border border-ink-line p-3.5 text-left disabled:opacity-60">
+      <span className="flex flex-col"><span className="text-[15px] text-ivory">{label}</span><span className="text-xs text-muted">{hint}</span></span>
+      <span aria-hidden="true" className={`relative h-7 w-12 shrink-0 rounded-full transition-colors ${checked ? 'bg-gold' : 'bg-[#3a3a3a]'}`}>
+        <span className={`absolute top-[3px] size-[22px] rounded-full bg-white transition-all ${checked ? 'right-[3px]' : 'left-[3px]'}`} />
+      </span>
+    </button>
   )
 }

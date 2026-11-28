@@ -63,6 +63,9 @@ Route::prefix('v1')->middleware('throttle:api')->group(function () {
     // Désinscription des rappels de resserrage : lien SIGNÉ reçu par e-mail (impossible de viser une autre cliente)
     Route::post('reminders/unsubscribe/{customer}', [NotificationController::class, 'unsubscribe'])
         ->middleware(['signed:relative', 'throttle:checkout'])->name('reminders.unsubscribe');
+    // Lien en bas des e-mails d'offres (28 novembre 2026) : retrait de l'accord en un clic, sans connexion
+    Route::post('offers/unsubscribe/{customer}', [NotificationController::class, 'unsubscribeOffers'])
+        ->middleware(['signed:relative', 'throttle:checkout'])->name('offers.unsubscribe');
 
     // Authentification (la limite des 5 essais est gérée dans le contrôleur, par email + IP)
     Route::post('auth/login', [AuthController::class, 'login']);
@@ -84,6 +87,8 @@ Route::prefix('v1')->middleware('throttle:api')->group(function () {
         Route::get('me/notifications', [NotificationController::class, 'index']);
         Route::post('me/notifications/read', [NotificationController::class, 'markAllRead']);
         Route::post('me/notifications/{id}/snooze', [NotificationController::class, 'snooze'])->whereUuid('id');
+        Route::get('me/preferences', [NotificationController::class, 'preferences']);
+        Route::patch('me/preferences', [NotificationController::class, 'updatePreferences']);
         Route::get('me/orders/{reference}/invoice', [InvoiceController::class, 'forCustomer']);
 
         /*
@@ -141,6 +146,7 @@ Route::prefix('v1')->middleware('throttle:api')->group(function () {
             Route::post('purchase-receipts', [PurchaseReceiptAdminController::class, 'store'])->middleware('permission:purchases.manage');
 
             Route::get('customers', [CustomerAdminController::class, 'index'])->middleware('permission:customers.view');
+            Route::post('customers/{customer}/marketing-consent', [CustomerAdminController::class, 'recordMarketingConsent'])->middleware('permission:customers.consent');
 
             Route::middleware('permission:users.manage')->group(function () {
                 Route::get('users', [TeamAdminController::class, 'users']);

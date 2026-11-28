@@ -28,6 +28,7 @@ export const registerSchema = z
       .regex(/\d/, 'Au moins un chiffre.'),
     password_confirmation: z.string(),
     consent: z.literal(true, { error: 'Votre accord est nécessaire pour créer un compte.' }),
+    marketing_consent: z.boolean().optional(), // offres par e-mail : facultatif
   })
   // Règles qui portent sur PLUSIEURS champs : sur l'objet, en indiquant le champ où afficher l'erreur
   .refine((v) => v.password === v.password_confirmation, { path: ['password_confirmation'], message: 'Les mots de passe ne correspondent pas.' })

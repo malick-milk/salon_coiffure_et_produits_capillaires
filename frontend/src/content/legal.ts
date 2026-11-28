@@ -128,7 +128,7 @@ export const legalPages: LegalPage[] = [
   {
     slug: 'confidentialite',
     title: 'Politique de confidentialité',
-    updated: '25 novembre 2026',
+    updated: '28 novembre 2026',
     intro: 'Nous ne demandons que ce qui sert à traiter vos commandes et vos rendez-vous. Nous ne vendons jamais vos données.',
     sections: [
       {
@@ -142,6 +142,7 @@ export const legalPages: LegalPage[] = [
           '• Adresse de livraison : uniquement pour vous livrer.',
           '• Historique de commandes et de rendez-vous : pour votre espace client, vos factures et les rappels de resserrage.',
           '• Votre avis : publié seulement si vous avez coché la case, sous votre prénom et l’initiale de votre nom.',
+          '• Nouveautés et offres par e-mail : seulement si vous avez coché la case prévue (facultative, jamais cochée d’avance), à l’inscription, à la commande, à la réservation ou au salon. 2 e-mails par mois au plus. Nous gardons la preuve de votre accord (date, endroit, texte accepté).',
           '• Mot de passe : enregistré chiffré ; personne au salon ne peut le lire.',
         ],
       },
@@ -160,13 +161,15 @@ export const legalPages: LegalPage[] = [
           '• Compte client : tant qu’il est utilisé ; sur simple demande, nous le supprimons.',
           '• Commandes et factures : [À COMPLÉTER : durée légale de conservation des pièces comptables, ex. 10 ans].',
           '• Rapports d’erreurs techniques : 90 jours, sans données personnelles (e-mails et téléphones masqués).',
+          '• Preuve de votre accord aux offres : tant que vous les recevez, puis [À COMPLÉTER : durée après le retrait, ex. 3 ans].',
         ],
       },
       {
         title: 'Vos droits',
         paragraphs: [
           'Vous pouvez consulter, corriger ou faire supprimer vos données, et vous opposer aux rappels : écrivez à ' + EMAIL + ' ou appelez le ' + PHONE + '. Nous répondons sous 30 jours.',
-          'Chaque e-mail de rappel contient un lien pour ne plus en recevoir.',
+          'Chaque e-mail de rappel ou d’offre contient un lien pour ne plus en recevoir. Dans votre espace client, la rubrique « Les messages que je reçois » permet aussi de tout arrêter, ou de changer d’avis, à tout moment.',
+          'Les confirmations de commande et de rendez-vous, les codes de retrait et les factures sont toujours envoyés : ils sont nécessaires au service.',
           'Vous pouvez aussi saisir la Commission de protection des données personnelles (CDP), www.cdp.sn.',
         ],
       },

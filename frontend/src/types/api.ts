@@ -161,6 +161,7 @@ export interface BookingRequest {
   customer: { first_name: string; last_name: string; phone: string; email: string | null }
   notes: string | null
   consent: boolean
+  marketing_consent?: boolean // offres par e-mail : case facultative (28 novembre 2026)
 }
 
 export interface BookingConfirmation {
@@ -199,6 +200,7 @@ export interface RegisterRequest {
   password: string
   password_confirmation: string
   consent: boolean
+  marketing_consent?: boolean // offres par e-mail : case facultative (28 novembre 2026)
 }
 
 // ---------- Commandes ----------
@@ -240,6 +242,7 @@ export interface CheckoutRequest {
   shipping_address: ShippingAddress | null
   notes: string | null
   consent: boolean
+  marketing_consent?: boolean // offres par e-mail : case facultative (28 novembre 2026)
 }
 
 /** Erreur 409 de stock : quels produits posent problème et combien il en reste */
@@ -351,4 +354,12 @@ export interface AccountNotification {
   done_on?: string
   advised_on?: string
   resserrage?: { slug: string; name: string; price: Money; duration_minutes: number }
+}
+
+// ---------- Les messages que je reçois (28 novembre 2026) ----------
+export interface Preferences {
+  resserrage_reminders: boolean
+  marketing_email: boolean
+  marketing_text: string
+  last_change: { granted: boolean; source: 'register' | 'order' | 'booking' | 'salon' | 'account' | 'email_link'; at: string | null } | null
 }

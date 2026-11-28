@@ -3,6 +3,7 @@
  * Le navigateur n'envoie que des identifiants de produits et des quantités : le serveur
  * recalcule prix, frais et total (RG-COM-04) et vérifie le stock (RG-STK-01).
  */
+import { MarketingConsentBox } from '@/components/common/MarketingConsentBox'
 import { zodResolver } from '@hookform/resolvers/zod'
 import axios from 'axios'
 import { Check, MapPin, Store, Truck } from 'lucide-react'
@@ -60,7 +61,7 @@ export function CheckoutPage() {
     resolver: zodResolver(checkoutSchema),
     defaultValues: {
       fulfillment_method: 'pickup', delivery_zone_id: '', pickup_point_id: '', first_name: '', last_name: '', phone: '', email: '',
-      city: 'Dakar', district: '', address_line: '', landmark: '', notes: '', consent: false as unknown as true,
+      city: 'Dakar', district: '', address_line: '', landmark: '', notes: '', consent: false as unknown as true, marketing_consent: false,
     },
     mode: 'onTouched',
   })
@@ -98,6 +99,7 @@ export function CheckoutPage() {
         shipping_address: v.fulfillment_method === 'delivery' ? { city: v.city, district: v.district || null, address_line: v.address_line, landmark: v.landmark || null } : null,
         notes: v.notes || null,
         consent: v.consent,
+        marketing_consent: Boolean(v.marketing_consent),
       },
       {
         onSuccess: (order) => {
@@ -221,6 +223,7 @@ export function CheckoutPage() {
                 </label>
                 {errors.consent && <p role="alert" className="text-sm font-medium text-[#f87171]">{errors.consent.message}</p>}
               </div>
+              <MarketingConsentBox {...register('marketing_consent')} />
             </fieldset>
           </form>
 
