@@ -107,7 +107,8 @@ const log = (ok, msg) => { if (!ok) failures++; console.log(`${ok ? 'OK  ' : 'FA
   await page.getByLabel('Prénom *').fill('Mariama')
   await page.getByLabel('Nom *', { exact: true }).fill('Sow')
   await page.getByLabel('Téléphone mobile *').fill('77 123 45 67')
-  await page.getByRole('checkbox').check()
+  // Deux cases depuis le 28 novembre 2026 (données obligatoire, offres facultative) : viser la case obligatoire
+  await page.getByRole('checkbox', { name: /^J.accepte que mes données/ }).check()
   await page.getByRole('button', { name: 'Envoyer la demande' }).click()
   await page.getByText('Demande de rendez-vous envoyée').waitFor()
   const ref = await page.getByText(/RDV-2026-\d{6}/).textContent()
